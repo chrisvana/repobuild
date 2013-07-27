@@ -27,7 +27,8 @@ void BuildFile::Parse(const std::string& input) {
   Json::Reader reader;
   bool ok = reader.parse(input, root);
   if (!ok) {
-    LOG(FATAL) << "Reader error: " << reader.getFormattedErrorMessages();
+    LOG(FATAL) << "Reader error: "
+               << reader.getFormattedErrorMessages();
   }
   CHECK(root.isArray()) << root;
 

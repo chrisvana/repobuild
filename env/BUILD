@@ -2,7 +2,7 @@
  { "cc_library": {
      "name" : "input",
      "cc_sources" : [ "input.cc" ],
-     "cc_headers" : [ "input.h" ],
+     "cc_headers" : [ "input.h" ]
    }
  },
 
@@ -12,8 +12,8 @@
      "cc_headers" : [ "target.h" ],
      "dependencies": [
        "//common/log:log",
-       "//common/strings:path",
-     ],
+       "//common/strings:path"
+     ]
    }
  }
 ]

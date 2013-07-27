@@ -13,6 +13,7 @@ namespace repobuild {
 
 class BuildFile;
 class BuildFileNode;
+class Input;
 
 class Node {
  public:
@@ -27,11 +28,22 @@ class Node {
 
   // Virtual interface.
   virtual std::string Name() const = 0;
+  virtual void WriteMakefile(const Input& input,
+                             const std::vector<const Node*>& all_deps,
+                             std::string* out) const = 0;
   virtual void Parse(const BuildFile& file, const BuildFileNode& input);
+  virtual void DependencyFiles(std::vector<std::string>* files) const {}
+  virtual void ObjectFiles(std::vector<std::string>* files) const {}
 
   // Accessors.
   const TargetInfo& target() const { return *target_; }
   const std::vector<TargetInfo*> dependencies() const { return dependencies_; }
+
+ protected:
+  // Helper.
+  static void ParseRepeatedString(const BuildFileNode& input,
+                                  const std::string& key,
+                                  std::vector<std::string>* output);
 
  private:
   std::unique_ptr<TargetInfo> target_;

@@ -1,6 +1,5 @@
-# Test objects
 [
- { "json": {
+ { "cc_library": {
      "name" : "json",
      "cc_sources" : [ "json/src/lib_json/json_reader.cpp",
                       "json/src/lib_json/json_value.cpp",
@@ -15,7 +14,7 @@
                       "json/include/json/value.h",
                       "json/include/json/writer.h"
      ],
-     cc_include_path: [ "json/include" ]
+     "cc_include_path": [ "json/include" ]
    }
- },
+ }
 ]

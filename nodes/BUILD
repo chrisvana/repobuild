@@ -1,9 +1,9 @@
 [
  { "cc_library": {
-     "name" : "nodes",
+     "name" : "node",
      "cc_sources" : [ "nodes.cc" ],
      "cc_headers" : [ "nodes.h" ],
-     "dependencies": [ "//common/log:log", "//reader:buildfile" ],
+     "dependencies": [ "//common/log:log", "//reader:buildfile" ]
    }
  },
 
@@ -11,7 +11,10 @@
      "name" : "cc_library",
      "cc_sources" : [ "cc_library.cc" ],
      "cc_headers" : [ "cc_library.h" ],
-     "dependencies": [ "//common/log:log", ":nodes" ],
+     "dependencies": [ "//common/log:log",
+                       "//common/strings:path",
+                       ":nodes"
+      ]
    }
  },
 
@@ -19,7 +22,10 @@
      "name" : "cc_binary",
      "cc_sources" : [ "cc_binary.cc" ],
      "cc_headers" : [ "cc_binary.h" ],
-     "dependencies": [ "//common/log:log", ":cc_library" ],
+     "dependencies": [ "//common/log:log",
+                       "//common/strings:path",
+                       ":nodes"
+      ]
    }
  },
 

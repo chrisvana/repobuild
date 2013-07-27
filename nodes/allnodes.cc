@@ -22,7 +22,8 @@ class NodeBuilderImpl : public NodeBuilder {
 };
 }
 
-void GetAll(std::vector<NodeBuilder*>* nodes) {
+// static
+void NodeBuilder::GetAll(std::vector<NodeBuilder*>* nodes) {
   nodes->push_back(new NodeBuilderImpl<CCLibraryNode>("cc_library"));
   nodes->push_back(new NodeBuilderImpl<CCBinaryNode>("cc_binary"));
 }

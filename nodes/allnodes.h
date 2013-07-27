@@ -11,11 +11,12 @@ namespace repobuild {
 
 class NodeBuilder {
  public:
+  virtual ~NodeBuilder() {}
   virtual std::string Name() const = 0;
   virtual Node* NewNode(const TargetInfo& target) = 0;
-};
 
-void GetAll(std::vector<NodeBuilder*>* nodes);
+  static void GetAll(std::vector<NodeBuilder*>* nodes);
+};
 
 }  // namespace repobuild
 

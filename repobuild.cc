@@ -1,14 +1,18 @@
 // Copyright 2013
 // Author: Christopher Van Arsdale
 
+#include <iostream>
+#include "common/base/init.h"
+#include "common/log/log.h"
 #include "env/input.h"
-#include "generator/parser.h"
+#include "generator/generator.h"
 
 int main(int argc, const char** argv) {
+  InitProgram();
   repobuild::Input input("",  "obj_tmp");
   for (int i = 1; i < argc; ++i) {
     input.AddBuildTarget(argv[i]);
   }
-  repobuild::Parser parser;
-  parser.Parse(input);
+  repobuild::Generator generator;
+  std::cout << generator.GenerateMakefile(input) << std::endl;
 }
