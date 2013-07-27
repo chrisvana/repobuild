@@ -1,12 +1,11 @@
 [
- { "config": {
-   "base_dir": "."
- } },
-
  { "cc_binary": {
-   "cc_sources: [ "repobuild.cc" ],
-   "dependencies": [ "//env:input",
-                     "//generator:parser"
+   "name": "repobuild",
+   "cc_sources": [ "repobuild.cc" ],
+   "dependencies": [ "//common/base:init",
+                     "//common/log:log",
+                     "//env:input",
+                     "//generator:generator"
                    ]
    }
  }
