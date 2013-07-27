@@ -12,11 +12,13 @@ function run() {
 }
 
 ls common/strings/re2/*.cc common/*/*.cc | run -I.
-#ls env/*.cc | run -I.
-#ls json/src/lib_json/*.cpp | run -Ijson/include
-#ls reader/*.cc | run -I.
-#ls generator/*.cc | run -I.
-#ls repobuild.cc | run -I.
+ls env/*.cc | run -I.
+ls json/src/lib_json/*.cpp | run -Ijson/include
+ls reader/*.cc | run -I.
+ls nodes/*.cc | run -I.
+ls generator/*.cc | run -I.
+ls repobuild.cc | run -I.
+
 #
-#files=$(find objs | grep '\.o')
-#$CC $files -o repobuild
+files=$(find objs | grep '\.o')
+$CC $files -o repobuild

@@ -1,16 +1,13 @@
 [
  { "cc_library": {
-     "name" : "parser",
-     "cc_sources" : [ "parser.cc" ],
-     "cc_headers" : [ "parser.h" ],
+     "name" : "generator",
+     "cc_sources" : [ "generator.cc" ],
+     "cc_headers" : [ "generator.h" ],
      "dependencies": [ "//common/log:log",
-                       "//common/file:fileutil",
-                       "//common/strings:path",
                        "//env:input",
-                       "//nodes:allnodes",
-                       "//jsonxx:jsonxx",
-                       "//reader:buildfile",
+                       "//nodes:node",
+                       "//reader:parser"
      ]
    }
- },
+ }
 ]
