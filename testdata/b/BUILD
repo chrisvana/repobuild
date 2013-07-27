@@ -1,4 +1,4 @@
-# Test objects
+// Test objects
 [
  { "cc_library": {
      "name" : "foo_pred_b",
