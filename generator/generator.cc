@@ -24,7 +24,10 @@ void GetFullDepList(const Parser& parser,
   for (int i = 0; i < node->dependencies().size(); ++i) {
     const string& target = node->dependencies()[i]->full_path();
     const Node* dep = parser.GetNode(target);
-    CHECK(dep) << "Could not find dependency: " << target;
+    if (dep == NULL) {
+      LOG(FATAL) << "Could not find dependency: " << target
+                 << " from target " << node->target().full_path();
+    }
     if (parents->find(dep) != parents->end()) {
       LOG(FATAL) << "Recursive dependency: "
                  << target;

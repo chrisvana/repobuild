@@ -12,7 +12,7 @@
      "cc_headers" : [ "target.h" ],
      "dependencies": [
        "//common/log:log",
-       "//common/strings:path"
+       "//common/strings:strutil"
      ]
    }
  }

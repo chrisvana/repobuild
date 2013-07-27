@@ -11,9 +11,9 @@ function run() {
     done
 }
 
-ls common/strings/re2/*.cc common/*/*.cc | run -I.
+ls common/*/*/*.cc common/*/*.cc | grep -v "_test" | run -I.
 ls env/*.cc | run -I.
-ls json/src/lib_json/*.cpp | run -Ijson/include
+ls json/*.cpp | run -I.
 ls reader/*.cc | run -I.
 ls nodes/*.cc | run -I.
 ls generator/*.cc | run -I.

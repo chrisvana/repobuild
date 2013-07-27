@@ -7,6 +7,7 @@
 #include <vector>
 #include "common/log/log.h"
 #include "common/strings/path.h"
+#include "env/input.h"
 #include "nodes/cc_library.h"
 #include "reader/buildfile.h"
 
@@ -42,12 +43,12 @@ void CCLibraryNode::WriteMakefile(const Input& input,
   set<string> input_files;
   for (int i = 0; i < all_deps.size(); ++i) {
     vector<string> files;
-    all_deps[i]->DependencyFiles(&files);
+    all_deps[i]->DependencyFiles(input, &files);
     for (const string& it : files) { input_files.insert(it); }
   }
   {
     vector<string> files;
-    DependencyFiles(&files);
+    DependencyFiles(input, &files);
     for (const string& it : files) { input_files.insert(it); }
     for (const string& it : headers_) { input_files.insert(it); }
   }
@@ -55,7 +56,7 @@ void CCLibraryNode::WriteMakefile(const Input& input,
   // Now write phases, one per .cc
   for (int i = 0; i < sources_.size(); ++i) {
     // Output object.
-    string obj = strings::JoinPath("obj", sources_[i] + ".o");
+    string obj = strings::JoinPath(input.object_dir(), sources_[i] + ".o");
     out->append(obj + ":");
 
     // Dependencies.
@@ -74,6 +75,8 @@ void CCLibraryNode::WriteMakefile(const Input& input,
     // Compile command.
     out->append(
         "; clang++ -std=c++11 -stdlib=libc++ -pthread -DUSE_CXX0X -g -c");
+    out->append(" -I");
+    out->append(input.root_dir());
     for (int j = 0; j < cc_compile_args_.size(); ++j) {
       out->append(" ");
       out->append(cc_compile_args_[j]);
@@ -89,17 +92,20 @@ void CCLibraryNode::WriteMakefile(const Input& input,
   }
 }
 
-void CCLibraryNode::DependencyFiles(vector<string>* files) const {
-  Node::DependencyFiles(files);
+void CCLibraryNode::DependencyFiles(const Input& input,
+                                    vector<string>* files) const {
+  Node::DependencyFiles(input, files);
   for (int i = 0; i < headers_.size(); ++i) {
     files->push_back(headers_[i]);
   }
 }
 
-void CCLibraryNode::ObjectFiles(vector<string>* files) const {
-  Node::ObjectFiles(files);
+void CCLibraryNode::ObjectFiles(const Input& input,
+                                vector<string>* files) const {
+  Node::ObjectFiles(input, files);
   for (int i = 0; i < sources_.size(); ++i) {
-    files->push_back("obj/" + sources_[i] + ".o");
+    files->push_back(strings::JoinPath(input.object_dir(),
+                                       sources_[i] + ".o"));
   }
 }
 

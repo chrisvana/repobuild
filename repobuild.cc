@@ -9,7 +9,7 @@
 
 int main(int argc, const char** argv) {
   InitProgram();
-  repobuild::Input input("",  "obj_tmp");
+  repobuild::Input input(".",  "obj");
   for (int i = 1; i < argc; ++i) {
     input.AddBuildTarget(argv[i]);
   }

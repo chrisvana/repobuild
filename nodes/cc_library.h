@@ -18,8 +18,10 @@ class CCLibraryNode : public Node {
   virtual void WriteMakefile(const Input& input,
                              const std::vector<const Node*>& all_deps,
                              std::string* out) const;
-  virtual void DependencyFiles(std::vector<std::string>* files) const;
-  virtual void ObjectFiles(std::vector<std::string>* files) const;
+  virtual void DependencyFiles(const Input& input,
+                               std::vector<std::string>* files) const;
+  virtual void ObjectFiles(const Input& input,
+                           std::vector<std::string>* files) const;
 
  protected:
   std::vector<std::string> sources_;

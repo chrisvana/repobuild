@@ -12,8 +12,8 @@
      "cc_sources" : [ "cc_library.cc" ],
      "cc_headers" : [ "cc_library.h" ],
      "dependencies": [ "//common/log:log",
-                       "//common/strings:path",
-                       ":nodes"
+                       "//common/strings:strutil",
+                       ":node"
       ]
    }
  },
@@ -23,8 +23,8 @@
      "cc_sources" : [ "cc_binary.cc" ],
      "cc_headers" : [ "cc_binary.h" ],
      "dependencies": [ "//common/log:log",
-                       "//common/strings:path",
-                       ":nodes"
+                       "//common/strings:strutil",
+                       ":node"
       ]
    }
  },
@@ -33,7 +33,7 @@
      "name" : "allnodes",
      "cc_sources" : [ "allnodes.cc" ],
      "cc_headers" : [ "allnodes.h" ],
-     "dependencies": [ ":nodes", ":cc_library", ":cc_binary" ]
+     "dependencies": [ ":node", ":cc_library", ":cc_binary" ]
    }
  }
 ]

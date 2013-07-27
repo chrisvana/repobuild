@@ -32,8 +32,10 @@ class Node {
                              const std::vector<const Node*>& all_deps,
                              std::string* out) const = 0;
   virtual void Parse(const BuildFile& file, const BuildFileNode& input);
-  virtual void DependencyFiles(std::vector<std::string>* files) const {}
-  virtual void ObjectFiles(std::vector<std::string>* files) const {}
+  virtual void DependencyFiles(const Input& input,
+                               std::vector<std::string>* files) const {}
+  virtual void ObjectFiles(const Input& input,
+                           std::vector<std::string>* files) const {}
 
   // Accessors.
   const TargetInfo& target() const { return *target_; }

@@ -7,6 +7,7 @@
 #include <iterator>
 #include "common/log/log.h"
 #include "common/strings/path.h"
+#include "env/input.h"
 #include "nodes/cc_binary.h"
 #include "reader/buildfile.h"
 
@@ -30,18 +31,19 @@ void CCBinaryNode::WriteMakefile(const Input& input,
   set<string> object_files;
   for (int i = 0; i < all_deps.size(); ++i) {
     vector<string> obj_files;
-    all_deps[i]->ObjectFiles(&obj_files);
+    all_deps[i]->ObjectFiles(input, &obj_files);
     for (const string& it : obj_files) { object_files.insert(it); }
   }
   {
     vector<string> obj_files;
-    ObjectFiles(&obj_files);
+    ObjectFiles(input, &obj_files);
     for (const string& it : obj_files) { object_files.insert(it); }
   }
 
   // Output binary
-  string bin = "obj/" + strings::JoinPath(target().dir(),
-                                          target().local_path());
+  string bin = strings::JoinPath(input.object_dir(),
+                                 strings::JoinPath(target().dir(),
+                                                   target().local_path()));
   out->append(bin + ":");
   for (const string& input : object_files) {
     out->append(" ");
