@@ -17,7 +17,9 @@
                        "//common/file:fileutil",
                        "//common/strings:strutil",
                        "//env:input",
+                       "//env:target",
                        "//json:json",
+                       "//nodes:allnodes",
                        ":buildfile"
      ]
    }

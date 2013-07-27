@@ -5,7 +5,7 @@
 #include <vector>
 #include "common/log/log.h"
 #include "reader/buildfile.h"
-#include "json/include/json/json.h"
+#include "json/json.h"
 
 namespace repobuild {
 

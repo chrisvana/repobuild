@@ -1,8 +1,8 @@
 [
  { "cc_library": {
      "name" : "node",
-     "cc_sources" : [ "nodes.cc" ],
-     "cc_headers" : [ "nodes.h" ],
+     "cc_sources" : [ "node.cc" ],
+     "cc_headers" : [ "node.h" ],
      "dependencies": [ "//common/log:log", "//reader:buildfile" ]
    }
  },

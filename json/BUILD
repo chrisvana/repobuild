@@ -13,7 +13,7 @@
                       "reader.h",
                       "value.h",
                       "writer.h"
-     ],
+     ]
    }
  }
 ]

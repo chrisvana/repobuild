@@ -9,7 +9,7 @@
 #include "common/file/fileutil.h"
 #include "common/strings/path.h"
 #include "env/input.h"
-#include "json/include/json/json.h"
+#include "json/json.h"
 #include "nodes/node.h"
 #include "nodes/allnodes.h"
 #include "reader/buildfile.h"
