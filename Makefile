@@ -7,7 +7,10 @@ obj/repobuild.cc.o: common/base/init.h common/file/fileutil.h common/log/log.h c
 	mkdir -p obj; clang++ -std=c++11 -stdlib=libc++ -pthread -DUSE_CXX0X -g -c -I. -Isrc repobuild.cc -o obj/repobuild.cc.o
 
 obj/repobuild: obj/common/base/init.cc.o obj/common/file/fileutil.cc.o obj/common/strings/path.cc.o obj/common/strings/re2/stringpiece.cc.o obj/common/strings/strutil.cc.o obj/env/input.cc.o obj/env/target.cc.o obj/generator/generator.cc.o obj/json/json_reader.cpp.o obj/json/json_value.cpp.o obj/json/json_writer.cpp.o obj/nodes/allnodes.cc.o obj/nodes/cc_binary.cc.o obj/nodes/cc_library.cc.o obj/nodes/confignode.cc.o obj/nodes/node.cc.o obj/reader/buildfile.cc.o obj/reader/parser.cc.o obj/repobuild.cc.o
-	mkdir -p obj/; clang++ -std=c++11 -stdlib=libc++ -pthread -DUSE_CXX0X -g  obj/common/base/init.cc.o obj/common/file/fileutil.cc.o obj/common/strings/path.cc.o obj/common/strings/re2/stringpiece.cc.o obj/common/strings/strutil.cc.o obj/env/input.cc.o obj/env/target.cc.o obj/generator/generator.cc.o obj/json/json_reader.cpp.o obj/json/json_value.cpp.o obj/json/json_writer.cpp.o obj/nodes/allnodes.cc.o obj/nodes/cc_binary.cc.o obj/nodes/cc_library.cc.o obj/nodes/confignode.cc.o obj/nodes/node.cc.o obj/reader/buildfile.cc.o obj/reader/parser.cc.o obj/repobuild.cc.o -o obj/repobuild
+	mkdir -p obj; clang++ -std=c++11 -stdlib=libc++ -pthread -DUSE_CXX0X -g  obj/common/base/init.cc.o obj/common/file/fileutil.cc.o obj/common/strings/path.cc.o obj/common/strings/re2/stringpiece.cc.o obj/common/strings/strutil.cc.o obj/env/input.cc.o obj/env/target.cc.o obj/generator/generator.cc.o obj/json/json_reader.cpp.o obj/json/json_value.cpp.o obj/json/json_writer.cpp.o obj/nodes/allnodes.cc.o obj/nodes/cc_binary.cc.o obj/nodes/cc_library.cc.o obj/nodes/confignode.cc.o obj/nodes/node.cc.o obj/reader/buildfile.cc.o obj/reader/parser.cc.o obj/repobuild.cc.o -o obj/repobuild
+
+repobuild: obj/repobuild
+	ln -s /Users/chris/src/repobuild/obj/repobuild repobuild
 
 obj/common/base/init.cc.o: common/base/init.h src/common src/repobuild common/base/init.cc
 	mkdir -p obj/common/base; clang++ -std=c++11 -stdlib=libc++ -pthread -DUSE_CXX0X -g -c -I. -Isrc common/base/init.cc -o obj/common/base/init.cc.o

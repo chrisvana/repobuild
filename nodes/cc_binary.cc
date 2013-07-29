@@ -41,18 +41,18 @@ void CCBinaryNode::WriteMakefile(const Input& input,
   }
 
   // Output binary
-  string bin = strings::JoinPath(input.object_dir(),
-                                 strings::JoinPath(target().dir(),
-                                                   target().local_path()));
+  string bin = strings::JoinPath(
+      strings::JoinPath(input.object_dir(), target().dir()),
+      target().local_path());
   out->append(bin + ":");
   for (const string& input : object_files) {
     out->append(" ");
     out->append(input);
   }
   out->append("\n\t");
-  out->append("mkdir -p obj/" + target().dir());
-  out->append(
-      "; clang++ -std=c++11 -stdlib=libc++ -pthread -DUSE_CXX0X -g ");
+  out->append("mkdir -p ");
+  out->append(strings::PathDirname(bin));
+  out->append("; clang++ -std=c++11 -stdlib=libc++ -pthread -DUSE_CXX0X -g ");
   for (int i = 0; i < cc_compile_args_.size(); ++i) {
     out->append(" ");
     out->append(cc_compile_args_[i]);
@@ -63,6 +63,19 @@ void CCBinaryNode::WriteMakefile(const Input& input,
   }
   out->append(" -o ");
   out->append(bin);
+  out->append("\n\n");
+
+  // Symlink to root dir.
+  std::string out_bin =
+      strings::JoinPath(input.root_dir(), target().local_path());
+  out->append(out_bin + ": ");
+  out->append(bin);
+  out->append("\n\t");
+  out->append("ln -s ");
+  out->append(strings::JoinPath(input.full_object_dir(),
+                                target().local_path()));
+  out->append(" ");
+  out->append(out_bin);
   out->append("\n\n");
 }
 

@@ -15,6 +15,7 @@ Input::Input() {
   root_dir_ = ".";
   full_root_dir_ = strings::JoinPath(current_path_, root_dir_);
   object_dir_ = "obj";
+  full_object_dir_ = strings::JoinPath(current_path_, object_dir_);
   source_dir_ = "src";
 }
 
