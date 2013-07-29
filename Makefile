@@ -57,4 +57,3 @@ obj/reader/buildfile.cc.o: common/log/log.h json/autolink.h json/config.h json/f
 obj/reader/parser.cc.o: common/file/fileutil.h common/log/log.h common/strings/path.h common/strings/re2/stringpiece.h common/strings/stringpiece.h common/strings/strutil.h env/input.h env/target.h json/autolink.h json/config.h json/features.h json/forwards.h json/json.h json/reader.h json/value.h json/writer.h nodes/allnodes.h nodes/cc_binary.h nodes/cc_library.h nodes/node.h reader/buildfile.h reader/parser.h reader/parser.cc
 	mkdir -p obj/reader; clang++ -std=c++11 -stdlib=libc++ -pthread -DUSE_CXX0X -g -c -I. reader/parser.cc -o obj/reader/parser.cc.o
 
-

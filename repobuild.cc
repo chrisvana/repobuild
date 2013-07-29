@@ -4,6 +4,8 @@
 #include <iostream>
 #include "common/base/init.h"
 #include "common/log/log.h"
+#include "common/file/fileutil.h"
+#include "common/strings/path.h"
 #include "env/input.h"
 #include "generator/generator.h"
 
@@ -14,5 +16,6 @@ int main(int argc, const char** argv) {
     input.AddBuildTarget(argv[i]);
   }
   repobuild::Generator generator;
-  std::cout << generator.GenerateMakefile(input) << std::endl;
+  file::WriteFileOrDie(strings::JoinPath(input.root_dir(), "Makefile"),
+                       generator.GenerateMakefile(input));
 }
