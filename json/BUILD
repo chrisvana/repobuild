@@ -1,4 +1,7 @@
 [
+ { "config": {
+    "component_src": "json"
+ } },
  { "cc_library": {
      "name" : "json",
      "cc_sources" : [ "json_reader.cpp",

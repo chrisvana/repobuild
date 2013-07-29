@@ -2,7 +2,10 @@
  { "cc_library": {
      "name" : "input",
      "cc_sources" : [ "input.cc" ],
-     "cc_headers" : [ "input.h" ]
+     "cc_headers" : [ "input.h" ],
+     "dependencies" : [
+       "//common/strings:strutil"
+     ]
    }
  },
 

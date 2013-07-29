@@ -6,8 +6,8 @@
 #include "common/log/log.h"
 #include "common/file/fileutil.h"
 #include "common/strings/path.h"
-#include "env/input.h"
-#include "generator/generator.h"
+#include "repobuild/env/input.h"
+#include "repobuild/generator/generator.h"
 
 int main(int argc, const char** argv) {
   InitProgram();

@@ -5,9 +5,9 @@
 #include <vector>
 #include "common/log/log.h"
 #include "common/strings/path.h"
-#include "env/input.h"
+#include "repobuild/env/input.h"
 #include "nodes/confignode.h"
-#include "reader/buildfile.h"
+#include "repobuild/reader/buildfile.h"
 
 using std::string;
 using std::vector;
@@ -36,7 +36,7 @@ void ConfigNode::WriteMakefile(const Input& input,
     out->append("mkdir -p ");
     out->append(dir);
     out->append("; ln -s ");
-    out->append(target().dir());
+    out->append(strings::JoinPath(input.full_root_dir(), target().dir()));
     out->append(" ");
     out->append(dir);
     out->append("\n\n");

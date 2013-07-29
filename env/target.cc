@@ -7,7 +7,7 @@
 #include "common/strings/path.h"
 #include "common/strings/strutil.h"
 #include "common/strings/stringpiece.h"
-#include "env/target.h"
+#include "repobuild/env/target.h"
 
 namespace repobuild {
 namespace {

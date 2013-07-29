@@ -7,9 +7,9 @@
 #include <vector>
 #include "common/log/log.h"
 #include "common/strings/path.h"
-#include "env/input.h"
+#include "repobuild/env/input.h"
 #include "nodes/cc_library.h"
-#include "reader/buildfile.h"
+#include "repobuild/reader/buildfile.h"
 
 using std::vector;
 using std::string;

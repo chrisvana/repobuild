@@ -5,10 +5,10 @@
 #include <vector>
 #include <string>
 #include "common/log/log.h"
-#include "env/input.h"
-#include "generator/generator.h"
+#include "repobuild/env/input.h"
+#include "repobuild/generator/generator.h"
 #include "nodes/node.h"
-#include "reader/parser.h"
+#include "repobuild/reader/parser.h"
 
 using std::string;
 using std::vector;

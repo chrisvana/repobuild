@@ -3,8 +3,8 @@
 
 #include "common/log/log.h"
 #include "nodes/node.h"
-#include "reader/buildfile.h"
-#include "json/json.h"
+#include "repobuild/reader/buildfile.h"
+#include "repobuild/json/json.h"
 
 namespace repobuild {
 

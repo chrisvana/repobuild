@@ -1,6 +1,6 @@
 [
  { "config": {
-     "component_src": "."
+     "component_src": "repobuild"
    }
  },
 

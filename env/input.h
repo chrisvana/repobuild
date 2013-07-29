@@ -22,6 +22,7 @@ class Input {
 
   // Accessors
   const std::string& root_dir() const { return root_dir_; }
+  const std::string& full_root_dir() const { return full_root_dir_; }
   const std::string& object_dir() const { return object_dir_; }
   const std::string& source_dir() const { return source_dir_; }
   const std::vector<std::string>& build_targets() const {
@@ -31,6 +32,8 @@ class Input {
 
  private:
   std::string root_dir_;
+  std::string current_path_;
+  std::string full_root_dir_;
   std::string object_dir_;
   std::string source_dir_;
 

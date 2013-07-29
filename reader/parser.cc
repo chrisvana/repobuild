@@ -8,12 +8,12 @@
 #include "common/log/log.h"
 #include "common/file/fileutil.h"
 #include "common/strings/path.h"
-#include "env/input.h"
-#include "json/json.h"
+#include "repobuild/env/input.h"
+#include "repobuild/json/json.h"
 #include "nodes/node.h"
 #include "nodes/allnodes.h"
-#include "reader/buildfile.h"
-#include "reader/parser.h"
+#include "repobuild/reader/buildfile.h"
+#include "repobuild/reader/parser.h"
 
 namespace repobuild {
 namespace {
