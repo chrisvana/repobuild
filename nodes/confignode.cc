@@ -34,7 +34,7 @@ void ConfigNode::WriteMakefile(const Input& input,
     // mkdir -p src; ln -s path/to/this/target/dir src/<component>
     out->append("\t");
     out->append("mkdir -p ");
-    out->append(dir);
+    out->append(input.source_dir());
     out->append("; ln -s ");
     out->append(strings::JoinPath(input.full_root_dir(), target().dir()));
     out->append(" ");
