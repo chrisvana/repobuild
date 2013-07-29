@@ -8,20 +8,24 @@
 
 namespace repobuild {
 
-void Node::Parse(const BuildFile& file, const BuildFileNode& input) {
+void Node::Parse(BuildFile* file, const BuildFileNode& input) {
   CHECK(input.object().isObject());
   std::vector<std::string> deps;
   ParseRepeatedString(input, "dependencies", &deps);
   for (int i = 0; i < deps.size(); ++i) {
-    dependencies_.push_back(new TargetInfo(deps[i], file.filename()));
+    dependencies_.push_back(new TargetInfo(deps[i], file->filename()));
   }
+}
+
+// Mutators
+void Node::AddDependency(const TargetInfo& other) {
+  dependencies_.push_back(new TargetInfo(other));
 }
 
 // static
 void Node::ParseRepeatedString(const BuildFileNode& input,
                                const std::string& key,
                                std::vector<std::string>* out) {
- 
   const Json::Value& array = input.object()[key];
   if (!array.isNull()) {
     CHECK(array.isArray()) << "Expecting array for key " << key << ": "
@@ -33,6 +37,18 @@ void Node::ParseRepeatedString(const BuildFileNode& input,
       out->push_back(single.asString());
     }
   }
+}
+
+// static
+bool Node::ParseStringField(const BuildFileNode& input,
+                            const std::string& key,
+                            std::string* field) {
+  const Json::Value& json_field = input.object()[key];
+  if (!json_field.isString()) {
+    return false;
+  }
+  *field = json_field.asString();
+  return true;
 }
 
 }  // namespace repobuild

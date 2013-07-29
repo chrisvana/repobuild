@@ -11,7 +11,7 @@
 
 int main(int argc, const char** argv) {
   InitProgram();
-  repobuild::Input input(".",  "obj");
+  repobuild::Input input;
   for (int i = 1; i < argc; ++i) {
     input.AddBuildTarget(argv[i]);
   }

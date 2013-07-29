@@ -1,4 +1,9 @@
 [
+ { "config": {
+     "component_src": "."
+   }
+ },
+
  { "cc_binary": {
    "name": "repobuild",
    "cc_sources": [ "repobuild.cc" ],

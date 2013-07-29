@@ -31,7 +31,7 @@ class Node {
   virtual void WriteMakefile(const Input& input,
                              const std::vector<const Node*>& all_deps,
                              std::string* out) const = 0;
-  virtual void Parse(const BuildFile& file, const BuildFileNode& input);
+  virtual void Parse(BuildFile* file, const BuildFileNode& input);
   virtual void DependencyFiles(const Input& input,
                                std::vector<std::string>* files) const {}
   virtual void ObjectFiles(const Input& input,
@@ -41,11 +41,17 @@ class Node {
   const TargetInfo& target() const { return *target_; }
   const std::vector<TargetInfo*> dependencies() const { return dependencies_; }
 
+  // Mutators
+  void AddDependency(const TargetInfo& other);
+
  protected:
   // Helper.
   static void ParseRepeatedString(const BuildFileNode& input,
                                   const std::string& key,
                                   std::vector<std::string>* output);
+  static bool ParseStringField(const BuildFileNode& input,
+                               const std::string& key,
+                               std::string* field);
 
  private:
   std::unique_ptr<TargetInfo> target_;

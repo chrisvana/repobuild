@@ -21,16 +21,22 @@ Node* ParseNode(NodeBuilder* builder,
                 BuildFile* file,
                 BuildFileNode* file_node,
                 const std::string& key) {
+  TargetInfo target;
   const Json::Value& value = file_node->object()[key];
-  CHECK(value.isMember("name") && value["name"].isString())
-      << "Require string \"name\": "
-      << "File: " << file->filename()
-      << ": "<< file_node->object();
-  TargetInfo target(":" + value["name"].asString(), file->filename());
+  if (value.isMember("name")) {
+    if (!value["name"].isString()) {
+      LOG(FATAL) << "Require string \"name\": "
+                 << "File: " << file->filename()
+                 << ": "<< file_node->object();
+    }
+    target = TargetInfo(":" + value["name"].asString(), file->filename());
+  } else {
+    target = TargetInfo(":" + file->NextName(), file->filename());
+  }
   Node* node = builder->NewNode(target);
 
   BuildFileNode subnode(value);
-  node->Parse(*file, subnode);
+  node->Parse(file, subnode);
   return node;
 }
 
@@ -53,7 +59,7 @@ class Graph {
   }
 
   void Parse(const Input& input) {
-    // Initial targets.
+    // Seed initial targets.
     std::queue<std::string> to_process;
     std::set<std::string> queued_targets;
     std::set<std::string> input_targets;
@@ -66,6 +72,7 @@ class Graph {
       }
     }
 
+    // Parse our dependency graph using something like BFS.
     while (!to_process.empty()) {
       // Get the next target.
       TargetInfo target;
@@ -77,22 +84,26 @@ class Graph {
       }
 
       // Add the build file if we have not yet processed it.
-      if (build_files_.find(target.build_file()) == build_files_.end()) {
-        AddFile(target.build_file());
-      }
+      AddFile(input, target.build_file());
 
       // Expand the target if we managed to find one in that BUILD file.
       Node* node = nodes_[target.full_path()];
       if (node == NULL) {
         LOG(FATAL) << "Could not find target: " << target.full_path();
       }
-      if (input_targets.find(target.full_path()) != input_targets.end()) {
-        inputs_.push_back(node);
-      }
       for (const TargetInfo* dep : node->dependencies()) {
         if (queued_targets.insert(dep->full_path()).second) {
           to_process.push(dep->full_path());
         }
+      }
+    }
+
+    // Record which ones came from our inputs.
+    for (auto it : nodes_) {
+      Node* node = it.second;
+      const TargetInfo& target = node->target();
+      if (input_targets.find(target.full_path()) != input_targets.end()) {
+        inputs_.push_back(node);
       }
     }
   }
@@ -111,15 +122,28 @@ class Graph {
   }
 
  private:
-  void AddFile(const std::string& filename) {
+  BuildFile* AddFile(const Input& input, const std::string& filename) {
+    // Skip processing if we have done it already.
+    if (build_files_.find(filename) != build_files_.end()) {
+      return build_files_.find(filename)->second;
+    }
+
+    // Initialize our parents.
     BuildFile* file =  new BuildFile(filename);
     build_files_[filename] = file;
+    ProcessParent(input, file);  // inherit anything we need to from parents.
+
+    // Parse the BUILD into a structured format.
     std::string filestr = file::ReadFileToStringOrDie(file->filename());
     file->Parse(filestr);
 
+    // Parse all of the elements of the build file.
+    std::vector<Node*> nodes;
     for (BuildFileNode* node : file->nodes()) {
       CHECK(node->object().isObject()) << "Expected object: " << node->object();
       for (std::string key : node->object().getMemberNames()) {
+
+        // Find the right parser.
         NodeBuilder* builder = NULL;
         for (NodeBuilder* b : node_builders_) {
           if (b->Name() == key) {
@@ -131,15 +155,48 @@ class Graph {
           LOG(FATAL) << "Uknown build rule: " << key;
         }
 
+        // Actually do the parsing.
         Node* out_node = ParseNode(builder, file, node, key);
         const std::string& target = out_node->target().full_path();
         if (nodes_.find(target) != nodes_.end()) {
           LOG(FATAL) << "Duplicate target: " << target;
         }
 
+        // Save the output
+        nodes.push_back(out_node);
         nodes_[target] = out_node;
         targets_[target] = out_node->target();
       }
+    }
+
+    // Connect any additional dependencies from the build file.
+    // TODO(cvanarsdale): We can only have one at the moment, due to how these
+    // get added.
+    for (const std::string& additional_dep : file->base_dependencies()) {
+      Node* base_dep = nodes_[additional_dep];
+      CHECK(base_dep);
+      for (Node* node : nodes) {
+        if (node->target().full_path() != additional_dep) {
+          node->AddDependency(base_dep->target());
+        }
+      }
+    }
+    return file;
+  }
+
+  void ProcessParent(const Input& input, BuildFile* child) {
+    BuildFile* current = child;
+    while (true) {
+      std::string current_dir = strings::PathDirname(current->filename());
+      if (current_dir == "." || current_dir == input.root_dir()) {
+        break;
+      }
+
+      std::string parent_file = strings::JoinPath(
+          strings::JoinPath(current_dir, ".."), "BUILD");
+      BuildFile* parent = AddFile(input, parent_file);
+      child->MergeParent(parent);
+      current = parent;
     }
   }
 

@@ -17,7 +17,7 @@ using std::set;
 
 namespace repobuild {
 
-void CCBinaryNode::Parse(const BuildFile& file, const BuildFileNode& input) {
+void CCBinaryNode::Parse(BuildFile* file, const BuildFileNode& input) {
   CCLibraryNode::Parse(file, input);
   ParseRepeatedString(input, "cc_linker_args", &cc_linker_args_);
 }

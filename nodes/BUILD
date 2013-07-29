@@ -8,6 +8,17 @@
  },
 
  { "cc_library": {
+     "name" : "confignode",
+     "cc_sources" : [ "confignode.cc" ],
+     "cc_headers" : [ "confignode.h" ],
+     "dependencies": [ "//common/log:log",
+                       "//common/strings:strutil",
+                       ":node"
+      ]
+   }
+ },
+
+ { "cc_library": {
      "name" : "cc_library",
      "cc_sources" : [ "cc_library.cc" ],
      "cc_headers" : [ "cc_library.h" ],
@@ -33,7 +44,7 @@
      "name" : "allnodes",
      "cc_sources" : [ "allnodes.cc" ],
      "cc_headers" : [ "allnodes.h" ],
-     "dependencies": [ ":node", ":cc_library", ":cc_binary" ]
+     "dependencies": [ ":node", ":cc_library", ":cc_binary", ":confignode" ]
    }
  }
 ]

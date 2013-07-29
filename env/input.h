@@ -9,10 +9,7 @@ namespace repobuild {
 
 class Input {
  public:
-  Input(const std::string& root_dir, const std::string& object_dir)
-      : root_dir_(root_dir),
-        object_dir_(object_dir) {
-  }
+  Input();
   ~Input() {}
 
   // Mutators:
@@ -26,6 +23,7 @@ class Input {
   // Accessors
   const std::string& root_dir() const { return root_dir_; }
   const std::string& object_dir() const { return object_dir_; }
+  const std::string& source_dir() const { return source_dir_; }
   const std::vector<std::string>& build_targets() const {
     return build_targets_;
   }
@@ -34,6 +32,7 @@ class Input {
  private:
   std::string root_dir_;
   std::string object_dir_;
+  std::string source_dir_;
 
   std::vector<std::string> build_targets_;
   std::map<std::string, std::vector<std::string> > flags_;

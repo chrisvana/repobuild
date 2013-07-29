@@ -14,7 +14,7 @@ class CCLibraryNode : public Node {
   CCLibraryNode(const TargetInfo& t) : Node(t) {}
   virtual ~CCLibraryNode() {}
   virtual std::string Name() const { return "cc_library"; }
-  virtual void Parse(const BuildFile& file, const BuildFileNode& input);
+  virtual void Parse(BuildFile* file, const BuildFileNode& input);
   virtual void WriteMakefile(const Input& input,
                              const std::vector<const Node*>& all_deps,
                              std::string* out) const;

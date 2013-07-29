@@ -17,7 +17,7 @@ using std::set;
 
 namespace repobuild {
 
-void CCLibraryNode::Parse(const BuildFile& file, const BuildFileNode& input) {
+void CCLibraryNode::Parse(BuildFile* file, const BuildFileNode& input) {
   Node::Parse(file, input);
 
   // cc_sources
@@ -77,6 +77,8 @@ void CCLibraryNode::WriteMakefile(const Input& input,
         "; clang++ -std=c++11 -stdlib=libc++ -pthread -DUSE_CXX0X -g -c");
     out->append(" -I");
     out->append(input.root_dir());
+    out->append(" -I");
+    out->append(input.source_dir());
     for (int j = 0; j < cc_compile_args_.size(); ++j) {
       out->append(" ");
       out->append(cc_compile_args_[j]);

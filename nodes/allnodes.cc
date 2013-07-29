@@ -6,6 +6,7 @@
 #include "nodes/node.h"
 #include "nodes/cc_library.h"
 #include "nodes/cc_binary.h"
+#include "nodes/confignode.h"
 
 namespace repobuild {
 namespace {
@@ -26,6 +27,7 @@ class NodeBuilderImpl : public NodeBuilder {
 void NodeBuilder::GetAll(std::vector<NodeBuilder*>* nodes) {
   nodes->push_back(new NodeBuilderImpl<CCLibraryNode>("cc_library"));
   nodes->push_back(new NodeBuilderImpl<CCBinaryNode>("cc_binary"));
+  nodes->push_back(new NodeBuilderImpl<ConfigNode>("config"));
 }
 
 }  // namespace repobuild

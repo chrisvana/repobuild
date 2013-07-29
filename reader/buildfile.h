@@ -4,9 +4,10 @@
 #ifndef _REPOBUILD_READER_BUILDFILE_H__
 #define _REPOBUILD_READER_BUILDFILE_H__
 
+#include <memory>
+#include <set>
 #include <string>
 #include <vector>
-#include <memory>
 
 namespace Json {
 class Value;
@@ -27,19 +28,30 @@ class BuildFileNode {
 
 class BuildFile {
  public:
-  explicit BuildFile(const std::string& filename) : filename_(filename) {}
+  explicit BuildFile(const std::string& filename)
+      : filename_(filename),
+        name_counter_(0) {
+  }
   ~BuildFile();
 
   // Mutators
   void Parse(const std::string& input);
+  void MergeParent(BuildFile* parent);
+  void AddBaseDependency(const std::string& dep) { base_deps_.insert(dep); }
 
   // Accessors.
   const std::string& filename() const { return filename_; }
   const std::vector<BuildFileNode*>& nodes() const { return nodes_; }
+  const std::set<std::string>& base_dependencies() const { return base_deps_; }
+
+  // Helpers.
+  std::string NextName();  // auto generated target name.
 
  private:
   std::string filename_;
   std::vector<BuildFileNode*> nodes_;
+  std::set<std::string> base_deps_;
+  int name_counter_;
 };
 
 }  // namespace repobuild

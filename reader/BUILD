@@ -4,6 +4,7 @@
      "cc_sources" : [ "buildfile.cc" ],
      "cc_headers" : [ "buildfile.h" ],
      "dependencies": [ "//common/log:log",
+                       "//common/strings:strutil",
                        "//json:json"
      ]
    }

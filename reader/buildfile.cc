@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include "common/log/log.h"
+#include "common/strings/strutil.h"
 #include "reader/buildfile.h"
 #include "json/json.h"
 
@@ -27,7 +28,9 @@ void BuildFile::Parse(const std::string& input) {
   Json::Reader reader;
   bool ok = reader.parse(input, root);
   if (!ok) {
-    LOG(FATAL) << "Reader error: "
+    LOG(FATAL) << "Reader error for "
+               << filename()
+               << ": "
                << reader.getFormattedErrorMessages();
   }
   CHECK(root.isArray()) << root;
@@ -36,6 +39,16 @@ void BuildFile::Parse(const std::string& input) {
     const Json::Value& value = root[i];
     CHECK(value.isObject()) << "Unexpected: " << value;
     nodes_.push_back(new BuildFileNode(value));
+  }
+}
+
+std::string BuildFile::NextName() {
+  return strings::StringPrintf("__auto_name_%d", name_counter_++);
+}
+
+void BuildFile::MergeParent(BuildFile* parent) {
+  for (const std::string& dep : parent->base_dependencies()) {
+    base_deps_.insert(dep);
   }
 }
 
