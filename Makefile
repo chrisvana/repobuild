@@ -4,71 +4,71 @@ src/repobuild:
 	mkdir -p src; ln -s /Users/chris/src/repobuild src/repobuild
 
 obj/repobuild.cc.o: common/base/init.h common/file/fileutil.h common/log/log.h common/strings/path.h common/strings/re2/stringpiece.h common/strings/stringpiece.h common/strings/strutil.h env/input.h env/target.h generator/generator.h json/autolink.h json/config.h json/features.h json/forwards.h json/json.h json/reader.h json/value.h json/writer.h nodes/allnodes.h nodes/cc_binary.h nodes/cc_library.h nodes/confignode.h nodes/node.h reader/buildfile.h reader/parser.h src/common src/json src/repobuild repobuild.cc
-	mkdir -p obj; clang++ -std=c++11 -stdlib=libc++ -pthread -DUSE_CXX0X -g -c -I. -Isrc repobuild.cc -o obj/repobuild.cc.o
+	mkdir -p obj; $(CXX) $(CXXFLAGS) -c -I. -Isrc -std=c++11 -DUSE_CXX0X -stdlib=libc++ -pthread -g repobuild.cc -o obj/repobuild.cc.o
 
 obj/repobuild: obj/common/base/init.cc.o obj/common/file/fileutil.cc.o obj/common/strings/path.cc.o obj/common/strings/re2/stringpiece.cc.o obj/common/strings/strutil.cc.o obj/env/input.cc.o obj/env/target.cc.o obj/generator/generator.cc.o obj/json/json_reader.cpp.o obj/json/json_value.cpp.o obj/json/json_writer.cpp.o obj/nodes/allnodes.cc.o obj/nodes/cc_binary.cc.o obj/nodes/cc_library.cc.o obj/nodes/confignode.cc.o obj/nodes/node.cc.o obj/reader/buildfile.cc.o obj/reader/parser.cc.o obj/repobuild.cc.o
-	mkdir -p obj; clang++ -std=c++11 -stdlib=libc++ -pthread -DUSE_CXX0X -g  obj/common/base/init.cc.o obj/common/file/fileutil.cc.o obj/common/strings/path.cc.o obj/common/strings/re2/stringpiece.cc.o obj/common/strings/strutil.cc.o obj/env/input.cc.o obj/env/target.cc.o obj/generator/generator.cc.o obj/json/json_reader.cpp.o obj/json/json_value.cpp.o obj/json/json_writer.cpp.o obj/nodes/allnodes.cc.o obj/nodes/cc_binary.cc.o obj/nodes/cc_library.cc.o obj/nodes/confignode.cc.o obj/nodes/node.cc.o obj/reader/buildfile.cc.o obj/reader/parser.cc.o obj/repobuild.cc.o -o obj/repobuild
+	mkdir -p obj; $(CXX) $(CXXFLAGS) -std=c++11 -DUSE_CXX0X -stdlib=libc++ -lpthread -g obj/common/base/init.cc.o obj/common/file/fileutil.cc.o obj/common/strings/path.cc.o obj/common/strings/re2/stringpiece.cc.o obj/common/strings/strutil.cc.o obj/env/input.cc.o obj/env/target.cc.o obj/generator/generator.cc.o obj/json/json_reader.cpp.o obj/json/json_value.cpp.o obj/json/json_writer.cpp.o obj/nodes/allnodes.cc.o obj/nodes/cc_binary.cc.o obj/nodes/cc_library.cc.o obj/nodes/confignode.cc.o obj/nodes/node.cc.o obj/reader/buildfile.cc.o obj/reader/parser.cc.o obj/repobuild.cc.o -o obj/repobuild
 
 repobuild: obj/repobuild
-	ln -s /Users/chris/src/repobuild/obj/repobuild repobuild
+	ln -f -s /Users/chris/src/repobuild/obj/repobuild repobuild
 
 obj/common/base/init.cc.o: common/base/init.h src/common src/repobuild common/base/init.cc
-	mkdir -p obj/common/base; clang++ -std=c++11 -stdlib=libc++ -pthread -DUSE_CXX0X -g -c -I. -Isrc common/base/init.cc -o obj/common/base/init.cc.o
+	mkdir -p obj/common/base; $(CXX) $(CXXFLAGS) -c -I. -Isrc -std=c++11 -DUSE_CXX0X -stdlib=libc++ -pthread -g common/base/init.cc -o obj/common/base/init.cc.o
 
 obj/common/file/fileutil.cc.o: common/file/fileutil.h common/log/log.h src/common src/repobuild common/file/fileutil.cc
-	mkdir -p obj/common/file; clang++ -std=c++11 -stdlib=libc++ -pthread -DUSE_CXX0X -g -c -I. -Isrc common/file/fileutil.cc -o obj/common/file/fileutil.cc.o
+	mkdir -p obj/common/file; $(CXX) $(CXXFLAGS) -c -I. -Isrc -std=c++11 -DUSE_CXX0X -stdlib=libc++ -pthread -g common/file/fileutil.cc -o obj/common/file/fileutil.cc.o
 
 obj/common/strings/re2/stringpiece.cc.o: common/strings/re2/stringpiece.h src/common src/repobuild common/strings/re2/stringpiece.cc
-	mkdir -p obj/common/strings/re2; clang++ -std=c++11 -stdlib=libc++ -pthread -DUSE_CXX0X -g -c -I. -Isrc common/strings/re2/stringpiece.cc -o obj/common/strings/re2/stringpiece.cc.o
+	mkdir -p obj/common/strings/re2; $(CXX) $(CXXFLAGS) -c -I. -Isrc -std=c++11 -DUSE_CXX0X -stdlib=libc++ -pthread -g common/strings/re2/stringpiece.cc -o obj/common/strings/re2/stringpiece.cc.o
 
 obj/common/strings/strutil.cc.o: common/strings/path.h common/strings/re2/stringpiece.h common/strings/stringpiece.h common/strings/strutil.h src/common src/repobuild common/strings/strutil.cc
-	mkdir -p obj/common/strings; clang++ -std=c++11 -stdlib=libc++ -pthread -DUSE_CXX0X -g -c -I. -Isrc common/strings/strutil.cc -o obj/common/strings/strutil.cc.o
+	mkdir -p obj/common/strings; $(CXX) $(CXXFLAGS) -c -I. -Isrc -std=c++11 -DUSE_CXX0X -stdlib=libc++ -pthread -g common/strings/strutil.cc -o obj/common/strings/strutil.cc.o
 
 obj/common/strings/path.cc.o: common/strings/path.h common/strings/re2/stringpiece.h common/strings/stringpiece.h common/strings/strutil.h src/common src/repobuild common/strings/path.cc
-	mkdir -p obj/common/strings; clang++ -std=c++11 -stdlib=libc++ -pthread -DUSE_CXX0X -g -c -I. -Isrc common/strings/path.cc -o obj/common/strings/path.cc.o
+	mkdir -p obj/common/strings; $(CXX) $(CXXFLAGS) -c -I. -Isrc -std=c++11 -DUSE_CXX0X -stdlib=libc++ -pthread -g common/strings/path.cc -o obj/common/strings/path.cc.o
 
 src/common:
 	mkdir -p src; ln -s /Users/chris/src/repobuild/common src/common
 
 obj/env/input.cc.o: common/strings/path.h common/strings/re2/stringpiece.h common/strings/stringpiece.h common/strings/strutil.h env/input.h src/common src/repobuild env/input.cc
-	mkdir -p obj/env; clang++ -std=c++11 -stdlib=libc++ -pthread -DUSE_CXX0X -g -c -I. -Isrc env/input.cc -o obj/env/input.cc.o
+	mkdir -p obj/env; $(CXX) $(CXXFLAGS) -c -I. -Isrc -std=c++11 -DUSE_CXX0X -stdlib=libc++ -pthread -g env/input.cc -o obj/env/input.cc.o
 
 obj/env/target.cc.o: common/log/log.h common/strings/path.h common/strings/re2/stringpiece.h common/strings/stringpiece.h common/strings/strutil.h env/target.h src/common src/repobuild env/target.cc
-	mkdir -p obj/env; clang++ -std=c++11 -stdlib=libc++ -pthread -DUSE_CXX0X -g -c -I. -Isrc env/target.cc -o obj/env/target.cc.o
+	mkdir -p obj/env; $(CXX) $(CXXFLAGS) -c -I. -Isrc -std=c++11 -DUSE_CXX0X -stdlib=libc++ -pthread -g env/target.cc -o obj/env/target.cc.o
 
 obj/generator/generator.cc.o: common/file/fileutil.h common/log/log.h common/strings/path.h common/strings/re2/stringpiece.h common/strings/stringpiece.h common/strings/strutil.h env/input.h env/target.h generator/generator.h json/autolink.h json/config.h json/features.h json/forwards.h json/json.h json/reader.h json/value.h json/writer.h nodes/allnodes.h nodes/cc_binary.h nodes/cc_library.h nodes/confignode.h nodes/node.h reader/buildfile.h reader/parser.h src/common src/json src/repobuild generator/generator.cc
-	mkdir -p obj/generator; clang++ -std=c++11 -stdlib=libc++ -pthread -DUSE_CXX0X -g -c -I. -Isrc generator/generator.cc -o obj/generator/generator.cc.o
+	mkdir -p obj/generator; $(CXX) $(CXXFLAGS) -c -I. -Isrc -std=c++11 -DUSE_CXX0X -stdlib=libc++ -pthread -g generator/generator.cc -o obj/generator/generator.cc.o
 
 src/json:
 	mkdir -p src; ln -s /Users/chris/src/repobuild/json src/json
 
 obj/json/json_reader.cpp.o: json/autolink.h json/config.h json/features.h json/forwards.h json/json.h json/reader.h json/value.h json/writer.h src/json src/repobuild json/json_reader.cpp
-	mkdir -p obj/json; clang++ -std=c++11 -stdlib=libc++ -pthread -DUSE_CXX0X -g -c -I. -Isrc json/json_reader.cpp -o obj/json/json_reader.cpp.o
+	mkdir -p obj/json; $(CXX) $(CXXFLAGS) -c -I. -Isrc -std=c++11 -DUSE_CXX0X -stdlib=libc++ -pthread -g json/json_reader.cpp -o obj/json/json_reader.cpp.o
 
 obj/json/json_value.cpp.o: json/autolink.h json/config.h json/features.h json/forwards.h json/json.h json/reader.h json/value.h json/writer.h src/json src/repobuild json/json_value.cpp
-	mkdir -p obj/json; clang++ -std=c++11 -stdlib=libc++ -pthread -DUSE_CXX0X -g -c -I. -Isrc json/json_value.cpp -o obj/json/json_value.cpp.o
+	mkdir -p obj/json; $(CXX) $(CXXFLAGS) -c -I. -Isrc -std=c++11 -DUSE_CXX0X -stdlib=libc++ -pthread -g json/json_value.cpp -o obj/json/json_value.cpp.o
 
 obj/json/json_writer.cpp.o: json/autolink.h json/config.h json/features.h json/forwards.h json/json.h json/reader.h json/value.h json/writer.h src/json src/repobuild json/json_writer.cpp
-	mkdir -p obj/json; clang++ -std=c++11 -stdlib=libc++ -pthread -DUSE_CXX0X -g -c -I. -Isrc json/json_writer.cpp -o obj/json/json_writer.cpp.o
+	mkdir -p obj/json; $(CXX) $(CXXFLAGS) -c -I. -Isrc -std=c++11 -DUSE_CXX0X -stdlib=libc++ -pthread -g json/json_writer.cpp -o obj/json/json_writer.cpp.o
 
 obj/nodes/allnodes.cc.o: common/log/log.h common/strings/path.h common/strings/re2/stringpiece.h common/strings/stringpiece.h common/strings/strutil.h json/autolink.h json/config.h json/features.h json/forwards.h json/json.h json/reader.h json/value.h json/writer.h nodes/allnodes.h nodes/cc_binary.h nodes/cc_library.h nodes/confignode.h nodes/node.h reader/buildfile.h src/common src/json src/repobuild nodes/allnodes.cc
-	mkdir -p obj/nodes; clang++ -std=c++11 -stdlib=libc++ -pthread -DUSE_CXX0X -g -c -I. -Isrc nodes/allnodes.cc -o obj/nodes/allnodes.cc.o
+	mkdir -p obj/nodes; $(CXX) $(CXXFLAGS) -c -I. -Isrc -std=c++11 -DUSE_CXX0X -stdlib=libc++ -pthread -g nodes/allnodes.cc -o obj/nodes/allnodes.cc.o
 
 obj/nodes/cc_binary.cc.o: common/log/log.h common/strings/path.h common/strings/re2/stringpiece.h common/strings/stringpiece.h common/strings/strutil.h json/autolink.h json/config.h json/features.h json/forwards.h json/json.h json/reader.h json/value.h json/writer.h nodes/cc_binary.h nodes/node.h reader/buildfile.h src/common src/json src/repobuild nodes/cc_binary.cc
-	mkdir -p obj/nodes; clang++ -std=c++11 -stdlib=libc++ -pthread -DUSE_CXX0X -g -c -I. -Isrc nodes/cc_binary.cc -o obj/nodes/cc_binary.cc.o
+	mkdir -p obj/nodes; $(CXX) $(CXXFLAGS) -c -I. -Isrc -std=c++11 -DUSE_CXX0X -stdlib=libc++ -pthread -g nodes/cc_binary.cc -o obj/nodes/cc_binary.cc.o
 
 obj/nodes/cc_library.cc.o: common/log/log.h common/strings/path.h common/strings/re2/stringpiece.h common/strings/stringpiece.h common/strings/strutil.h json/autolink.h json/config.h json/features.h json/forwards.h json/json.h json/reader.h json/value.h json/writer.h nodes/cc_library.h nodes/node.h reader/buildfile.h src/common src/json src/repobuild nodes/cc_library.cc
-	mkdir -p obj/nodes; clang++ -std=c++11 -stdlib=libc++ -pthread -DUSE_CXX0X -g -c -I. -Isrc nodes/cc_library.cc -o obj/nodes/cc_library.cc.o
+	mkdir -p obj/nodes; $(CXX) $(CXXFLAGS) -c -I. -Isrc -std=c++11 -DUSE_CXX0X -stdlib=libc++ -pthread -g nodes/cc_library.cc -o obj/nodes/cc_library.cc.o
 
 obj/nodes/confignode.cc.o: common/log/log.h common/strings/path.h common/strings/re2/stringpiece.h common/strings/stringpiece.h common/strings/strutil.h json/autolink.h json/config.h json/features.h json/forwards.h json/json.h json/reader.h json/value.h json/writer.h nodes/confignode.h nodes/node.h reader/buildfile.h src/common src/json src/repobuild nodes/confignode.cc
-	mkdir -p obj/nodes; clang++ -std=c++11 -stdlib=libc++ -pthread -DUSE_CXX0X -g -c -I. -Isrc nodes/confignode.cc -o obj/nodes/confignode.cc.o
+	mkdir -p obj/nodes; $(CXX) $(CXXFLAGS) -c -I. -Isrc -std=c++11 -DUSE_CXX0X -stdlib=libc++ -pthread -g nodes/confignode.cc -o obj/nodes/confignode.cc.o
 
 obj/nodes/node.cc.o: common/log/log.h common/strings/path.h common/strings/re2/stringpiece.h common/strings/stringpiece.h common/strings/strutil.h json/autolink.h json/config.h json/features.h json/forwards.h json/json.h json/reader.h json/value.h json/writer.h nodes/node.h reader/buildfile.h src/common src/json src/repobuild nodes/node.cc
-	mkdir -p obj/nodes; clang++ -std=c++11 -stdlib=libc++ -pthread -DUSE_CXX0X -g -c -I. -Isrc nodes/node.cc -o obj/nodes/node.cc.o
+	mkdir -p obj/nodes; $(CXX) $(CXXFLAGS) -c -I. -Isrc -std=c++11 -DUSE_CXX0X -stdlib=libc++ -pthread -g nodes/node.cc -o obj/nodes/node.cc.o
 
 obj/reader/buildfile.cc.o: common/log/log.h common/strings/path.h common/strings/re2/stringpiece.h common/strings/stringpiece.h common/strings/strutil.h json/autolink.h json/config.h json/features.h json/forwards.h json/json.h json/reader.h json/value.h json/writer.h reader/buildfile.h src/common src/json src/repobuild reader/buildfile.cc
-	mkdir -p obj/reader; clang++ -std=c++11 -stdlib=libc++ -pthread -DUSE_CXX0X -g -c -I. -Isrc reader/buildfile.cc -o obj/reader/buildfile.cc.o
+	mkdir -p obj/reader; $(CXX) $(CXXFLAGS) -c -I. -Isrc -std=c++11 -DUSE_CXX0X -stdlib=libc++ -pthread -g reader/buildfile.cc -o obj/reader/buildfile.cc.o
 
 obj/reader/parser.cc.o: common/file/fileutil.h common/log/log.h common/strings/path.h common/strings/re2/stringpiece.h common/strings/stringpiece.h common/strings/strutil.h env/input.h env/target.h json/autolink.h json/config.h json/features.h json/forwards.h json/json.h json/reader.h json/value.h json/writer.h nodes/allnodes.h nodes/cc_binary.h nodes/cc_library.h nodes/confignode.h nodes/node.h reader/buildfile.h reader/parser.h src/common src/json src/repobuild reader/parser.cc
-	mkdir -p obj/reader; clang++ -std=c++11 -stdlib=libc++ -pthread -DUSE_CXX0X -g -c -I. -Isrc reader/parser.cc -o obj/reader/parser.cc.o
+	mkdir -p obj/reader; $(CXX) $(CXXFLAGS) -c -I. -Isrc -std=c++11 -DUSE_CXX0X -stdlib=libc++ -pthread -g reader/parser.cc -o obj/reader/parser.cc.o
 

@@ -24,6 +24,8 @@ class CCLibraryNode : public Node {
                            std::vector<std::string>* files) const;
 
  protected:
+  std::string DefaultCompileFlags() const;
+
   std::vector<std::string> sources_;
   std::vector<std::string> headers_;
   std::vector<std::string> cc_compile_args_;

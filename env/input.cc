@@ -17,6 +17,20 @@ Input::Input() {
   object_dir_ = "obj";
   full_object_dir_ = strings::JoinPath(current_path_, object_dir_);
   source_dir_ = "src";
+
+  // Default flags.
+  // Compiling
+  AddFlag("-C", "-std=c++11");
+  AddFlag("-C", "-DUSE_CXX0X");
+  AddFlag("-C", "-stdlib=libc++");
+  AddFlag("-C", "-pthread");
+  AddFlag("-C", "-g");
+  // Linking
+  AddFlag("-L", "-std=c++11");
+  AddFlag("-L", "-DUSE_CXX0X");
+  AddFlag("-L", "-stdlib=libc++");
+  AddFlag("-L", "-lpthread");
+  AddFlag("-L", "-g");
 }
 
 const std::vector<std::string>& Input::flags(const std::string& key) const {

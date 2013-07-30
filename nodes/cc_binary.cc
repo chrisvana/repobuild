@@ -52,10 +52,19 @@ void CCBinaryNode::WriteMakefile(const Input& input,
   out->append("\n\t");
   out->append("mkdir -p ");
   out->append(strings::PathDirname(bin));
-  out->append("; clang++ -std=c++11 -stdlib=libc++ -pthread -DUSE_CXX0X -g ");
+  out->append("; ");
+  out->append(DefaultCompileFlags());
+  for (const string& flag : input.flags("-L")) {
+    out->append(" ");
+    out->append(flag);
+  }
   for (int i = 0; i < cc_compile_args_.size(); ++i) {
     out->append(" ");
     out->append(cc_compile_args_[i]);
+  }
+  for (int i = 0; i < cc_linker_args_.size(); ++i) {
+    out->append(" ");
+    out->append(cc_linker_args_[i]);
   }
   for (const string& input : object_files) {
     out->append(" ");
@@ -71,7 +80,7 @@ void CCBinaryNode::WriteMakefile(const Input& input,
   out->append(out_bin + ": ");
   out->append(bin);
   out->append("\n\t");
-  out->append("ln -s ");
+  out->append("ln -f -s ");
   out->append(strings::JoinPath(input.full_object_dir(),
                                 target().local_path()));
   out->append(" ");

@@ -11,10 +11,18 @@
 
 namespace repobuild {
 namespace {
-void CheckPath(const std::string& path) {
-  CHECK(strings::HasPrefix(path, "//"));
+bool IsValidPath(const std::string& path) {
+  if (!strings::HasPrefix(path, "//")) {
+    return false;
+  }
   std::vector<StringPiece> pieces = strings::Split(path, ":");
-  CHECK_EQ(2, pieces.size()) << "Not a valid target: " << path;
+  return pieces.size() == 2;
+}
+
+void CheckPath(const std::string& path) {
+  if (!IsValidPath(path)) {
+    LOG(FATAL) << "Invalid path: " << path;
+  }
 }
 
 std::string BuildDir(const std::string& target) {
@@ -77,6 +85,27 @@ TargetInfo::TargetInfo(const std::string& relative_path,
   dir_ = BuildDir(full_path_);
   build_file_ = strings::JoinPath(dir_, "BUILD");
   local_path_ = LocalPath(full_path_);
+}
+
+// static
+TargetInfo TargetInfo::FromUserPath(const std::string& user_path) {
+  if (IsValidPath(user_path)) {
+    return TargetInfo(user_path);
+  }
+
+  // Prepend "//" if necessary.
+  std::string copy = user_path;
+  if (!strings::HasPrefix(user_path, "//")) {
+    copy = "//" + user_path;
+  }
+
+  // Append :suffix if necessary.
+  std::vector<StringPiece> pieces = strings::Split(copy, ":");
+  if (pieces.size() == 1) {
+    copy += ":" + strings::PathBasename(pieces[0]);
+  }
+
+  return TargetInfo(copy);
 }
 
 }  // namespace repobuild

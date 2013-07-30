@@ -10,13 +10,6 @@ class TargetInfo {
   TargetInfo() {}  // for stl, do not use.
   explicit TargetInfo(const std::string& full_path);
   TargetInfo(const std::string& relative_path, const std::string& build_file);
-  /*
-  TargetInfo(const TargetInfo& other)
-      : full_path_(other.full_path_),
-        build_file_(other.build_file_),
-        dir_(other.dir_) {
-  }
-  */
 
   ~TargetInfo() {}
 
@@ -24,6 +17,9 @@ class TargetInfo {
   const std::string& build_file() const { return build_file_; }
   const std::string& dir() const { return dir_; }
   const std::string& local_path() const { return local_path_; }
+
+  // Helpers
+  static TargetInfo FromUserPath(const std::string& user_path);
 
  private:
   std::string full_path_, build_file_, dir_, local_path_;

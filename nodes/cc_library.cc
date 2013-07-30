@@ -73,12 +73,17 @@ void CCLibraryNode::WriteMakefile(const Input& input,
     out->append(strings::PathDirname(obj));
 
     // Compile command.
-    out->append(
-        "; clang++ -std=c++11 -stdlib=libc++ -pthread -DUSE_CXX0X -g -c");
+    out->append("; ");
+    out->append(DefaultCompileFlags());
+    out->append(" -c");
     out->append(" -I");
     out->append(input.root_dir());
     out->append(" -I");
     out->append(input.source_dir());
+    for (const string& flag : input.flags("-C")) {
+      out->append(" ");
+      out->append(flag);
+    }
     for (int j = 0; j < cc_compile_args_.size(); ++j) {
       out->append(" ");
       out->append(cc_compile_args_[j]);
@@ -109,6 +114,10 @@ void CCLibraryNode::ObjectFiles(const Input& input,
     files->push_back(strings::JoinPath(input.object_dir(),
                                        sources_[i] + ".o"));
   }
+}
+
+std::string CCLibraryNode::DefaultCompileFlags() const {
+  return "$(CXX) $(CXXFLAGS)";
 }
 
 }  // namespace repobuild
