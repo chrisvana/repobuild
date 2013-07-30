@@ -10,6 +10,7 @@
    "dependencies": [ "//common/base:init",
                      "//common/log:log",
                      "//common/file:fileutil",
+                     "//common/strings:stringpiece",
                      "//common/strings:strutil",
                      "//env:input",
                      "//env:target",
