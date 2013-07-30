@@ -22,7 +22,7 @@ class ConfigNode : public Node {
   virtual void DependencyFiles(const Input& input,
                                std::vector<std::string>* files) const;
  protected:
-  std::string component_src_root_;
+  std::string component_src_, component_root_;
 };
 
 }  // namespace repobuild

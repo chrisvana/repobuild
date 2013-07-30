@@ -4,7 +4,7 @@
      "name" : "foo",
      "cc_sources" : [ "foo.cc" ],
      "cc_headers" : [ "foo.h" ],
-     "dependencies": [ "//a:foo_pred_a", "//b:foo_pred_b" ]
+     "dependencies": [ "//a:foo_pred_a", "//b:foo_pred_b", "//c:foo_pred_c" ]
    }
  },
 
