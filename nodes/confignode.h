@@ -11,16 +11,18 @@ namespace repobuild {
 
 class ConfigNode : public Node {
  public:
-  ConfigNode(const TargetInfo& t) : Node(t) {}
+  ConfigNode(const TargetInfo& t,
+             const Input& i)
+      : Node(t, i) {
+  }
   virtual ~ConfigNode() {}
   virtual std::string Name() const { return "config"; }
   virtual void Parse(BuildFile* file, const BuildFileNode& input);
-  virtual void WriteMakeClean(const Input& input, std::string* out) const;
-  virtual void WriteMakefile(const Input& input,
-                             const std::vector<const Node*>& all_deps,
+  virtual void WriteMakeClean(std::string* out) const;
+  virtual void WriteMakefile(const std::vector<const Node*>& all_deps,
                              std::string* out) const;
-  virtual void DependencyFiles(const Input& input,
-                               std::vector<std::string>* files) const;
+  virtual void DependencyFiles(std::vector<std::string>* files) const;
+
  protected:
   std::string component_src_, component_root_;
 };

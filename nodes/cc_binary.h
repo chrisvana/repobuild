@@ -12,20 +12,21 @@ namespace repobuild {
 
 class CCBinaryNode : public CCLibraryNode {
  public:
-  CCBinaryNode(const TargetInfo& t) : CCLibraryNode(t) {}
+  CCBinaryNode(const TargetInfo& t,
+               const Input& i)
+      : CCLibraryNode(t, i) {
+  }
   virtual ~CCBinaryNode() {}
   virtual std::string Name() const { return "cc_binary"; }
   virtual void Parse(BuildFile* file, const BuildFileNode& input);
-  virtual void WriteMakeClean(const Input& input, std::string* out) const;
-  virtual void WriteMakefile(const Input& input,
-                             const std::vector<const Node*>& all_deps,
+  virtual void WriteMakeClean(std::string* out) const;
+  virtual void WriteMakefile(const std::vector<const Node*>& all_deps,
                              std::string* out) const;
-  virtual void FinalOutputs(const Input& input,
-                            std::vector<std::string>* outputs) const;
+  virtual void FinalOutputs(std::vector<std::string>* outputs) const;
 
  protected:
   // Helper.
-  std::string OutBinary(const Input& input) const;
+  std::string OutBinary() const;
 
   std::vector<std::string> cc_linker_args_;
 };

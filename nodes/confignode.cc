@@ -30,15 +30,14 @@ void ConfigNode::Parse(BuildFile* file, const BuildFileNode& input) {
   }
 }
 
-void ConfigNode::WriteMakefile(const Input& input,
-                               const vector<const Node*>& all_deps,
+void ConfigNode::WriteMakefile(const vector<const Node*>& all_deps,
                                string* out) const {
   if (component_src_.empty()) {
     return;
   }
 
   // This is the directory we create.
-  string dir = SourceDir(input.source_dir(), component_src_);
+  string dir = SourceDir(input().source_dir(), component_src_);
   out->append(dir);
   out->append(":\n");
 
@@ -46,10 +45,10 @@ void ConfigNode::WriteMakefile(const Input& input,
   // mkdir -p src; ln -s path/to/this/target/dir src/<component>
   out->append("\t");
   out->append("mkdir -p ");
-  out->append(input.source_dir());
+  out->append(input().source_dir());
   out->append("; ln -s ");
   out->append(strings::JoinPath(
-      input.full_root_dir(),
+      input().full_root_dir(),
       strings::JoinPath(target().dir(), component_root_)));
   out->append(" ");
   out->append(dir);
@@ -58,7 +57,7 @@ void ConfigNode::WriteMakefile(const Input& input,
   // Dummy file (to avoid directory timestamp causing everything to rebuild).
   // src/repobuild/.dummy: src/repobuild
   //   if [[ ! -a src/repobuild/.dummy ]]; then touch src/repobuild/.dummy; fi
-  string dummy = DummyFile(input.source_dir(), component_src_);
+  string dummy = DummyFile(input().source_dir(), component_src_);
   out->append(dummy);
   out->append(": ");
   out->append(dir);  // input
@@ -69,23 +68,22 @@ void ConfigNode::WriteMakefile(const Input& input,
   out->append("; fi\n\n");
 }
 
-void ConfigNode::WriteMakeClean(const Input& input, std::string* out) const {
+void ConfigNode::WriteMakeClean(std::string* out) const {
   if (component_src_.empty()) {
     return;
   }
 
   out->append("\trm -f ");
-  out->append(DummyFile(input.source_dir(), component_src_));
+  out->append(DummyFile(input().source_dir(), component_src_));
   out->append("\n\trm -f ");
-  out->append(SourceDir(input.source_dir(), component_src_));
+  out->append(SourceDir(input().source_dir(), component_src_));
   out->append("\n");
 }
 
-void ConfigNode::DependencyFiles(const Input& input,
-                                 vector<string>* files) const {
-  Node::DependencyFiles(input, files);
+void ConfigNode::DependencyFiles(vector<string>* files) const {
+  Node::DependencyFiles(files);
   if (!component_src_.empty()) {
-    files->push_back(DummyFile(input.source_dir(), component_src_));
+    files->push_back(DummyFile(input().source_dir(), component_src_));
   }
 }
 

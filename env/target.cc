@@ -64,6 +64,7 @@ TargetInfo::TargetInfo(const std::string& full_path)
   dir_ = BuildDir(full_path_);
   build_file_ = strings::JoinPath(dir_, "BUILD");
   local_path_ = LocalPath(full_path_);
+  make_path_ = strings::JoinPath(dir_, local_path_);
 }
 
 TargetInfo::TargetInfo(const std::string& relative_path,
@@ -81,6 +82,7 @@ TargetInfo::TargetInfo(const std::string& relative_path,
   dir_ = BuildDir(full_path_);
   build_file_ = strings::JoinPath(dir_, "BUILD");
   local_path_ = LocalPath(full_path_);
+  make_path_ = strings::JoinPath(dir_, local_path_);
 }
 
 // static

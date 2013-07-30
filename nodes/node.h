@@ -17,8 +17,11 @@ class Input;
 
 class Node {
  public:
-  explicit Node(const TargetInfo& target)
-    : target_(new TargetInfo(target)) {
+  explicit Node(const TargetInfo& target,
+                const Input& input)
+      : target_(target),
+        input_(&input),
+        strict_file_mode_(true) {
   }
   virtual ~Node() {
     for (auto it : dependencies_) {
@@ -28,40 +31,45 @@ class Node {
 
   // Virtual interface.
   virtual std::string Name() const = 0;
-  virtual void WriteMakefile(const Input& input,
-                             const std::vector<const Node*>& all_deps,
+  virtual void WriteMakefile(const std::vector<const Node*>& all_deps,
                              std::string* out) const = 0;
-  virtual void WriteMakeClean(const Input& input, std::string* out) const {}
+  virtual void WriteMakeClean(std::string* out) const {}
   virtual void Parse(BuildFile* file, const BuildFileNode& input);
-  virtual void DependencyFiles(const Input& input,
-                               std::vector<std::string>* files) const {}
-  virtual void ObjectFiles(const Input& input,
-                           std::vector<std::string>* files) const {}
-  virtual void FinalOutputs(const Input& input,
-                            std::vector<std::string>* outputs) const {}
+  virtual void DependencyFiles(std::vector<std::string>* files) const {}
+  virtual void ObjectFiles(std::vector<std::string>* files) const {}
+  virtual void FinalOutputs(std::vector<std::string>* outputs) const {}
 
   // Accessors.
-  const TargetInfo& target() const { return *target_; }
+  const Input& input() const { return *input_; }
+  const TargetInfo& target() const { return target_; }
   const std::vector<TargetInfo*> dependencies() const { return dependencies_; }
 
   // Mutators
   void AddDependency(const TargetInfo& other);
 
  protected:
-  // Helper.
-  static void ParseRepeatedString(const BuildFileNode& input,
-                                  const std::string& key,
-                                  std::vector<std::string>* output);
+  // Helpers
+  void ParseRepeatedString(const BuildFileNode& input,
+                           const std::string& key,
+                           std::vector<std::string>* output) const;
   void ParseRepeatedFiles(const BuildFileNode& input,
                           const std::string& key,
-                          std::vector<std::string>* output);
-  static bool ParseStringField(const BuildFileNode& input,
-                               const std::string& key,
-                               std::string* field);
+                          std::vector<std::string>* output) const;
+  bool ParseStringField(const BuildFileNode& input,
+                        const std::string& key,
+                        std::string* field) const;
+  bool ParseBoolField(const BuildFileNode& input,
+                      const std::string& key,
+                      bool* field) const;
+  std::string ParseSingleString(const std::string& input) const;
+  std::string GenDir() const;
+  std::string RelativeGenDir() const;
 
  private:
-  std::unique_ptr<TargetInfo> target_;
+  TargetInfo target_;
+  const Input* input_;
   std::vector<TargetInfo*> dependencies_;
+  bool strict_file_mode_;
 };
 
 }  // namespace repobuild

@@ -13,7 +13,8 @@ class NodeBuilder {
  public:
   virtual ~NodeBuilder() {}
   virtual std::string Name() const = 0;
-  virtual Node* NewNode(const TargetInfo& target) = 0;
+  virtual Node* NewNode(const TargetInfo& target,
+                        const Input& input) = 0;
 
   static void GetAll(std::vector<NodeBuilder*>* nodes);
 };

@@ -20,6 +20,7 @@ namespace {
 Node* ParseNode(NodeBuilder* builder,
                 BuildFile* file,
                 BuildFileNode* file_node,
+                const Input& input,
                 const std::string& key) {
   TargetInfo target;
   const Json::Value& value = file_node->object()[key];
@@ -33,7 +34,7 @@ Node* ParseNode(NodeBuilder* builder,
   } else {
     target = TargetInfo(":" + file->NextName(), file->filename());
   }
-  Node* node = builder->NewNode(target);
+  Node* node = builder->NewNode(target, input);
 
   BuildFileNode subnode(value);
   node->Parse(file, subnode);
@@ -153,7 +154,7 @@ class Graph {
         }
 
         // Actually do the parsing.
-        Node* out_node = ParseNode(builder, file, node, key);
+        Node* out_node = ParseNode(builder, file, node, input, key);
         const std::string& target = out_node->target().full_path();
         if (nodes_.find(target) != nodes_.end()) {
           LOG(FATAL) << "Duplicate target: " << target;

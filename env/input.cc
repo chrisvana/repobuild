@@ -17,6 +17,8 @@ Input::Input() {
   full_root_dir_ = strings::JoinPath(current_path_, root_dir_);
   object_dir_ = "obj";
   full_object_dir_ = strings::JoinPath(current_path_, object_dir_);
+  genfile_dir_ = "gen";
+  full_genfile_dir_ = strings::JoinPath(current_path_, genfile_dir_);
   source_dir_ = "src";
 
   // Default flags.
@@ -27,6 +29,7 @@ Input::Input() {
   AddFlag("-C", "-pthread");
   AddFlag("-C", "-g");
   AddFlag("-C", "-Wall");
+  AddFlag("-C", "-Werror");
   AddFlag("-C", "-O3");
   // Linking
   AddFlag("-L", "-std=c++11");

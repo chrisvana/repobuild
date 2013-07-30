@@ -6,6 +6,7 @@
 #include <iterator>
 #include <vector>
 #include "common/log/log.h"
+#include "common/file/fileutil.h"
 #include "common/strings/path.h"
 #include "repobuild/env/input.h"
 #include "nodes/cc_library.h"
@@ -25,24 +26,26 @@ void CCLibraryNode::Parse(BuildFile* file, const BuildFileNode& input) {
 
   // cc_headers
   ParseRepeatedFiles(input, "cc_headers", &headers_);
+  
+  // cc_objs
+  ParseRepeatedFiles(input, "cc_objects", &objects_);
 
   // cc_compile_args
   ParseRepeatedString(input, "cc_compile_args", &cc_compile_args_);
 }
 
-void CCLibraryNode::WriteMakefile(const Input& input,
-                                  const vector<const Node*>& all_deps,
+void CCLibraryNode::WriteMakefile(const vector<const Node*>& all_deps,
                                   string* out) const {
   // Figure out the set of input files.
   set<string> input_files;
   for (int i = 0; i < all_deps.size(); ++i) {
     vector<string> files;
-    all_deps[i]->DependencyFiles(input, &files);
+    all_deps[i]->DependencyFiles(&files);
     for (const string& it : files) { input_files.insert(it); }
   }
   {
     vector<string> files;
-    DependencyFiles(input, &files);
+    DependencyFiles(&files);
     for (const string& it : files) { input_files.insert(it); }
     for (const string& it : headers_) { input_files.insert(it); }
   }
@@ -50,7 +53,7 @@ void CCLibraryNode::WriteMakefile(const Input& input,
   // Now write phases, one per .cc
   for (int i = 0; i < sources_.size(); ++i) {
     // Output object.
-    string obj = strings::JoinPath(input.object_dir(), sources_[i] + ".o");
+    string obj = strings::JoinPath(input().object_dir(), sources_[i] + ".o");
     out->append(obj + ":");
 
     // Dependencies.
@@ -71,10 +74,12 @@ void CCLibraryNode::WriteMakefile(const Input& input,
     out->append(DefaultCompileFlags());
     out->append(" -c");
     out->append(" -I");
-    out->append(input.root_dir());
+    out->append(input().root_dir());
     out->append(" -I");
-    out->append(input.source_dir());
-    for (const string& flag : input.flags("-C")) {
+    out->append(input().genfile_dir());
+    out->append(" -I");
+    out->append(input().source_dir());
+    for (const string& flag : input().flags("-C")) {
       out->append(" ");
       out->append(flag);
     }
@@ -93,20 +98,21 @@ void CCLibraryNode::WriteMakefile(const Input& input,
   }
 }
 
-void CCLibraryNode::DependencyFiles(const Input& input,
-                                    vector<string>* files) const {
-  Node::DependencyFiles(input, files);
+void CCLibraryNode::DependencyFiles(vector<string>* files) const {
+  Node::DependencyFiles(files);
   for (int i = 0; i < headers_.size(); ++i) {
     files->push_back(headers_[i]);
   }
 }
 
-void CCLibraryNode::ObjectFiles(const Input& input,
-                                vector<string>* files) const {
-  Node::ObjectFiles(input, files);
+void CCLibraryNode::ObjectFiles(vector<string>* files) const {
+  Node::ObjectFiles(files);
   for (int i = 0; i < sources_.size(); ++i) {
-    files->push_back(strings::JoinPath(input.object_dir(),
+    files->push_back(strings::JoinPath(input().object_dir(),
                                        sources_[i] + ".o"));
+  }
+  for (const string& obj : objects_) {
+    CHECK(file::Glob(strings::JoinPath(target().dir(), obj), files));
   }
 }
 

@@ -22,27 +22,26 @@ void CCBinaryNode::Parse(BuildFile* file, const BuildFileNode& input) {
   ParseRepeatedString(input, "cc_linker_args", &cc_linker_args_);
 }
 
-void CCBinaryNode::WriteMakefile(const Input& input,
-                                 const vector<const Node*>& all_deps,
+void CCBinaryNode::WriteMakefile(const vector<const Node*>& all_deps,
                                  string* out) const {
-  CCLibraryNode::WriteMakefile(input, all_deps, out);
+  CCLibraryNode::WriteMakefile(all_deps, out);
 
   // Object files.
   set<string> object_files;
   for (int i = 0; i < all_deps.size(); ++i) {
     vector<string> obj_files;
-    all_deps[i]->ObjectFiles(input, &obj_files);
+    all_deps[i]->ObjectFiles(&obj_files);
     for (const string& it : obj_files) { object_files.insert(it); }
   }
   {
     vector<string> obj_files;
-    ObjectFiles(input, &obj_files);
+    ObjectFiles(&obj_files);
     for (const string& it : obj_files) { object_files.insert(it); }
   }
 
   // Output binary
   string bin = strings::JoinPath(
-      strings::JoinPath(input.object_dir(), target().dir()),
+      strings::JoinPath(input().object_dir(), target().dir()),
       target().local_path());
   out->append(bin + ":");
   for (const string& input : object_files) {
@@ -54,7 +53,7 @@ void CCBinaryNode::WriteMakefile(const Input& input,
   out->append(strings::PathDirname(bin));
   out->append("; ");
   out->append(DefaultCompileFlags());
-  for (const string& flag : input.flags("-L")) {
+  for (const string& flag : input().flags("-L")) {
     out->append(" ");
     out->append(flag);
   }
@@ -75,33 +74,32 @@ void CCBinaryNode::WriteMakefile(const Input& input,
   out->append("\n\n");
 
   // Symlink to root dir.
-  string out_bin = OutBinary(input);
+  string out_bin = OutBinary();
   out->append(out_bin);
   out->append(": ");
   out->append(bin);
   out->append("\n\t");
   out->append("pwd > /dev/null");  // hack to work around make issue?
   out->append("\n\tln -f -s ");
-  out->append(strings::JoinPath(input.full_object_dir(),
+  out->append(strings::JoinPath(input().full_object_dir(),
                                 target().local_path()));
   out->append(" ");
   out->append(out_bin);
   out->append("\n\n");
 }
 
-void CCBinaryNode::WriteMakeClean(const Input& input, std::string* out) const {
+void CCBinaryNode::WriteMakeClean(std::string* out) const {
   out->append("\trm -f ");
-  out->append(OutBinary(input));
+  out->append(OutBinary());
   out->append("\n");
 }
 
-void CCBinaryNode::FinalOutputs(const Input& input,
-                                vector<string>* outputs) const {
-  outputs->push_back(OutBinary(input));
+void CCBinaryNode::FinalOutputs(vector<string>* outputs) const {
+  outputs->push_back(OutBinary());
 }
 
-std::string CCBinaryNode::OutBinary(const Input& input) const {
-  return strings::JoinPath(input.root_dir(), target().local_path());
+std::string CCBinaryNode::OutBinary() const {
+  return strings::JoinPath(input().root_dir(), target().local_path());
 }
 
 }  // namespace repobuild

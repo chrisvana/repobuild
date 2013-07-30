@@ -4,7 +4,7 @@
      "cc_sources" : [ "node.cc" ],
      "cc_headers" : [ "node.h" ],
      "dependencies": [ "//common/log:log",
-                       "//common/file:fileuitl",
+                       "//common/file:fileutil",
                        "//common/strings:strutil",
                        "//reader:buildfile" ]
    }
@@ -26,6 +26,7 @@
      "cc_sources" : [ "cc_library.cc" ],
      "cc_headers" : [ "cc_library.h" ],
      "dependencies": [ "//common/log:log",
+                       "//common/file:fileutil",
                        "//common/strings:strutil",
                        ":node"
       ]
@@ -44,10 +45,26 @@
  },
 
  { "cc_library": {
+     "name" : "gen_sh",
+     "cc_sources" : [ "gen_sh.cc" ],
+     "cc_headers" : [ "gen_sh.h" ],
+     "dependencies": [ "//common/log:log",
+                       "//common/strings:strutil",
+                       ":node"
+      ]
+   }
+ },
+
+ { "cc_library": {
      "name" : "allnodes",
      "cc_sources" : [ "allnodes.cc" ],
      "cc_headers" : [ "allnodes.h" ],
-     "dependencies": [ ":node", ":cc_library", ":cc_binary", ":confignode" ]
+     "dependencies": [ ":node",
+                       ":cc_library",
+                       ":cc_binary",
+                       ":confignode",
+                       ":gen_sh"
+     ]
    }
  }
 ]
