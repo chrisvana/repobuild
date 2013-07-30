@@ -102,7 +102,7 @@ string Generator::GenerateMakefile(const Input& input) {
   out.append(".PHONY: clean all\n\n");
 
   // Default build everything.
-  out.append(".DEFAULT: all\n\n");
+  out.append(".DEFAULT_GOAL=all\n\n");
 
   return out;
 }
