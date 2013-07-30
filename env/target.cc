@@ -33,10 +33,6 @@ std::string BuildDir(const std::string& target) {
   return pieces[0].as_string();
 }
 
-std::string BuildFileFromDir(const std::string& dir) {
-  return strings::JoinPath(dir, "BUILD");
-}
-
 std::string CleanFullPath(const std::string& path) {
   CheckPath(path);
   std::string str = "/" + strings::CleanPath(path.substr(1));

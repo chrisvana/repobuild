@@ -25,12 +25,15 @@ Input::Input() {
   AddFlag("-C", "-stdlib=libc++");
   AddFlag("-C", "-pthread");
   AddFlag("-C", "-g");
+  AddFlag("-C", "-Wall");
+  AddFlag("-C", "-O3");
   // Linking
   AddFlag("-L", "-std=c++11");
   AddFlag("-L", "-DUSE_CXX0X");
   AddFlag("-L", "-stdlib=libc++");
   AddFlag("-L", "-lpthread");
   AddFlag("-L", "-g");
+  AddFlag("-L", "-O3");
 }
 
 const std::vector<std::string>& Input::flags(const std::string& key) const {

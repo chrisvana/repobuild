@@ -13,6 +13,14 @@ using std::string;
 using std::vector;
 
 namespace repobuild {
+namespace {
+std::string SourceDir(const string& base_source, const string& component) {
+  return strings::JoinPath(base_source, component);
+}
+std::string DummyFile(const string& base_source, const string& component) {
+  return strings::JoinPath(SourceDir(base_source, component), ".dummy");
+}
+}  // namespace
 
 void ConfigNode::Parse(BuildFile* file, const BuildFileNode& input) {
   Node::Parse(file, input);
@@ -26,7 +34,7 @@ void ConfigNode::WriteMakefile(const Input& input,
                                string* out) const {
   if (!component_src_root_.empty() && component_src_root_ != ".") {
     // This is the directory we create.
-    string dir = strings::JoinPath(input.source_dir(), component_src_root_);
+    string dir = SourceDir(input.source_dir(), component_src_root_);
     out->append(dir);
     out->append(":\n");
 
@@ -40,15 +48,35 @@ void ConfigNode::WriteMakefile(const Input& input,
     out->append(" ");
     out->append(dir);
     out->append("\n\n");
+
+    // Dummy file (to avoid directory timestamp causing everything to rebuild).
+    // src/repobuild/.dummy: src/repobuild
+    //     if [[ ! -a src/repobuild/.dummy ]]; then touch src/repobuild/.dummy; fi
+    string dummy = DummyFile(input.source_dir(), component_src_root_);
+    out->append(dummy);
+    out->append(": ");
+    out->append(dir);  // input
+    out->append("\n\tif [[ ! -a ");
+    out->append(dummy);
+    out->append(" ]]; then touch ");
+    out->append(dummy);
+    out->append("; fi\n\n");
   }
+}
+
+void ConfigNode::WriteMakeClean(const Input& input, std::string* out) const {
+  out->append("\trm -f ");
+  out->append(DummyFile(input.source_dir(), component_src_root_));
+  out->append("\n\trm -f ");
+  out->append(SourceDir(input.source_dir(), component_src_root_));
+  out->append("\n");
 }
 
 void ConfigNode::DependencyFiles(const Input& input,
                                  vector<string>* files) const {
   Node::DependencyFiles(input, files);
   if (!component_src_root_.empty() && component_src_root_ != ".") {
-    string dir = strings::JoinPath(input.source_dir(), component_src_root_);
-    files->push_back(dir);
+    files->push_back(DummyFile(input.source_dir(), component_src_root_));
   }
 }
 

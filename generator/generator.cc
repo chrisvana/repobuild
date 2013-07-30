@@ -61,12 +61,22 @@ string Generator::GenerateMakefile(const Input& input) {
   repobuild::Parser parser;
   parser.Parse(input);
 
-  for (int i = 0; i < parser.all_nodes().size(); ++i) {
-    const Node* node = parser.all_nodes()[i];
+  // Write all of the object rules
+  for (const Node* node : parser.all_nodes()) {
     vector<const Node*> deps;
     GetFullDepList(parser, node, &deps);
     node->WriteMakefile(input, deps, &out);
   }
+
+  // Write the make clean rule.
+  out.append("clean:\n");
+  out.append("\trm -rf ");
+  out.append(input.object_dir());
+  out.append("\n");
+  for (const Node* node : parser.all_nodes()) {
+    node->WriteMakeClean(input, &out);
+  }
+  out.append("\n.PHONY: clean\n\n");
 
   return out;
 }

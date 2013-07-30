@@ -15,6 +15,7 @@ class ConfigNode : public Node {
   virtual ~ConfigNode() {}
   virtual std::string Name() const { return "config"; }
   virtual void Parse(BuildFile* file, const BuildFileNode& input);
+  virtual void WriteMakeClean(const Input& input, std::string* out) const;
   virtual void WriteMakefile(const Input& input,
                              const std::vector<const Node*>& all_deps,
                              std::string* out) const;

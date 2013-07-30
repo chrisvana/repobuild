@@ -31,6 +31,7 @@ class Node {
   virtual void WriteMakefile(const Input& input,
                              const std::vector<const Node*>& all_deps,
                              std::string* out) const = 0;
+  virtual void WriteMakeClean(const Input& input, std::string* out) const {}
   virtual void Parse(BuildFile* file, const BuildFileNode& input);
   virtual void DependencyFiles(const Input& input,
                                std::vector<std::string>* files) const {}

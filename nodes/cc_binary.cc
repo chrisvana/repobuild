@@ -80,7 +80,8 @@ void CCBinaryNode::WriteMakefile(const Input& input,
   out->append(out_bin + ": ");
   out->append(bin);
   out->append("\n\t");
-  out->append("ln -f -s ");
+  out->append("pwd > /dev/null");  // hack to work around make issue?
+  out->append("\n\tln -f -s ");
   out->append(strings::JoinPath(input.full_object_dir(),
                                 target().local_path()));
   out->append(" ");
