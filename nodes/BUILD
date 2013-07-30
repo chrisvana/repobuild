@@ -3,7 +3,10 @@
      "name" : "node",
      "cc_sources" : [ "node.cc" ],
      "cc_headers" : [ "node.h" ],
-     "dependencies": [ "//common/log:log", "//reader:buildfile" ]
+     "dependencies": [ "//common/log:log",
+                       "//common/file:fileuitl",
+                       "//common/strings:strutil",
+                       "//reader:buildfile" ]
    }
  },
 

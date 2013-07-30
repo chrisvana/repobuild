@@ -21,16 +21,10 @@ void CCLibraryNode::Parse(BuildFile* file, const BuildFileNode& input) {
   Node::Parse(file, input);
 
   // cc_sources
-  ParseRepeatedString(input, "cc_sources", &sources_);
-  for (int i = 0; i < sources_.size(); ++i) {
-    sources_[i] = strings::JoinPath(target().dir(), sources_[i]);
-  }
+  ParseRepeatedFiles(input, "cc_sources", &sources_);
 
   // cc_headers
-  ParseRepeatedString(input, "cc_headers", &headers_);
-  for (int i = 0; i < headers_.size(); ++i) {
-    headers_[i] = strings::JoinPath(target().dir(), headers_[i]);
-  }
+  ParseRepeatedFiles(input, "cc_headers", &headers_);
 
   // cc_compile_args
   ParseRepeatedString(input, "cc_compile_args", &cc_compile_args_);

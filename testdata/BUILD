@@ -10,7 +10,7 @@
 
  { "cc_library": {
      "name" : "bar",
-     "cc_sources" : [ "bar.cc" ],
+     "cc_sources" : [ "ba*.cc" ],
      "cc_headers" : [ "bar.h" ],
      "dependencies": [ "//b:bar_pred_b" ],
      "cc_compile_args": [ "-O3" ]

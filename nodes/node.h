@@ -52,6 +52,9 @@ class Node {
   static void ParseRepeatedString(const BuildFileNode& input,
                                   const std::string& key,
                                   std::vector<std::string>* output);
+  void ParseRepeatedFiles(const BuildFileNode& input,
+                          const std::string& key,
+                          std::vector<std::string>* output);
   static bool ParseStringField(const BuildFileNode& input,
                                const std::string& key,
                                std::string* field);
