@@ -1,9 +1,14 @@
 // Copyright 2013
-// Author: Christopher Van Arsdale
+// Author: Christqopher Van Arsdale
+
+#ifndef _REPOBUILD_ENV_INPUT__
+#define _REPOBUILD_ENV_INPUT__
 
 #include <map>
 #include <string>
 #include <vector>
+#include <set>
+#include "repobuild/env/target.h"
 
 namespace repobuild {
 
@@ -13,9 +18,7 @@ class Input {
   ~Input() {}
 
   // Mutators:
-  void AddBuildTarget(const std::string& target) {
-    build_targets_.push_back(target);
-  }
+  void AddBuildTarget(const TargetInfo& target);
   void AddFlag(const std::string& key,  const std::string& value) {
     flags_[key].push_back(value);
   }
@@ -26,10 +29,13 @@ class Input {
   const std::string& object_dir() const { return object_dir_; }
   const std::string& full_object_dir() const { return full_object_dir_; }
   const std::string& source_dir() const { return source_dir_; }
-  const std::vector<std::string>& build_targets() const {
+  const std::vector<TargetInfo>& build_targets() const {
     return build_targets_;
   }
   const std::vector<std::string>& flags(const std::string& key) const;
+  bool contains_target(const std::string& target) const {
+    return build_target_set_.find(target) != build_target_set_.end();
+  }
 
  private:
   std::string root_dir_, full_root_dir_;
@@ -37,8 +43,11 @@ class Input {
   std::string object_dir_, full_object_dir_;
   std::string source_dir_;
 
-  std::vector<std::string> build_targets_;
+  std::vector<TargetInfo> build_targets_;
+  std::set<std::string> build_target_set_;
   std::map<std::string, std::vector<std::string> > flags_;
 };
 
 }  // namespace repobuild
+
+#endif  // _REPOBUILD_ENV_INPUT__

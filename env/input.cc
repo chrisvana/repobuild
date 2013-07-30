@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include "repobuild/env/input.h"
+#include "repobuild/env/target.h"
 #include "common/strings/path.h"
 
 using std::string;
@@ -45,6 +46,10 @@ const std::vector<std::string>& Input::flags(const std::string& key) const {
   return it->second;
 }
 
-
+void Input::AddBuildTarget(const TargetInfo& target) {
+  if (build_target_set_.insert(target.full_path()).second) {
+    build_targets_.push_back(target);
+  }
+}
 
 }  // namespace repobuild

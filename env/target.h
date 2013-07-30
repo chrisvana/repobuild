@@ -1,6 +1,9 @@
 // Copyright 2013
 // Author: Christopher Van Arsdale
 
+#ifndef _REPOBUILD_ENV_TARGET__
+#define _REPOBUILD_ENV_TARGET__
+
 #include <string>
 
 namespace repobuild {
@@ -26,3 +29,5 @@ class TargetInfo {
 };
 
 }  // namespace repobuild
+
+#endif  //  _REPOBUILD_ENV_TARGET__

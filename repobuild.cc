@@ -24,8 +24,7 @@ int main(int argc, const char** argv) {
       input.AddFlag(StringPiece(argv[i]).substr(0, pos).as_string(),
                     StringPiece(argv[i]).substr(pos+1).as_string());
     } else {
-      input.AddBuildTarget(
-          repobuild::TargetInfo::FromUserPath(argv[i]).full_path());
+      input.AddBuildTarget(repobuild::TargetInfo::FromUserPath(argv[i]));
     }
   }
   repobuild::Generator generator;

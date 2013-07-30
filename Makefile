@@ -86,10 +86,14 @@ clean:
 	rm -rf obj
 	rm -f src/repobuild/.dummy
 	rm -f src/repobuild
+	rm -f repobuild
 	rm -f src/common/.dummy
 	rm -f src/common
 	rm -f src/json/.dummy
 	rm -f src/json
 
-.PHONY: clean
+all: repobuild
+
+
+.PHONY: clean all
 

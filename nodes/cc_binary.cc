@@ -75,9 +75,9 @@ void CCBinaryNode::WriteMakefile(const Input& input,
   out->append("\n\n");
 
   // Symlink to root dir.
-  std::string out_bin =
-      strings::JoinPath(input.root_dir(), target().local_path());
-  out->append(out_bin + ": ");
+  string out_bin = OutBinary(input);
+  out->append(out_bin);
+  out->append(": ");
   out->append(bin);
   out->append("\n\t");
   out->append("pwd > /dev/null");  // hack to work around make issue?
@@ -87,6 +87,21 @@ void CCBinaryNode::WriteMakefile(const Input& input,
   out->append(" ");
   out->append(out_bin);
   out->append("\n\n");
+}
+
+void CCBinaryNode::WriteMakeClean(const Input& input, std::string* out) const {
+  out->append("\trm -f ");
+  out->append(OutBinary(input));
+  out->append("\n");
+}
+
+void CCBinaryNode::FinalOutputs(const Input& input,
+                                vector<string>* outputs) const {
+  outputs->push_back(OutBinary(input));
+}
+
+std::string CCBinaryNode::OutBinary(const Input& input) const {
+  return strings::JoinPath(input.root_dir(), target().local_path());
 }
 
 }  // namespace repobuild

@@ -37,6 +37,8 @@ class Node {
                                std::vector<std::string>* files) const {}
   virtual void ObjectFiles(const Input& input,
                            std::vector<std::string>* files) const {}
+  virtual void FinalOutputs(const Input& input,
+                            std::vector<std::string>* outputs) const {}
 
   // Accessors.
   const TargetInfo& target() const { return *target_; }

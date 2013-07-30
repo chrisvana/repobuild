@@ -21,7 +21,7 @@
      "name" : "main",
      "cc_sources" : [ "main.cc" ],
      "dependencies": [ ":foo", ":bar" ],
-     "cc_linker_args": [ "-static" ]
+     "cc_linker_args": [ "-lm" ]
    }
  }
 ]

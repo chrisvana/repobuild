@@ -62,11 +62,8 @@ class Graph {
     // Seed initial targets.
     std::queue<std::string> to_process;
     std::set<std::string> queued_targets;
-    std::set<std::string> input_targets;
-    for (std::string target : input.build_targets()) {
-      TargetInfo info(target, "BUILD");
+    for (const TargetInfo& info : input.build_targets()) {
       const std::string& cleaned = info.full_path();
-      input_targets.insert(cleaned);
       if (queued_targets.insert(cleaned).second) {
         to_process.push(cleaned);
       }
@@ -102,7 +99,7 @@ class Graph {
     for (auto it : nodes_) {
       Node* node = it.second;
       const TargetInfo& target = node->target();
-      if (input_targets.find(target.full_path()) != input_targets.end()) {
+      if (input.contains_target(target.full_path())) {
         inputs_.push_back(node);
       }
     }

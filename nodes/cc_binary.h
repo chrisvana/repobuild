@@ -16,11 +16,17 @@ class CCBinaryNode : public CCLibraryNode {
   virtual ~CCBinaryNode() {}
   virtual std::string Name() const { return "cc_binary"; }
   virtual void Parse(BuildFile* file, const BuildFileNode& input);
+  virtual void WriteMakeClean(const Input& input, std::string* out) const;
   virtual void WriteMakefile(const Input& input,
                              const std::vector<const Node*>& all_deps,
                              std::string* out) const;
+  virtual void FinalOutputs(const Input& input,
+                            std::vector<std::string>* outputs) const;
 
  protected:
+  // Helper.
+  std::string OutBinary(const Input& input) const;
+
   std::vector<std::string> cc_linker_args_;
 };
 

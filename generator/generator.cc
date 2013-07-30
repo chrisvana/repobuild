@@ -76,7 +76,24 @@ string Generator::GenerateMakefile(const Input& input) {
   for (const Node* node : parser.all_nodes()) {
     node->WriteMakeClean(input, &out);
   }
-  out.append("\n.PHONY: clean\n\n");
+  out.append("\n");
+
+  // Write the all rule.
+  out.append("all:");
+  for (const Node* node : parser.all_nodes()) {
+    if (input.contains_target(node->target().full_path())) {
+      vector<string> outputs;
+      node->FinalOutputs(input, &outputs);
+      for (const string& output : outputs) {
+        out.append(" ");
+        out.append(output);
+      }
+    }
+  }
+  out.append("\n\n");
+
+  // Not real files:
+  out.append("\n.PHONY: clean all\n\n");
 
   return out;
 }
