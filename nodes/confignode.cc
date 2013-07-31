@@ -38,10 +38,14 @@ void ConfigNode::WriteMakefile(const vector<const Node*>& all_deps,
   out->append("\t");
   out->append("mkdir -p ");
   out->append(input().source_dir());
-  out->append("; ln -s ");
-  out->append(MakefileEscape(strings::JoinPath(
-      input().full_root_dir(),
-      strings::JoinPath(target().dir(), component_root_))));
+  string relative_component = strings::JoinPath(target().dir(),
+                                                component_root_);
+  out->append("; if [[ ! -a ");
+  out->append(relative_component);
+  out->append(" ]]; then mkdir -p ");
+  out->append(relative_component);
+  out->append("; fi; ln -s ");
+  out->append(strings::JoinPath(input().full_root_dir(), relative_component));
   out->append(" ");
   out->append(dir);
   out->append("\n\n");

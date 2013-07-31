@@ -79,7 +79,7 @@ bool Node::ParseStringField(const BuildFileNode& input,
   if (!json_field.isString()) {
     return false;
   }
-  *field = json_field.asString();
+  *field = ParseSingleString(json_field.asString());
   return true;
 }
 
