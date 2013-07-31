@@ -44,8 +44,14 @@ void ConfigNode::WriteMakefile(const vector<const Node*>& all_deps,
   out->append(relative_component);
   out->append(" ]]; then mkdir -p ");
   out->append(relative_component);
-  out->append("; fi; ln -s ");
-  out->append(strings::JoinPath(input().full_root_dir(), relative_component));
+  out->append("; fi; ln -f -s ");
+  int num_pieces = strings::NumPathComponents(
+      strings::PathBasename(dir));
+  string link;
+  for (int i = 0; i < num_pieces; ++i) {
+    link += "../";
+  }
+  out->append(strings::JoinPath(link, relative_component));
   out->append(" ");
   out->append(dir);
   out->append("\n\n");

@@ -8,7 +8,7 @@ gen-obj/main: gen-obj/a/bar.cc.o gen-obj/a/foo.cc.o gen-obj/b/bar.cc.o gen-obj/b
 
 main: gen-obj/main
 	pwd > /dev/null
-	ln -f -s /Users/chris/src/repobuild/testdata/gen-obj/main main
+	ln -f -s gen-obj/main main
 
 gen-obj/foo.cc.o: a/foo.h b/foo.h c/include/c/foo.h foo.h gen-files/d/foo.h gen-src/c/.dummy foo.cc
 	mkdir -p gen-obj; $(CXX) $(CXXFLAGS) -c -I. -Igen-files -Igen-src -std=c++11 -DUSE_CXX0X -stdlib=libc++ -pthread -g -Wall -Werror -O3 foo.cc -o gen-obj/foo.cc.o
@@ -26,7 +26,7 @@ gen-obj/a/bar.cc.o: a/bar.cc
 	mkdir -p gen-obj/a; $(CXX) $(CXXFLAGS) -c -I. -Igen-files -Igen-src -std=c++11 -DUSE_CXX0X -stdlib=libc++ -pthread -g -Wall -Werror -O3 a/bar.cc -o gen-obj/a/bar.cc.o
 
 gen-src/c:
-	mkdir -p gen-src; ln -s /Users/chris/src/repobuild/testdata/c/include/c gen-src/c
+	mkdir -p gen-src; if [[ ! -a c/include/c ]]; then mkdir -p c/include/c; fi; ln -f -s ../c/include/c gen-src/c
 
 gen-src/c/.dummy: gen-src/c
 	if [[ ! -a gen-src/c/.dummy ]]; then touch gen-src/c/.dummy; fi
@@ -50,11 +50,11 @@ gen-files/d/foo.h: gen-obj/d/.foo_gen.dummy
 .PHONY: 
 
 clean:
-	rm -rf gen-obj
-	rm -rf gen-files
 	rm -f main
 	rm -f gen-src/c/.dummy
 	rm -f gen-src/c
+	rm -rf gen-obj
+	rm -rf gen-files
 	rm -rf gen-src
 
 all: main

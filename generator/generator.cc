@@ -85,16 +85,15 @@ string Generator::GenerateMakefile(const Input& input) {
 
   // Write the make clean rule.
   out.append("clean:\n");
+  for (const Node* node : parser.all_nodes()) {
+    node->WriteMakeClean(&out);
+  }
   out.append("\trm -rf ");
   out.append(input.object_dir());
   out.append("\n");
   out.append("\trm -rf ");
   out.append(input.genfile_dir());
-  out.append("\n");
-  for (const Node* node : parser.all_nodes()) {
-    node->WriteMakeClean(&out);
-  }
-  out.append("\trm -rf ");
+  out.append("\n\trm -rf ");
   out.append(input.source_dir());
   out.append("\n");
   out.append("\n");
