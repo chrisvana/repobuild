@@ -61,11 +61,26 @@ string Generator::GenerateMakefile(const Input& input) {
   repobuild::Parser parser;
   parser.Parse(input);
 
-  // Write all of the object rules
-  for (const Node* node : parser.all_nodes()) {
-    vector<const Node*> deps;
-    GetFullDepList(parser, node, &deps);
-    node->WriteMakefile(deps, &out);
+  // Write all of the rules for our user inputted targets.
+  set<const Node*> all_nodes, processed;
+  for (const Node* node : parser.input_nodes()) {
+    if (processed.insert(node).second) {
+      vector<const Node*> deps;
+      GetFullDepList(parser, node, &deps);
+      for (const Node* dep : deps) {
+        all_nodes.insert(dep);
+      }
+      node->WriteMakefile(deps, &out);
+    }
+  }
+
+  // Write all of the dependent rules.
+  for (const Node* node : all_nodes) {
+    if (processed.insert(node).second) {
+      vector<const Node*> deps;
+      GetFullDepList(parser, node, &deps);
+      node->WriteMakefile(deps, &out);
+    }
   }
 
   // Write the make clean rule.

@@ -64,6 +64,7 @@ class Node {
   std::string ParseSingleString(const std::string& input) const;
   std::string GenDir() const;
   std::string RelativeGenDir() const;
+  std::string MakefileEscape(const std::string& str) const;
 
  private:
   TargetInfo target_;

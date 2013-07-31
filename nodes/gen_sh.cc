@@ -6,6 +6,7 @@
 #include <vector>
 #include "common/log/log.h"
 #include "common/strings/path.h"
+#include "common/strings/strutil.h"
 #include "repobuild/env/input.h"
 #include "nodes/gen_sh.h"
 #include "repobuild/reader/buildfile.h"
@@ -43,7 +44,11 @@ void GenShNode::WriteMakefile(const vector<const Node*>& all_deps,
     input_files.insert(it);
   }
 
-  out->append(target().make_path());
+  string touchfile = strings::JoinPath(
+      strings::JoinPath(input().object_dir(), target().dir()),
+      "." + target().local_path() + ".dummy");
+
+  out->append(touchfile);
   out->append(":");
   for (const string& it : input_files) {
     out->append(" ");
@@ -53,7 +58,12 @@ void GenShNode::WriteMakefile(const vector<const Node*>& all_deps,
 
   if (!build_cmd_.empty()) {
     out->append("\t");
-    out->append(WriteCommand(clean_cmd_));
+
+    string touch_cmd = "mkdir -p " +
+        strings::JoinPath(input().object_dir(), target().dir()) +
+        "; touch " + touchfile;
+
+    out->append(WriteCommand(build_cmd_, touch_cmd));
     out->append("\n");
   }
   out->append("\n");
@@ -61,12 +71,11 @@ void GenShNode::WriteMakefile(const vector<const Node*>& all_deps,
   for (const string& output : outputs_) {
     out->append(strings::JoinPath(GenDir(), output));
     out->append(": ");
-    out->append(target().make_path());
+    out->append(touchfile);
     out->append("\n\n");
   }
 
   out->append(".PHONY: ");
-  out->append(target().make_path());
   out->append("\n\n");
 }
 
@@ -76,21 +85,29 @@ void GenShNode::WriteMakeClean(std::string* out) const {
   }
 
   out->append("\t");
-  out->append(WriteCommand(clean_cmd_));
+  out->append(WriteCommand(clean_cmd_, ""));
   out->append("\n");
 }
 
-string GenShNode::WriteCommand(const string& cmd) const {
+string GenShNode::WriteCommand(const string& cmd,
+                               const string& admin_cmd) const {
   string out;
   out.append("(mkdir -p ");
   out.append(GenDir());
-  out.append("; cd ");
-  out.append(target().dir());
-  out.append("; env GEN_DIR=\"");
+  if (!target().dir().empty()) {
+    out.append("; cd ");
+    out.append(target().dir());
+  }
+  out.append("; GEN_DIR=\"");
   out.append(RelativeGenDir());
-  out.append("\" ");
-  out.append(build_cmd_);
-  out.append(")");
+  out.append("\" eval '");
+  out.append(MakefileEscape(cmd));
+  out.append("')");
+  if (!admin_cmd.empty()) {
+    out.append(" && (");
+    out.append(admin_cmd);
+    out.append(")");
+  }
   return out;
 }
 

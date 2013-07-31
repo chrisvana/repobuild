@@ -81,8 +81,10 @@ void CCBinaryNode::WriteMakefile(const vector<const Node*>& all_deps,
   out->append("\n\t");
   out->append("pwd > /dev/null");  // hack to work around make issue?
   out->append("\n\tln -f -s ");
-  out->append(strings::JoinPath(input().full_object_dir(),
-                                target().local_path()));
+  out->append(strings::JoinPath(
+      strings::JoinPath(input().full_object_dir(),
+                        target().dir()),
+      target().local_path()));
   out->append(" ");
   out->append(out_bin);
   out->append("\n\n");

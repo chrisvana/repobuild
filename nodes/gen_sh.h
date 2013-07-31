@@ -24,7 +24,8 @@ class GenShNode : public Node {
                              std::string* out) const;
 
  protected:
-  std::string WriteCommand(const std::string& cmd) const;
+  std::string WriteCommand(const std::string& cmd,
+                           const std::string& touchfile) const;
 
   std::string build_cmd_;
   std::string clean_cmd_;

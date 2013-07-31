@@ -13,14 +13,6 @@ using std::string;
 using std::vector;
 
 namespace repobuild {
-namespace {
-std::string SourceDir(const string& base_source, const string& component) {
-  return strings::JoinPath(base_source, component);
-}
-std::string DummyFile(const string& base_source, const string& component) {
-  return strings::JoinPath(SourceDir(base_source, component), ".dummy");
-}
-}  // namespace
 
 void ConfigNode::Parse(BuildFile* file, const BuildFileNode& input) {
   Node::Parse(file, input);
@@ -37,7 +29,7 @@ void ConfigNode::WriteMakefile(const vector<const Node*>& all_deps,
   }
 
   // This is the directory we create.
-  string dir = SourceDir(input().source_dir(), component_src_);
+  string dir = SourceDir();
   out->append(dir);
   out->append(":\n");
 
@@ -47,9 +39,9 @@ void ConfigNode::WriteMakefile(const vector<const Node*>& all_deps,
   out->append("mkdir -p ");
   out->append(input().source_dir());
   out->append("; ln -s ");
-  out->append(strings::JoinPath(
+  out->append(MakefileEscape(strings::JoinPath(
       input().full_root_dir(),
-      strings::JoinPath(target().dir(), component_root_)));
+      strings::JoinPath(target().dir(), component_root_))));
   out->append(" ");
   out->append(dir);
   out->append("\n\n");
@@ -57,7 +49,7 @@ void ConfigNode::WriteMakefile(const vector<const Node*>& all_deps,
   // Dummy file (to avoid directory timestamp causing everything to rebuild).
   // src/repobuild/.dummy: src/repobuild
   //   if [[ ! -a src/repobuild/.dummy ]]; then touch src/repobuild/.dummy; fi
-  string dummy = DummyFile(input().source_dir(), component_src_);
+  string dummy = DummyFile();
   out->append(dummy);
   out->append(": ");
   out->append(dir);  // input
@@ -74,17 +66,26 @@ void ConfigNode::WriteMakeClean(std::string* out) const {
   }
 
   out->append("\trm -f ");
-  out->append(DummyFile(input().source_dir(), component_src_));
+  out->append(DummyFile());
   out->append("\n\trm -f ");
-  out->append(SourceDir(input().source_dir(), component_src_));
+  out->append(SourceDir());
   out->append("\n");
 }
 
 void ConfigNode::DependencyFiles(vector<string>* files) const {
   Node::DependencyFiles(files);
   if (!component_src_.empty()) {
-    files->push_back(DummyFile(input().source_dir(), component_src_));
+    files->push_back(DummyFile());
   }
+}
+
+std::string ConfigNode::DummyFile() const {
+  return MakefileEscape(strings::JoinPath(SourceDir(), ".dummy"));
+}
+
+std::string ConfigNode::SourceDir() const {
+  return MakefileEscape(strings::JoinPath(input().source_dir(),
+                                          component_src_));
 }
 
 }  // namespace repobuild

@@ -24,6 +24,9 @@ class ConfigNode : public Node {
   virtual void DependencyFiles(std::vector<std::string>* files) const;
 
  protected:
+  std::string DummyFile() const;
+  std::string SourceDir() const;
+
   std::string component_src_, component_root_;
 };
 

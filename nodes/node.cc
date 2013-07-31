@@ -6,6 +6,7 @@
 #include "common/log/log.h"
 #include "common/file/fileutil.h"
 #include "common/strings/path.h"
+#include "common/strings/strutil.h"
 #include "common/strings/varmap.h"
 #include "env/input.h"
 #include "nodes/node.h"
@@ -115,6 +116,10 @@ string Node::RelativeGenDir() const {
   }
   output += input().genfile_dir();
   return strings::JoinPath(output, target().dir());
+}
+
+std::string Node::MakefileEscape(const std::string& str) const {
+  return strings::ReplaceAll(str, "$", "$$");
 }
 
 }  // namespace repobuild
