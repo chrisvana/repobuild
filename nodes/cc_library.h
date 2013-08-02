@@ -5,6 +5,7 @@
 #define _REPOBUILD_NODES_CC_LIBRARY_H__
 
 #include <string>
+#include <set>
 #include "nodes/node.h"
 
 namespace repobuild {
@@ -16,20 +17,30 @@ class CCLibraryNode : public Node {
       : Node(t, i) {
   }
   virtual ~CCLibraryNode() {}
-  virtual std::string Name() const { return "cc_library"; }
   virtual void Parse(BuildFile* file, const BuildFileNode& input);
   virtual void WriteMakefile(const std::vector<const Node*>& all_deps,
                              std::string* out) const;
   virtual void DependencyFiles(std::vector<std::string>* files) const;
   virtual void ObjectFiles(std::vector<std::string>* files) const;
+  virtual void LinkFlags(std::set<std::string>* flags) const;
+
+  // Alterative to Parse()
+  void Set(const std::vector<std::string>& sources,
+           const std::vector<std::string>& headers,
+           const std::vector<std::string>& objects,
+           const std::vector<std::string>& cc_compile_args);
 
  protected:
   std::string DefaultCompileFlags() const;
+  void WriteCompile(const std::string& source,
+                    const std::set<std::string>& input_files,
+                    std::string* out) const;
 
   std::vector<std::string> sources_;
   std::vector<std::string> headers_;
   std::vector<std::string> objects_;
   std::vector<std::string> cc_compile_args_;
+  std::vector<std::string> cc_linker_args_;
 };
 
 }  // namespace repobuild

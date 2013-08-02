@@ -19,59 +19,15 @@ namespace repobuild {
 
 void CCBinaryNode::Parse(BuildFile* file, const BuildFileNode& input) {
   CCLibraryNode::Parse(file, input);
-  ParseRepeatedString(input, "cc_linker_args", &cc_linker_args_);
 }
 
 void CCBinaryNode::WriteMakefile(const vector<const Node*>& all_deps,
                                  string* out) const {
   CCLibraryNode::WriteMakefile(all_deps, out);
 
-  // Object files.
-  set<string> object_files;
-  for (int i = 0; i < all_deps.size(); ++i) {
-    vector<string> obj_files;
-    all_deps[i]->ObjectFiles(&obj_files);
-    for (const string& it : obj_files) { object_files.insert(it); }
-  }
-  {
-    vector<string> obj_files;
-    ObjectFiles(&obj_files);
-    for (const string& it : obj_files) { object_files.insert(it); }
-  }
-
   // Output binary
-  string bin = strings::JoinPath(
-      strings::JoinPath(input().object_dir(), target().dir()),
-      target().local_path());
-  out->append(bin + ":");
-  for (const string& input : object_files) {
-    out->append(" ");
-    out->append(input);
-  }
-  out->append("\n\t");
-  out->append("mkdir -p ");
-  out->append(strings::PathDirname(bin));
-  out->append("; ");
-  out->append(DefaultCompileFlags());
-  for (const string& flag : input().flags("-L")) {
-    out->append(" ");
-    out->append(flag);
-  }
-  for (int i = 0; i < cc_compile_args_.size(); ++i) {
-    out->append(" ");
-    out->append(cc_compile_args_[i]);
-  }
-  for (int i = 0; i < cc_linker_args_.size(); ++i) {
-    out->append(" ");
-    out->append(cc_linker_args_[i]);
-  }
-  for (const string& input : object_files) {
-    out->append(" ");
-    out->append(input);
-  }
-  out->append(" -o ");
-  out->append(bin);
-  out->append("\n\n");
+  string bin = strings::JoinPath(input().object_dir(), target().make_path());
+  WriteLink(all_deps, bin, out);
 
   // Symlink to root dir.
   string out_bin = OutBinary();
@@ -84,6 +40,41 @@ void CCBinaryNode::WriteMakefile(const vector<const Node*>& all_deps,
   out->append(strings::JoinPath(input().object_dir(), target().make_path()));
   out->append(" ");
   out->append(out_bin);
+  out->append("\n\n");
+}
+
+void CCBinaryNode::WriteLink(
+    const vector<const Node*>& all_deps,
+    const string& file,
+    string* out) const {
+  set<string> objects;
+  CollectObjects(all_deps, &objects);
+
+  set<string> flags;
+  CollectLinkFlags(all_deps, &flags);
+
+  string list;
+  for (const string& obj : objects) {
+    list.append(" ");
+    list.append(obj);
+  }
+
+  out->append(file + ":");
+  out->append(list);
+  out->append("\n\t");
+  out->append(DefaultCompileFlags());
+  out->append(list);
+  out->append(" -o ");
+  out->append(file);
+  for (const string& flag : flags) {
+    out->append(" ");
+    out->append(flag);
+  }
+  for (const string& flag : input().flags("-L")) {
+    out->append(" ");
+    out->append(flag);
+  }
+
   out->append("\n\n");
 }
 

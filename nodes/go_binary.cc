@@ -28,16 +28,7 @@ void GoBinaryNode::WriteMakefile(const vector<const Node*>& all_deps,
 
   // Source files.
   set<string> source_files;
-  for (int i = 0; i < all_deps.size(); ++i) {
-    vector<string> src_files;
-    all_deps[i]->DependencyFiles(&src_files);
-    for (const string& it : src_files) { source_files.insert(it); }
-  }
-  {
-    vector<string> src_files;
-    DependencyFiles(&src_files);
-    for (const string& it : src_files) { source_files.insert(it); }
-  }
+  CollectDependencies(all_deps, &source_files);
 
   // Output binary
   string bin = strings::JoinPath(

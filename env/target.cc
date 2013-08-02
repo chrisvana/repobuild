@@ -85,6 +85,10 @@ TargetInfo::TargetInfo(const std::string& relative_path,
   make_path_ = strings::JoinPath(dir_, local_path_);
 }
 
+TargetInfo TargetInfo::GetParallelTarget(const std::string& name) const {
+  return TargetInfo(":" + name, build_file());
+}
+
 // static
 TargetInfo TargetInfo::FromUserPath(const std::string& user_path) {
   if (IsValidPath(user_path)) {

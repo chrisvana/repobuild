@@ -85,7 +85,7 @@ string Generator::GenerateMakefile(const Input& input) {
 
   // Write the make clean rule.
   out.append("clean:\n");
-  for (const Node* node : parser.all_nodes()) {
+  for (const Node* node : all_nodes) {
     node->WriteMakeClean(&out);
   }
   out.append("\trm -rf ");

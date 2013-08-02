@@ -16,11 +16,13 @@ class GoLibraryNode : public Node {
       : Node(t, i) {
   }
   virtual ~GoLibraryNode() {}
-  virtual std::string Name() const { return "go_library"; }
   virtual void WriteMakefile(const std::vector<const Node*>& all_deps,
                              std::string* out) const {}
   virtual void Parse(BuildFile* file, const BuildFileNode& input);
   virtual void DependencyFiles(std::vector<std::string>* files) const;
+
+  // Alterative to Parse()
+  void Set(const std::vector<std::string>& sources);
 
  protected:
   std::vector<std::string> sources_;

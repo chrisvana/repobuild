@@ -5,6 +5,7 @@
 #define _REPOBUILD_NODES_NODE_H__
 
 #include <string>
+#include <set>
 #include <vector>
 #include <memory>
 #include "repobuild/env/target.h"
@@ -27,17 +28,20 @@ class Node {
     for (auto it : dependencies_) {
       delete it;
     }
+    for (auto it : owned_subnodes_) {
+      delete it;
+    }
   }
 
   // Virtual interface.
-  virtual std::string Name() const = 0;
+  virtual void Parse(BuildFile* file, const BuildFileNode& input);
   virtual void WriteMakefile(const std::vector<const Node*>& all_deps,
                              std::string* out) const = 0;
   virtual void WriteMakeClean(std::string* out) const {}
-  virtual void Parse(BuildFile* file, const BuildFileNode& input);
   virtual void DependencyFiles(std::vector<std::string>* files) const {}
   virtual void ObjectFiles(std::vector<std::string>* files) const {}
   virtual void FinalOutputs(std::vector<std::string>* outputs) const {}
+  virtual void LinkFlags(std::set<std::string>* flags) const {}
 
   // Accessors.
   const Input& input() const { return *input_; }
@@ -46,6 +50,18 @@ class Node {
 
   // Mutators
   void AddDependency(const TargetInfo& other);
+  void SetStrictFileMode(bool strict) { strict_file_mode_ = strict; }
+
+  // Subnode handling.
+  void ExtractSubnodes(std::vector<Node*>* nodes) {
+    *nodes = subnodes_;
+    owned_subnodes_.clear();
+  }
+  void AddSubNode(Node* node) {
+    AddDependency(node->target());
+    subnodes_.push_back(node);
+    owned_subnodes_.push_back(node);
+  }
 
  protected:
   // Helpers
@@ -61,6 +77,12 @@ class Node {
   bool ParseBoolField(const BuildFileNode& input,
                       const std::string& key,
                       bool* field) const;
+  void CollectDependencies(const std::vector<const Node*>& all_deps,
+                           std::set<std::string>* files) const;
+  void CollectObjects(const std::vector<const Node*>& all_deps,
+                      std::set<std::string>* files) const;
+  void CollectLinkFlags(const std::vector<const Node*>& all_deps,
+                        std::set<std::string>* flags) const;
   std::string ParseSingleString(const std::string& input) const;
   std::string GenDir() const;
   std::string RelativeGenDir() const;
@@ -71,6 +93,8 @@ class Node {
   const Input* input_;
   std::vector<TargetInfo*> dependencies_;
   bool strict_file_mode_;
+
+  std::vector<Node*> subnodes_, owned_subnodes_;
 };
 
 }  // namespace repobuild

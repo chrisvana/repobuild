@@ -19,6 +19,9 @@ void ConfigNode::Parse(BuildFile* file, const BuildFileNode& input) {
   if (ParseStringField(input, "component", &component_src_)) {
     file->AddBaseDependency(target().full_path());
     ParseStringField(input, "component_root", &component_root_);
+  } else {
+    LOG(FATAL) << "Could not parse \"component\" in "
+               << target().dir() << " config node.";
   }
 }
 

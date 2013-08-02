@@ -23,6 +23,12 @@ class GenShNode : public Node {
   virtual void WriteMakefile(const std::vector<const Node*>& all_deps,
                              std::string* out) const;
 
+  // Alternative to parse
+  void Set(const std::string& build_cmd,
+           const std::string& clean_cmd,
+           const std::vector<std::string>& input_files,
+           const std::vector<std::string>& outputs);
+
  protected:
   std::string WriteCommand(const std::string& cmd,
                            const std::string& touchfile) const;

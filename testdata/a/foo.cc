@@ -2,12 +2,14 @@
 // Author: Christopher Van Arsdale
 
 #include <iostream>
-#include "foo.h"
+#include "a/foo.h"
+#include "a/a.pb.h"
 
 namespace a {
 
 void RunFooA() {
-  std::cout << "FooA" << std::endl;
+  test::FooProto proto;
+  std::cout << "FooA" << proto.DebugString() << std::endl;
 }
 
 }  // namespace a

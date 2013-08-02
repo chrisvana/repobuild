@@ -24,6 +24,10 @@ void GoLibraryNode::Parse(BuildFile* file, const BuildFileNode& input) {
   ParseRepeatedFiles(input, "go_sources", &sources_);
 }
 
+void GoLibraryNode::Set(const vector<string>& sources) {
+  sources_ = sources;
+}
+
 void GoLibraryNode::DependencyFiles(vector<string>* files) const {
   Node::DependencyFiles(files);
   for (int i = 0; i < sources_.size(); ++i) {

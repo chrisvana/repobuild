@@ -80,6 +80,18 @@
  },
 
  { "cc_library": {
+     "name" : "proto_library",
+     "cc_sources" : [ "proto_library.cc" ],
+     "cc_headers" : [ "proto_library.h" ],
+     "dependencies": [ "//common/log:log",
+                       "//common/file:fileutil",
+                       "//common/strings:strutil",
+                       ":gen_sh"
+      ]
+   }
+ },
+
+ { "cc_library": {
      "name" : "allnodes",
      "cc_sources" : [ "allnodes.cc" ],
      "cc_headers" : [ "allnodes.h" ],
@@ -89,7 +101,8 @@
                        ":confignode",
                        ":go_library",
                        ":go_binary",
-                       ":gen_sh"
+                       ":gen_sh",
+                       ":proto_library"
      ]
    }
  }

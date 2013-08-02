@@ -1,6 +1,6 @@
 [
  { "config": {
-    "component_src": "json"
+    "component": "json"
  } },
  { "cc_library": {
      "name" : "json",

@@ -10,6 +10,7 @@
 #include "nodes/go_library.h"
 #include "nodes/go_binary.h"
 #include "nodes/gen_sh.h"
+#include "nodes/proto_library.h"
 
 namespace repobuild {
 namespace {
@@ -35,6 +36,7 @@ void NodeBuilder::GetAll(std::vector<NodeBuilder*>* nodes) {
   nodes->push_back(new NodeBuilderImpl<GoLibraryNode>("go_library"));
   nodes->push_back(new NodeBuilderImpl<GoBinaryNode>("go_binary"));
   nodes->push_back(new NodeBuilderImpl<GenShNode>("gen_sh"));
+  nodes->push_back(new NodeBuilderImpl<ProtoLibraryNode>("proto_library"));
 }
 
 }  // namespace repobuild

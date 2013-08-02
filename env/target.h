@@ -23,6 +23,7 @@ class TargetInfo {
   const std::string& make_path() const { return make_path_; }
 
   // Helpers
+  TargetInfo GetParallelTarget(const std::string& name) const;
   static TargetInfo FromUserPath(const std::string& user_path);
 
  private:

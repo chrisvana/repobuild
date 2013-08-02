@@ -15,6 +15,7 @@
 
 using std::string;
 using std::vector;
+using std::set;
 
 namespace repobuild {
 
@@ -94,7 +95,6 @@ bool Node::ParseBoolField(const BuildFileNode& input,
   return true;
 }
 
-
 string Node::ParseSingleString(const string& str) const {
   strings::VarMap vars;
   string tmp = RelativeGenDir();
@@ -102,6 +102,42 @@ string Node::ParseSingleString(const string& str) const {
   vars.Set("$(GEN_DIR)", tmp);
   vars.Set("${GEN_DIR}", tmp);
   return vars.Replace(str);
+}
+
+void Node::CollectDependencies(const vector<const Node*>& all_deps,
+                               set<string>* out) const {
+  for (int i = 0; i < all_deps.size(); ++i) {
+    vector<string> files;
+    all_deps[i]->DependencyFiles(&files);
+    for (const string& it : files) { out->insert(it); }
+  }
+  vector<string> files;
+  DependencyFiles(&files);
+  for (const string& it : files) {
+    out->insert(it);
+  }
+}
+
+void Node::CollectObjects(const vector<const Node*>& all_deps,
+                          set<string>* out) const {
+  for (const Node* dep : all_deps) {
+    vector<string> obj_files;
+    dep->ObjectFiles(&obj_files);
+    for (const string& it : obj_files) { out->insert(it); }
+  }
+  {
+    vector<string> obj_files;
+    ObjectFiles(&obj_files);
+    for (const string& it : obj_files) { out->insert(it); }
+  }
+}
+
+void Node::CollectLinkFlags(const vector<const Node*>& all_deps,
+                            set<string>* out) const {
+  for (const Node* dep : all_deps) {
+    dep->LinkFlags(out);
+  }
+  LinkFlags(out);
 }
 
 string Node::GenDir() const { 

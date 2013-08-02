@@ -5,6 +5,7 @@
 #define _REPOBUILD_NODES_CC_BINARY_H__
 
 #include <string>
+#include <vector>
 #include "nodes/node.h"
 #include "nodes/cc_library.h"
 
@@ -17,7 +18,6 @@ class CCBinaryNode : public CCLibraryNode {
       : CCLibraryNode(t, i) {
   }
   virtual ~CCBinaryNode() {}
-  virtual std::string Name() const { return "cc_binary"; }
   virtual void Parse(BuildFile* file, const BuildFileNode& input);
   virtual void WriteMakeClean(std::string* out) const;
   virtual void WriteMakefile(const std::vector<const Node*>& all_deps,
@@ -28,7 +28,9 @@ class CCBinaryNode : public CCLibraryNode {
   // Helper.
   std::string OutBinary() const;
 
-  std::vector<std::string> cc_linker_args_;
+  void WriteLink(const std::vector<const Node*>& all_deps,
+                 const std::string& file,
+                 std::string* out) const;
 };
 
 }  // namespace repobuild

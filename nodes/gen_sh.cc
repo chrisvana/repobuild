@@ -29,6 +29,16 @@ void GenShNode::Parse(BuildFile* file, const BuildFileNode& input) {
   ParseRepeatedString(input, "outs", &outputs_);
 }
 
+void GenShNode::Set(const std::string& build_cmd,
+                    const std::string& clean_cmd,
+                    const std::vector<std::string>& input_files,
+                    const std::vector<std::string>& outputs) {
+  build_cmd_ = build_cmd;
+  clean_cmd_ = clean_cmd;
+  input_files_ = input_files;
+  outputs_ = outputs;
+}
+
 void GenShNode::WriteMakefile(const vector<const Node*>& all_deps,
                               string* out) const {
   // Figure out the set of input files.

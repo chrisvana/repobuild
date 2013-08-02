@@ -154,16 +154,7 @@ class Graph {
         }
 
         // Actually do the parsing.
-        Node* out_node = ParseNode(builder, file, node, input, key);
-        const std::string& target = out_node->target().full_path();
-        if (nodes_.find(target) != nodes_.end()) {
-          LOG(FATAL) << "Duplicate target: " << target;
-        }
-
-        // Save the output
-        nodes.push_back(out_node);
-        nodes_[target] = out_node;
-        targets_[target] = out_node->target();
+        SaveNode(ParseNode(builder, file, node, input, key), &nodes);
       }
     }
 
@@ -180,6 +171,26 @@ class Graph {
       }
     }
     return file;
+  }
+
+  void SaveNode(Node* node,
+                std::vector<Node*>* all) {
+    // Gather all subnodes + this parent node.
+    std::vector<Node*> nodes;
+    node->ExtractSubnodes(&nodes);
+    nodes.push_back(node);
+
+    for (Node* out_node : nodes) {
+      const std::string& target = out_node->target().full_path();
+      if (nodes_.find(target) != nodes_.end()) {
+        LOG(FATAL) << "Duplicate target: " << target;
+      }
+
+      // Save the output
+      all->push_back(out_node);
+      nodes_[target] = out_node;
+      targets_[target] = out_node->target();
+    }
   }
 
   void ProcessParent(const Input& input, BuildFile* child) {
