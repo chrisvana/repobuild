@@ -44,6 +44,30 @@
    }
  },
 
+
+ { "cc_library": {
+     "name" : "go_library",
+     "cc_sources" : [ "go_library.cc" ],
+     "cc_headers" : [ "go_library.h" ],
+     "dependencies": [ "//common/log:log",
+                       "//common/file:fileutil",
+                       "//common/strings:strutil",
+                       ":node"
+      ]
+   }
+ },
+
+ { "cc_library": {
+     "name" : "go_binary",
+     "cc_sources" : [ "go_binary.cc" ],
+     "cc_headers" : [ "go_binary.h" ],
+     "dependencies": [ "//common/log:log",
+                       "//common/strings:strutil",
+                       ":node"
+      ]
+   }
+ },
+
  { "cc_library": {
      "name" : "gen_sh",
      "cc_sources" : [ "gen_sh.cc" ],
@@ -63,6 +87,8 @@
                        ":cc_library",
                        ":cc_binary",
                        ":confignode",
+                       ":go_library",
+                       ":go_binary",
                        ":gen_sh"
      ]
    }

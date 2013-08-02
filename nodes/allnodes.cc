@@ -7,6 +7,8 @@
 #include "nodes/cc_library.h"
 #include "nodes/cc_binary.h"
 #include "nodes/confignode.h"
+#include "nodes/go_library.h"
+#include "nodes/go_binary.h"
 #include "nodes/gen_sh.h"
 
 namespace repobuild {
@@ -30,6 +32,8 @@ void NodeBuilder::GetAll(std::vector<NodeBuilder*>* nodes) {
   nodes->push_back(new NodeBuilderImpl<CCLibraryNode>("cc_library"));
   nodes->push_back(new NodeBuilderImpl<CCBinaryNode>("cc_binary"));
   nodes->push_back(new NodeBuilderImpl<ConfigNode>("config"));
+  nodes->push_back(new NodeBuilderImpl<GoLibraryNode>("go_library"));
+  nodes->push_back(new NodeBuilderImpl<GoBinaryNode>("go_binary"));
   nodes->push_back(new NodeBuilderImpl<GenShNode>("gen_sh"));
 }
 
