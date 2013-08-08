@@ -70,15 +70,20 @@ void ProtoLibraryNode::Parse(BuildFile* file, const BuildFileNode& input) {
     // c++
     string cpp_file = prefix + ".pb.cc";
     string hpp_file = prefix + ".pb.h";
+    string cpp_full = strings::JoinPath(Node::input().genfile_dir(), cpp_file);
+    string hpp_full = strings::JoinPath(Node::input().genfile_dir(), hpp_file);
 
-    clean_cmd += " $(GEN_DIR)/" + cpp_file;
-    clean_cmd += " $(GEN_DIR)/" + hpp_file;
+    clean_cmd += " " + cpp_full;
+    clean_cmd += " " + hpp_full;
 
-    outputs.push_back(cpp_file);
-    outputs.push_back(hpp_file);
 
-    sources.push_back(strings::JoinPath(Node::input().genfile_dir(), cpp_file));
-    headers.push_back(strings::JoinPath(Node::input().genfile_dir(), hpp_file));
+    // Relative to BUILD file:
+    outputs.push_back(cpp_file.substr(target().dir().size() + 1));
+    outputs.push_back(hpp_file.substr(target().dir().size() + 1));
+
+    // Relative to root:
+    sources.push_back(cpp_full);
+    headers.push_back(hpp_full);
   }
 
   gen->Set(build_cmd, clean_cmd, inputs, outputs);
