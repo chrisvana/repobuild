@@ -67,6 +67,12 @@ class Node {
   // Helpers
   void ParseRepeatedString(const BuildFileNode& input,
                            const std::string& key,
+                           std::vector<std::string>* output) const {
+    ParseRepeatedString(input, key, false /* use root path */, output);
+  }
+  void ParseRepeatedString(const BuildFileNode& input,
+                           const std::string& key,
+                           bool relative_gendir,
                            std::vector<std::string>* output) const;
   void ParseRepeatedFiles(const BuildFileNode& input,
                           const std::string& key,
@@ -83,7 +89,11 @@ class Node {
                       std::set<std::string>* files) const;
   void CollectLinkFlags(const std::vector<const Node*>& all_deps,
                         std::set<std::string>* flags) const;
-  std::string ParseSingleString(const std::string& input) const;
+  std::string ParseSingleString(const std::string& input) const {
+    return ParseSingleString(true, input);
+  }
+  std::string ParseSingleString(bool relative_gendir,
+                                const std::string& input) const;
   std::string GenDir() const;
   std::string RelativeGenDir() const;
   std::string MakefileEscape(const std::string& str) const;

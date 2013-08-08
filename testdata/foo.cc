@@ -1,11 +1,11 @@
 // Copyright 2013
 // Author: Christopher Van Arsdale
 
-#include "foo.h"
-#include "a/foo.h"
-#include "b/foo.h"
+#include "testdata/foo.h"
+#include "testdata/a/foo.h"
+#include "testdata/b/foo.h"
 #include "c/foo.h"
-#include "d/foo.h"
+#include "testdata/d/foo.h"
 
 namespace test {
 

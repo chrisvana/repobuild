@@ -36,6 +36,7 @@ void Node::AddDependency(const TargetInfo& other) {
 
 void Node::ParseRepeatedString(const BuildFileNode& input,
                                const string& key,
+                               bool relative_gendir,
                                vector<string>* out) const {
   const Json::Value& array = input.object()[key];
   if (!array.isNull()) {
@@ -45,19 +46,27 @@ void Node::ParseRepeatedString(const BuildFileNode& input,
       const Json::Value& single = array[i];
       CHECK(single.isString()) << "Expecting string for item of " << key << ": "
                                << input.object();
-      out->push_back(ParseSingleString(single.asString()));
+      out->push_back(ParseSingleString(relative_gendir, single.asString()));
     }
   }
 }
 
 void Node::ParseRepeatedFiles(const BuildFileNode& input,
                               const string& key,
-                              vector<string>* out) const {
+                              vector<std::string>* out) const {
   vector<string> temp;
-  ParseRepeatedString(input, key, &temp);
+  ParseRepeatedString(input, key, false /* absolute gen dir */, &temp);
   for (const string& file : temp) {
     int size = out->size();
-    string glob = strings::JoinPath(target().dir(), file);
+
+    // TODO(cvanarsdale): hacky.
+    string glob;
+    if (!strings::HasPrefix(file, GenDir())) {
+      glob = strings::JoinPath(target().dir(), file);
+    } else {
+      glob = file;
+    }
+
     CHECK(file::Glob(glob, out))
         << "Could not run glob("
         << glob
@@ -95,9 +104,10 @@ bool Node::ParseBoolField(const BuildFileNode& input,
   return true;
 }
 
-string Node::ParseSingleString(const string& str) const {
+string Node::ParseSingleString(bool relative_gendir,
+                               const string& str) const {
   strings::VarMap vars;
-  string tmp = RelativeGenDir();
+  string tmp = (relative_gendir ? RelativeGenDir() : GenDir());
   vars.Set("$GEN_DIR", tmp);
   vars.Set("$(GEN_DIR)", tmp);
   vars.Set("${GEN_DIR}", tmp);

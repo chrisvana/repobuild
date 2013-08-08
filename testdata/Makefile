@@ -37,11 +37,14 @@ main: .gen-obj/main
 .gen-obj/a/bar.cc.o: a/bar.cc
 	mkdir -p .gen-obj/a; $(CXX) $(CXXFLAGS) -c -I. -I.gen-files -I.gen-src -std=c++11 -DUSE_CXX0X -stdlib=libc++ -pthread -g -Wall -Werror -O3 a/bar.cc -o .gen-obj/a/bar.cc.o
 
-.gen-obj/c/include/c/foo.cc.o: .gen-src/c/.dummy c/include/c/foo.h c/include/c/foo.cc
-	mkdir -p .gen-obj/c/include/c; $(CXX) $(CXXFLAGS) -c -I. -I.gen-files -I.gen-src -std=c++11 -DUSE_CXX0X -stdlib=libc++ -pthread -g -Wall -Werror -O3 c/include/c/foo.cc -o .gen-obj/c/include/c/foo.cc.o
-
 .gen-obj/b/bar.cc.o: b/bar.cc
 	mkdir -p .gen-obj/b; $(CXX) $(CXXFLAGS) -c -I. -I.gen-files -I.gen-src -std=c++11 -DUSE_CXX0X -stdlib=libc++ -pthread -g -Wall -Werror -O3 b/bar.cc -o .gen-obj/b/bar.cc.o
+
+.gen-src/c:
+	mkdir -p .gen-src; if [[ ! -a c/include/c ]]; then mkdir -p c/include/c; fi; ln -f -s ../c/include/c .gen-src/c
+
+.gen-src/c/.dummy: .gen-src/c
+	if [[ ! -a .gen-src/c/.dummy ]]; then touch .gen-src/c/.dummy; fi
 
 .gen-obj/d/.foo_gen.dummy: d/foo_gen.sh d/foo_tmp.cc d/foo_tmp.h
 	(mkdir -p .gen-files/d; cd d; GEN_DIR="../.gen-files/d" eval './foo_gen.sh') && (mkdir -p .gen-obj/d; touch .gen-obj/d/.foo_gen.dummy)
@@ -52,11 +55,8 @@ main: .gen-obj/main
 
 .PHONY: 
 
-.gen-src/c:
-	mkdir -p .gen-src; if [[ ! -a c/include/c ]]; then mkdir -p c/include/c; fi; ln -f -s ../c/include/c .gen-src/c
-
-.gen-src/c/.dummy: .gen-src/c
-	if [[ ! -a .gen-src/c/.dummy ]]; then touch .gen-src/c/.dummy; fi
+.gen-obj/c/include/c/foo.cc.o: .gen-src/c/.dummy c/include/c/foo.h c/include/c/foo.cc
+	mkdir -p .gen-obj/c/include/c; $(CXX) $(CXXFLAGS) -c -I. -I.gen-files -I.gen-src -std=c++11 -DUSE_CXX0X -stdlib=libc++ -pthread -g -Wall -Werror -O3 c/include/c/foo.cc -o .gen-obj/c/include/c/foo.cc.o
 
 .gen-obj/.gen-files/d/foo.cc.o: .gen-files/d/foo.h .gen-files/d/foo.cc
 	mkdir -p .gen-obj/.gen-files/d; $(CXX) $(CXXFLAGS) -c -I. -I.gen-files -I.gen-src -std=c++11 -DUSE_CXX0X -stdlib=libc++ -pthread -g -Wall -Werror -O3 .gen-files/d/foo.cc -o .gen-obj/.gen-files/d/foo.cc.o

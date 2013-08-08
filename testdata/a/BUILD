@@ -3,7 +3,8 @@
 
  { "proto_library": {
      "name" : "a_proto",
-     "sources" : [ "a.proto" ]
+     "sources" : [ "a.proto" ],
+     "dependencies" : [ "//third_party/protobuf:proto" ]
    }
  },
 

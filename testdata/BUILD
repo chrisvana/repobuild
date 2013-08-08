@@ -1,13 +1,17 @@
 // Test objects
 [
+ { "config": {
+    "component": "testdata"
+ } },
+
  { "cc_library": {
      "name" : "foo",
      "cc_sources" : [ "foo.cc" ],
      "cc_headers" : [ "foo.h" ],
-     "dependencies": [ "//a:foo_pred_a",
-                       "//b:foo_pred_b",
-                       "//c:foo_pred_c",
-                       "//d:foo_pred_d" 
+     "dependencies": [ "//testdata/a:foo_pred_a",
+                       "//testdata/b:foo_pred_b",
+                       "//testdata/c:foo_pred_c",
+                       "//testdata/d:foo_pred_d" 
      ]
    }
  },
@@ -16,7 +20,7 @@
      "name" : "bar",
      "cc_sources" : [ "ba*.cc" ],
      "cc_headers" : [ "bar.h" ],
-     "dependencies": [ "//b:bar_pred_b" ],
+     "dependencies": [ "//testdata/b:bar_pred_b" ],
      "cc_compile_args": [ "-O3" ]
    }
  },

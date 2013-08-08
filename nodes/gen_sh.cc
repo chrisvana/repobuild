@@ -8,10 +8,8 @@
 #include "common/strings/path.h"
 #include "common/strings/strutil.h"
 #include "repobuild/env/input.h"
-#include "nodes/gen_sh.h"
+#include "repobuild/nodes/gen_sh.h"
 #include "repobuild/reader/buildfile.h"
-
-#include "json/json.h"
 
 using std::string;
 using std::vector;
@@ -54,10 +52,7 @@ void GenShNode::WriteMakefile(const vector<const Node*>& all_deps,
     input_files.insert(it);
   }
 
-  string touchfile = strings::JoinPath(
-      strings::JoinPath(input().object_dir(), target().dir()),
-      "." + target().local_path() + ".dummy");
-
+  string touchfile = Touchfile();
   out->append(touchfile);
   out->append(":");
   for (const string& it : input_files) {
@@ -120,5 +115,16 @@ string GenShNode::WriteCommand(const string& cmd,
   }
   return out;
 }
+
+void GenShNode::DependencyFiles(vector<string>* files) const {
+  files->push_back(Touchfile());
+}
+
+string GenShNode::Touchfile() const {
+  return strings::JoinPath(
+      strings::JoinPath(input().object_dir(), target().dir()),
+      "." + target().local_path() + ".dummy");
+}
+
 
 }  // namespace repobuild

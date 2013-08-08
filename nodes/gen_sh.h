@@ -6,7 +6,7 @@
 
 #include <string>
 #include <vector>
-#include "nodes/node.h"
+#include "repobuild/nodes/node.h"
 
 namespace repobuild {
 
@@ -22,6 +22,7 @@ class GenShNode : public Node {
   virtual void WriteMakeClean(std::string* out) const;
   virtual void WriteMakefile(const std::vector<const Node*>& all_deps,
                              std::string* out) const;
+  virtual void DependencyFiles(std::vector<std::string>* files) const;
 
   // Alternative to parse
   void Set(const std::string& build_cmd,
@@ -32,10 +33,12 @@ class GenShNode : public Node {
  protected:
   std::string WriteCommand(const std::string& cmd,
                            const std::string& touchfile) const;
+  std::string Touchfile() const;
 
   std::string build_cmd_;
   std::string clean_cmd_;
-  std::vector<std::string> input_files_, outputs_;
+  std::vector<std::string> input_files_;
+  std::vector<std::string> outputs_;
 };
 
 }  // namespace repobuild

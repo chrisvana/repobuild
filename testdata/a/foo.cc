@@ -2,8 +2,8 @@
 // Author: Christopher Van Arsdale
 
 #include <iostream>
-#include "a/foo.h"
-#include "a/a.pb.h"
+#include "testdata/a/foo.h"
+#include "testdata/a/a.pb.h"
 
 namespace a {
 

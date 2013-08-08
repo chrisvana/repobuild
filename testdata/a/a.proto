@@ -1,0 +1,7 @@
+// This is a random proto file.
+
+package test;
+
+message FooProto {
+  optional int32 test = 1;
+}

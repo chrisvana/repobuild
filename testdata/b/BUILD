@@ -10,7 +10,7 @@
  { "cc_library": {
      "name" : "bar_pred_b",
      "cc_sources" : [ "bar.cc" ],
-     "dependencies" : [ "//a:bar_pred_a" ]
+     "dependencies" : [ "//testdata/a:bar_pred_a" ]
    }
  }
 ]
