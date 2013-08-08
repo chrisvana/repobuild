@@ -29,11 +29,11 @@ main: .gen-obj/testdata/main
 	mkdir -p .gen-obj/testdata; $(CXX) $(CXXFLAGS) -c -I. -I.gen-files -I.gen-src -std=c++11 -DUSE_CXX0X -stdlib=libc++ -pthread -g -Wall -Werror -O3 -O3 testdata/bar.cc -o .gen-obj/testdata/bar.cc.o
 
 .gen-obj/testdata/a/.__auto_name_0.dummy: .gen-src/google/.dummy .gen-src/repobuild/.dummy .gen-src/testdata/.dummy .gen-src/third_party/.dummy third_party/protobuf/config.h third_party/protobuf/src/google/protobuf/descriptor.h third_party/protobuf/src/google/protobuf/descriptor.pb.h third_party/protobuf/src/google/protobuf/descriptor_database.h third_party/protobuf/src/google/protobuf/dynamic_message.h third_party/protobuf/src/google/protobuf/extension_set.h third_party/protobuf/src/google/protobuf/extension_set_heavy.cc third_party/protobuf/src/google/protobuf/generated_enum_reflection.h third_party/protobuf/src/google/protobuf/generated_message_reflection.h third_party/protobuf/src/google/protobuf/generated_message_util.h third_party/protobuf/src/google/protobuf/io/coded_stream.h third_party/protobuf/src/google/protobuf/io/coded_stream_inl.h third_party/protobuf/src/google/protobuf/io/gzip_stream.h third_party/protobuf/src/google/protobuf/io/package_info.h third_party/protobuf/src/google/protobuf/io/printer.h third_party/protobuf/src/google/protobuf/io/tokenizer.h third_party/protobuf/src/google/protobuf/io/zero_copy_stream.h third_party/protobuf/src/google/protobuf/io/zero_copy_stream_impl.h third_party/protobuf/src/google/protobuf/io/zero_copy_stream_impl_lite.h third_party/protobuf/src/google/protobuf/message.h third_party/protobuf/src/google/protobuf/message_lite.h third_party/protobuf/src/google/protobuf/package_info.h third_party/protobuf/src/google/protobuf/reflection_ops.h third_party/protobuf/src/google/protobuf/repeated_field.h third_party/protobuf/src/google/protobuf/service.h third_party/protobuf/src/google/protobuf/stubs/atomicops.h third_party/protobuf/src/google/protobuf/stubs/atomicops_internals_arm_gcc.h third_party/protobuf/src/google/protobuf/stubs/atomicops_internals_arm_qnx.h third_party/protobuf/src/google/protobuf/stubs/atomicops_internals_atomicword_compat.h third_party/protobuf/src/google/protobuf/stubs/atomicops_internals_macosx.h third_party/protobuf/src/google/protobuf/stubs/atomicops_internals_mips_gcc.h third_party/protobuf/src/google/protobuf/stubs/atomicops_internals_pnacl.h third_party/protobuf/src/google/protobuf/stubs/atomicops_internals_x86_gcc.h third_party/protobuf/src/google/protobuf/stubs/atomicops_internals_x86_msvc.h third_party/protobuf/src/google/protobuf/stubs/common.h third_party/protobuf/src/google/protobuf/stubs/hash.h third_party/protobuf/src/google/protobuf/stubs/map-util.h third_party/protobuf/src/google/protobuf/stubs/once.h third_party/protobuf/src/google/protobuf/stubs/platform_macros.h third_party/protobuf/src/google/protobuf/stubs/stl_util.h third_party/protobuf/src/google/protobuf/stubs/stringprintf.h third_party/protobuf/src/google/protobuf/stubs/strutil.h third_party/protobuf/src/google/protobuf/stubs/substitute.h third_party/protobuf/src/google/protobuf/stubs/template_util.h third_party/protobuf/src/google/protobuf/stubs/type_traits.h third_party/protobuf/src/google/protobuf/text_format.h third_party/protobuf/src/google/protobuf/unknown_field_set.h third_party/protobuf/src/google/protobuf/wire_format.h third_party/protobuf/src/google/protobuf/wire_format_lite.h third_party/protobuf/src/google/protobuf/wire_format_lite_inl.h
-	(mkdir -p .gen-files/testdata/a; cd testdata/a; GEN_DIR="../../.gen-files/testdata/a" eval 'protoc --cpp_out=$$GEN_DIR a.proto') && (mkdir -p .gen-obj/testdata/a; touch .gen-obj/testdata/a/.__auto_name_0.dummy)
+	(mkdir -p .gen-files/testdata/a; GEN_DIR=".gen-files/testdata/a" eval 'protoc --cpp_out=.gen-files testdata/a/a.proto') && (mkdir -p .gen-obj/testdata/a; touch .gen-obj/testdata/a/.__auto_name_0.dummy)
 
-.gen-files/testdata/a/a.pb.cc: .gen-obj/testdata/a/.__auto_name_0.dummy
+.gen-files/testdata/a/testdata/a/a.pb.cc: .gen-obj/testdata/a/.__auto_name_0.dummy
 
-.gen-files/testdata/a/a.pb.h: .gen-obj/testdata/a/.__auto_name_0.dummy
+.gen-files/testdata/a/testdata/a/a.pb.h: .gen-obj/testdata/a/.__auto_name_0.dummy
 
 .PHONY: 
 
@@ -186,7 +186,7 @@ clean:
 	rm -f .gen-src/testdata
 	rm -f .gen-src/repobuild/.dummy
 	rm -f .gen-src/repobuild
-	(mkdir -p .gen-files/testdata/a; cd testdata/a; GEN_DIR="../../.gen-files/testdata/a" eval 'rm -f $$(GEN_DIR)/a.pb.cc $$(GEN_DIR)/a.pb.h')
+	(mkdir -p .gen-files/testdata/a; GEN_DIR=".gen-files/testdata/a" eval 'rm -f $$(GEN_DIR)/testdata/a/a.pb.cc $$(GEN_DIR)/testdata/a/a.pb.h')
 	rm -f .gen-src/c/.dummy
 	rm -f .gen-src/c
 	rm -f .gen-src/third_party/.dummy

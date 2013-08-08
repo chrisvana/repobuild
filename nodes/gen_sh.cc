@@ -99,12 +99,12 @@ string GenShNode::WriteCommand(const string& cmd,
   string out;
   out.append("(mkdir -p ");
   out.append(GenDir());
-  if (!target().dir().empty()) {
+  if (cd_ && !target().dir().empty()) {
     out.append("; cd ");
     out.append(target().dir());
   }
   out.append("; GEN_DIR=\"");
-  out.append(RelativeGenDir());
+  out.append(cd_ ? RelativeGenDir() : GenDir());
   out.append("\" eval '");
   out.append(MakefileEscape(cmd));
   out.append("')");

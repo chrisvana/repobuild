@@ -122,7 +122,7 @@ void CCLibraryNode::ObjectFiles(vector<string>* files) const {
                                        sources_[i] + ".o"));
   }
   for (const string& obj : objects_) {
-    files->push_back(strings::JoinPath(target().dir(), obj));
+    files->push_back(obj);
   }
 }
 

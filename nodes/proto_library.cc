@@ -30,6 +30,7 @@ void ProtoLibraryNode::Parse(BuildFile* file, const BuildFileNode& input) {
   for (const TargetInfo* dep : dependencies()) {
     gen->AddDependency(*dep);
   }
+  gen->SetCd(false);
   AddSubNode(gen);
   string build_cmd, clean_cmd;
   vector<string> inputs, outputs;
@@ -49,12 +50,12 @@ void ProtoLibraryNode::Parse(BuildFile* file, const BuildFileNode& input) {
                << target().full_path();
   }
 
-  build_cmd = "protoc --cpp_out=$GEN_DIR";
+  build_cmd = "protoc --cpp_out=";
+  build_cmd += Node::input().genfile_dir();
   clean_cmd = "rm -f";
   for (const string& file : input_files) {
     // Get just the relative path from this BUILD file.
     CHECK(strings::HasPrefix(file, target().dir()));
-    string relative = file.substr(target().dir().size() + 1);
 
     if (!strings::HasSuffix(file, ".proto")) {
       LOG(FATAL) << "Expected .proto suffix: "
@@ -62,9 +63,9 @@ void ProtoLibraryNode::Parse(BuildFile* file, const BuildFileNode& input) {
                  << " (from target " << target().full_path() << ").";
     }
 
-    string prefix = relative.substr(0, relative.size() - 6);  // strip .proto.
+    string prefix = file.substr(0, file.size() - 6);  // strip .proto.
 
-    build_cmd += " " + relative;
+    build_cmd += " " + file;
 
     // c++
     string cpp_file = prefix + ".pb.cc";
@@ -76,8 +77,8 @@ void ProtoLibraryNode::Parse(BuildFile* file, const BuildFileNode& input) {
     outputs.push_back(cpp_file);
     outputs.push_back(hpp_file);
 
-    sources.push_back(strings::JoinPath(GenDir(), cpp_file));
-    headers.push_back(strings::JoinPath(GenDir(), hpp_file));
+    sources.push_back(strings::JoinPath(Node::input().genfile_dir(), cpp_file));
+    headers.push_back(strings::JoinPath(Node::input().genfile_dir(), hpp_file));
   }
 
   gen->Set(build_cmd, clean_cmd, inputs, outputs);

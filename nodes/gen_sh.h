@@ -14,7 +14,8 @@ class GenShNode : public Node {
  public:
   GenShNode(const TargetInfo& t,
             const Input& i)
-      : Node(t, i) {
+      : Node(t, i),
+        cd_(true) {
   }
   virtual ~GenShNode() {}
   virtual std::string Name() const { return "gen_sh"; }
@@ -29,6 +30,7 @@ class GenShNode : public Node {
            const std::string& clean_cmd,
            const std::vector<std::string>& input_files,
            const std::vector<std::string>& outputs);
+  void SetCd(bool cd) { cd_ = cd; }
 
  protected:
   std::string WriteCommand(const std::string& cmd,
@@ -39,6 +41,7 @@ class GenShNode : public Node {
   std::string clean_cmd_;
   std::vector<std::string> input_files_;
   std::vector<std::string> outputs_;
+  bool cd_;
 };
 
 }  // namespace repobuild
