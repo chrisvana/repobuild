@@ -24,8 +24,12 @@ class ConfigNode : public Node {
   virtual void DependencyFiles(std::vector<std::string>* files) const;
 
  protected:
-  std::string DummyFile() const;
-  std::string SourceDir() const;
+  void AddSymlink(const std::string& dir,
+                  const std::string& source,
+                  std::string* out) const;
+  std::string DummyFile(const std::string& dir) const;
+  std::string SourceDir(const std::string& middle) const;
+  std::string CurrentDir(const std::string& middle) const;
 
   std::string component_src_, component_root_;
 };

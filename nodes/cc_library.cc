@@ -90,6 +90,8 @@ void CCLibraryNode::WriteCompile(const string& source,
   out->append(input().genfile_dir());
   out->append(" -I");
   out->append(input().source_dir());
+  out->append(" -I");
+  out->append(strings::JoinPath(input().source_dir(), input().genfile_dir()));
   for (const string& flag : input().flags("-C")) {
     out->append(" ");
     out->append(flag);

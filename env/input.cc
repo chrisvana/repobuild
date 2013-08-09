@@ -38,6 +38,8 @@ Input::Input() {
   AddFlag("-L", "-lpthread");
   AddFlag("-L", "-g");
   AddFlag("-L", "-O3");
+  AddFlag("-L", "-L/usr/local/lib");
+  AddFlag("-L", "-L/opt/local/lib");
 }
 
 const std::vector<std::string>& Input::flags(const std::string& key) const {
