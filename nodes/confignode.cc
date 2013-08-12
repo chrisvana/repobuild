@@ -55,7 +55,7 @@ void ConfigNode::WriteMakefile(const vector<const Node*>& all_deps,
 void ConfigNode::AddSymlink(const string& dir,
                             const string& source,
                             string* out) const {
-  out->append("\t");
+  out->append("\t@");  // silent
   out->append("mkdir -p ");
   out->append(strings::PathDirname(dir));
   out->append("; if [[ ! -a ");
@@ -80,7 +80,8 @@ void ConfigNode::AddSymlink(const string& dir,
   out->append(dummy);
   out->append(": ");
   out->append(dir);  // input
-  out->append("\n\tif [[ ! -a ");
+  out->append("\n\t@");  // silent
+  out->append("if [[ ! -a ");
   out->append(dummy);
   out->append(" ]]; then touch ");
   out->append(dummy);

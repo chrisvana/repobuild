@@ -76,12 +76,12 @@ void CCLibraryNode::WriteCompile(const string& source,
   out->append(source);
 
   // Mkdir command.
-  out->append("\n\t");
+  out->append("\n\t@");  // silent
   out->append("mkdir -p ");
   out->append(strings::PathDirname(obj));
 
     // Compile command.
-  out->append("; ");
+  out->append("\n\t");
   out->append(DefaultCompileFlags());
   out->append(" -c");
   out->append(" -I");
