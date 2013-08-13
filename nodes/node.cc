@@ -111,6 +111,11 @@ string Node::ParseSingleString(bool relative_gendir,
   vars.Set("$GEN_DIR", tmp);
   vars.Set("$(GEN_DIR)", tmp);
   vars.Set("${GEN_DIR}", tmp);
+
+  tmp = target().dir();
+  vars.Set("$SRC_DIR", tmp);
+  vars.Set("$(SRC_DIR)", tmp);
+  vars.Set("${SRC_DIR}", tmp);
   return vars.Replace(str);
 }
 
@@ -148,6 +153,14 @@ void Node::CollectLinkFlags(const vector<const Node*>& all_deps,
     dep->LinkFlags(out);
   }
   LinkFlags(out);
+}
+
+void Node::CollectCompileFlags(const vector<const Node*>& all_deps,
+                               set<string>* out) const {
+  for (const Node* dep : all_deps) {
+    dep->CompileFlags(out);
+  }
+  CompileFlags(out);
 }
 
 string Node::GenDir() const { 

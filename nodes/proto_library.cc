@@ -41,7 +41,7 @@ void ProtoLibraryNode::Parse(BuildFile* file, const BuildFileNode& input) {
       Node::input());
   AddSubNode(cc_lib);
   cc_lib->AddDependency(gen->target());
-  vector<string> sources, headers, objects, cc_compile_args;
+  vector<string> sources, headers;
 
   vector<string> input_files;
   ParseRepeatedFiles(input, "sources", &input_files);
@@ -87,7 +87,9 @@ void ProtoLibraryNode::Parse(BuildFile* file, const BuildFileNode& input) {
   }
 
   gen->Set(build_cmd, clean_cmd, inputs, outputs);
-  cc_lib->Set(sources, headers, objects, cc_compile_args);
+
+  vector<string> objects, cc_compile_args, header_compile_args;  // dummies.
+  cc_lib->Set(sources, headers, objects, cc_compile_args, header_compile_args);
 }
 
 }  // namespace repobuild

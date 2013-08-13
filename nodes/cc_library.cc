@@ -34,6 +34,9 @@ void CCLibraryNode::Parse(BuildFile* file, const BuildFileNode& input) {
   // cc_compile_args
   ParseRepeatedString(input, "cc_compile_args", &cc_compile_args_);
 
+  // header_compile_args
+  ParseRepeatedString(input, "header_compile_args", &header_compile_args_);
+
   // cc_linker_args
   ParseRepeatedString(input, "cc_linker_args", &cc_linker_args_);
 }
@@ -41,11 +44,13 @@ void CCLibraryNode::Parse(BuildFile* file, const BuildFileNode& input) {
 void CCLibraryNode::Set(const vector<string>& sources,
                         const vector<string>& headers,
                         const vector<string>& objects,
-                        const vector<string>& cc_compile_args) {
+                        const vector<string>& cc_compile_args,
+                        const vector<string>& header_compile_args) {
   sources_ = sources;
   headers_ = headers;
   objects_ = objects;
   cc_compile_args_ = cc_compile_args;
+  header_compile_args_ = cc_compile_args;
 }
 
 void CCLibraryNode::WriteMakefile(const vector<const Node*>& all_deps,
@@ -57,12 +62,13 @@ void CCLibraryNode::WriteMakefile(const vector<const Node*>& all_deps,
   // Now write phases, one per .cc
   for (int i = 0; i < sources_.size(); ++i) {
     // Output object.
-    WriteCompile(sources_[i], input_files, out);
+    WriteCompile(sources_[i], input_files, all_deps, out);
   }
 }
 
 void CCLibraryNode::WriteCompile(const string& source,
                                  const set<string>& input_files,
+                                 const vector<const Node*>& all_deps,
                                  string* out) const {
   string obj = strings::JoinPath(input().object_dir(), source + ".o");
   out->append(obj + ":");
@@ -96,9 +102,15 @@ void CCLibraryNode::WriteCompile(const string& source,
     out->append(" ");
     out->append(flag);
   }
-  for (int j = 0; j < cc_compile_args_.size(); ++j) {
+  set<string> header_compile_args;
+  CollectCompileFlags(all_deps, &header_compile_args);
+  for (const string flag : header_compile_args) {
     out->append(" ");
-    out->append(cc_compile_args_[j]);
+    out->append(flag);
+  }
+  for (const string flag : cc_compile_args_) {
+    out->append(" ");
+    out->append(flag);
   }
   out->append(" ");
   out->append(source);
@@ -131,6 +143,13 @@ void CCLibraryNode::ObjectFiles(vector<string>* files) const {
 void CCLibraryNode::LinkFlags(std::set<std::string>* flags) const {
   Node::LinkFlags(flags);
   for (const string flag : cc_linker_args_) {
+    flags->insert(flag);
+  }
+}
+
+void CCLibraryNode::CompileFlags(std::set<std::string>* flags) const {
+  Node::CompileFlags(flags);
+  for (const string flag : header_compile_args_) {
     flags->insert(flag);
   }
 }

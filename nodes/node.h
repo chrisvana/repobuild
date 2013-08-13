@@ -42,6 +42,7 @@ class Node {
   virtual void ObjectFiles(std::vector<std::string>* files) const {}
   virtual void FinalOutputs(std::vector<std::string>* outputs) const {}
   virtual void LinkFlags(std::set<std::string>* flags) const {}
+  virtual void CompileFlags(std::set<std::string>* flags) const {}
 
   // Accessors.
   const Input& input() const { return *input_; }
@@ -89,6 +90,8 @@ class Node {
                       std::set<std::string>* files) const;
   void CollectLinkFlags(const std::vector<const Node*>& all_deps,
                         std::set<std::string>* flags) const;
+  void CollectCompileFlags(const std::vector<const Node*>& all_deps,
+                           std::set<std::string>* flags) const;
   std::string ParseSingleString(const std::string& input) const {
     return ParseSingleString(true, input);
   }
