@@ -34,7 +34,7 @@ class CCLibraryNode : public Node {
            const std::vector<std::string>& header_compile_args);
 
  protected:
-  std::string DefaultCompileFlags() const;
+  std::string DefaultCompileFlags(bool cpp_mode) const;
   void WriteCompile(const std::string& source,
                     const std::set<std::string>& input_files,
                     const std::vector<const Node*>& all_deps,

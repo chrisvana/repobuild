@@ -23,14 +23,15 @@ Input::Input() {
 
   // Default flags.
   // Compiling
-  AddFlag("-C", "-std=c++11");
-  AddFlag("-C", "-DUSE_CXX0X");
+  AddFlag("-X", "-std=c++11");
+  AddFlag("-X", "-DUSE_CXX0X");
   AddFlag("-C", "-stdlib=libc++");
   AddFlag("-C", "-pthread");
   AddFlag("-C", "-g");
   AddFlag("-C", "-Wall");
   AddFlag("-C", "-Werror");
   AddFlag("-C", "-O3");
+
   // Linking
   AddFlag("-L", "-std=c++11");
   AddFlag("-L", "-DUSE_CXX0X");

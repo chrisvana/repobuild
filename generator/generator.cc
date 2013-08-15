@@ -61,6 +61,28 @@ string Generator::GenerateMakefile(const Input& input) {
   repobuild::Parser parser;
   parser.Parse(input);
 
+  // Write the global values
+  out.append("LDFLAGS=");
+  for (const string& flag : input.flags("-L")) {
+    out.append(" ");
+    out.append(flag);
+  }
+  out.append("\n");
+
+  out.append("CFLAGS=");
+  for (const string& flag : input.flags("-C")) {
+    out.append(" ");
+    out.append(flag);
+  }
+  out.append("\n");
+
+  out.append("CXXFLAGS=");
+  for (const string& flag : input.flags("-X")) {
+    out.append(" ");
+    out.append(flag);
+  }
+  out.append("\n\n");
+
   // Write all of the rules for our user inputted targets.
   set<const Node*> all_nodes, processed;
   for (const Node* node : parser.input_nodes()) {

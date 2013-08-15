@@ -88,7 +88,8 @@ void CCLibraryNode::WriteCompile(const string& source,
 
     // Compile command.
   out->append("\n\t");
-  out->append(DefaultCompileFlags());
+  out->append(DefaultCompileFlags(strings::HasSuffix(source, ".cc") ||
+                                  strings::HasSuffix(source, ".cpp")));
   out->append(" -c");
   out->append(" -I");
   out->append(input().root_dir());
@@ -98,10 +99,7 @@ void CCLibraryNode::WriteCompile(const string& source,
   out->append(input().source_dir());
   out->append(" -I");
   out->append(strings::JoinPath(input().source_dir(), input().genfile_dir()));
-  for (const string& flag : input().flags("-C")) {
-    out->append(" ");
-    out->append(flag);
-  }
+
   set<string> header_compile_args;
   CollectCompileFlags(all_deps, &header_compile_args);
   for (const string flag : header_compile_args) {
@@ -154,8 +152,11 @@ void CCLibraryNode::CompileFlags(std::set<std::string>* flags) const {
   }
 }
 
-std::string CCLibraryNode::DefaultCompileFlags() const {
-  return "$(CXX) $(CXXFLAGS)";
+std::string CCLibraryNode::DefaultCompileFlags(bool cpp_mode) const {
+  if (cpp_mode) {
+    return "$(CXX) $(CXXFLAGS) $(CPPFLAGS) $(CFLAGS)";
+  }
+  return "$(CC) $(CPPFLAGS) $(CFLAGS)";
 }
 
 }  // namespace repobuild
