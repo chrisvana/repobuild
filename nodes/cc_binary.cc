@@ -62,7 +62,7 @@ void CCBinaryNode::WriteLink(
   out->append(file + ":");
   out->append(list);
   out->append("\n\t");
-  out->append("$(CXX) $(LDFLAGS)");
+  out->append("$(LINK.cc)");
   out->append(list);
   out->append(" -o ");
   out->append(file);
@@ -70,7 +70,6 @@ void CCBinaryNode::WriteLink(
     out->append(" ");
     out->append(flag);
   }
-  out->append(" $(LDFLAGS)");
   out->append("\n\n");
 }
 

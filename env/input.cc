@@ -33,17 +33,18 @@ Input::Input() {
     // Compiling
     AddFlag("-X", "-std=c++11");
     AddFlag("-X", "-DUSE_CXX0X");
-    AddFlag("-C", "-stdlib=libc++");
+    AddFlag("-C", "-stdlib=libc++");  // clang only, see cc_library.cc
     AddFlag("-C", "-pthread");
     AddFlag("-C", "-g");
     AddFlag("-C", "-Wall");
     AddFlag("-C", "-Werror");
     AddFlag("-C", "-Wno-sign-compare");
     AddFlag("-C", "-O3");
+    AddFlag("-C", "-Qunused-arguments");  // clang only, see cc_library.cc
 
     // Linking
     AddFlag("-L", "-std=c++11");
-    AddFlag("-L", "-stdlib=libc++");
+    AddFlag("-L", "-stdlib=libc++");  // clang only, see cc_library.cc
     AddFlag("-L", "-lpthread");
     AddFlag("-L", "-g");
     AddFlag("-L", "-O3");

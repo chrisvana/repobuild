@@ -159,7 +159,8 @@ namespace {
 // TODO(cvanarsdale): This is clunky. Nicer to have flags in a registered list
 // with conditionals already set.
 bool IsGccFlag(const string& flag) {
-  return !strings::HasPrefix(flag, "-stdlib");
+  return (!strings::HasPrefix(flag, "-stdlib") &&
+          (flag == "-Q" || !strings::HasPrefix(flag, "-Q")));
 }
 string JoinFlags(const vector<string>& flags, bool gcc_only) {
   string out;
@@ -199,17 +200,26 @@ string WriteCxxflag(const Input& input, bool gcc) {
 // static
 void CCLibraryNode::WriteMakeHead(const Input& input, string* out) {
   // Some conditional variables
+  out->append("# Some compiler specific flag settings.\n");
   out->append("CXX_GCC := $(shell $(CXX) --version | "
+             "egrep '(^gcc|^g++)' | head -n 1 | wc -l)\n");
+  out->append("CC_GCC := $(shell $(CC) --version | "
              "egrep '(^gcc|^g++)' | head -n 1 | wc -l)\n");
 
   // Write the global values
+  // CFLAGS:
+  out->append("ifeq ($(CC_GCC),1)\n");
+  out->append("\t" + WriteCflag(input, true));
+  out->append("else\n");
+  out->append("\t" + WriteCflag(input, false));
+  out->append("endif\n");
+
+  // CXXFLAGS and LDFLAGS
   out->append("ifeq ($(CXX_GCC),1)\n");
   out->append("\t" + WriteLdflag(input, true));
-  out->append("\t" + WriteCflag(input, true));
   out->append("\t" + WriteCxxflag(input, true));
   out->append("else\n");
   out->append("\t" + WriteLdflag(input, false));
-  out->append("\t" + WriteCflag(input, false));
   out->append("\t" + WriteCxxflag(input, false));
   out->append("endif\n\n");
 }
