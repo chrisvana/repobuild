@@ -19,7 +19,7 @@ class Input {
 
   // Mutators:
   void AddBuildTarget(const TargetInfo& target);
-  void AddFlag(const std::string& key,  const std::string& value) {
+  void AddFlag(const std::string& key, const std::string& value) {
     flags_[key].push_back(value);
   }
 

@@ -33,6 +33,9 @@ class CCLibraryNode : public Node {
            const std::vector<std::string>& cc_compile_args,
            const std::vector<std::string>& header_compile_args);
 
+  // Static preprocessors
+  static void WriteMakeHead(const Input& input, std::string* out);
+
  protected:
   std::string DefaultCompileFlags(bool cpp_mode) const;
   void WriteCompile(const std::string& source,

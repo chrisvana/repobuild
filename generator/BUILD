@@ -6,6 +6,7 @@
      "dependencies": [ "//common/log:log",
                        "//env:input",
                        "//nodes:node",
+                       "//nodes:cc_library",
                        "//reader:parser"
      ]
    }

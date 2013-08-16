@@ -4,6 +4,7 @@
      "cc_sources" : [ "input.cc" ],
      "cc_headers" : [ "input.h" ],
      "dependencies" : [
+       "//common/base:flags",
        "//common/strings:strutil"
      ]
    }

@@ -90,7 +90,6 @@ void CCLibraryNode::WriteCompile(const string& source,
   out->append("\n\t");
   out->append(DefaultCompileFlags(strings::HasSuffix(source, ".cc") ||
                                   strings::HasSuffix(source, ".cpp")));
-  out->append(" -c");
   out->append(" -I");
   out->append(input().root_dir());
   out->append(" -I");
@@ -153,10 +152,46 @@ void CCLibraryNode::CompileFlags(std::set<std::string>* flags) const {
 }
 
 std::string CCLibraryNode::DefaultCompileFlags(bool cpp_mode) const {
-  if (cpp_mode) {
-    return "$(CXX) $(CXXFLAGS) $(CPPFLAGS) $(CFLAGS)";
+  return (cpp_mode ? "$(COMPILE.cc)" : "$(COMPILE.c)");
+}
+
+namespace {
+// TODO(cvanarsdale): This is clunky. Nicer to have flags in a registered list
+// with conditionals already set.
+bool IsGccFlag(const string& flag) {
+  return !strings::HasPrefix(flag, "-stdlib");
+}
+string JoinFlags(const string& flag,
+                 const vector<string>& flags,
+                 bool gcc_only) {
+  string out = flag + "=";
+  for (const string& flag : flags) {
+    if (!gcc_only || IsGccFlag(flag)) {
+      out.append(" ");
+      out.append(flag);
+    }
   }
-  return "$(CC) $(CPPFLAGS) $(CFLAGS)";
+  out.append("\n");
+  return out;
+}
+}  // anonymous namespace
+
+// static
+void CCLibraryNode::WriteMakeHead(const Input& input, string* out) {
+  // Some conditional variables
+  out->append("CXX_GCC := $(shell $(CXX) --version | "
+             "egrep '(^gcc|^g++)' | head -n 1 | wc -l)\n");
+
+  // Write the global values
+  out->append("ifeq ($(CXX_GCC),1)\n");
+  out->append(JoinFlags("\tLDFLAGS", input.flags("-L"), true));
+  out->append(JoinFlags("\tCFLAGS", input.flags("-C"), true));
+  out->append(JoinFlags("\tCXXFLAGS", input.flags("-X"), true));
+  out->append("else\n");
+  out->append(JoinFlags("\tLDFLAGS", input.flags("-L"), false));
+  out->append(JoinFlags("\tCFLAGS", input.flags("-C"), false));
+  out->append(JoinFlags("\tCXXFLAGS", input.flags("-X"), false));
+  out->append("endif\n\n");
 }
 
 }  // namespace repobuild

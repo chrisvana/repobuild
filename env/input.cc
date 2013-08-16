@@ -3,9 +3,16 @@
 
 #include <string>
 #include <vector>
+#include "common/base/flags.h"
+#include "common/strings/path.h"
 #include "repobuild/env/input.h"
 #include "repobuild/env/target.h"
-#include "common/strings/path.h"
+
+DEFINE_bool(add_default_flags, true,
+            "If false, we disable the default flags.");
+
+// TODO(cvanarsdale): A default configuration file ('.repobuild') that contains
+// flags. We can search the path/tree/homedir for it.
 
 using std::string;
 
@@ -22,25 +29,27 @@ Input::Input() {
   source_dir_ = ".gen-src";
 
   // Default flags.
-  // Compiling
-  AddFlag("-X", "-std=c++11");
-  AddFlag("-X", "-DUSE_CXX0X");
-  AddFlag("-C", "-stdlib=libc++");
-  AddFlag("-C", "-pthread");
-  AddFlag("-C", "-g");
-  AddFlag("-C", "-Wall");
-  AddFlag("-C", "-Werror");
-  AddFlag("-C", "-O3");
+  if (FLAGS_add_default_flags) {
+    // Compiling
+    AddFlag("-X", "-std=c++11");
+    AddFlag("-X", "-DUSE_CXX0X");
+    AddFlag("-C", "-stdlib=libc++");
+    AddFlag("-C", "-pthread");
+    AddFlag("-C", "-g");
+    AddFlag("-C", "-Wall");
+    AddFlag("-C", "-Werror");
+    AddFlag("-C", "-Wno-sign-compare");
+    AddFlag("-C", "-O3");
 
-  // Linking
-  AddFlag("-L", "-std=c++11");
-  AddFlag("-L", "-DUSE_CXX0X");
-  AddFlag("-L", "-stdlib=libc++");
-  AddFlag("-L", "-lpthread");
-  AddFlag("-L", "-g");
-  AddFlag("-L", "-O3");
-  AddFlag("-L", "-L/usr/local/lib");
-  AddFlag("-L", "-L/opt/local/lib");
+    // Linking
+    AddFlag("-L", "-std=c++11");
+    AddFlag("-L", "-stdlib=libc++");
+    AddFlag("-L", "-lpthread");
+    AddFlag("-L", "-g");
+    AddFlag("-L", "-O3");
+    AddFlag("-L", "-L/usr/local/lib");
+    AddFlag("-L", "-L/opt/local/lib");
+  }
 }
 
 const std::vector<std::string>& Input::flags(const std::string& key) const {

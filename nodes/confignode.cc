@@ -58,11 +58,11 @@ void ConfigNode::AddSymlink(const string& dir,
   out->append("\t@");  // silent
   out->append("mkdir -p ");
   out->append(strings::PathDirname(dir));
-  out->append("; if [[ ! -a ");
+  out->append("; [ -f ");
   out->append(source);
-  out->append(" ]]; then mkdir -p ");
+  out->append(" ] || mkdir -p ");
   out->append(source);
-  out->append("; fi; ln -f -s ");
+  out->append("; ln -f -s ");
   int num_pieces = strings::NumPathComponents(strings::PathDirname(dir));
   string link;
   for (int i = 0; i < num_pieces; ++i) {
@@ -81,11 +81,11 @@ void ConfigNode::AddSymlink(const string& dir,
   out->append(": ");
   out->append(dir);  // input
   out->append("\n\t@");  // silent
-  out->append("if [[ ! -a ");
+  out->append("[ -f ");
   out->append(dummy);
-  out->append(" ]]; then touch ");
+  out->append(" ] || touch ");
   out->append(dummy);
-  out->append("; fi\n\n");
+  out->append("\n\n");
 }
 
 void ConfigNode::WriteMakeClean(std::string* out) const {

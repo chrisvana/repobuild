@@ -9,6 +9,7 @@
 #include "repobuild/generator/generator.h"
 #include "nodes/node.h"
 #include "repobuild/reader/parser.h"
+#include "repobuild/nodes/cc_library.h"  // TODO(cvanarsdale): clunky, remove.
 
 using std::string;
 using std::vector;
@@ -61,27 +62,8 @@ string Generator::GenerateMakefile(const Input& input) {
   repobuild::Parser parser;
   parser.Parse(input);
 
-  // Write the global values
-  out.append("LDFLAGS=");
-  for (const string& flag : input.flags("-L")) {
-    out.append(" ");
-    out.append(flag);
-  }
-  out.append("\n");
-
-  out.append("CFLAGS=");
-  for (const string& flag : input.flags("-C")) {
-    out.append(" ");
-    out.append(flag);
-  }
-  out.append("\n");
-
-  out.append("CXXFLAGS=");
-  for (const string& flag : input.flags("-X")) {
-    out.append(" ");
-    out.append(flag);
-  }
-  out.append("\n\n");
+  // TODO(cvanarsdale): Make this part of the parser's static registry?
+  CCLibraryNode::WriteMakeHead(input, &out);
 
   // Write all of the rules for our user inputted targets.
   set<const Node*> all_nodes, processed;
