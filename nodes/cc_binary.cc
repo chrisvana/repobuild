@@ -29,13 +29,11 @@ void CCBinaryNode::WriteMakefile(const vector<const Node*>& all_deps,
   string bin = strings::JoinPath(input().object_dir(), target().make_path());
   WriteLink(all_deps, bin, out);
 
-  // Output user target
-  out->append(target().make_path());
-  out->append(": ");
-  out->append(bin);
-  out->append("\n\n.PHONY: ");
-  out->append(target().make_path());
-  out->append("\n\n");
+  {  // Output user target
+    set<string> deps;
+    deps.insert(bin);
+    out->append(WriteBaseUserTarget(deps));
+  }
 
   // Symlink to root dir.
   string out_bin = OutBinary();
@@ -43,8 +41,8 @@ void CCBinaryNode::WriteMakefile(const vector<const Node*>& all_deps,
   out->append(": ");
   out->append(bin);
   out->append("\n\t");
-  out->append("pwd > /dev/null");  // hack to work around make issue?
-  out->append("\n\tln -f -s ");
+  out->append("@pwd > /dev/null");  // hack to work around make issue?
+  out->append("\n\t@ln -f -s ");
   out->append(strings::JoinPath(input().object_dir(), target().make_path()));
   out->append(" ");
   out->append(out_bin);
@@ -70,7 +68,9 @@ void CCBinaryNode::WriteLink(
   out->append(file + ":");
   out->append(list);
   out->append("\n\t");
-  out->append("$(LINK.cc)");
+  out->append("@echo Linking: ");
+  out->append(file);
+  out->append("\n\t@$(LINK.cc)");
   out->append(list);
   out->append(" -o ");
   out->append(file);

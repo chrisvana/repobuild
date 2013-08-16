@@ -73,15 +73,11 @@ void CCLibraryNode::WriteMakefileInternal(const vector<const Node*>& all_deps,
 
   // Now write user target
   if (should_write_target) {
-    out->append(target().make_path());
-    out->append(":");
+    set<string> targets;
     for (const string& source : sources_) {
-      out->append(" ");
-      out->append(ObjForSource(source));
+      targets.insert(ObjForSource(source));
     }
-    out->append("\n\n.PHONY: ");
-    out->append(target().make_path());
-    out->append("\n\n");
+    out->append(WriteBaseUserTarget(targets));
   }
 }
 
@@ -107,6 +103,9 @@ void CCLibraryNode::WriteCompile(const string& source,
 
     // Compile command.
   out->append("\n\t");
+  out->append("@echo Compiling: ");
+  out->append(source);
+  out->append("\n\t@");
   out->append(DefaultCompileFlags(strings::HasSuffix(source, ".cc") ||
                                   strings::HasSuffix(source, ".cpp")));
   out->append(" -I");
@@ -181,10 +180,17 @@ bool IsGccFlag(const string& flag) {
   return (!strings::HasPrefix(flag, "-stdlib") &&
           (flag == "-Q" || !strings::HasPrefix(flag, "-Q")));
 }
-string JoinFlags(const vector<string>& flags, bool gcc_only) {
+bool IsStdlibFlag(const string& flag) {
+  return (strings::HasPrefix(flag, "-stdlib") ||
+          strings::HasPrefix(flag, "-std"));  // sort of redundant, for clarity.
+}
+string JoinFlags(const vector<string>& flags,
+                 bool gcc_only,
+                 bool stdlib_only) {
   string out;
   for (const string& flag : flags) {
-    if (!gcc_only || IsGccFlag(flag)) {
+    if ((!gcc_only || IsGccFlag(flag)) &&
+        (!stdlib_only || IsStdlibFlag(flag))) {
       out.append(" ");
       out.append(flag);
     }
@@ -194,22 +200,22 @@ string JoinFlags(const vector<string>& flags, bool gcc_only) {
 
 string WriteLdflag(const Input& input, bool gcc) {
   string out = "LDFLAGS=";
-  out.append(JoinFlags(input.flags("-L"), gcc));
+  out.append(JoinFlags(input.flags("-L"), gcc, false));
   out.append("\n");
   return out;
 }
 
 string WriteCflag(const Input& input, bool gcc) {
   string out = "CFLAGS=";
-  out.append(JoinFlags(input.flags("-C"), gcc));
+  out.append(JoinFlags(input.flags("-C"), gcc, false));
   out.append("\n");
   return out;
 }
 
-string WriteCxxflag(const Input& input, bool gcc) {
-  string out = "CXXFLAGS=";
-  out.append(JoinFlags(input.flags("-C"), gcc));
-  out.append(JoinFlags(input.flags("-X"), gcc));
+string WriteCxxflag(const Input& input, bool gcc, bool stddlib) {
+  string out = (stddlib ? "STDLIB_CXXFLAGS=" : "CXXFLAGS=");
+  out.append(JoinFlags(input.flags("-C"), gcc, stddlib));
+  out.append(JoinFlags(input.flags("-X"), gcc, stddlib));
   out.append("\n");
   return out;
 }
@@ -236,10 +242,12 @@ void CCLibraryNode::WriteMakeHead(const Input& input, string* out) {
   // CXXFLAGS and LDFLAGS
   out->append("ifeq ($(CXX_GCC),1)\n");
   out->append("\t" + WriteLdflag(input, true));
-  out->append("\t" + WriteCxxflag(input, true));
+  out->append("\t" + WriteCxxflag(input, true, false));
+  out->append("\t" + WriteCxxflag(input, true, true));
   out->append("else\n");
   out->append("\t" + WriteLdflag(input, false));
-  out->append("\t" + WriteCxxflag(input, false));
+  out->append("\t" + WriteCxxflag(input, false, false));
+  out->append("\t" + WriteCxxflag(input, false, true));
   out->append("endif\n\n");
 }
 

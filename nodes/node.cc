@@ -177,8 +177,26 @@ string Node::RelativeGenDir() const {
   return strings::JoinPath(output, target().dir());
 }
 
-std::string Node::MakefileEscape(const std::string& str) const {
+string Node::MakefileEscape(const string& str) const {
   return strings::ReplaceAll(str, "$", "$$");
+}
+
+string Node::WriteBaseUserTarget(const set<string>& deps) const {
+  string out;
+  out.append(target().make_path());
+  out.append(":");
+  for (const string& dep : deps) {
+    out.append(" ");
+    out.append(dep);
+  }
+  for (const TargetInfo* dep : dependencies()) {
+    out.append(" ");
+    out.append(dep->make_path());
+  }
+  out.append("\n\n.PHONY: ");
+  out.append(target().make_path());
+  out.append("\n\n");
+  return out;
 }
 
 }  // namespace repobuild

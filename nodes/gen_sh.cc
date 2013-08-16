@@ -62,7 +62,9 @@ void GenShNode::WriteMakefile(const vector<const Node*>& all_deps,
   out->append("\n");
 
   if (!build_cmd_.empty()) {
-    out->append("\t");
+    out->append("\t@echo Script: ");
+    out->append(target().full_path());
+    out->append("\n\t@");
 
     string touch_cmd = "mkdir -p " +
         strings::JoinPath(input().object_dir(), target().dir()) +
@@ -72,6 +74,12 @@ void GenShNode::WriteMakefile(const vector<const Node*>& all_deps,
     out->append("\n");
   }
   out->append("\n");
+
+  {  // user target
+    set<string> output_targets;
+    output_targets.insert(touchfile);
+    out->append(WriteBaseUserTarget(output_targets));
+  }
 
   for (const string& output : outputs_) {
     out->append(strings::JoinPath(GenDir(), output));
@@ -103,10 +111,20 @@ string GenShNode::WriteCommand(const string& cmd,
     out.append("; cd ");
     out.append(target().dir());
   }
+
+  // Environment.
   out.append("; GEN_DIR=\"");
   out.append(cd_ ? RelativeGenDir() : GenDir());
-  out.append("\" eval '");
+  out.append("\"");
+  out.append(" CC=\"$(CC)\" CXX=\"$(CXX)\"");
+  out.append(" CXXFLAGS=\"$(CXXFLAGS)\"");
+  out.append(" BASIC_CXXFLAGS=\"$(BASIC_CXXFLAGS)\"");
+  out.append(" CFLAGS=\"$(CFLAGS)\" LDFLAGS=\"$(LDFLAGS)\"");
+
+  // Execute command
+  out.append(" eval '");
   out.append(MakefileEscape(cmd));
+
   out.append("')");
   if (!admin_cmd.empty()) {
     out.append(" && (");

@@ -40,7 +40,10 @@ void GoBinaryNode::WriteMakefile(const vector<const Node*>& all_deps,
     out->append(input);
   }
   out->append("\n\t");
-  out->append("mkdir -p ");
+  out->append("@echo Go build: ");
+  out->append(bin);
+  out->append("\n\t");
+  out->append("@mkdir -p ");
   out->append(strings::PathDirname(bin));
   out->append("; go build -o ");
   out->append(bin);
@@ -64,8 +67,8 @@ void GoBinaryNode::WriteMakefile(const vector<const Node*>& all_deps,
   out->append(": ");
   out->append(bin);
   out->append("\n\t");
-  out->append("pwd > /dev/null");  // hack to work around make issue?
-  out->append("\n\tln -f -s ");
+  out->append("@pwd > /dev/null");  // hack to work around make issue?
+  out->append("\n\t@ln -f -s ");
   out->append(strings::JoinPath(input().object_dir(), target().make_path()));
   out->append(" ");
   out->append(out_bin);

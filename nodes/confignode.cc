@@ -1,6 +1,7 @@
 // Copyright 2013
 // Author: Christopher Van Arsdale
 
+#include <set>
 #include <string>
 #include <vector>
 #include "common/log/log.h"
@@ -9,6 +10,7 @@
 #include "nodes/confignode.h"
 #include "repobuild/reader/buildfile.h"
 
+using std::set;
 using std::string;
 using std::vector;
 
@@ -40,6 +42,12 @@ void ConfigNode::WriteMakefile(const vector<const Node*>& all_deps,
   // mkdir -p src; ln -s path/to/this/target/dir src/<component>
   AddSymlink(dir, strings::JoinPath(target().dir(), component_root_), out);
 
+  // And our base target name
+  {
+    set<string> targets;
+    targets.insert(dir);
+    out->append(WriteBaseUserTarget(targets));
+  }
 
   // Same thing for genfiles
   dir = SourceDir(input().genfile_dir());
