@@ -23,7 +23,7 @@ void CCBinaryNode::Parse(BuildFile* file, const BuildFileNode& input) {
 
 void CCBinaryNode::WriteMakefile(const vector<const Node*>& all_deps,
                                  string* out) const {
-  CCLibraryNode::WriteMakefile(all_deps, out);
+  CCLibraryNode::WriteMakefileInternal(all_deps, false, out);
 
   // Output binary
   string bin = strings::JoinPath(input().object_dir(), target().make_path());

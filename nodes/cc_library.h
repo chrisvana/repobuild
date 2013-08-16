@@ -42,6 +42,10 @@ class CCLibraryNode : public Node {
                     const std::set<std::string>& input_files,
                     const std::vector<const Node*>& all_deps,
                     std::string* out) const;
+  void WriteMakefileInternal(const std::vector<const Node*>& all_deps,
+                             bool should_write_target,
+                             std::string* out) const;
+  std::string ObjForSource(const std::string& source) const;
 
   std::vector<std::string> sources_;
   std::vector<std::string> headers_;

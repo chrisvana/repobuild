@@ -104,15 +104,20 @@ string Generator::GenerateMakefile(const Input& input) {
 
   // Write the all rule.
   out.append("all:");
+  set<string> outputs;
   for (const Node* node : parser.all_nodes()) {
     if (input.contains_target(node->target().full_path())) {
-      vector<string> outputs;
-      node->FinalOutputs(&outputs);
-      for (const string& output : outputs) {
-        out.append(" ");
-        out.append(output);
+      vector<string> node_out;
+      node->FinalOutputs(&node_out);
+      for (const string& output : node_out) {
+        outputs.insert(output);
       }
+      outputs.insert(node->target().make_path());
     }
+  }
+  for (const string& out_target : outputs) {
+    out.append(" ");
+    out.append(out_target);
   }
   out.append("\n\n");
 

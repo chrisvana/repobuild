@@ -55,6 +55,12 @@ void CCLibraryNode::Set(const vector<string>& sources,
 
 void CCLibraryNode::WriteMakefile(const vector<const Node*>& all_deps,
                                   string* out) const {
+  WriteMakefileInternal(all_deps, true, out);
+}
+
+void CCLibraryNode::WriteMakefileInternal(const vector<const Node*>& all_deps,
+                                          bool should_write_target,
+                                          string* out) const {
   // Figure out the set of input files.
   set<string> input_files;
   CollectDependencies(all_deps, &input_files);
@@ -64,13 +70,26 @@ void CCLibraryNode::WriteMakefile(const vector<const Node*>& all_deps,
     // Output object.
     WriteCompile(sources_[i], input_files, all_deps, out);
   }
+
+  // Now write user target
+  if (should_write_target) {
+    out->append(target().make_path());
+    out->append(":");
+    for (const string& source : sources_) {
+      out->append(" ");
+      out->append(ObjForSource(source));
+    }
+    out->append("\n\n.PHONY: ");
+    out->append(target().make_path());
+    out->append("\n\n");
+  }
 }
 
 void CCLibraryNode::WriteCompile(const string& source,
                                  const set<string>& input_files,
                                  const vector<const Node*>& all_deps,
                                  string* out) const {
-  string obj = strings::JoinPath(input().object_dir(), source + ".o");
+  string obj = ObjForSource(source);
   out->append(obj + ":");
 
   // Dependencies.
@@ -222,6 +241,10 @@ void CCLibraryNode::WriteMakeHead(const Input& input, string* out) {
   out->append("\t" + WriteLdflag(input, false));
   out->append("\t" + WriteCxxflag(input, false));
   out->append("endif\n\n");
+}
+
+string CCLibraryNode::ObjForSource(const std::string& source) const {
+  return strings::JoinPath(input().object_dir(), source + ".o");
 }
 
 }  // namespace repobuild
