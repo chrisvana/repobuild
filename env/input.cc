@@ -41,7 +41,6 @@ Input::Input() {
     AddFlag("-C", "-Wno-sign-compare");
     AddFlag("-C", "-O3");
     AddFlag("-C", "-Qunused-arguments");  // clang only, see cc_library.cc
-    AddFlag("-C", "-Wno-unknown-warning-option"); 
 
     // Linking
     AddFlag("-L", "-std=c++11");

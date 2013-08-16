@@ -29,6 +29,14 @@ void CCBinaryNode::WriteMakefile(const vector<const Node*>& all_deps,
   string bin = strings::JoinPath(input().object_dir(), target().make_path());
   WriteLink(all_deps, bin, out);
 
+  // Output user target
+  out->append(target().make_path());
+  out->append(": ");
+  out->append(bin);
+  out->append("\n\n.PHONY: ");
+  out->append(target().make_path());
+  out->append("\n\n");
+
   // Symlink to root dir.
   string out_bin = OutBinary();
   out->append(out_bin);
