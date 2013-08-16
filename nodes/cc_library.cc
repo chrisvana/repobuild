@@ -221,9 +221,9 @@ void CCLibraryNode::WriteMakeHead(const Input& input, string* out) {
   // Some conditional variables
   out->append("# Some compiler specific flag settings.\n");
   out->append("CXX_GCC := $(shell $(CXX) --version | "
-             "egrep '(^gcc|^g++)' | head -n 1 | wc -l)\n");
+             "egrep '(^gcc|^g\+\+)' | head -n 1 | wc -l)\n");
   out->append("CC_GCC := $(shell $(CC) --version | "
-             "egrep '(^gcc|^g++)' | head -n 1 | wc -l)\n");
+             "egrep '(^gcc|^g\+\+)' | head -n 1 | wc -l)\n");
 
   // Write the global values
   // CFLAGS:
