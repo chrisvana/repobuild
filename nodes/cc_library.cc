@@ -159,7 +159,8 @@ namespace {
 // TODO(cvanarsdale): This is clunky. Nicer to have flags in a registered list
 // with conditionals already set.
 bool IsGccFlag(const string& flag) {
-  return !strings::HasPrefix(flag, "-stdlib");
+  return (!strings::HasPrefix(flag, "-stdlib") &&
+          (flag == "-Q" || !strings::HasPrefix(flag, "-Q")));
 }
 string JoinFlags(const vector<string>& flags, bool gcc_only) {
   string out;
