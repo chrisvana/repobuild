@@ -161,19 +161,39 @@ namespace {
 bool IsGccFlag(const string& flag) {
   return !strings::HasPrefix(flag, "-stdlib");
 }
-string JoinFlags(const string& flag,
-                 const vector<string>& flags,
-                 bool gcc_only) {
-  string out = flag + "=";
+string JoinFlags(const vector<string>& flags, bool gcc_only) {
+  string out;
   for (const string& flag : flags) {
     if (!gcc_only || IsGccFlag(flag)) {
       out.append(" ");
       out.append(flag);
     }
   }
+  return out;
+}
+
+string WriteLdflag(const Input& input, bool gcc) {
+  string out = "LDFLAGS=";
+  out.append(JoinFlags(input.flags("-L"), gcc));
   out.append("\n");
   return out;
 }
+
+string WriteCflag(const Input& input, bool gcc) {
+  string out = "CFLAGS=";
+  out.append(JoinFlags(input.flags("-C"), gcc));
+  out.append("\n");
+  return out;
+}
+
+string WriteCxxflag(const Input& input, bool gcc) {
+  string out = "CXXFLAGS=";
+  out.append(JoinFlags(input.flags("-C"), gcc));
+  out.append(JoinFlags(input.flags("-X"), gcc));
+  out.append("\n");
+  return out;
+}
+                 
 }  // anonymous namespace
 
 // static
@@ -184,13 +204,13 @@ void CCLibraryNode::WriteMakeHead(const Input& input, string* out) {
 
   // Write the global values
   out->append("ifeq ($(CXX_GCC),1)\n");
-  out->append(JoinFlags("\tLDFLAGS", input.flags("-L"), true));
-  out->append(JoinFlags("\tCFLAGS", input.flags("-C"), true));
-  out->append(JoinFlags("\tCXXFLAGS", input.flags("-X"), true));
+  out->append("\t" + WriteLdflag(input, true));
+  out->append("\t" + WriteCflag(input, true));
+  out->append("\t" + WriteCxxflag(input, true));
   out->append("else\n");
-  out->append(JoinFlags("\tLDFLAGS", input.flags("-L"), false));
-  out->append(JoinFlags("\tCFLAGS", input.flags("-C"), false));
-  out->append(JoinFlags("\tCXXFLAGS", input.flags("-X"), false));
+  out->append("\t" + WriteLdflag(input, false));
+  out->append("\t" + WriteCflag(input, false));
+  out->append("\t" + WriteCxxflag(input, false));
   out->append("endif\n\n");
 }
 

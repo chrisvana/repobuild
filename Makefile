@@ -4,11 +4,11 @@ CXX_GCC := $(shell $(CXX) --version | egrep '(^gcc|^g++)' | head -n 1 | wc -l)
 ifeq ($(CXX_GCC),1)
 	LDFLAGS= -std=c++11 -lpthread -g -O3 -L/usr/local/lib -L/opt/local/lib
 	CFLAGS= -pthread -g -Wall -Werror -Wno-sign-compare -O3
-	CXXFLAGS= -std=c++11 -DUSE_CXX0X
+	CXXFLAGS= -pthread -g -Wall -Werror -Wno-sign-compare -O3 -std=c++11 -DUSE_CXX0X
 else
 	LDFLAGS= -std=c++11 -stdlib=libc++ -lpthread -g -O3 -L/usr/local/lib -L/opt/local/lib
 	CFLAGS= -stdlib=libc++ -pthread -g -Wall -Werror -Wno-sign-compare -O3
-	CXXFLAGS= -std=c++11 -DUSE_CXX0X
+	CXXFLAGS= -stdlib=libc++ -pthread -g -Wall -Werror -Wno-sign-compare -O3 -std=c++11 -DUSE_CXX0X
 endif
 
 .gen-obj/repobuild.cc.o: .gen-src/.gen-files/common/.dummy .gen-src/.gen-files/json/.dummy .gen-src/.gen-files/repobuild/.dummy .gen-src/common/.dummy .gen-src/json/.dummy .gen-src/repobuild/.dummy common/base/flags.h common/base/init.h common/file/fileutil.h common/log/log.h common/strings/path.h common/strings/strutil.h common/strings/varmap.h common/third_party/google/gflags/src/google/gflags.h common/third_party/google/gflags/src/google/gflags_completions.h common/third_party/google/gflags/src/util.h common/third_party/google/re2/stringpiece.h env/input.h env/target.h generator/generator.h json/autolink.h json/config.h json/features.h json/forwards.h json/json.h json/reader.h json/value.h json/writer.h nodes/allnodes.h nodes/cc_binary.h nodes/cc_library.h nodes/confignode.h nodes/gen_sh.h nodes/go_binary.h nodes/go_library.h nodes/node.h nodes/proto_library.h reader/buildfile.h reader/parser.h repobuild.cc
