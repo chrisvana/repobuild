@@ -27,18 +27,6 @@ repobuild: .gen-obj/repobuild
 	pwd > /dev/null
 	ln -f -s .gen-obj/repobuild repobuild
 
-.gen-src/common:
-	@mkdir -p .gen-src; [ -f common ] || mkdir -p common; ln -f -s ../common .gen-src/common
-
-.gen-src/common/.dummy: .gen-src/common
-	@[ -f .gen-src/common/.dummy ] || touch .gen-src/common/.dummy
-
-.gen-src/.gen-files/common:
-	@mkdir -p .gen-src/.gen-files; [ -f .gen-files/common ] || mkdir -p .gen-files/common; ln -f -s ../../.gen-files/common .gen-src/.gen-files/common
-
-.gen-src/.gen-files/common/.dummy: .gen-src/.gen-files/common
-	@[ -f .gen-src/.gen-files/common/.dummy ] || touch .gen-src/.gen-files/common/.dummy
-
 .gen-src/repobuild:
 	@mkdir -p .gen-src; [ -f . ] || mkdir -p .; ln -f -s .. .gen-src/repobuild
 
@@ -50,6 +38,18 @@ repobuild: .gen-obj/repobuild
 
 .gen-src/.gen-files/repobuild/.dummy: .gen-src/.gen-files/repobuild
 	@[ -f .gen-src/.gen-files/repobuild/.dummy ] || touch .gen-src/.gen-files/repobuild/.dummy
+
+.gen-src/common:
+	@mkdir -p .gen-src; [ -f common ] || mkdir -p common; ln -f -s ../common .gen-src/common
+
+.gen-src/common/.dummy: .gen-src/common
+	@[ -f .gen-src/common/.dummy ] || touch .gen-src/common/.dummy
+
+.gen-src/.gen-files/common:
+	@mkdir -p .gen-src/.gen-files; [ -f .gen-files/common ] || mkdir -p .gen-files/common; ln -f -s ../../.gen-files/common .gen-src/.gen-files/common
+
+.gen-src/.gen-files/common/.dummy: .gen-src/.gen-files/common
+	@[ -f .gen-src/.gen-files/common/.dummy ] || touch .gen-src/.gen-files/common/.dummy
 
 common/base/flags:
 
@@ -66,6 +66,14 @@ common/base/init: .gen-obj/common/base/init.cc.o
 common/log/log:
 
 .PHONY: common/log/log
+
+.gen-obj/env/input.cc.o: .gen-src/.gen-files/common/.dummy .gen-src/.gen-files/repobuild/.dummy .gen-src/common/.dummy .gen-src/repobuild/.dummy common/base/flags.h common/strings/path.h common/strings/strutil.h common/strings/varmap.h common/third_party/google/gflags/src/google/gflags.h common/third_party/google/gflags/src/google/gflags_completions.h common/third_party/google/gflags/src/util.h common/third_party/google/re2/stringpiece.h env/input.h env/input.cc
+	@mkdir -p .gen-obj/env
+	$(COMPILE.cc) -I. -I.gen-files -I.gen-src -I.gen-src/.gen-files -Icommon/third_party/google/gflags/src env/input.cc -o .gen-obj/env/input.cc.o
+
+env/input: .gen-obj/env/input.cc.o
+
+.PHONY: env/input
 
 common/strings/stringpiece:
 
@@ -102,14 +110,6 @@ common/strings/strutil: .gen-obj/common/strings/strutil.cc.o .gen-obj/common/str
 env/target: .gen-obj/env/target.cc.o
 
 .PHONY: env/target
-
-.gen-obj/env/input.cc.o: .gen-src/.gen-files/common/.dummy .gen-src/.gen-files/repobuild/.dummy .gen-src/common/.dummy .gen-src/repobuild/.dummy common/base/flags.h common/strings/path.h common/strings/strutil.h common/strings/varmap.h common/third_party/google/gflags/src/google/gflags.h common/third_party/google/gflags/src/google/gflags_completions.h common/third_party/google/gflags/src/util.h common/third_party/google/re2/stringpiece.h env/input.h env/input.cc
-	@mkdir -p .gen-obj/env
-	$(COMPILE.cc) -I. -I.gen-files -I.gen-src -I.gen-src/.gen-files -Icommon/third_party/google/gflags/src env/input.cc -o .gen-obj/env/input.cc.o
-
-env/input: .gen-obj/env/input.cc.o
-
-.PHONY: env/input
 
 .gen-obj/generator/generator.cc.o: .gen-src/.gen-files/common/.dummy .gen-src/.gen-files/json/.dummy .gen-src/.gen-files/repobuild/.dummy .gen-src/common/.dummy .gen-src/json/.dummy .gen-src/repobuild/.dummy common/base/flags.h common/file/fileutil.h common/log/log.h common/strings/path.h common/strings/strutil.h common/strings/varmap.h common/third_party/google/gflags/src/google/gflags.h common/third_party/google/gflags/src/google/gflags_completions.h common/third_party/google/gflags/src/util.h common/third_party/google/re2/stringpiece.h env/input.h env/target.h generator/generator.h json/autolink.h json/config.h json/features.h json/forwards.h json/json.h json/reader.h json/value.h json/writer.h nodes/allnodes.h nodes/cc_binary.h nodes/cc_library.h nodes/confignode.h nodes/gen_sh.h nodes/go_binary.h nodes/go_library.h nodes/node.h nodes/proto_library.h reader/buildfile.h reader/parser.h generator/generator.cc
 	@mkdir -p .gen-obj/generator
@@ -154,6 +154,62 @@ nodes/confignode: .gen-obj/nodes/confignode.cc.o
 nodes/cc_library: .gen-obj/nodes/cc_library.cc.o
 
 .PHONY: nodes/cc_library
+
+.gen-obj/reader/buildfile.cc.o: .gen-src/.gen-files/common/.dummy .gen-src/.gen-files/json/.dummy .gen-src/.gen-files/repobuild/.dummy .gen-src/common/.dummy .gen-src/json/.dummy .gen-src/repobuild/.dummy common/log/log.h common/strings/path.h common/strings/strutil.h common/strings/varmap.h common/third_party/google/re2/stringpiece.h json/autolink.h json/config.h json/features.h json/forwards.h json/json.h json/reader.h json/value.h json/writer.h reader/buildfile.h reader/buildfile.cc
+	@mkdir -p .gen-obj/reader
+	$(COMPILE.cc) -I. -I.gen-files -I.gen-src -I.gen-src/.gen-files reader/buildfile.cc -o .gen-obj/reader/buildfile.cc.o
+
+reader/buildfile: .gen-obj/reader/buildfile.cc.o
+
+.PHONY: reader/buildfile
+
+.gen-src/json:
+	@mkdir -p .gen-src; [ -f json ] || mkdir -p json; ln -f -s ../json .gen-src/json
+
+.gen-src/json/.dummy: .gen-src/json
+	@[ -f .gen-src/json/.dummy ] || touch .gen-src/json/.dummy
+
+.gen-src/.gen-files/json:
+	@mkdir -p .gen-src/.gen-files; [ -f .gen-files/json ] || mkdir -p .gen-files/json; ln -f -s ../../.gen-files/json .gen-src/.gen-files/json
+
+.gen-src/.gen-files/json/.dummy: .gen-src/.gen-files/json
+	@[ -f .gen-src/.gen-files/json/.dummy ] || touch .gen-src/.gen-files/json/.dummy
+
+.gen-obj/common/third_party/google/gflags/src/gflags.cc.o: .gen-src/.gen-files/common/.dummy .gen-src/.gen-files/repobuild/.dummy .gen-src/common/.dummy .gen-src/repobuild/.dummy common/third_party/google/gflags/src/google/gflags.h common/third_party/google/gflags/src/google/gflags_completions.h common/third_party/google/gflags/src/util.h common/third_party/google/gflags/src/gflags.cc
+	@mkdir -p .gen-obj/common/third_party/google/gflags/src
+	$(COMPILE.cc) -I. -I.gen-files -I.gen-src -I.gen-src/.gen-files -Icommon/third_party/google/gflags/src -Wno-unused-local-typedefs common/third_party/google/gflags/src/gflags.cc -o .gen-obj/common/third_party/google/gflags/src/gflags.cc.o
+
+.gen-obj/common/third_party/google/gflags/src/gflags_completions.cc.o: .gen-src/.gen-files/common/.dummy .gen-src/.gen-files/repobuild/.dummy .gen-src/common/.dummy .gen-src/repobuild/.dummy common/third_party/google/gflags/src/google/gflags.h common/third_party/google/gflags/src/google/gflags_completions.h common/third_party/google/gflags/src/util.h common/third_party/google/gflags/src/gflags_completions.cc
+	@mkdir -p .gen-obj/common/third_party/google/gflags/src
+	$(COMPILE.cc) -I. -I.gen-files -I.gen-src -I.gen-src/.gen-files -Icommon/third_party/google/gflags/src -Wno-unused-local-typedefs common/third_party/google/gflags/src/gflags_completions.cc -o .gen-obj/common/third_party/google/gflags/src/gflags_completions.cc.o
+
+.gen-obj/common/third_party/google/gflags/src/gflags_nc.cc.o: .gen-src/.gen-files/common/.dummy .gen-src/.gen-files/repobuild/.dummy .gen-src/common/.dummy .gen-src/repobuild/.dummy common/third_party/google/gflags/src/google/gflags.h common/third_party/google/gflags/src/google/gflags_completions.h common/third_party/google/gflags/src/util.h common/third_party/google/gflags/src/gflags_nc.cc
+	@mkdir -p .gen-obj/common/third_party/google/gflags/src
+	$(COMPILE.cc) -I. -I.gen-files -I.gen-src -I.gen-src/.gen-files -Icommon/third_party/google/gflags/src -Wno-unused-local-typedefs common/third_party/google/gflags/src/gflags_nc.cc -o .gen-obj/common/third_party/google/gflags/src/gflags_nc.cc.o
+
+.gen-obj/common/third_party/google/gflags/src/gflags_reporting.cc.o: .gen-src/.gen-files/common/.dummy .gen-src/.gen-files/repobuild/.dummy .gen-src/common/.dummy .gen-src/repobuild/.dummy common/third_party/google/gflags/src/google/gflags.h common/third_party/google/gflags/src/google/gflags_completions.h common/third_party/google/gflags/src/util.h common/third_party/google/gflags/src/gflags_reporting.cc
+	@mkdir -p .gen-obj/common/third_party/google/gflags/src
+	$(COMPILE.cc) -I. -I.gen-files -I.gen-src -I.gen-src/.gen-files -Icommon/third_party/google/gflags/src -Wno-unused-local-typedefs common/third_party/google/gflags/src/gflags_reporting.cc -o .gen-obj/common/third_party/google/gflags/src/gflags_reporting.cc.o
+
+common/third_party/google/gflags/gflags: .gen-obj/common/third_party/google/gflags/src/gflags.cc.o .gen-obj/common/third_party/google/gflags/src/gflags_completions.cc.o .gen-obj/common/third_party/google/gflags/src/gflags_nc.cc.o .gen-obj/common/third_party/google/gflags/src/gflags_reporting.cc.o
+
+.PHONY: common/third_party/google/gflags/gflags
+
+.gen-obj/json/json_reader.cpp.o: .gen-src/.gen-files/json/.dummy .gen-src/.gen-files/repobuild/.dummy .gen-src/json/.dummy .gen-src/repobuild/.dummy json/autolink.h json/config.h json/features.h json/forwards.h json/json.h json/reader.h json/value.h json/writer.h json/json_reader.cpp
+	@mkdir -p .gen-obj/json
+	$(COMPILE.cc) -I. -I.gen-files -I.gen-src -I.gen-src/.gen-files json/json_reader.cpp -o .gen-obj/json/json_reader.cpp.o
+
+.gen-obj/json/json_value.cpp.o: .gen-src/.gen-files/json/.dummy .gen-src/.gen-files/repobuild/.dummy .gen-src/json/.dummy .gen-src/repobuild/.dummy json/autolink.h json/config.h json/features.h json/forwards.h json/json.h json/reader.h json/value.h json/writer.h json/json_value.cpp
+	@mkdir -p .gen-obj/json
+	$(COMPILE.cc) -I. -I.gen-files -I.gen-src -I.gen-src/.gen-files json/json_value.cpp -o .gen-obj/json/json_value.cpp.o
+
+.gen-obj/json/json_writer.cpp.o: .gen-src/.gen-files/json/.dummy .gen-src/.gen-files/repobuild/.dummy .gen-src/json/.dummy .gen-src/repobuild/.dummy json/autolink.h json/config.h json/features.h json/forwards.h json/json.h json/reader.h json/value.h json/writer.h json/json_writer.cpp
+	@mkdir -p .gen-obj/json
+	$(COMPILE.cc) -I. -I.gen-files -I.gen-src -I.gen-src/.gen-files json/json_writer.cpp -o .gen-obj/json/json_writer.cpp.o
+
+json/json: .gen-obj/json/json_reader.cpp.o .gen-obj/json/json_value.cpp.o .gen-obj/json/json_writer.cpp.o
+
+.PHONY: json/json
 
 .gen-obj/nodes/cc_binary.cc.o: .gen-src/.gen-files/common/.dummy .gen-src/.gen-files/json/.dummy .gen-src/.gen-files/repobuild/.dummy .gen-src/common/.dummy .gen-src/json/.dummy .gen-src/repobuild/.dummy common/file/fileutil.h common/log/log.h common/strings/path.h common/strings/strutil.h common/strings/varmap.h common/third_party/google/re2/stringpiece.h json/autolink.h json/config.h json/features.h json/forwards.h json/json.h json/reader.h json/value.h json/writer.h nodes/cc_binary.h nodes/node.h reader/buildfile.h nodes/cc_binary.cc
 	@mkdir -p .gen-obj/nodes
@@ -203,14 +259,6 @@ nodes/allnodes: .gen-obj/nodes/allnodes.cc.o
 
 .PHONY: nodes/allnodes
 
-.gen-obj/reader/buildfile.cc.o: .gen-src/.gen-files/common/.dummy .gen-src/.gen-files/json/.dummy .gen-src/.gen-files/repobuild/.dummy .gen-src/common/.dummy .gen-src/json/.dummy .gen-src/repobuild/.dummy common/log/log.h common/strings/path.h common/strings/strutil.h common/strings/varmap.h common/third_party/google/re2/stringpiece.h json/autolink.h json/config.h json/features.h json/forwards.h json/json.h json/reader.h json/value.h json/writer.h reader/buildfile.h reader/buildfile.cc
-	@mkdir -p .gen-obj/reader
-	$(COMPILE.cc) -I. -I.gen-files -I.gen-src -I.gen-src/.gen-files reader/buildfile.cc -o .gen-obj/reader/buildfile.cc.o
-
-reader/buildfile: .gen-obj/reader/buildfile.cc.o
-
-.PHONY: reader/buildfile
-
 .gen-obj/reader/parser.cc.o: .gen-src/.gen-files/common/.dummy .gen-src/.gen-files/json/.dummy .gen-src/.gen-files/repobuild/.dummy .gen-src/common/.dummy .gen-src/json/.dummy .gen-src/repobuild/.dummy common/base/flags.h common/file/fileutil.h common/log/log.h common/strings/path.h common/strings/strutil.h common/strings/varmap.h common/third_party/google/gflags/src/google/gflags.h common/third_party/google/gflags/src/google/gflags_completions.h common/third_party/google/gflags/src/util.h common/third_party/google/re2/stringpiece.h env/input.h env/target.h json/autolink.h json/config.h json/features.h json/forwards.h json/json.h json/reader.h json/value.h json/writer.h nodes/allnodes.h nodes/cc_binary.h nodes/cc_library.h nodes/confignode.h nodes/gen_sh.h nodes/go_binary.h nodes/go_library.h nodes/node.h nodes/proto_library.h reader/buildfile.h reader/parser.h reader/parser.cc
 	@mkdir -p .gen-obj/reader
 	$(COMPILE.cc) -I. -I.gen-files -I.gen-src -I.gen-src/.gen-files -Icommon/third_party/google/gflags/src reader/parser.cc -o .gen-obj/reader/parser.cc.o
@@ -219,63 +267,15 @@ reader/parser: .gen-obj/reader/parser.cc.o
 
 .PHONY: reader/parser
 
-.gen-src/json:
-	@mkdir -p .gen-src; [ -f json ] || mkdir -p json; ln -f -s ../json .gen-src/json
-
-.gen-src/json/.dummy: .gen-src/json
-	@[ -f .gen-src/json/.dummy ] || touch .gen-src/json/.dummy
-
-.gen-src/.gen-files/json:
-	@mkdir -p .gen-src/.gen-files; [ -f .gen-files/json ] || mkdir -p .gen-files/json; ln -f -s ../../.gen-files/json .gen-src/.gen-files/json
-
-.gen-src/.gen-files/json/.dummy: .gen-src/.gen-files/json
-	@[ -f .gen-src/.gen-files/json/.dummy ] || touch .gen-src/.gen-files/json/.dummy
-
-.gen-obj/json/json_reader.cpp.o: .gen-src/.gen-files/json/.dummy .gen-src/.gen-files/repobuild/.dummy .gen-src/json/.dummy .gen-src/repobuild/.dummy json/autolink.h json/config.h json/features.h json/forwards.h json/json.h json/reader.h json/value.h json/writer.h json/json_reader.cpp
-	@mkdir -p .gen-obj/json
-	$(COMPILE.cc) -I. -I.gen-files -I.gen-src -I.gen-src/.gen-files json/json_reader.cpp -o .gen-obj/json/json_reader.cpp.o
-
-.gen-obj/json/json_value.cpp.o: .gen-src/.gen-files/json/.dummy .gen-src/.gen-files/repobuild/.dummy .gen-src/json/.dummy .gen-src/repobuild/.dummy json/autolink.h json/config.h json/features.h json/forwards.h json/json.h json/reader.h json/value.h json/writer.h json/json_value.cpp
-	@mkdir -p .gen-obj/json
-	$(COMPILE.cc) -I. -I.gen-files -I.gen-src -I.gen-src/.gen-files json/json_value.cpp -o .gen-obj/json/json_value.cpp.o
-
-.gen-obj/json/json_writer.cpp.o: .gen-src/.gen-files/json/.dummy .gen-src/.gen-files/repobuild/.dummy .gen-src/json/.dummy .gen-src/repobuild/.dummy json/autolink.h json/config.h json/features.h json/forwards.h json/json.h json/reader.h json/value.h json/writer.h json/json_writer.cpp
-	@mkdir -p .gen-obj/json
-	$(COMPILE.cc) -I. -I.gen-files -I.gen-src -I.gen-src/.gen-files json/json_writer.cpp -o .gen-obj/json/json_writer.cpp.o
-
-json/json: .gen-obj/json/json_reader.cpp.o .gen-obj/json/json_value.cpp.o .gen-obj/json/json_writer.cpp.o
-
-.PHONY: json/json
-
-.gen-obj/common/third_party/google/gflags/src/gflags.cc.o: .gen-src/.gen-files/common/.dummy .gen-src/.gen-files/repobuild/.dummy .gen-src/common/.dummy .gen-src/repobuild/.dummy common/third_party/google/gflags/src/google/gflags.h common/third_party/google/gflags/src/google/gflags_completions.h common/third_party/google/gflags/src/util.h common/third_party/google/gflags/src/gflags.cc
-	@mkdir -p .gen-obj/common/third_party/google/gflags/src
-	$(COMPILE.cc) -I. -I.gen-files -I.gen-src -I.gen-src/.gen-files -Icommon/third_party/google/gflags/src common/third_party/google/gflags/src/gflags.cc -o .gen-obj/common/third_party/google/gflags/src/gflags.cc.o
-
-.gen-obj/common/third_party/google/gflags/src/gflags_completions.cc.o: .gen-src/.gen-files/common/.dummy .gen-src/.gen-files/repobuild/.dummy .gen-src/common/.dummy .gen-src/repobuild/.dummy common/third_party/google/gflags/src/google/gflags.h common/third_party/google/gflags/src/google/gflags_completions.h common/third_party/google/gflags/src/util.h common/third_party/google/gflags/src/gflags_completions.cc
-	@mkdir -p .gen-obj/common/third_party/google/gflags/src
-	$(COMPILE.cc) -I. -I.gen-files -I.gen-src -I.gen-src/.gen-files -Icommon/third_party/google/gflags/src common/third_party/google/gflags/src/gflags_completions.cc -o .gen-obj/common/third_party/google/gflags/src/gflags_completions.cc.o
-
-.gen-obj/common/third_party/google/gflags/src/gflags_nc.cc.o: .gen-src/.gen-files/common/.dummy .gen-src/.gen-files/repobuild/.dummy .gen-src/common/.dummy .gen-src/repobuild/.dummy common/third_party/google/gflags/src/google/gflags.h common/third_party/google/gflags/src/google/gflags_completions.h common/third_party/google/gflags/src/util.h common/third_party/google/gflags/src/gflags_nc.cc
-	@mkdir -p .gen-obj/common/third_party/google/gflags/src
-	$(COMPILE.cc) -I. -I.gen-files -I.gen-src -I.gen-src/.gen-files -Icommon/third_party/google/gflags/src common/third_party/google/gflags/src/gflags_nc.cc -o .gen-obj/common/third_party/google/gflags/src/gflags_nc.cc.o
-
-.gen-obj/common/third_party/google/gflags/src/gflags_reporting.cc.o: .gen-src/.gen-files/common/.dummy .gen-src/.gen-files/repobuild/.dummy .gen-src/common/.dummy .gen-src/repobuild/.dummy common/third_party/google/gflags/src/google/gflags.h common/third_party/google/gflags/src/google/gflags_completions.h common/third_party/google/gflags/src/util.h common/third_party/google/gflags/src/gflags_reporting.cc
-	@mkdir -p .gen-obj/common/third_party/google/gflags/src
-	$(COMPILE.cc) -I. -I.gen-files -I.gen-src -I.gen-src/.gen-files -Icommon/third_party/google/gflags/src common/third_party/google/gflags/src/gflags_reporting.cc -o .gen-obj/common/third_party/google/gflags/src/gflags_reporting.cc.o
-
-common/third_party/google/gflags/gflags: .gen-obj/common/third_party/google/gflags/src/gflags.cc.o .gen-obj/common/third_party/google/gflags/src/gflags_completions.cc.o .gen-obj/common/third_party/google/gflags/src/gflags_nc.cc.o .gen-obj/common/third_party/google/gflags/src/gflags_reporting.cc.o
-
-.PHONY: common/third_party/google/gflags/gflags
-
 clean:
-	rm -f .gen-src/common/.dummy
-	rm -f .gen-src/.gen-src/common/common
-	rm -f .gen-src/.gen-files/common/.dummy
-	rm -f .gen-src/.gen-files/common
 	rm -f .gen-src/repobuild/.dummy
 	rm -f .gen-src/.gen-src/repobuild/repobuild
 	rm -f .gen-src/.gen-files/repobuild/.dummy
 	rm -f .gen-src/.gen-files/repobuild
+	rm -f .gen-src/common/.dummy
+	rm -f .gen-src/.gen-src/common/common
+	rm -f .gen-src/.gen-files/common/.dummy
+	rm -f .gen-src/.gen-files/common
 	rm -f .gen-src/json/.dummy
 	rm -f .gen-src/.gen-src/json/json
 	rm -f .gen-src/.gen-files/json/.dummy
