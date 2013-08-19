@@ -61,6 +61,17 @@ void CCLibraryNode::WriteMakefile(const vector<const Node*>& all_deps,
 void CCLibraryNode::WriteMakefileInternal(const vector<const Node*>& all_deps,
                                           bool should_write_target,
                                           string* out) const {
+  // Write header variable
+  if (!headers_.empty()) {
+    out->append(VariableName("headers"));
+    out->append(" :=");
+    for (const string& header : headers_) {
+      out->append(" ");
+      out->append(header);
+    }
+    out->append("\n\n");
+  }
+
   // Figure out the set of input files.
   set<string> input_files;
   CollectDependencies(all_deps, &input_files);
@@ -139,8 +150,8 @@ void CCLibraryNode::WriteCompile(const string& source,
 
 void CCLibraryNode::DependencyFiles(vector<string>* files) const {
   Node::DependencyFiles(files);
-  for (int i = 0; i < headers_.size(); ++i) {
-    files->push_back(headers_[i]);
+  if (headers_.empty()) {
+    files->push_back("$(" + VariableName("headers") + ")");
   }
 }
 
@@ -229,7 +240,7 @@ void CCLibraryNode::WriteMakeHead(const Input& input, string* out) {
   out->append("CXX_GCC := $(shell $(CXX) --version | "
              "egrep '(^gcc|^g\\+\\+)' | head -n 1 | wc -l)\n");
   out->append("CC_GCC := $(shell $(CC) --version | "
-              "egrep '(^gcc|^g\\+\\+)' | head -n 1 | wc -l)\n");
+              "egrep '(^gcc|^g\\+\\+|^cc)' | head -n 1 | wc -l)\n");
 
   // Write the global values
   // CFLAGS:

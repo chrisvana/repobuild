@@ -118,7 +118,7 @@ string GenShNode::WriteCommand(const string& cmd,
   out.append("\"");
   out.append(" CC=\"$(CC)\" CXX=\"$(CXX)\"");
   out.append(" CXXFLAGS=\"$(CXXFLAGS)\"");
-  out.append(" BASIC_CXXFLAGS=\"$(BASIC_CXXFLAGS)\"");
+  out.append(" STDLIB_CXXFLAGS=\"$(STDLIB_CXXFLAGS)\"");
   out.append(" CFLAGS=\"$(CFLAGS)\" LDFLAGS=\"$(LDFLAGS)\"");
 
   // Execute command

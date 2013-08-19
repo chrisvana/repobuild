@@ -101,6 +101,7 @@ class Node {
   std::string RelativeGenDir() const;
   std::string MakefileEscape(const std::string& str) const;
   std::string WriteBaseUserTarget(const std::set<std::string>& deps) const;
+  std::string VariableName(const std::string& subname) const;
 
  private:
   TargetInfo target_;

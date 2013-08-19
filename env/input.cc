@@ -39,15 +39,17 @@ Input::Input() {
     AddFlag("-C", "-Wall");
     AddFlag("-C", "-Werror");
     AddFlag("-C", "-Wno-sign-compare");
+    AddFlag("-C", "-Wno-unused-local-typedefs");
+    AddFlag("-C", "-Wno-error=unused-local-typedefs");
     AddFlag("-C", "-O3");
+    AddFlag("-C", "-flto");
     AddFlag("-C", "-Qunused-arguments");  // clang only, see cc_library.cc
 
     // Linking
-    AddFlag("-L", "-std=c++11");
-    AddFlag("-L", "-stdlib=libc++");  // clang only, see cc_library.cc
     AddFlag("-L", "-lpthread");
     AddFlag("-L", "-g");
     AddFlag("-L", "-O3");
+    AddFlag("-L", "-flto");
     AddFlag("-L", "-L/usr/local/lib");
     AddFlag("-L", "-L/opt/local/lib");
   }

@@ -18,34 +18,46 @@ using std::set;
 namespace repobuild {
 namespace {
 
-void GetFullDepList(const Parser& parser,
-                    const Node* node,
-                    set<const Node*>* parents,
-                    vector<const Node*>* deps) {
-  for (int i = 0; i < node->dependencies().size(); ++i) {
-    const string& target = node->dependencies()[i]->full_path();
-    const Node* dep = parser.GetNode(target);
-    if (dep == NULL) {
-      LOG(FATAL) << "Could not find dependency: " << target
-                 << " from target " << node->target().full_path();
-    }
-    if (parents->find(dep) != parents->end()) {
-      LOG(FATAL) << "Recursive dependency: "
-                 << target;
-    }
-    deps->push_back(dep);
-    parents->insert(dep);
-    GetFullDepList(parser, dep, parents, deps);
-    parents->erase(dep);
+void ExpandNode(const Parser& parser,
+                const Node* node,
+                set<const Node*>* parents,
+                set<const Node*>* seen,
+                vector<const Node*>* to_process) {
+  if (!seen->insert(node).second) {
+    // Already processed.
+    return;
   }
+
+  // Check for recursive dependency
+  if (!parents->insert(node).second) {
+    LOG(FATAL) << "Recursive dependency: " << node->target().full_path();
+  }
+
+  // Now expand our sub-node dependencies.
+  for (const TargetInfo* target : node->dependencies()) {
+    const Node* dep = parser.GetNode(target->full_path());
+    if (dep == NULL) {
+      LOG(FATAL) << "Could not find dependency " << target->full_path()
+                 << " of target " << node->target().full_path();
+    }
+    ExpandNode(parser, dep, parents, seen, to_process);
+  }
+
+  // And record this node as ready to go in the queue.
+  parents->erase(node);
+  to_process->push_back(node);
 }
 
 void GetFullDepList(const Parser& parser,
                     const Node* node,
-                    vector<const Node*>* deps) {
-  set<const Node*> parent;
-  parent.insert(node);
-  GetFullDepList(parser, node, &parent, deps);
+                    set<const Node*>* dependencies) {
+  for (const TargetInfo* target : node->dependencies()) {
+    const Node* dep = parser.GetNode(target->full_path());
+    CHECK(node);  // checked above in ExpandNode.
+    if (dependencies->insert(dep).second) {
+      GetFullDepList(parser, dep, dependencies);
+    }
+  }
 }
 
 }  // namespace
@@ -65,31 +77,24 @@ string Generator::GenerateMakefile(const Input& input) {
   // TODO(cvanarsdale): Make this part of the parser's static registry?
   CCLibraryNode::WriteMakeHead(input, &out);
 
-  // Write all of the rules for our user inputted targets.
-  set<const Node*> all_nodes, processed;
+  // Figure out the order we want to write in our Makefile.
+  set<const Node*> parents, seen;
+  vector<const Node*> process_order;
   for (const Node* node : parser.input_nodes()) {
-    if (processed.insert(node).second) {
-      vector<const Node*> deps;
-      GetFullDepList(parser, node, &deps);
-      for (const Node* dep : deps) {
-        all_nodes.insert(dep);
-      }
-      node->WriteMakefile(deps, &out);
-    }
+    ExpandNode(parser, node, &parents, &seen, &process_order);
   }
 
-  // Write all of the dependent rules.
-  for (const Node* node : all_nodes) {
-    if (processed.insert(node).second) {
-      vector<const Node*> deps;
-      GetFullDepList(parser, node, &deps);
-      node->WriteMakefile(deps, &out);
-    }
+  // Generate the makefile.
+  for (const Node* node : process_order) {
+    set<const Node*> deps;
+    GetFullDepList(parser, node, &deps);
+    vector<const Node*> all_deps(deps.begin(), deps.end());
+    node->WriteMakefile(all_deps, &out);
   }
 
   // Write the make clean rule.
   out.append("clean:\n");
-  for (const Node* node : all_nodes) {
+  for (const Node* node : process_order) {
     node->WriteMakeClean(&out);
   }
   out.append("\trm -rf ");

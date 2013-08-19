@@ -199,4 +199,8 @@ string Node::WriteBaseUserTarget(const set<string>& deps) const {
   return out;
 }
 
+string Node::VariableName(const string& subname) const {
+  return subname + "." + target().make_path();
+}
+
 }  // namespace repobuild
