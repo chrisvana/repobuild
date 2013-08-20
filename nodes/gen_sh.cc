@@ -102,6 +102,16 @@ void GenShNode::WriteMakeClean(std::string* out) const {
   out->append("\n");
 }
 
+namespace {
+void AddEnvVar(const string& var, string* out) {
+  out->append(" ");
+  out->append(var);
+  out->append("=\"$(");
+  out->append(var);
+  out->append(")\"");
+}
+}
+
 string GenShNode::WriteCommand(const string& cmd,
                                const string& admin_cmd) const {
   string out;
@@ -116,10 +126,16 @@ string GenShNode::WriteCommand(const string& cmd,
   out.append("; GEN_DIR=\"");
   out.append(cd_ ? RelativeGenDir() : GenDir());
   out.append("\"");
-  out.append(" CC=\"$(CC)\" CXX=\"$(CXX)\"");
-  out.append(" CXXFLAGS=\"$(CXXFLAGS)\"");
-  out.append(" STDLIB_CXXFLAGS=\"$(STDLIB_CXXFLAGS)\"");
-  out.append(" CFLAGS=\"$(CFLAGS)\" LDFLAGS=\"$(LDFLAGS)\"");
+  AddEnvVar("CXX_GCC", &out);
+  AddEnvVar("CC_GCC", &out);
+  AddEnvVar("CC", &out);
+  AddEnvVar("CXX", &out);
+  AddEnvVar("CXXFLAGS", &out);
+  AddEnvVar("BASIC_CXXFLAGS", &out);
+  AddEnvVar("CFLAGS", &out);
+  AddEnvVar("BASIC_CFLAGS", &out);
+  AddEnvVar("LDFLAGS", &out);
+  AddEnvVar("MAKE", &out);
 
   // Execute command
   out.append(" eval '");

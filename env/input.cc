@@ -44,8 +44,10 @@ Input::Input() {
     AddFlag("-C", "-O3");
     AddFlag("-C", "-flto");
     AddFlag("-C", "-Qunused-arguments");  // clang only, see cc_library.cc
+    //AddFlag("-C", "-Wno-unknown-warning-option"); 
 
     // Linking
+    AddFlag("-L", "-stdlib=libc++");
     AddFlag("-L", "-lpthread");
     AddFlag("-L", "-g");
     AddFlag("-L", "-O3");

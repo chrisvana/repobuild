@@ -4,18 +4,20 @@
 CXX_GCC := $(shell $(CXX) --version | egrep '(^gcc|^g\+\+)' | head -n 1 | wc -l)
 CC_GCC := $(shell $(CC) --version | egrep '(^gcc|^g\+\+|^cc)' | head -n 1 | wc -l)
 ifeq ($(CC_GCC),1)
-	CFLAGS= -pthread -g -Wall -Werror -Wno-sign-compare -Wno-unused-local-typedefs -Wno-error=unused-local-typedefs -O3 -flto
+	CFLAGS= -pthread -g -Wall -Werror -Wno-sign-compare -Wno-unused-local-typedefs -Wno-error=unused-local-typedefs -O3 -flto -std=c++11 -DUSE_CXX0X
+	BASIC_CFLAGS= -pthread -std=c++11
 else
-	CFLAGS= -stdlib=libc++ -pthread -g -Wall -Werror -Wno-sign-compare -Wno-unused-local-typedefs -Wno-error=unused-local-typedefs -O3 -flto -Qunused-arguments
+	CFLAGS= -stdlib=libc++ -pthread -g -Wall -Werror -Wno-sign-compare -O3 -flto -Qunused-arguments -std=c++11 -DUSE_CXX0X
+	BASIC_CFLAGS= -stdlib=libc++ -pthread -std=c++11
 endif
 ifeq ($(CXX_GCC),1)
 	LDFLAGS= -lpthread -g -O3 -flto -L/usr/local/lib -L/opt/local/lib
 	CXXFLAGS= -pthread -g -Wall -Werror -Wno-sign-compare -Wno-unused-local-typedefs -Wno-error=unused-local-typedefs -O3 -flto -std=c++11 -DUSE_CXX0X
-	STDLIB_CXXFLAGS= -std=c++11
+	BASIC_CXXFLAGS= -pthread -std=c++11
 else
 	LDFLAGS= -lpthread -g -O3 -flto -L/usr/local/lib -L/opt/local/lib
-	CXXFLAGS= -stdlib=libc++ -pthread -g -Wall -Werror -Wno-sign-compare -Wno-unused-local-typedefs -Wno-error=unused-local-typedefs -O3 -flto -Qunused-arguments -std=c++11 -DUSE_CXX0X
-	STDLIB_CXXFLAGS= -stdlib=libc++ -std=c++11
+	CXXFLAGS= -stdlib=libc++ -pthread -g -Wall -Werror -Wno-sign-compare -O3 -flto -Qunused-arguments -std=c++11 -DUSE_CXX0X
+	BASIC_CXXFLAGS= -stdlib=libc++ -pthread -std=c++11
 endif
 
 .gen-src/repobuild:
@@ -55,22 +57,22 @@ headers.common/third_party/google/gflags/gflags := common/third_party/google/gfl
 .gen-obj/common/third_party/google/gflags/src/gflags.cc.o: .gen-src/.gen-files/common/.dummy .gen-src/.gen-files/repobuild/.dummy .gen-src/common/.dummy .gen-src/repobuild/.dummy common/third_party/google/gflags/src/gflags.cc
 	@mkdir -p .gen-obj/common/third_party/google/gflags/src
 	@echo Compiling: common/third_party/google/gflags/src/gflags.cc
-	@$(COMPILE.cc) -I. -I.gen-files -I.gen-src -I.gen-src/.gen-files -Icommon/third_party/google/gflags/src -Wno-unused-local-typedefs common/third_party/google/gflags/src/gflags.cc -o .gen-obj/common/third_party/google/gflags/src/gflags.cc.o
+	@$(COMPILE.cc) -I. -I.gen-files -I.gen-src -I.gen-src/.gen-files -Icommon/third_party/google/gflags/src common/third_party/google/gflags/src/gflags.cc -o .gen-obj/common/third_party/google/gflags/src/gflags.cc.o
 
 .gen-obj/common/third_party/google/gflags/src/gflags_completions.cc.o: .gen-src/.gen-files/common/.dummy .gen-src/.gen-files/repobuild/.dummy .gen-src/common/.dummy .gen-src/repobuild/.dummy common/third_party/google/gflags/src/gflags_completions.cc
 	@mkdir -p .gen-obj/common/third_party/google/gflags/src
 	@echo Compiling: common/third_party/google/gflags/src/gflags_completions.cc
-	@$(COMPILE.cc) -I. -I.gen-files -I.gen-src -I.gen-src/.gen-files -Icommon/third_party/google/gflags/src -Wno-unused-local-typedefs common/third_party/google/gflags/src/gflags_completions.cc -o .gen-obj/common/third_party/google/gflags/src/gflags_completions.cc.o
+	@$(COMPILE.cc) -I. -I.gen-files -I.gen-src -I.gen-src/.gen-files -Icommon/third_party/google/gflags/src common/third_party/google/gflags/src/gflags_completions.cc -o .gen-obj/common/third_party/google/gflags/src/gflags_completions.cc.o
 
 .gen-obj/common/third_party/google/gflags/src/gflags_nc.cc.o: .gen-src/.gen-files/common/.dummy .gen-src/.gen-files/repobuild/.dummy .gen-src/common/.dummy .gen-src/repobuild/.dummy common/third_party/google/gflags/src/gflags_nc.cc
 	@mkdir -p .gen-obj/common/third_party/google/gflags/src
 	@echo Compiling: common/third_party/google/gflags/src/gflags_nc.cc
-	@$(COMPILE.cc) -I. -I.gen-files -I.gen-src -I.gen-src/.gen-files -Icommon/third_party/google/gflags/src -Wno-unused-local-typedefs common/third_party/google/gflags/src/gflags_nc.cc -o .gen-obj/common/third_party/google/gflags/src/gflags_nc.cc.o
+	@$(COMPILE.cc) -I. -I.gen-files -I.gen-src -I.gen-src/.gen-files -Icommon/third_party/google/gflags/src common/third_party/google/gflags/src/gflags_nc.cc -o .gen-obj/common/third_party/google/gflags/src/gflags_nc.cc.o
 
 .gen-obj/common/third_party/google/gflags/src/gflags_reporting.cc.o: .gen-src/.gen-files/common/.dummy .gen-src/.gen-files/repobuild/.dummy .gen-src/common/.dummy .gen-src/repobuild/.dummy common/third_party/google/gflags/src/gflags_reporting.cc
 	@mkdir -p .gen-obj/common/third_party/google/gflags/src
 	@echo Compiling: common/third_party/google/gflags/src/gflags_reporting.cc
-	@$(COMPILE.cc) -I. -I.gen-files -I.gen-src -I.gen-src/.gen-files -Icommon/third_party/google/gflags/src -Wno-unused-local-typedefs common/third_party/google/gflags/src/gflags_reporting.cc -o .gen-obj/common/third_party/google/gflags/src/gflags_reporting.cc.o
+	@$(COMPILE.cc) -I. -I.gen-files -I.gen-src -I.gen-src/.gen-files -Icommon/third_party/google/gflags/src common/third_party/google/gflags/src/gflags_reporting.cc -o .gen-obj/common/third_party/google/gflags/src/gflags_reporting.cc.o
 
 common/third_party/google/gflags/gflags: .gen-obj/common/third_party/google/gflags/src/gflags.cc.o .gen-obj/common/third_party/google/gflags/src/gflags_completions.cc.o .gen-obj/common/third_party/google/gflags/src/gflags_nc.cc.o .gen-obj/common/third_party/google/gflags/src/gflags_reporting.cc.o __auto_name_0 common/__auto_name_0
 

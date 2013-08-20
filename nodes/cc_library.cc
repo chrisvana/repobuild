@@ -187,21 +187,36 @@ std::string CCLibraryNode::DefaultCompileFlags(bool cpp_mode) const {
 namespace {
 // TODO(cvanarsdale): This is clunky. Nicer to have flags in a registered list
 // with conditionals already set.
+// TODO: Really do this, this is sad.
+
 bool IsGccFlag(const string& flag) {
-  return (!strings::HasPrefix(flag, "-stdlib") &&
-          (flag == "-Q" || !strings::HasPrefix(flag, "-Q")));
+  if (strings::HasPrefix(flag, "-stdlib") ||
+      (strings::HasPrefix(flag, "-Q") && flag != "-Q")) {
+    return false;
+  }
+  return true;
 }
-bool IsStdlibFlag(const string& flag) {
+
+bool IsClangFlag(const string& flag) {
+  if (strings::HasSuffix(flag, "unused-local-typedefs") ||
+      strings::HasSuffix(flag, "unused-but-set-variable")) {
+    return false;
+  }
+  return true;
+}
+
+bool IsBasicFlag(const string& flag) {
   return (strings::HasPrefix(flag, "-stdlib") ||
-          strings::HasPrefix(flag, "-std"));  // sort of redundant, for clarity.
+          strings::HasPrefix(flag, "-std") ||  // redundant, but for clarity.
+          strings::HasPrefix(flag, "-pthread"));
 }
 string JoinFlags(const vector<string>& flags,
                  bool gcc_only,
-                 bool stdlib_only) {
+                 bool basic_only) {
   string out;
   for (const string& flag : flags) {
-    if ((!gcc_only || IsGccFlag(flag)) &&
-        (!stdlib_only || IsStdlibFlag(flag))) {
+    if (((!gcc_only && IsClangFlag(flag)) || (gcc_only && IsGccFlag(flag)))  &&
+        (!basic_only || IsBasicFlag(flag))) {
       out.append(" ");
       out.append(flag);
     }
@@ -216,17 +231,17 @@ string WriteLdflag(const Input& input, bool gcc) {
   return out;
 }
 
-string WriteCflag(const Input& input, bool gcc) {
-  string out = "CFLAGS=";
-  out.append(JoinFlags(input.flags("-C"), gcc, false));
+string WriteCflag(const Input& input, bool gcc, bool basic) {
+  string out = (basic ? "BASIC_CFLAGS=" : "CFLAGS=");
+  out.append(JoinFlags(input.flags("-C"), gcc, basic));
   out.append("\n");
   return out;
 }
 
-string WriteCxxflag(const Input& input, bool gcc, bool stddlib) {
-  string out = (stddlib ? "STDLIB_CXXFLAGS=" : "CXXFLAGS=");
-  out.append(JoinFlags(input.flags("-C"), gcc, stddlib));
-  out.append(JoinFlags(input.flags("-X"), gcc, stddlib));
+string WriteCxxflag(const Input& input, bool gcc, bool basic) {
+  string out = (basic ? "BASIC_CXXFLAGS=" : "CXXFLAGS=");
+  out.append(JoinFlags(input.flags("-C"), gcc, basic));
+  out.append(JoinFlags(input.flags("-X"), gcc, basic));
   out.append("\n");
   return out;
 }
@@ -245,9 +260,11 @@ void CCLibraryNode::WriteMakeHead(const Input& input, string* out) {
   // Write the global values
   // CFLAGS:
   out->append("ifeq ($(CC_GCC),1)\n");
-  out->append("\t" + WriteCflag(input, true));
+  out->append("\t" + WriteCflag(input, true, false));
+  out->append("\t" + WriteCflag(input, true, true));
   out->append("else\n");
-  out->append("\t" + WriteCflag(input, false));
+  out->append("\t" + WriteCflag(input, false, false));
+  out->append("\t" + WriteCflag(input, false, true));
   out->append("endif\n");
 
   // CXXFLAGS and LDFLAGS
