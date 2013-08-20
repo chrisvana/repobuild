@@ -4,18 +4,18 @@
 CXX_GCC := $(shell $(CXX) --version | egrep '(^gcc|^g\+\+)' | head -n 1 | wc -l)
 CC_GCC := $(shell $(CC) --version | egrep '(^gcc|^g\+\+|^cc)' | head -n 1 | wc -l)
 ifeq ($(CC_GCC),1)
-	CFLAGS= -pthread -g -Wall -Werror -Wno-sign-compare -Wno-unused-local-typedefs -Wno-error=unused-local-typedefs -O3 -flto -std=c++11 -DUSE_CXX0X
-	BASIC_CFLAGS= -pthread -std=c++11
+	CFLAGS= -pthread -g -Wall -Werror -Wno-sign-compare -Wno-unused-local-typedefs -Wno-error=unused-local-typedefs -O3 -flto
+	BASIC_CFLAGS= -pthread
 else
-	CFLAGS= -stdlib=libc++ -pthread -g -Wall -Werror -Wno-sign-compare -O3 -flto -Qunused-arguments -std=c++11 -DUSE_CXX0X
-	BASIC_CFLAGS= -stdlib=libc++ -pthread -std=c++11
+	CFLAGS= -stdlib=libc++ -pthread -g -Wall -Werror -Wno-sign-compare -O3 -flto -Qunused-arguments
+	BASIC_CFLAGS= -stdlib=libc++ -pthread
 endif
 ifeq ($(CXX_GCC),1)
 	LDFLAGS= -lpthread -g -O3 -flto -L/usr/local/lib -L/opt/local/lib
 	CXXFLAGS= -pthread -g -Wall -Werror -Wno-sign-compare -Wno-unused-local-typedefs -Wno-error=unused-local-typedefs -O3 -flto -std=c++11 -DUSE_CXX0X
 	BASIC_CXXFLAGS= -pthread -std=c++11
 else
-	LDFLAGS= -lpthread -g -O3 -flto -L/usr/local/lib -L/opt/local/lib
+	LDFLAGS= -stdlib=libc++ -lpthread -g -O3 -flto -L/usr/local/lib -L/opt/local/lib
 	CXXFLAGS= -stdlib=libc++ -pthread -g -Wall -Werror -Wno-sign-compare -O3 -flto -Qunused-arguments -std=c++11 -DUSE_CXX0X
 	BASIC_CXXFLAGS= -stdlib=libc++ -pthread -std=c++11
 endif

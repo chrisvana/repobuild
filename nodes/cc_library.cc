@@ -150,7 +150,7 @@ void CCLibraryNode::WriteCompile(const string& source,
 
 void CCLibraryNode::DependencyFiles(vector<string>* files) const {
   Node::DependencyFiles(files);
-  if (headers_.empty()) {
+  if (!headers_.empty()) {
     files->push_back("$(" + VariableName("headers") + ")");
   }
 }
