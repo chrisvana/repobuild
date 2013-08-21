@@ -39,28 +39,23 @@ void GenShNode::Set(const std::string& build_cmd,
 
 void GenShNode::WriteMakefile(const vector<const Node*>& all_deps,
                               string* out) const {
-  // Figure out the set of input files.
-  set<string> input_files;
-  for (int i = 0; i < all_deps.size(); ++i) {
-    vector<string> files;
-    all_deps[i]->DependencyFiles(&files);
-    for (const string& it : files) {
-      input_files.insert(it);
-    }
-  }
-  for (const string& it : input_files_) {
-    input_files.insert(it);
-  }
-
+  // Target
   string touchfile = Touchfile();
   out->append(touchfile);
-  out->append(":");
-  for (const string& it : input_files) {
-    out->append(" ");
-    out->append(it);
-  }
-  out->append("\n");
+  out->append(": ");
 
+  // Input files
+  {
+    set<string> input_files;
+    CollectDependencies(all_deps, &input_files);
+    input_files.erase(touchfile);  // all but our own file.
+    out->append(strings::Join(input_files, " "));
+    out->append(" ");
+    out->append(strings::Join(input_files_, " "));
+    out->append("\n");
+  }
+
+  // Build command.
   if (!build_cmd_.empty()) {
     out->append("\t@echo Script: ");
     out->append(target().full_path());
@@ -70,7 +65,17 @@ void GenShNode::WriteMakefile(const vector<const Node*>& all_deps,
         strings::JoinPath(input().object_dir(), target().dir()) +
         "; touch " + touchfile;
 
-    out->append(WriteCommand(build_cmd_, touch_cmd));
+    string prefix;
+    {  // compute prefix.
+      set<string> compile_flags;
+      CollectCompileFlags(true, all_deps, &compile_flags);
+      prefix = "DEP_CXXFLAGS= " + strings::Join(compile_flags, " ");
+      compile_flags.clear();
+      CollectCompileFlags(false, all_deps, &compile_flags);
+      prefix += " DEP_CFLAGS= " + strings::Join(compile_flags, " ");
+    }
+
+    out->append(WriteCommand(prefix, build_cmd_, touch_cmd));
     out->append("\n");
   }
   out->append("\n");
@@ -98,7 +103,7 @@ void GenShNode::WriteMakeClean(std::string* out) const {
   }
 
   out->append("\t");
-  out->append(WriteCommand(clean_cmd_, ""));
+  out->append(WriteCommand("", clean_cmd_, ""));
   out->append("\n");
 }
 
@@ -112,7 +117,8 @@ void AddEnvVar(const string& var, string* out) {
 }
 }
 
-string GenShNode::WriteCommand(const string& cmd,
+string GenShNode::WriteCommand(const string& prefix,
+                               const string& cmd,
                                const string& admin_cmd) const {
   string out;
   out.append("(mkdir -p ");
@@ -126,6 +132,9 @@ string GenShNode::WriteCommand(const string& cmd,
   out.append("; GEN_DIR=\"");
   out.append(cd_ ? RelativeGenDir() : GenDir());
   out.append("\"");
+  out.append(" OBJ_DIR=\"");
+  out.append(cd_ ? RelativeObjectDir() : ObjectDir());
+  out.append("\"");
   AddEnvVar("CXX_GCC", &out);
   AddEnvVar("CC_GCC", &out);
   AddEnvVar("CC", &out);
@@ -136,6 +145,10 @@ string GenShNode::WriteCommand(const string& cmd,
   AddEnvVar("BASIC_CFLAGS", &out);
   AddEnvVar("LDFLAGS", &out);
   AddEnvVar("MAKE", &out);
+  out.append(" ");
+  out.append(prefix);
+
+  // TODO: Pass up header_compile_args from dependencies as DEP_FLAGS
 
   // Execute command
   out.append(" eval '");

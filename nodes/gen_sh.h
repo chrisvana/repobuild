@@ -33,7 +33,8 @@ class GenShNode : public Node {
   void SetCd(bool cd) { cd_ = cd; }
 
  protected:
-  std::string WriteCommand(const std::string& cmd,
+  std::string WriteCommand(const std::string& prefix,
+                           const std::string& cmd,
                            const std::string& touchfile) const;
   std::string Touchfile() const;
 

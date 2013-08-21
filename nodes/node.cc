@@ -18,6 +18,18 @@ using std::vector;
 using std::set;
 
 namespace repobuild {
+namespace {
+const Json::Value& GetValue(const BuildFileNode& input, const string& key) {
+  const Json::Value* current = &input.object();
+  for (const string& subkey : strings::SplitString(key, ".")) {
+    if (current->isNull()) {
+      break;
+    }
+    current = &(*current)[subkey];
+  }
+  return *current;
+}
+}
 
 void Node::Parse(BuildFile* file, const BuildFileNode& input) {
   CHECK(input.object().isObject());
@@ -29,7 +41,12 @@ void Node::Parse(BuildFile* file, const BuildFileNode& input) {
   ParseBoolField(input, "strict_file_mode", &strict_file_mode_);
 }
 
-// Mutators
+void Node::WriteMake(const std::vector<const Node*>& all_deps,
+               std::string* out) const {
+  WriteVariables(out);
+  WriteMakefile(all_deps, out);
+}
+
 void Node::AddDependency(const TargetInfo& other) {
   dependencies_.push_back(new TargetInfo(other));
 }
@@ -38,7 +55,7 @@ void Node::ParseRepeatedString(const BuildFileNode& input,
                                const string& key,
                                bool relative_gendir,
                                vector<string>* out) const {
-  const Json::Value& array = input.object()[key];
+  const Json::Value& array = GetValue(input, key);
   if (!array.isNull()) {
     CHECK(array.isArray()) << "Expecting array for key " << key << ": "
                            << input.object();
@@ -85,7 +102,7 @@ void Node::ParseRepeatedFiles(const BuildFileNode& input,
 bool Node::ParseStringField(const BuildFileNode& input,
                             const string& key,
                             string* field) const {
-  const Json::Value& json_field = input.object()[key];
+  const Json::Value& json_field = GetValue(input, key);
   if (!json_field.isString()) {
     return false;
   }
@@ -96,7 +113,7 @@ bool Node::ParseStringField(const BuildFileNode& input,
 bool Node::ParseBoolField(const BuildFileNode& input,
                           const string& key,
                           bool* field) const {
-  const Json::Value& json_field = input.object()[key];
+  const Json::Value& json_field = GetValue(input, key);
   if (!json_field.isBool()) {
     return false;
   }
@@ -155,12 +172,13 @@ void Node::CollectLinkFlags(const vector<const Node*>& all_deps,
   LinkFlags(out);
 }
 
-void Node::CollectCompileFlags(const vector<const Node*>& all_deps,
+void Node::CollectCompileFlags(bool cxx,
+                               const vector<const Node*>& all_deps,
                                set<string>* out) const {
   for (const Node* dep : all_deps) {
-    dep->CompileFlags(out);
+    dep->CompileFlags(cxx, out);
   }
-  CompileFlags(out);
+  CompileFlags(cxx, out);
 }
 
 string Node::GenDir() const { 
@@ -174,6 +192,20 @@ string Node::RelativeGenDir() const {
     output += "../";
   }
   output += input().genfile_dir();
+  return strings::JoinPath(output, target().dir());
+}
+
+string Node::ObjectDir() const { 
+  return strings::JoinPath(input().object_dir(), target().dir());
+}
+
+string Node::RelativeObjectDir() const {
+  int components = strings::NumPathComponents(target().dir());
+  string output;
+  for (int i = 0; i < components; ++i) {
+    output += "../";
+  }
+  output += input().object_dir();
   return strings::JoinPath(output, target().dir());
 }
 
@@ -199,8 +231,37 @@ string Node::WriteBaseUserTarget(const set<string>& deps) const {
   return out;
 }
 
-string Node::VariableName(const string& subname) const {
-  return subname + "." + target().make_path();
+void Node::MakeVariable::WriteMake(std::string* out) const {
+  if (name_.empty()) {
+    return;
+  }
+  out->append(name_);
+  out->append(" := ");
+  auto it = conditions_.find("");
+  if (it != conditions_.end()) {
+    out->append(it->second.first);
+  }
+  out->append("\n");
+  for (const auto& it : conditions_) {
+    if (it.first.empty()) {
+      continue;
+    }
+
+    out->append("ifeq ($(");
+    out->append(it.first);
+    out->append("),1)\n\t");
+    out->append(name_);
+    out->append(" := ");
+    out->append(it.second.first);
+    if (!it.second.second.empty()) {
+      out->append("\nelse\n\t");
+      out->append(name_);
+      out->append(" := ");
+      out->append(it.second.second);
+    }
+    out->append("\nendif\n");
+  }
+  out->append("\n");
 }
 
 }  // namespace repobuild

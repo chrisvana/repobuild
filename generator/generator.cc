@@ -89,7 +89,7 @@ string Generator::GenerateMakefile(const Input& input) {
     set<const Node*> deps;
     GetFullDepList(parser, node, &deps);
     vector<const Node*> all_deps(deps.begin(), deps.end());
-    node->WriteMakefile(all_deps, &out);
+    node->WriteMake(all_deps, &out);
   }
 
   // Write the make clean rule.

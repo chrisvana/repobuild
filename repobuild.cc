@@ -12,8 +12,8 @@
 #include "repobuild/env/target.h"
 #include "repobuild/generator/generator.h"
 
-int main(int argc, const char** argv) {
-  InitProgram();
+int main(int argc, char** argv) {
+  InitProgram(&argc, &argv, true);
   repobuild::Input input;
   for (int i = 1; i < argc; ++i) {
     if (strings::HasPrefix(argv[i], "-")) {

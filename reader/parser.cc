@@ -1,6 +1,7 @@
 // Copyright 2013
 // Author: Christopher Van Arsdale
 
+#include <iostream>
 #include <string>
 #include <set>
 #include <queue>
@@ -76,7 +77,7 @@ class Graph {
       TargetInfo target;
       {
         std::string current = to_process.front();
-        LOG(INFO) << "Processing: " << current;
+        std::cout << "Processing: " << current << std::endl;
         to_process.pop();
         target = TargetInfo(current);
       }

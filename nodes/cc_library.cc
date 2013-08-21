@@ -27,18 +27,31 @@ void CCLibraryNode::Parse(BuildFile* file, const BuildFileNode& input) {
 
   // cc_headers
   ParseRepeatedFiles(input, "cc_headers", &headers_);
-  
+
   // cc_objs
   ParseRepeatedFiles(input, "cc_objects", &objects_);
 
-  // cc_compile_args
+  // TODO(cvanarsdale): sources/headers/objs in the conditional.
+
+
+  // cc_compile_args, header_compile_args, cc_linker_args
   ParseRepeatedString(input, "cc_compile_args", &cc_compile_args_);
-
-  // header_compile_args
   ParseRepeatedString(input, "header_compile_args", &header_compile_args_);
-
-  // cc_linker_args
   ParseRepeatedString(input, "cc_linker_args", &cc_linker_args_);
+
+  // gcc
+  ParseRepeatedString(input, "gcc.cc_compile_args", &gcc_cc_compile_args_);
+  ParseRepeatedString(input, "gcc.header_compile_args",
+                      &gcc_header_compile_args_);
+  ParseRepeatedString(input, "gcc.cc_linker_args", &gcc_cc_linker_args_);
+
+  // clang
+  ParseRepeatedString(input, "clang.cc_compile_args", &clang_cc_compile_args_);
+  ParseRepeatedString(input, "clang.header_compile_args",
+                      &clang_header_compile_args_);
+  ParseRepeatedString(input, "clang.cc_linker_args", &clang_cc_linker_args_);
+
+  Init();
 }
 
 void CCLibraryNode::Set(const vector<string>& sources,
@@ -51,6 +64,46 @@ void CCLibraryNode::Set(const vector<string>& sources,
   objects_ = objects;
   cc_compile_args_ = cc_compile_args;
   header_compile_args_ = cc_compile_args;
+  Init();
+}
+
+void CCLibraryNode::Init() {
+  if (!headers_.empty()) {
+    MutableVariable("headers")->SetValue(strings::Join(headers_, " "));
+  }
+
+  // cc_compile_args
+  AddVariable("cxx_compile_args", "c_compile_args",
+              strings::JoinWith(
+                  " ",
+                  strings::Join(cc_compile_args_, " "),
+                  strings::Join(gcc_cc_compile_args_, " ")),
+              strings::JoinWith(
+                  " ",
+                  strings::Join(cc_compile_args_, " "),
+                  strings::Join(clang_cc_compile_args_, " ")));
+  
+  // header_compile_args
+  AddVariable("cxx_header_compile_args", "c_header_compile_args",
+              strings::JoinWith(
+                  " ",
+                  strings::Join(header_compile_args_, " "),
+                  strings::Join(gcc_header_compile_args_, " ")),
+              strings::JoinWith(
+                  " ",
+                  strings::Join(header_compile_args_, " "),
+                  strings::Join(clang_header_compile_args_, " ")));
+
+  // cc_linker_args
+  AddVariable("cc_linker_args", "cc_linker_args",  // NB: no distinction.
+              strings::JoinWith(
+                  " ",
+                  strings::Join(cc_linker_args_, " "),
+                  strings::Join(gcc_cc_linker_args_, " ")),
+              strings::JoinWith(
+                  " ",
+                  strings::Join(cc_linker_args_, " "),
+                  strings::Join(gcc_cc_linker_args_, " ")));
 }
 
 void CCLibraryNode::WriteMakefile(const vector<const Node*>& all_deps,
@@ -62,15 +115,7 @@ void CCLibraryNode::WriteMakefileInternal(const vector<const Node*>& all_deps,
                                           bool should_write_target,
                                           string* out) const {
   // Write header variable
-  if (!headers_.empty()) {
-    out->append(VariableName("headers"));
-    out->append(" :=");
-    for (const string& header : headers_) {
-      out->append(" ");
-      out->append(header);
-    }
-    out->append("\n\n");
-  }
+  GetVariable("headers").WriteMake(out);
 
   // Figure out the set of input files.
   set<string> input_files;
@@ -97,13 +142,10 @@ void CCLibraryNode::WriteCompile(const string& source,
                                  const vector<const Node*>& all_deps,
                                  string* out) const {
   string obj = ObjForSource(source);
-  out->append(obj + ":");
+  out->append(obj + ": ");
 
   // Dependencies.
-  for (const string& input : input_files) {
-    out->append(" ");
-    out->append(input);
-  }
+  out->append(strings::Join(input_files, " "));
   out->append(" ");
   out->append(source);
 
@@ -117,41 +159,41 @@ void CCLibraryNode::WriteCompile(const string& source,
   out->append("@echo Compiling: ");
   out->append(source);
   out->append("\n\t@");
-  out->append(DefaultCompileFlags(strings::HasSuffix(source, ".cc") ||
-                                  strings::HasSuffix(source, ".cpp")));
-  out->append(" -I");
-  out->append(input().root_dir());
-  out->append(" -I");
-  out->append(input().genfile_dir());
-  out->append(" -I");
-  out->append(input().source_dir());
-  out->append(" -I");
-  out->append(strings::JoinPath(input().source_dir(), input().genfile_dir()));
-
-  set<string> header_compile_args;
-  CollectCompileFlags(all_deps, &header_compile_args);
-  for (const string flag : header_compile_args) {
-    out->append(" ");
-    out->append(flag);
-  }
-  for (const string flag : cc_compile_args_) {
-    out->append(" ");
-    out->append(flag);
-  }
+  bool cpp = (strings::HasSuffix(source, ".cc") ||
+              strings::HasSuffix(source, ".cpp"));
+  out->append(DefaultCompileFlags(cpp));
   out->append(" ");
-  out->append(source);
+
+  // Include directories
+  out->append(strings::JoinWith(
+      " ",
+      "-I" + input().root_dir(),
+      "-I" + input().genfile_dir(),
+      "-I" + input().source_dir(),
+      "-I" + strings::JoinPath(input().source_dir(), input().genfile_dir())));
+  out->append(" ");
+
+  // Output compile args
+  set<string> header_compile_args;
+  CollectCompileFlags(cpp, all_deps, &header_compile_args);
+  out->append(strings::JoinWith(
+      " ",
+      strings::Join(header_compile_args, " "),
+      GetVariable(cpp ? "cxx_compile_args" : "c_compile_args").ref_name()));
+
+  // Output source file
+  out->append(" " + source);
 
   // Output object.
-  out->append(" -o ");
-  out->append(obj);
+  out->append(" -o " + obj);
 
   out->append("\n\n");
 }
 
 void CCLibraryNode::DependencyFiles(vector<string>* files) const {
   Node::DependencyFiles(files);
-  if (!headers_.empty()) {
-    files->push_back("$(" + VariableName("headers") + ")");
+  if (HasVariable("headers")) {
+    files->push_back(GetVariable("headers").ref_name());
   }
 }
 
@@ -168,15 +210,21 @@ void CCLibraryNode::ObjectFiles(vector<string>* files) const {
 
 void CCLibraryNode::LinkFlags(std::set<std::string>* flags) const {
   Node::LinkFlags(flags);
-  for (const string flag : cc_linker_args_) {
-    flags->insert(flag);
+  if (HasVariable("cc_linker_args")) {
+    flags->insert(GetVariable("cc_linker_args").ref_name());
   }
 }
 
-void CCLibraryNode::CompileFlags(std::set<std::string>* flags) const {
-  Node::CompileFlags(flags);
-  for (const string flag : header_compile_args_) {
-    flags->insert(flag);
+void CCLibraryNode::CompileFlags(bool cxx, std::set<std::string>* flags) const {
+  Node::CompileFlags(cxx, flags);
+  if (cxx) {
+    if (HasVariable("cxx_header_compile_args")) {
+      flags->insert(GetVariable("cxx_header_compile_args").ref_name());
+    }
+  } else {
+    if (HasVariable("c_header_compile_args")) {
+      flags->insert(GetVariable("c_header_compile_args").ref_name());
+    }
   }
 }
 
@@ -215,11 +263,19 @@ string JoinFlags(const vector<string>& flags,
                  bool basic_only) {
   string out;
   for (const string& flag : flags) {
-    if (((!gcc_only && IsClangFlag(flag)) || (gcc_only && IsGccFlag(flag)))  &&
-        (!basic_only || IsBasicFlag(flag))) {
-      out.append(" ");
-      out.append(flag);
+    // Check compiler
+    if ((gcc_only && !IsGccFlag(flag)) ||
+        (!gcc_only && !IsClangFlag(flag))) {
+      continue;
     }
+
+    // Check basic/full
+    if (basic_only && !IsBasicFlag(flag)) {
+      continue;
+    }
+
+    out.append(" ");
+    out.append(flag);
   }
   return out;
 }
@@ -282,5 +338,23 @@ void CCLibraryNode::WriteMakeHead(const Input& input, string* out) {
 string CCLibraryNode::ObjForSource(const std::string& source) const {
   return strings::JoinPath(input().object_dir(), source + ".o");
 }
+
+void CCLibraryNode::AddVariable(const string& cpp_name,
+                                const string& c_name,
+                                const string& gcc_value,
+                                const string& clang_value) {
+  if (gcc_value == clang_value) {
+    if (!gcc_value.empty()) {
+      MutableVariable(c_name)->SetValue(gcc_value);
+      MutableVariable(cpp_name)->SetValue(gcc_value);
+    }
+  } else {
+    MutableVariable(c_name)->SetCondition(
+        "CC_GCC", gcc_value, clang_value);
+    MutableVariable(cpp_name)->SetCondition(
+        "CXX_GCC", gcc_value, clang_value);
+  }
+}
+
 
 }  // namespace repobuild
