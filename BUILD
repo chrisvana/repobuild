@@ -7,7 +7,7 @@
  { "cc_binary": {
    "name": "repobuild",
    "cc_sources": [ "repobuild.cc" ],
-   "dependencies": [ "//common/base:init",
+   "dependencies": [ "//common/base:base",
                      "//common/log:log",
                      "//common/file:fileutil",
                      "//common/strings:stringpiece",
