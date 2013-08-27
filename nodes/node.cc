@@ -1,6 +1,8 @@
 // Copyright 2013
 // Author: Christopher Van Arsdale
 
+#include <iostream>
+
 #include <string>
 #include <vector>
 #include "common/log/log.h"
@@ -42,8 +44,8 @@ void Node::Parse(BuildFile* file, const BuildFileNode& input) {
 }
 
 void Node::WriteMake(const std::vector<const Node*>& all_deps,
-               std::string* out) const {
-  WriteVariables(out);
+                     Makefile* out) const {
+  WriteVariables(out->mutable_out());
   WriteMakefile(all_deps, out);
 }
 
@@ -213,22 +215,21 @@ string Node::MakefileEscape(const string& str) const {
   return strings::ReplaceAll(str, "$", "$$");
 }
 
-string Node::WriteBaseUserTarget(const set<string>& deps) const {
-  string out;
-  out.append(target().make_path());
-  out.append(":");
+void Node::WriteBaseUserTarget(const set<string>& deps,
+                               Makefile* out) const {
+  out->append(target().make_path());
+  out->append(":");
   for (const string& dep : deps) {
-    out.append(" ");
-    out.append(dep);
+    out->append(" ");
+    out->append(dep);
   }
   for (const TargetInfo* dep : dependencies()) {
-    out.append(" ");
-    out.append(dep->make_path());
+    out->append(" ");
+    out->append(dep->make_path());
   }
-  out.append("\n\n.PHONY: ");
-  out.append(target().make_path());
-  out.append("\n\n");
-  return out;
+  out->append("\n\n.PHONY: ");
+  out->append(target().make_path());
+  out->append("\n\n");
 }
 
 void Node::MakeVariable::WriteMake(std::string* out) const {
@@ -262,6 +263,34 @@ void Node::MakeVariable::WriteMake(std::string* out) const {
     out->append("\nendif\n");
   }
   out->append("\n");
+}
+
+void SimpleLibraryNode::DependencyFiles(vector<string>* files) const {
+  Node::DependencyFiles(files);
+  for (int i = 0; i < sources_.size(); ++i) {
+    files->push_back(sources_[i]);
+  }
+}
+
+void Makefile::StartRule(const std::string& rule,
+                         const std::string& dependencies) {
+  std::cout << "HERE: " << rule << " " << dependencies << std::endl;
+
+  out_.append("\n");
+  out_.append(rule);
+  out_.append(": ");
+  out_.append(dependencies);
+  out_.append("\n");
+}
+
+void Makefile::FinishRule() {
+  out_.append("\n");
+}
+
+void Makefile::WriteCommand(const std::string& command) {
+  out_.append("\t@");
+  out_.append(command);
+  out_.append("\n");
 }
 
 }  // namespace repobuild

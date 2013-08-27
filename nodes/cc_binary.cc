@@ -22,7 +22,7 @@ void CCBinaryNode::Parse(BuildFile* file, const BuildFileNode& input) {
 }
 
 void CCBinaryNode::WriteMakefile(const vector<const Node*>& all_deps,
-                                 string* out) const {
+                                 Makefile* out) const {
   CCLibraryNode::WriteMakefileInternal(all_deps, false, out);
 
   // Output binary
@@ -32,59 +32,45 @@ void CCBinaryNode::WriteMakefile(const vector<const Node*>& all_deps,
   {  // Output user target
     set<string> deps;
     deps.insert(bin);
-    out->append(WriteBaseUserTarget(deps));
+    WriteBaseUserTarget(deps, out);
   }
 
   // Symlink to root dir.
   string out_bin = OutBinary();
-  out->append(out_bin);
-  out->append(": ");
-  out->append(bin);
-  out->append("\n\t");
-  out->append("@pwd > /dev/null");  // hack to work around make issue?
-  out->append("\n\t@ln -f -s ");
-  out->append(strings::JoinPath(input().object_dir(), target().make_path()));
-  out->append(" ");
-  out->append(out_bin);
-  out->append("\n\n");
+  out->StartRule(out_bin, bin);
+  out->WriteCommand("pwd > /dev/null");  // hack to work around make issue?
+  out->WriteCommand(
+      strings::JoinAll(
+          "ln -f -s ",
+          strings::JoinPath(input().object_dir(), target().make_path()),
+          " ", out_bin));
+  out->FinishRule();
 }
 
 void CCBinaryNode::WriteLink(
     const vector<const Node*>& all_deps,
     const string& file,
-    string* out) const {
+    Makefile* out) const {
   set<string> objects;
   CollectObjects(all_deps, &objects);
 
   set<string> flags;
   CollectLinkFlags(all_deps, &flags);
 
-  string list;
-  for (const string& obj : objects) {
-    list.append(" ");
-    list.append(obj);
-  }
+  string list = strings::Join(objects, " ");
 
-  out->append(file + ":");
-  out->append(list);
-  out->append("\n\t");
-  out->append("@echo Linking: ");
-  out->append(file);
-  out->append("\n\t@$(LINK.cc)");
-  out->append(list);
-  out->append(" -o ");
-  out->append(file);
-  for (const string& flag : flags) {
-    out->append(" ");
-    out->append(flag);
-  }
-  out->append("\n\n");
+  // Link rule
+  out->StartRule(file, list);
+  out->WriteCommand("echo Linking: " + file);
+  out->WriteCommand(strings::JoinAllWith(
+      " ",
+      "$(LINK.cc)", list, "-o", file,
+      strings::Join(flags, " ")));
+  out->FinishRule();
 }
 
-void CCBinaryNode::WriteMakeClean(std::string* out) const {
-  out->append("\trm -f ");
-  out->append(OutBinary());
-  out->append("\n");
+void CCBinaryNode::WriteMakeClean(Makefile* out) const {
+  out->WriteCommand("rm -f " + OutBinary());
 }
 
 void CCBinaryNode::FinalOutputs(vector<string>* outputs) const {

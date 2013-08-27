@@ -33,7 +33,7 @@ Input::Input() {
     // Compiling
     AddFlag("-X", "-std=c++11");
     AddFlag("-X", "-DUSE_CXX0X");
-    AddFlag("-C", "clang=-stdlib=libc++");  // clang only, see cc_library.cc
+    AddFlag("-C", "clang=-stdlib=libc++");
     AddFlag("-C", "-pthread");
     AddFlag("-C", "-g");
     AddFlag("-C", "-Wall");
@@ -43,7 +43,8 @@ Input::Input() {
     AddFlag("-C", "gcc=-Wno-error=unused-local-typedefs");
     AddFlag("-C", "-O3");
     AddFlag("-C", "-flto");
-    AddFlag("-C", "clang=-Qunused-arguments");  // clang only, see cc_library.cc
+    AddFlag("-C", "clang=-Qunused-arguments");
+    AddFlag("-C", "clang=-fcolor-diagnostics");
 
     // Linking
     AddFlag("-L", "clang=-stdlib=libc++");

@@ -18,7 +18,7 @@ class ProtoLibraryNode : public Node {
   virtual ~ProtoLibraryNode() {}
   virtual void Parse(BuildFile* file, const BuildFileNode& input);
   virtual void WriteMakefile(const std::vector<const Node*>& all_deps,
-                             std::string* out) const {}
+                             Makefile* out) const {}
 };
 
 }  // namespace repobuild

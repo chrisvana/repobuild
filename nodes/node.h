@@ -11,12 +11,15 @@
 #include <utility>
 #include <vector>
 #include "repobuild/env/target.h"
+#include "common/strings/strutil.h"
 
 namespace repobuild {
 
 class BuildFile;
 class BuildFileNode;
 class Input;
+
+class Makefile;
 
 class Node {
  public:
@@ -38,8 +41,8 @@ class Node {
   // Virtual interface.
   virtual void Parse(BuildFile* file, const BuildFileNode& input);
   virtual void WriteMake(const std::vector<const Node*>& all_deps,
-                         std::string* out) const;
-  virtual void WriteMakeClean(std::string* out) const {}
+                         Makefile* out) const;
+  virtual void WriteMakeClean(Makefile* out) const {}
   virtual void DependencyFiles(std::vector<std::string>* files) const {}
   virtual void ObjectFiles(std::vector<std::string>* files) const {}
   virtual void FinalOutputs(std::vector<std::string>* outputs) const {}
@@ -91,7 +94,7 @@ class Node {
 
   // The main thing to override.
   virtual void WriteMakefile(const std::vector<const Node*>& all_deps,
-                             std::string* out) const = 0;
+                             Makefile* out) const = 0;
 
   // Helpers
   void ParseRepeatedString(const BuildFileNode& input,
@@ -131,7 +134,8 @@ class Node {
   std::string ObjectDir() const;
   std::string RelativeObjectDir() const;
   std::string MakefileEscape(const std::string& str) const;
-  std::string WriteBaseUserTarget(const std::set<std::string>& deps) const;
+  void WriteBaseUserTarget(const std::set<std::string>& deps,
+                           Makefile* out) const;
 
   void WriteVariables(std::string* out) const {
     for (auto const& it : make_variables_) {
@@ -166,6 +170,56 @@ class Node {
   std::vector<Node*> subnodes_, owned_subnodes_;
   std::map<std::string, MakeVariable*> make_variables_;
 };
+
+// SimpleLibraryNode
+//  A library that just collects dependencies.
+class SimpleLibraryNode : public Node {
+ public:
+  SimpleLibraryNode(const TargetInfo& t, const Input& i) : Node(t, i) {}
+  virtual ~SimpleLibraryNode() {}
+  virtual void WriteMakefile(const std::vector<const Node*>& all_deps,
+                             Makefile* out) const {}
+  virtual void DependencyFiles(std::vector<std::string>* files) const;
+
+  // Alterative to Parse()
+  virtual void Set(const std::vector<std::string>& sources) {
+    sources_ = sources;
+  }
+
+ protected:
+  std::vector<std::string> sources_;
+};
+
+class Makefile {
+ public:
+  Makefile() {}
+  ~Makefile() {}
+
+  // Rules
+  // TODO(cvanarsdale): Return a pointer to a MakefileRule.
+  void StartRule(const std::string& rule) { StartRule(rule, ""); }
+  void StartRule(const std::string& rule, const std::string& dependencies);
+  void FinishRule();
+  void WriteRule(const std::string& rule, const std::string& deps) {
+    StartRule(rule, deps);
+    FinishRule();
+  }
+
+  // Commands for rules.
+  void WriteCommand(const std::string& command);
+
+  std::string* mutable_out() { return &out_; }
+  const std::string& out() const { return out_; }
+
+  template <typename T>
+  void append(const T& t) {
+    out_.append(strings::StringPrint(t));
+  }
+
+ private:
+  std::string out_;
+};
+
 
 }  // namespace repobuild
 

@@ -20,7 +20,7 @@ class CCLibraryNode : public Node {
   virtual ~CCLibraryNode() {}
   virtual void Parse(BuildFile* file, const BuildFileNode& input);
   virtual void WriteMakefile(const std::vector<const Node*>& all_deps,
-                             std::string* out) const;
+                             Makefile* out) const;
   virtual void DependencyFiles(std::vector<std::string>* files) const;
   virtual void ObjectFiles(std::vector<std::string>* files) const;
   virtual void LinkFlags(std::set<std::string>* flags) const;
@@ -34,7 +34,7 @@ class CCLibraryNode : public Node {
            const std::vector<std::string>& header_compile_args);
 
   // Static preprocessors
-  static void WriteMakeHead(const Input& input, std::string* out);
+  static void WriteMakeHead(const Input& input, Makefile* out);
 
  protected:
   void Init();
@@ -42,10 +42,10 @@ class CCLibraryNode : public Node {
   void WriteCompile(const std::string& source,
                     const std::set<std::string>& input_files,
                     const std::vector<const Node*>& all_deps,
-                    std::string* out) const;
+                    Makefile* out) const;
   void WriteMakefileInternal(const std::vector<const Node*>& all_deps,
                              bool should_write_target,
-                             std::string* out) const;
+                             Makefile* out) const;
   std::string ObjForSource(const std::string& source) const;
   void AddVariable(const std::string& cpp_name,
                    const std::string& c_name,

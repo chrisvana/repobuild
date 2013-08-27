@@ -28,31 +28,29 @@ void ConfigNode::Parse(BuildFile* file, const BuildFileNode& input) {
 }
 
 void ConfigNode::WriteMakefile(const vector<const Node*>& all_deps,
-                               string* out) const {
+                               Makefile* out) const {
   if (component_src_.empty()) {
     return;
   }
 
-  // This is the directory we create.
-  string dir = SourceDir("");
-  out->append(dir);
-  out->append(":\n");
+  // 3 Rules:
+  // 1) Our .gen-src directory
+  // 2) Our base files (e.g. the .h and .cc files)
+  // 3) Our .gen-files directory
 
-  // ... And this is how we create it:
-  // mkdir -p src; ln -s path/to/this/target/dir src/<component>
+  // (1) .gen-src symlink
+  string dir = SourceDir("");  // directory we create
   AddSymlink(dir, strings::JoinPath(target().dir(), component_root_), out);
 
-  // And our base target name
+  // (2) Main files
   {
     set<string> targets;
     targets.insert(dir);
-    out->append(WriteBaseUserTarget(targets));
+    WriteBaseUserTarget(targets, out);
   }
 
-  // Same thing for genfiles
-  dir = SourceDir(input().genfile_dir());
-  out->append(dir);
-  out->append(":\n");
+  // (3) .gen-files symlink
+  dir = SourceDir(input().genfile_dir());  // directory we create
   AddSymlink(dir,
              strings::JoinPath(input().genfile_dir(),
                                strings::JoinPath(target().dir(),
@@ -62,56 +60,39 @@ void ConfigNode::WriteMakefile(const vector<const Node*>& all_deps,
 
 void ConfigNode::AddSymlink(const string& dir,
                             const string& source,
-                            string* out) const {
-  out->append("\t@");  // silent
-  out->append("mkdir -p ");
-  out->append(strings::PathDirname(dir));
-  out->append("; [ -f ");
-  out->append(source);
-  out->append(" ] || mkdir -p ");
-  out->append(source);
-  out->append("; ln -f -s ");
-  int num_pieces = strings::NumPathComponents(strings::PathDirname(dir));
-  string link;
-  for (int i = 0; i < num_pieces; ++i) {
-    link += "../";
-  }
-  out->append(strings::JoinPath(link, source));
-  out->append(" ");
-  out->append(dir);
-  out->append("\n\n");
+                            Makefile* out) const {
+  // Output link target.
+  string link = strings::JoinPath(
+      strings::Repeat("../",
+                      strings::NumPathComponents(strings::PathDirname(dir))),
+      source);
+
+  // Write symlink.
+  out->StartRule(dir);
+  out->WriteCommand(strings::JoinAll(
+      "mkdir -p ", strings::PathDirname(dir), "; ",
+      "[ -f ", source, " ] || mkdir -p ", source, "; ",
+      "ln -f -s ", link, " ", dir));
+  out->FinishRule();
 
   // Dummy file (to avoid directory timestamp causing everything to rebuild).
-  // src/repobuild/.dummy: src/repobuild
-  //   if [[ ! -a src/repobuild/.dummy ]]; then touch src/repobuild/.dummy; fi
+  // .gen-src/repobuild/.dummy: .gen-src/repobuild
+  //   [ -f .gen-src/repobuild/.dummy ] || touch .gen-src/repobuild/.dummy
   string dummy = DummyFile(dir);
-  out->append(dummy);
-  out->append(": ");
-  out->append(dir);  // input
-  out->append("\n\t@");  // silent
-  out->append("[ -f ");
-  out->append(dummy);
-  out->append(" ] || touch ");
-  out->append(dummy);
-  out->append("\n\n");
+  out->StartRule(dummy, dir);
+  out->WriteCommand(strings::JoinAll("[ -f ", dummy, " ] || touch ", dummy));
+  out->FinishRule();
 }
 
-void ConfigNode::WriteMakeClean(std::string* out) const {
+void ConfigNode::WriteMakeClean(Makefile* out) const {
   if (component_src_.empty()) {
     return;
   }
 
-  out->append("\trm -f ");
-  out->append(DummyFile(SourceDir("")));
-  out->append("\n\trm -f ");
-  out->append(SourceDir(SourceDir("")));
-  out->append("\n");
-
-  out->append("\trm -f ");
-  out->append(DummyFile(SourceDir(input().genfile_dir())));
-  out->append("\n\trm -f ");
-  out->append(SourceDir(input().genfile_dir()));
-  out->append("\n");
+  out->WriteCommand("rm -rf " + DummyFile(SourceDir("")));
+  out->WriteCommand("rm -rf " + SourceDir(SourceDir("")));
+  out->WriteCommand("rm -rf " + DummyFile(SourceDir(input().genfile_dir())));
+  out->WriteCommand("rm -rf " + SourceDir(input().genfile_dir()));
 }
 
 void ConfigNode::DependencyFiles(vector<string>* files) const {

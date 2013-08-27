@@ -23,7 +23,7 @@ void GoBinaryNode::Parse(BuildFile* file, const BuildFileNode& input) {
 }
 
 void GoBinaryNode::WriteMakefile(const vector<const Node*>& all_deps,
-                                 string* out) const {
+                                 Makefile* out) const {
   GoLibraryNode::WriteMakefile(all_deps, out);
 
   // Source files.
@@ -34,51 +34,33 @@ void GoBinaryNode::WriteMakefile(const vector<const Node*>& all_deps,
   string bin = strings::JoinPath(
       strings::JoinPath(input().object_dir(), target().dir()),
       target().local_path());
-  out->append(bin + ":");
-  for (const string& input : source_files) {
-    out->append(" ");
-    out->append(input);
-  }
-  out->append("\n\t");
-  out->append("@echo Go build: ");
-  out->append(bin);
-  out->append("\n\t");
-  out->append("@mkdir -p ");
-  out->append(strings::PathDirname(bin));
-  out->append("; go build -o ");
-  out->append(bin);
-  for (const string& flag : input().flags("-G")) {
-    out->append(" ");
-    out->append(flag);
-  }
-  for (int i = 0; i < go_build_args_.size(); ++i) {
-    out->append(" ");
-    out->append(go_build_args_[i]);
-  }
-  for (const string& input : source_files) {
-    out->append(" ");
-    out->append(input);
-  }
-  out->append("\n\n");
+  out->StartRule(bin, strings::Join(source_files, " "));
+  out->WriteCommand("echo Go build: " + bin);
+  out->WriteCommand("mkdir -p " + strings::PathDirname(bin));
+  out->WriteCommand(
+      strings::JoinAllWith(
+          " ",
+          "go build -o", bin,
+          strings::Join(input().flags("-G"), " "),
+          strings::Join(go_build_args_, " "),
+          strings::Join(source_files, " ")));
+  out->FinishRule();
 
   // Symlink to root dir.
   string out_bin = OutBinary();
-  out->append(out_bin);
-  out->append(": ");
-  out->append(bin);
-  out->append("\n\t");
-  out->append("@pwd > /dev/null");  // hack to work around make issue?
-  out->append("\n\t@ln -f -s ");
-  out->append(strings::JoinPath(input().object_dir(), target().make_path()));
-  out->append(" ");
-  out->append(out_bin);
-  out->append("\n\n");
+  out->StartRule(out_bin, bin);
+  out->WriteCommand("pwd > /dev/null");  // hack to work around make issue?
+  out->WriteCommand(
+      strings::JoinAllWith(
+          " ",
+          "ln -f -s",
+          strings::JoinPath(input().object_dir(), target().make_path()),
+          out_bin));
+  out->FinishRule();
 }
 
-void GoBinaryNode::WriteMakeClean(std::string* out) const {
-  out->append("\trm -f ");
-  out->append(OutBinary());
-  out->append("\n");
+void GoBinaryNode::WriteMakeClean(Makefile* out) const {
+  out->WriteCommand("rm -f " + OutBinary());
 }
 
 void GoBinaryNode::FinalOutputs(vector<string>* outputs) const {

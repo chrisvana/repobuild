@@ -20,9 +20,9 @@ class GenShNode : public Node {
   virtual ~GenShNode() {}
   virtual std::string Name() const { return "gen_sh"; }
   virtual void Parse(BuildFile* file, const BuildFileNode& input);
-  virtual void WriteMakeClean(std::string* out) const;
+  virtual void WriteMakeClean(Makefile* out) const;
   virtual void WriteMakefile(const std::vector<const Node*>& all_deps,
-                             std::string* out) const;
+                             Makefile* out) const;
   virtual void DependencyFiles(std::vector<std::string>* files) const;
 
   // Alternative to parse

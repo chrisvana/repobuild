@@ -49,11 +49,7 @@
      "name" : "go_library",
      "cc_sources" : [ "go_library.cc" ],
      "cc_headers" : [ "go_library.h" ],
-     "dependencies": [ "//common/log:log",
-                       "//common/file:fileutil",
-                       "//common/strings:strutil",
-                       ":node"
-      ]
+     "dependencies": [ ":node" ]
    }
  },
 

@@ -18,15 +18,15 @@ class ConfigNode : public Node {
   virtual ~ConfigNode() {}
   virtual std::string Name() const { return "config"; }
   virtual void Parse(BuildFile* file, const BuildFileNode& input);
-  virtual void WriteMakeClean(std::string* out) const;
+  virtual void WriteMakeClean(Makefile* out) const;
   virtual void WriteMakefile(const std::vector<const Node*>& all_deps,
-                             std::string* out) const;
+                             Makefile* out) const;
   virtual void DependencyFiles(std::vector<std::string>* files) const;
 
  protected:
   void AddSymlink(const std::string& dir,
                   const std::string& source,
-                  std::string* out) const;
+                  Makefile* out) const;
   std::string DummyFile(const std::string& dir) const;
   std::string SourceDir(const std::string& middle) const;
   std::string CurrentDir(const std::string& middle) const;

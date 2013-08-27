@@ -19,9 +19,9 @@ class CCBinaryNode : public CCLibraryNode {
   }
   virtual ~CCBinaryNode() {}
   virtual void Parse(BuildFile* file, const BuildFileNode& input);
-  virtual void WriteMakeClean(std::string* out) const;
+  virtual void WriteMakeClean(Makefile* out) const;
   virtual void WriteMakefile(const std::vector<const Node*>& all_deps,
-                             std::string* out) const;
+                             Makefile* out) const;
   virtual void FinalOutputs(std::vector<std::string>* outputs) const;
 
  protected:
@@ -30,7 +30,7 @@ class CCBinaryNode : public CCLibraryNode {
 
   void WriteLink(const std::vector<const Node*>& all_deps,
                  const std::string& file,
-                 std::string* out) const;
+                 Makefile* out) const;
 };
 
 }  // namespace repobuild

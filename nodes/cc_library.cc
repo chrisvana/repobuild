@@ -74,49 +74,46 @@ void CCLibraryNode::Init() {
 
   // cc_compile_args
   AddVariable("cxx_compile_args", "c_compile_args",
-              strings::JoinWith(
+              strings::JoinAllWith(
                   " ",
                   strings::Join(cc_compile_args_, " "),
                   strings::Join(gcc_cc_compile_args_, " ")),
-              strings::JoinWith(
+              strings::JoinAllWith(
                   " ",
                   strings::Join(cc_compile_args_, " "),
                   strings::Join(clang_cc_compile_args_, " ")));
   
   // header_compile_args
   AddVariable("cxx_header_compile_args", "c_header_compile_args",
-              strings::JoinWith(
+              strings::JoinAllWith(
                   " ",
                   strings::Join(header_compile_args_, " "),
                   strings::Join(gcc_header_compile_args_, " ")),
-              strings::JoinWith(
+              strings::JoinAllWith(
                   " ",
                   strings::Join(header_compile_args_, " "),
                   strings::Join(clang_header_compile_args_, " ")));
 
   // cc_linker_args
   AddVariable("cc_linker_args", "cc_linker_args",  // NB: no distinction.
-              strings::JoinWith(
+              strings::JoinAllWith(
                   " ",
                   strings::Join(cc_linker_args_, " "),
                   strings::Join(gcc_cc_linker_args_, " ")),
-              strings::JoinWith(
+              strings::JoinAllWith(
                   " ",
                   strings::Join(cc_linker_args_, " "),
                   strings::Join(gcc_cc_linker_args_, " ")));
 }
 
 void CCLibraryNode::WriteMakefile(const vector<const Node*>& all_deps,
-                                  string* out) const {
+                                  Makefile* out) const {
   WriteMakefileInternal(all_deps, true, out);
 }
 
 void CCLibraryNode::WriteMakefileInternal(const vector<const Node*>& all_deps,
                                           bool should_write_target,
-                                          string* out) const {
-  // Write header variable
-  GetVariable("headers").WriteMake(out);
-
+                                          Makefile* out) const {
   // Figure out the set of input files.
   set<string> input_files;
   CollectDependencies(all_deps, &input_files);
@@ -127,67 +124,60 @@ void CCLibraryNode::WriteMakefileInternal(const vector<const Node*>& all_deps,
     WriteCompile(sources_[i], input_files, all_deps, out);
   }
 
-  // Now write user target
+  // Now write user target (so users can type "make path/to/exec|lib").
   if (should_write_target) {
     set<string> targets;
     for (const string& source : sources_) {
       targets.insert(ObjForSource(source));
     }
-    out->append(WriteBaseUserTarget(targets));
+    WriteBaseUserTarget(targets, out);
   }
 }
 
 void CCLibraryNode::WriteCompile(const string& source,
                                  const set<string>& input_files,
                                  const vector<const Node*>& all_deps,
-                                 string* out) const {
+                                 Makefile* out) const {
   string obj = ObjForSource(source);
-  out->append(obj + ": ");
 
-  // Dependencies.
-  out->append(strings::Join(input_files, " "));
-  out->append(" ");
-  out->append(source);
+  // Rule=> obj: <input header files> source.cc
+  out->StartRule(obj, strings::JoinAllWith(" ",
+                                           strings::Join(input_files, " "),
+                                           source));
 
   // Mkdir command.
-  out->append("\n\t@");  // silent
-  out->append("mkdir -p ");
-  out->append(strings::PathDirname(obj));
+  out->WriteCommand("mkdir -p " + strings::PathDirname(obj));
 
-    // Compile command.
-  out->append("\n\t");
-  out->append("@echo Compiling: ");
-  out->append(source);
-  out->append("\n\t@");
+  // Compile command.
   bool cpp = (strings::HasSuffix(source, ".cc") ||
               strings::HasSuffix(source, ".cpp"));
-  out->append(DefaultCompileFlags(cpp));
-  out->append(" ");
-
-  // Include directories
-  out->append(strings::JoinWith(
+  string compile = DefaultCompileFlags(cpp);
+  string include_dirs = strings::JoinAllWith(
       " ",
       "-I" + input().root_dir(),
       "-I" + input().genfile_dir(),
       "-I" + input().source_dir(),
-      "-I" + strings::JoinPath(input().source_dir(), input().genfile_dir())));
-  out->append(" ");
+      "-I" + strings::JoinPath(input().source_dir(), input().genfile_dir()));
+  string output_compile_args;
+  {
+    set<string> header_compile_args;
+    CollectCompileFlags(cpp, all_deps, &header_compile_args);
+    output_compile_args = strings::JoinAllWith(
+        " ",
+        strings::Join(header_compile_args, " "),
+        GetVariable(cpp ? "cxx_compile_args" : "c_compile_args").ref_name());
+  }
 
-  // Output compile args
-  set<string> header_compile_args;
-  CollectCompileFlags(cpp, all_deps, &header_compile_args);
-  out->append(strings::JoinWith(
+  out->WriteCommand("echo Compiling: " + source);
+  out->WriteCommand(strings::JoinAllWith(
       " ",
-      strings::Join(header_compile_args, " "),
-      GetVariable(cpp ? "cxx_compile_args" : "c_compile_args").ref_name()));
+      compile,
+      include_dirs,
+      output_compile_args,
+      source,
+      "-o " + obj));
 
-  // Output source file
-  out->append(" " + source);
-
-  // Output object.
-  out->append(" -o " + obj);
-
-  out->append("\n\n");
+  out->FinishRule();
 }
 
 void CCLibraryNode::DependencyFiles(vector<string>* files) const {
@@ -300,7 +290,7 @@ string WriteCxxflag(const Input& input, bool gcc, bool basic) {
 }  // anonymous namespace
 
 // static
-void CCLibraryNode::WriteMakeHead(const Input& input, string* out) {
+void CCLibraryNode::WriteMakeHead(const Input& input, Makefile* out) {
   // Some conditional variables
   out->append("# Some compiler specific flag settings.\n");
   out->append("CXX_GCC := $(shell $(CXX) --version | "

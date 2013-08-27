@@ -38,28 +38,23 @@ void GenShNode::Set(const std::string& build_cmd,
 }
 
 void GenShNode::WriteMakefile(const vector<const Node*>& all_deps,
-                              string* out) const {
-  // Target
+                              Makefile* out) const {
   string touchfile = Touchfile();
-  out->append(touchfile);
-  out->append(": ");
 
-  // Input files
-  {
-    set<string> input_files;
-    CollectDependencies(all_deps, &input_files);
-    input_files.erase(touchfile);  // all but our own file.
-    out->append(strings::Join(input_files, " "));
-    out->append(" ");
-    out->append(strings::Join(input_files_, " "));
-    out->append("\n");
-  }
+  // Inputs
+  set<string> input_files;
+  CollectDependencies(all_deps, &input_files);
+  input_files.erase(touchfile);  // all but our own file.
+
+  // Make target
+  out->StartRule(touchfile, strings::JoinAllWith(
+      " ",
+      strings::Join(input_files, " "),
+      strings::Join(input_files_, " ")));
 
   // Build command.
   if (!build_cmd_.empty()) {
-    out->append("\t@echo Script: ");
-    out->append(target().full_path());
-    out->append("\n\t@");
+    out->WriteCommand("echo Script: " + target().full_path());
 
     string touch_cmd = "mkdir -p " +
         strings::JoinPath(input().object_dir(), target().dir()) +
@@ -75,36 +70,27 @@ void GenShNode::WriteMakefile(const vector<const Node*>& all_deps,
       prefix += " DEP_CFLAGS= " + strings::Join(compile_flags, " ");
     }
 
-    out->append(WriteCommand(prefix, build_cmd_, touch_cmd));
-    out->append("\n");
+    out->WriteCommand(WriteCommand(prefix, build_cmd_, touch_cmd));
   }
-  out->append("\n");
+  out->FinishRule();
 
   {  // user target
     set<string> output_targets;
     output_targets.insert(touchfile);
-    out->append(WriteBaseUserTarget(output_targets));
+    WriteBaseUserTarget(output_targets, out);
   }
 
   for (const string& output : outputs_) {
-    out->append(strings::JoinPath(GenDir(), output));
-    out->append(": ");
-    out->append(touchfile);
-    out->append("\n\n");
+    out->WriteRule(strings::JoinPath(GenDir(), output), touchfile);
   }
-
-  out->append(".PHONY: ");
-  out->append("\n\n");
 }
 
-void GenShNode::WriteMakeClean(std::string* out) const {
+void GenShNode::WriteMakeClean(Makefile* out) const {
   if (clean_cmd_.empty()) {
     return;
   }
 
-  out->append("\t");
-  out->append(WriteCommand("", clean_cmd_, ""));
-  out->append("\n");
+  out->WriteCommand(WriteCommand("", clean_cmd_, ""));
 }
 
 namespace {
