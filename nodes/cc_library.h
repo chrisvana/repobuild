@@ -7,7 +7,7 @@
 #include <string>
 #include <set>
 #include <vector>
-#include "nodes/node.h"
+#include "repobuild/nodes/node.h"
 
 namespace repobuild {
 

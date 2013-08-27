@@ -10,7 +10,7 @@
 #include "common/strings/path.h"
 #include "common/strings/strutil.h"
 #include "repobuild/env/input.h"
-#include "nodes/cc_library.h"
+#include "repobuild/nodes/cc_library.h"
 #include "repobuild/reader/buildfile.h"
 
 using std::vector;

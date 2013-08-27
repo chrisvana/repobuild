@@ -2,15 +2,16 @@
 // Author: Christopher Van Arsdale
 
 #include <vector>
-#include "nodes/allnodes.h"
-#include "nodes/node.h"
-#include "nodes/cc_library.h"
-#include "nodes/cc_binary.h"
-#include "nodes/confignode.h"
-#include "nodes/go_library.h"
-#include "nodes/go_binary.h"
-#include "nodes/gen_sh.h"
-#include "nodes/proto_library.h"
+#include "repobuild/nodes/allnodes.h"
+#include "repobuild/nodes/autoconf.h"
+#include "repobuild/nodes/node.h"
+#include "repobuild/nodes/cc_library.h"
+#include "repobuild/nodes/cc_binary.h"
+#include "repobuild/nodes/confignode.h"
+#include "repobuild/nodes/go_library.h"
+#include "repobuild/nodes/go_binary.h"
+#include "repobuild/nodes/gen_sh.h"
+#include "repobuild/nodes/proto_library.h"
 
 namespace repobuild {
 namespace {
@@ -30,6 +31,7 @@ class NodeBuilderImpl : public NodeBuilder {
 
 // static
 void NodeBuilder::GetAll(std::vector<NodeBuilder*>* nodes) {
+  nodes->push_back(new NodeBuilderImpl<AutoconfNode>("autoconf"));
   nodes->push_back(new NodeBuilderImpl<CCLibraryNode>("cc_library"));
   nodes->push_back(new NodeBuilderImpl<CCBinaryNode>("cc_binary"));
   nodes->push_back(new NodeBuilderImpl<ConfigNode>("config"));

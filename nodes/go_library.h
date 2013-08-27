@@ -4,7 +4,7 @@
 #ifndef _REPOBUILD_NODES_GO_LIBRARY_H__
 #define _REPOBUILD_NODES_GO_LIBRARY_H__
 
-#include "nodes/node.h"
+#include "repobuild/nodes/node.h"
 
 namespace repobuild {
 

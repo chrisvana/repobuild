@@ -3,7 +3,7 @@
 
 #include <string>
 #include <vector>
-#include "nodes/go_library.h"
+#include "repobuild/nodes/go_library.h"
 #include "repobuild/reader/buildfile.h"
 
 using std::vector;

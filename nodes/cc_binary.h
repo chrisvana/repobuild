@@ -6,8 +6,8 @@
 
 #include <string>
 #include <vector>
-#include "nodes/node.h"
-#include "nodes/cc_library.h"
+#include "repobuild/nodes/node.h"
+#include "repobuild/nodes/cc_library.h"
 
 namespace repobuild {
 

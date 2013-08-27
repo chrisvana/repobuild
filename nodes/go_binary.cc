@@ -8,7 +8,7 @@
 #include "common/log/log.h"
 #include "common/strings/path.h"
 #include "repobuild/env/input.h"
-#include "nodes/go_binary.h"
+#include "repobuild/nodes/go_binary.h"
 #include "repobuild/reader/buildfile.h"
 
 using std::string;

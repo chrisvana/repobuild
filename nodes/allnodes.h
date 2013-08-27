@@ -5,7 +5,7 @@
 #define _REPOBUILD_NODES_ALLNODES_H__
 
 #include <vector>
-#include "nodes/node.h"
+#include "repobuild/nodes/node.h"
 
 namespace repobuild {
 

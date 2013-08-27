@@ -88,10 +88,22 @@
  },
 
  { "cc_library": {
+     "name": "autoconf",
+     "cc_sources" : [ "autoconf.cc" ],
+     "cc_headers" : [ "autoconf.h" ],
+     "dependencies": [ "//common/log:log",
+                       "//common/file:fileutil",
+                       "//common/strings:strutil",
+                       ":gen_sh"
+      ]
+ } },
+
+ { "cc_library": {
      "name" : "allnodes",
      "cc_sources" : [ "allnodes.cc" ],
      "cc_headers" : [ "allnodes.h" ],
-     "dependencies": [ ":node",
+     "dependencies": [ ":autoconf",
+                       ":node",
                        ":cc_library",
                        ":cc_binary",
                        ":confignode",

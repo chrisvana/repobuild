@@ -7,7 +7,7 @@
 #include "common/log/log.h"
 #include "common/strings/path.h"
 #include "repobuild/env/input.h"
-#include "nodes/confignode.h"
+#include "repobuild/nodes/confignode.h"
 #include "repobuild/reader/buildfile.h"
 
 using std::set;

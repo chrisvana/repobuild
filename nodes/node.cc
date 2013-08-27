@@ -8,8 +8,8 @@
 #include "common/strings/path.h"
 #include "common/strings/strutil.h"
 #include "common/strings/varmap.h"
-#include "env/input.h"
-#include "nodes/node.h"
+#include "repobuild/env/input.h"
+#include "repobuild/nodes/node.h"
 #include "repobuild/reader/buildfile.h"
 #include "repobuild/json/json.h"
 

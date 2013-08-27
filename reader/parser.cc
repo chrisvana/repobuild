@@ -11,8 +11,8 @@
 #include "common/strings/path.h"
 #include "repobuild/env/input.h"
 #include "repobuild/json/json.h"
-#include "nodes/node.h"
-#include "nodes/allnodes.h"
+#include "repobuild/nodes/node.h"
+#include "repobuild/nodes/allnodes.h"
 #include "repobuild/reader/buildfile.h"
 #include "repobuild/reader/parser.h"
 

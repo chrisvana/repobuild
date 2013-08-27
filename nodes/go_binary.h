@@ -5,8 +5,8 @@
 #define _REPOBUILD_NODES_GO_BINARY_H__
 
 #include <string>
-#include "nodes/node.h"
-#include "nodes/go_library.h"
+#include "repobuild/nodes/node.h"
+#include "repobuild/nodes/go_library.h"
 
 namespace repobuild {
 

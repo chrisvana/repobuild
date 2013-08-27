@@ -5,7 +5,7 @@
 #define _REPOBUILD_NODES_CONFIGNODE_H__
 
 #include <string>
-#include "nodes/node.h"
+#include "repobuild/nodes/node.h"
 
 namespace repobuild {
 

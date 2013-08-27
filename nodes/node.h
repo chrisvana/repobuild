@@ -136,6 +136,10 @@ class Node {
   std::string MakefileEscape(const std::string& str) const;
   void WriteBaseUserTarget(const std::set<std::string>& deps,
                            Makefile* out) const;
+  void WriteBaseUserTarget(Makefile* out) const {
+    std::set<std::string> empty;
+    WriteBaseUserTarget(empty, out);
+  }
 
   void WriteVariables(std::string* out) const {
     for (auto const& it : make_variables_) {
