@@ -13,6 +13,7 @@
 #include "repobuild/reader/buildfile.h"
 #include "repobuild/json/json.h"
 
+using std::map;
 using std::string;
 using std::vector;
 using std::set;
@@ -39,6 +40,16 @@ void Node::Parse(BuildFile* file, const BuildFileNode& input) {
     dependencies_.push_back(new TargetInfo(deps[i], file->filename()));
   }
   ParseBoolField(input, "strict_file_mode", &strict_file_mode_);
+  const Json::Value& env = input.object()["env"];
+  if (!env.isNull()) {
+    CHECK(env.isObject()) << "Expecting object for \"env\".";
+    for (const string& name : env.getMemberNames()) {
+      const Json::Value& val = env[name];
+      CHECK(val.isString()) << "Environment var (\"" << name
+                            << "\") must be string.";
+      env_variables_[name] = ParseSingleString(false, val.asString());
+    }
+  }
 }
 
 void Node::WriteMake(const std::vector<const Node*>& all_deps,
@@ -133,7 +144,19 @@ string Node::ParseSingleString(bool relative_gendir,
   vars.Set("$SRC_DIR", tmp);
   vars.Set("$(SRC_DIR)", tmp);
   vars.Set("${SRC_DIR}", tmp);
+
+  tmp = strings::Repeat(
+      "../", strings::NumPathComponents(target().dir()));
+  vars.Set("$ROOT_DIR", tmp);
+  vars.Set("$(ROOT_DIR)", tmp);
+  vars.Set("${ROOT_DIR}", tmp);
   return vars.Replace(str);
+}
+
+void Node::EnvVariables(map<string, string>* env) const {
+  for (const auto& it : env_variables_) {
+    (*env)[it.first] = it.second;
+  }
 }
 
 void Node::CollectDependencies(const vector<const Node*>& all_deps,
@@ -181,18 +204,24 @@ void Node::CollectCompileFlags(bool cxx,
   CompileFlags(cxx, out);
 }
 
+void Node::CollectEnvVariables(
+    const std::vector<const Node*>& all_deps,
+    std::map<std::string, std::string>* vars) const {
+  for (const Node* dep : all_deps) {
+    dep->EnvVariables(vars);
+  }
+  EnvVariables(vars);
+}
+
 string Node::GenDir() const { 
   return strings::JoinPath(input().genfile_dir(), target().dir());
 }
 
 string Node::RelativeGenDir() const {
-  int components = strings::NumPathComponents(target().dir());
-  string output;
-  for (int i = 0; i < components; ++i) {
-    output += "../";
-  }
-  output += input().genfile_dir();
-  return strings::JoinPath(output, target().dir());
+  return strings::JoinPath(
+      strings::Repeat("../", strings::NumPathComponents(target().dir())) +
+      input().genfile_dir(),
+      target().dir());
 }
 
 string Node::ObjectDir() const { 
@@ -200,13 +229,22 @@ string Node::ObjectDir() const {
 }
 
 string Node::RelativeObjectDir() const {
-  int components = strings::NumPathComponents(target().dir());
-  string output;
-  for (int i = 0; i < components; ++i) {
-    output += "../";
-  }
-  output += input().object_dir();
-  return strings::JoinPath(output, target().dir());
+  return strings::JoinPath(RelativeRootDir() + input().object_dir(),
+                           target().dir());
+}
+
+string Node::SourceDir() const { 
+  return strings::JoinPath(input().source_dir(), target().dir());
+}
+
+string Node::RelativeSourceDir() const {
+  return strings::JoinPath(RelativeRootDir() + input().source_dir(),
+                           target().dir());
+}
+
+
+string Node::RelativeRootDir() const {
+  return strings::Repeat("../", strings::NumPathComponents(target().dir()));
 }
 
 string Node::MakefileEscape(const string& str) const {

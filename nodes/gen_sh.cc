@@ -1,6 +1,7 @@
 // Copyright 2013
 // Author: Christopher Van Arsdale
 
+#include <map>
 #include <set>
 #include <string>
 #include <vector>
@@ -11,6 +12,7 @@
 #include "repobuild/nodes/gen_sh.h"
 #include "repobuild/reader/buildfile.h"
 
+using std::map;
 using std::string;
 using std::vector;
 using std::set;
@@ -70,7 +72,9 @@ void GenShNode::WriteMakefile(const vector<const Node*>& all_deps,
       prefix += " DEP_CFLAGS= " + strings::JoinAll(compile_flags, " ");
     }
 
-    out->WriteCommand(WriteCommand(prefix, build_cmd_, touch_cmd));
+    map<string, string> env_vars;
+    CollectEnvVariables(all_deps, &env_vars);
+    out->WriteCommand(WriteCommand(env_vars, prefix, build_cmd_, touch_cmd));
   }
   out->FinishRule();
 
@@ -85,12 +89,15 @@ void GenShNode::WriteMakefile(const vector<const Node*>& all_deps,
   }
 }
 
-void GenShNode::WriteMakeClean(Makefile* out) const {
+void GenShNode::WriteMakeClean(const vector<const Node*>& all_deps,
+                               Makefile* out) const {
   if (clean_cmd_.empty()) {
     return;
   }
 
-  out->WriteCommand(WriteCommand("", clean_cmd_, ""));
+  map<string, string> env_vars;
+  CollectEnvVariables(all_deps, &env_vars);
+  out->WriteCommand(WriteCommand(env_vars, "", clean_cmd_, ""));
 }
 
 namespace {
@@ -103,7 +110,8 @@ void AddEnvVar(const string& var, string* out) {
 }
 }
 
-string GenShNode::WriteCommand(const string& prefix,
+string GenShNode::WriteCommand(const map<string, string>& env_vars,
+                               const string& prefix,
                                const string& cmd,
                                const string& admin_cmd) const {
   string out;
@@ -120,6 +128,11 @@ string GenShNode::WriteCommand(const string& prefix,
   out.append("\"");
   out.append(" OBJ_DIR=\"");
   out.append(cd_ ? RelativeObjectDir() : ObjectDir());
+  out.append(" SRC_DIR=\"");
+  out.append(cd_ ? RelativeSourceDir() : SourceDir());
+  out.append(" ROOT_DIR=\"");
+  out.append(cd_ ? RelativeRootDir() : "./");
+
   out.append("\"");
   AddEnvVar("CXX_GCC", &out);
   AddEnvVar("CC_GCC", &out);
@@ -131,6 +144,13 @@ string GenShNode::WriteCommand(const string& prefix,
   AddEnvVar("BASIC_CFLAGS", &out);
   AddEnvVar("LDFLAGS", &out);
   AddEnvVar("MAKE", &out);
+  for (const auto& it : env_vars) {
+    out.append(" ");
+    out.append(it.first);
+    out.append("=\"");
+    out.append(it.second);
+    out.append("\"");
+  }
   out.append(" ");
   out.append(prefix);
 

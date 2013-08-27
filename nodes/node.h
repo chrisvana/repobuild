@@ -43,11 +43,16 @@ class Node {
   virtual void WriteMake(const std::vector<const Node*>& all_deps,
                          Makefile* out) const;
   virtual void WriteMakeClean(Makefile* out) const {}
+  virtual void WriteMakeClean(const std::vector<const Node*>& all_deps,
+                              Makefile* out) const {
+    WriteMakeClean(out);
+  }
   virtual void DependencyFiles(std::vector<std::string>* files) const {}
   virtual void ObjectFiles(std::vector<std::string>* files) const {}
   virtual void FinalOutputs(std::vector<std::string>* outputs) const {}
   virtual void LinkFlags(std::set<std::string>* flags) const {}
   virtual void CompileFlags(bool cxx, std::set<std::string>* flags) const {}
+  virtual void EnvVariables(std::map<std::string, std::string>* vars) const;
 
   // Accessors.
   const Input& input() const { return *input_; }
@@ -124,6 +129,8 @@ class Node {
   void CollectCompileFlags(bool cxx,
                            const std::vector<const Node*>& all_deps,
                            std::set<std::string>* flags) const;
+  void CollectEnvVariables(const std::vector<const Node*>& all_deps,
+                           std::map<std::string, std::string>* vars) const;
   std::string ParseSingleString(const std::string& input) const {
     return ParseSingleString(true, input);
   }
@@ -133,6 +140,9 @@ class Node {
   std::string RelativeGenDir() const;
   std::string ObjectDir() const;
   std::string RelativeObjectDir() const;
+  std::string SourceDir() const;
+  std::string RelativeSourceDir() const;
+  std::string RelativeRootDir() const;
   std::string MakefileEscape(const std::string& str) const;
   void WriteBaseUserTarget(const std::set<std::string>& deps,
                            Makefile* out) const;
@@ -173,6 +183,7 @@ class Node {
 
   std::vector<Node*> subnodes_, owned_subnodes_;
   std::map<std::string, MakeVariable*> make_variables_;
+  std::map<std::string, std::string> env_variables_;
 };
 
 // SimpleLibraryNode

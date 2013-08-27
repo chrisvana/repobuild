@@ -4,6 +4,7 @@
 #ifndef _REPOBUILD_NODES_GEN_SH_H__
 #define _REPOBUILD_NODES_GEN_SH_H__
 
+#include <map>
 #include <string>
 #include <vector>
 #include "repobuild/nodes/node.h"
@@ -20,7 +21,8 @@ class GenShNode : public Node {
   virtual ~GenShNode() {}
   virtual std::string Name() const { return "gen_sh"; }
   virtual void Parse(BuildFile* file, const BuildFileNode& input);
-  virtual void WriteMakeClean(Makefile* out) const;
+  virtual void WriteMakeClean(const std::vector<const Node*>& all_deps,
+                              Makefile* out) const;
   virtual void WriteMakefile(const std::vector<const Node*>& all_deps,
                              Makefile* out) const;
   virtual void DependencyFiles(std::vector<std::string>* files) const;
@@ -33,7 +35,8 @@ class GenShNode : public Node {
   void SetCd(bool cd) { cd_ = cd; }
 
  protected:
-  std::string WriteCommand(const std::string& prefix,
+  std::string WriteCommand(const std::map<std::string, std::string>& env_vars,
+                           const std::string& prefix,
                            const std::string& cmd,
                            const std::string& touchfile) const;
   std::string Touchfile() const;

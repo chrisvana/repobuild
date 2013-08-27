@@ -97,7 +97,10 @@ string Generator::GenerateMakefile(const Input& input) {
   // Write the make clean rule.
   out.StartRule("clean", "");
   for (const Node* node : process_order) {
-    node->WriteMakeClean(&out);
+    set<const Node*> deps;
+    GetFullDepList(parser, node, &deps);
+    vector<const Node*> all_deps(deps.begin(), deps.end());
+    node->WriteMakeClean(all_deps, &out);
   }
   out.WriteCommand("rm -rf " + input.object_dir());
   out.WriteCommand("rm -rf " + input.genfile_dir());
