@@ -69,41 +69,41 @@ void CCLibraryNode::Set(const vector<string>& sources,
 
 void CCLibraryNode::Init() {
   if (!headers_.empty()) {
-    MutableVariable("headers")->SetValue(strings::Join(headers_, " "));
+    MutableVariable("headers")->SetValue(strings::JoinAll(headers_, " "));
   }
 
   // cc_compile_args
   AddVariable("cxx_compile_args", "c_compile_args",
-              strings::JoinAllWith(
+              strings::JoinWith(
                   " ",
-                  strings::Join(cc_compile_args_, " "),
-                  strings::Join(gcc_cc_compile_args_, " ")),
-              strings::JoinAllWith(
+                  strings::JoinAll(cc_compile_args_, " "),
+                  strings::JoinAll(gcc_cc_compile_args_, " ")),
+              strings::JoinWith(
                   " ",
-                  strings::Join(cc_compile_args_, " "),
-                  strings::Join(clang_cc_compile_args_, " ")));
+                  strings::JoinAll(cc_compile_args_, " "),
+                  strings::JoinAll(clang_cc_compile_args_, " ")));
   
   // header_compile_args
   AddVariable("cxx_header_compile_args", "c_header_compile_args",
-              strings::JoinAllWith(
+              strings::JoinWith(
                   " ",
-                  strings::Join(header_compile_args_, " "),
-                  strings::Join(gcc_header_compile_args_, " ")),
-              strings::JoinAllWith(
+                  strings::JoinAll(header_compile_args_, " "),
+                  strings::JoinAll(gcc_header_compile_args_, " ")),
+              strings::JoinWith(
                   " ",
-                  strings::Join(header_compile_args_, " "),
-                  strings::Join(clang_header_compile_args_, " ")));
+                  strings::JoinAll(header_compile_args_, " "),
+                  strings::JoinAll(clang_header_compile_args_, " ")));
 
   // cc_linker_args
   AddVariable("cc_linker_args", "cc_linker_args",  // NB: no distinction.
-              strings::JoinAllWith(
+              strings::JoinWith(
                   " ",
-                  strings::Join(cc_linker_args_, " "),
-                  strings::Join(gcc_cc_linker_args_, " ")),
-              strings::JoinAllWith(
+                  strings::JoinAll(cc_linker_args_, " "),
+                  strings::JoinAll(gcc_cc_linker_args_, " ")),
+              strings::JoinWith(
                   " ",
-                  strings::Join(cc_linker_args_, " "),
-                  strings::Join(gcc_cc_linker_args_, " ")));
+                  strings::JoinAll(cc_linker_args_, " "),
+                  strings::JoinAll(gcc_cc_linker_args_, " ")));
 }
 
 void CCLibraryNode::WriteMakefile(const vector<const Node*>& all_deps,
@@ -141,8 +141,8 @@ void CCLibraryNode::WriteCompile(const string& source,
   string obj = ObjForSource(source);
 
   // Rule=> obj: <input header files> source.cc
-  out->StartRule(obj, strings::JoinAllWith(" ",
-                                           strings::Join(input_files, " "),
+  out->StartRule(obj, strings::JoinWith(" ",
+                                           strings::JoinAll(input_files, " "),
                                            source));
 
   // Mkdir command.
@@ -152,7 +152,7 @@ void CCLibraryNode::WriteCompile(const string& source,
   bool cpp = (strings::HasSuffix(source, ".cc") ||
               strings::HasSuffix(source, ".cpp"));
   string compile = DefaultCompileFlags(cpp);
-  string include_dirs = strings::JoinAllWith(
+  string include_dirs = strings::JoinWith(
       " ",
       "-I" + input().root_dir(),
       "-I" + input().genfile_dir(),
@@ -162,14 +162,14 @@ void CCLibraryNode::WriteCompile(const string& source,
   {
     set<string> header_compile_args;
     CollectCompileFlags(cpp, all_deps, &header_compile_args);
-    output_compile_args = strings::JoinAllWith(
+    output_compile_args = strings::JoinWith(
         " ",
-        strings::Join(header_compile_args, " "),
+        strings::JoinAll(header_compile_args, " "),
         GetVariable(cpp ? "cxx_compile_args" : "c_compile_args").ref_name());
   }
 
   out->WriteCommand("echo Compiling: " + source);
-  out->WriteCommand(strings::JoinAllWith(
+  out->WriteCommand(strings::JoinWith(
       " ",
       compile,
       include_dirs,

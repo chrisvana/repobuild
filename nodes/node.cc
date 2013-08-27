@@ -1,8 +1,6 @@
 // Copyright 2013
 // Author: Christopher Van Arsdale
 
-#include <iostream>
-
 #include <string>
 #include <vector>
 #include "common/log/log.h"
@@ -274,8 +272,6 @@ void SimpleLibraryNode::DependencyFiles(vector<string>* files) const {
 
 void Makefile::StartRule(const std::string& rule,
                          const std::string& dependencies) {
-  std::cout << "HERE: " << rule << " " << dependencies << std::endl;
-
   out_.append("\n");
   out_.append(rule);
   out_.append(": ");

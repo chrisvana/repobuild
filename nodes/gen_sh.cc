@@ -47,10 +47,10 @@ void GenShNode::WriteMakefile(const vector<const Node*>& all_deps,
   input_files.erase(touchfile);  // all but our own file.
 
   // Make target
-  out->StartRule(touchfile, strings::JoinAllWith(
+  out->StartRule(touchfile, strings::JoinWith(
       " ",
-      strings::Join(input_files, " "),
-      strings::Join(input_files_, " ")));
+      strings::JoinAll(input_files, " "),
+      strings::JoinAll(input_files_, " ")));
 
   // Build command.
   if (!build_cmd_.empty()) {
@@ -64,10 +64,10 @@ void GenShNode::WriteMakefile(const vector<const Node*>& all_deps,
     {  // compute prefix.
       set<string> compile_flags;
       CollectCompileFlags(true, all_deps, &compile_flags);
-      prefix = "DEP_CXXFLAGS= " + strings::Join(compile_flags, " ");
+      prefix = "DEP_CXXFLAGS= " + strings::JoinAll(compile_flags, " ");
       compile_flags.clear();
       CollectCompileFlags(false, all_deps, &compile_flags);
-      prefix += " DEP_CFLAGS= " + strings::Join(compile_flags, " ");
+      prefix += " DEP_CFLAGS= " + strings::JoinAll(compile_flags, " ");
     }
 
     out->WriteCommand(WriteCommand(prefix, build_cmd_, touch_cmd));

@@ -40,7 +40,7 @@ void CCBinaryNode::WriteMakefile(const vector<const Node*>& all_deps,
   out->StartRule(out_bin, bin);
   out->WriteCommand("pwd > /dev/null");  // hack to work around make issue?
   out->WriteCommand(
-      strings::JoinAll(
+      strings::Join(
           "ln -f -s ",
           strings::JoinPath(input().object_dir(), target().make_path()),
           " ", out_bin));
@@ -57,15 +57,15 @@ void CCBinaryNode::WriteLink(
   set<string> flags;
   CollectLinkFlags(all_deps, &flags);
 
-  string list = strings::Join(objects, " ");
+  string list = strings::JoinAll(objects, " ");
 
   // Link rule
   out->StartRule(file, list);
   out->WriteCommand("echo Linking: " + file);
-  out->WriteCommand(strings::JoinAllWith(
+  out->WriteCommand(strings::JoinWith(
       " ",
       "$(LINK.cc)", list, "-o", file,
-      strings::Join(flags, " ")));
+      strings::JoinAll(flags, " ")));
   out->FinishRule();
 }
 

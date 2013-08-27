@@ -34,16 +34,16 @@ void GoBinaryNode::WriteMakefile(const vector<const Node*>& all_deps,
   string bin = strings::JoinPath(
       strings::JoinPath(input().object_dir(), target().dir()),
       target().local_path());
-  out->StartRule(bin, strings::Join(source_files, " "));
+  out->StartRule(bin, strings::JoinAll(source_files, " "));
   out->WriteCommand("echo Go build: " + bin);
   out->WriteCommand("mkdir -p " + strings::PathDirname(bin));
   out->WriteCommand(
-      strings::JoinAllWith(
+      strings::JoinWith(
           " ",
           "go build -o", bin,
-          strings::Join(input().flags("-G"), " "),
-          strings::Join(go_build_args_, " "),
-          strings::Join(source_files, " ")));
+          strings::JoinAll(input().flags("-G"), " "),
+          strings::JoinAll(go_build_args_, " "),
+          strings::JoinAll(source_files, " ")));
   out->FinishRule();
 
   // Symlink to root dir.
@@ -51,7 +51,7 @@ void GoBinaryNode::WriteMakefile(const vector<const Node*>& all_deps,
   out->StartRule(out_bin, bin);
   out->WriteCommand("pwd > /dev/null");  // hack to work around make issue?
   out->WriteCommand(
-      strings::JoinAllWith(
+      strings::JoinWith(
           " ",
           "ln -f -s",
           strings::JoinPath(input().object_dir(), target().make_path()),

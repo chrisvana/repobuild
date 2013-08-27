@@ -69,7 +69,7 @@ void ConfigNode::AddSymlink(const string& dir,
 
   // Write symlink.
   out->StartRule(dir);
-  out->WriteCommand(strings::JoinAll(
+  out->WriteCommand(strings::Join(
       "mkdir -p ", strings::PathDirname(dir), "; ",
       "[ -f ", source, " ] || mkdir -p ", source, "; ",
       "ln -f -s ", link, " ", dir));
@@ -80,7 +80,7 @@ void ConfigNode::AddSymlink(const string& dir,
   //   [ -f .gen-src/repobuild/.dummy ] || touch .gen-src/repobuild/.dummy
   string dummy = DummyFile(dir);
   out->StartRule(dummy, dir);
-  out->WriteCommand(strings::JoinAll("[ -f ", dummy, " ] || touch ", dummy));
+  out->WriteCommand(strings::Join("[ -f ", dummy, " ] || touch ", dummy));
   out->FinishRule();
 }
 

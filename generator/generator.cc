@@ -115,7 +115,7 @@ string Generator::GenerateMakefile(const Input& input) {
       outputs.insert(node->target().make_path());
     }
   }
-  out.WriteRule("all", strings::Join(outputs, " "));
+  out.WriteRule("all", strings::JoinAll(outputs, " "));
 
   // Not real files:
   out.WriteRule(".PHONY", "clean all");
