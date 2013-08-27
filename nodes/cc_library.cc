@@ -233,39 +233,34 @@ std::string CCLibraryNode::DefaultCompileFlags(bool cpp_mode) const {
 }
 
 namespace {
-// TODO(cvanarsdale): This is clunky. Nicer to have flags in a registered list
-// with conditionals already set.
-// TODO: Really do this, this is sad.
-
-bool IsGccFlag(const string& flag) {
-  if (strings::HasPrefix(flag, "-stdlib") ||
-      (strings::HasPrefix(flag, "-Q") && flag != "-Q")) {
-    return false;
-  }
-  return true;
-}
-
-bool IsClangFlag(const string& flag) {
-  if (strings::HasSuffix(flag, "unused-local-typedefs") ||
-      strings::HasSuffix(flag, "unused-but-set-variable")) {
-    return false;
-  }
-  return true;
-}
 
 bool IsBasicFlag(const string& flag) {
   return (strings::HasPrefix(flag, "-stdlib") ||
           strings::HasPrefix(flag, "-std") ||  // redundant, but for clarity.
           strings::HasPrefix(flag, "-pthread"));
 }
+
 string JoinFlags(const vector<string>& flags,
                  bool gcc_only,
                  bool basic_only) {
   string out;
-  for (const string& flag : flags) {
-    // Check compiler
-    if ((gcc_only && !IsGccFlag(flag)) ||
-        (!gcc_only && !IsClangFlag(flag))) {
+  for (const string& flag_input : flags) {
+    // Figure out the flag name and the compiler.
+    bool gcc = false, clang = false;
+    string flag;
+    if (strings::HasPrefix(flag_input, "gcc=")) {
+      flag = flag_input.substr(4);
+      gcc = true;
+    } else if (strings::HasPrefix(flag_input, "clang=")) {
+      flag = flag_input.substr(6);
+      clang = true;
+    } else {
+      gcc = clang = true;
+      flag = flag_input;
+    }
+
+    // Wrong compiler.
+    if ((gcc_only && !gcc) || (!gcc_only && !clang)) {
       continue;
     }
 

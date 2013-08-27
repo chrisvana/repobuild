@@ -33,21 +33,20 @@ Input::Input() {
     // Compiling
     AddFlag("-X", "-std=c++11");
     AddFlag("-X", "-DUSE_CXX0X");
-    AddFlag("-C", "-stdlib=libc++");  // clang only, see cc_library.cc
+    AddFlag("-C", "clang=-stdlib=libc++");  // clang only, see cc_library.cc
     AddFlag("-C", "-pthread");
     AddFlag("-C", "-g");
     AddFlag("-C", "-Wall");
     AddFlag("-C", "-Werror");
     AddFlag("-C", "-Wno-sign-compare");
-    AddFlag("-C", "-Wno-unused-local-typedefs");
-    AddFlag("-C", "-Wno-error=unused-local-typedefs");
+    AddFlag("-C", "gcc=-Wno-unused-local-typedefs");
+    AddFlag("-C", "gcc=-Wno-error=unused-local-typedefs");
     AddFlag("-C", "-O3");
     AddFlag("-C", "-flto");
-    AddFlag("-C", "-Qunused-arguments");  // clang only, see cc_library.cc
-    //AddFlag("-C", "-Wno-unknown-warning-option"); 
+    AddFlag("-C", "clang=-Qunused-arguments");  // clang only, see cc_library.cc
 
     // Linking
-    AddFlag("-L", "-stdlib=libc++");
+    AddFlag("-L", "clang=-stdlib=libc++");
     AddFlag("-L", "-lpthread");
     AddFlag("-L", "-g");
     AddFlag("-L", "-O3");
