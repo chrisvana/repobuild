@@ -38,6 +38,7 @@ class Input {
   bool contains_target(const std::string& target) const {
     return build_target_set_.find(target) != build_target_set_.end();
   }
+  bool silent_make() const { return silent_make_; }
 
  private:
   std::string root_dir_, full_root_dir_;
@@ -49,6 +50,8 @@ class Input {
   std::vector<TargetInfo> build_targets_;
   std::set<std::string> build_target_set_;
   std::map<std::string, std::vector<std::string> > flags_;
+
+  bool silent_make_;
 };
 
 }  // namespace repobuild

@@ -11,6 +11,9 @@
 DEFINE_bool(add_default_flags, true,
             "If false, we disable the default flags.");
 
+DEFINE_bool(silent_make, true,
+            "If false, make prints out commands before execution.");
+
 // TODO(cvanarsdale): A default configuration file ('.repobuild') that contains
 // flags. We can search the path/tree/homedir for it.
 
@@ -55,6 +58,8 @@ Input::Input() {
     AddFlag("-L", "-L/usr/local/lib");
     AddFlag("-L", "-L/opt/local/lib");
   }
+
+  silent_make_ = FLAGS_silent_make;
 }
 
 const std::vector<std::string>& Input::flags(const std::string& key) const {

@@ -284,7 +284,10 @@ void Makefile::FinishRule() {
 }
 
 void Makefile::WriteCommand(const std::string& command) {
-  out_.append("\t@");
+  out_.append("\t");
+  if (silent_) {
+    out_.append("@");
+  }
   out_.append(command);
   out_.append("\n");
 }

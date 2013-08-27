@@ -192,8 +192,11 @@ class SimpleLibraryNode : public Node {
 
 class Makefile {
  public:
-  Makefile() {}
+  Makefile() :silent_(true) {}
   ~Makefile() {}
+
+  // Options
+  void SetSilent(bool silent) { silent_ = silent; }
 
   // Rules
   // TODO(cvanarsdale): Return a pointer to a MakefileRule.
@@ -217,6 +220,7 @@ class Makefile {
   }
 
  private:
+  bool silent_;
   std::string out_;
 };
 
