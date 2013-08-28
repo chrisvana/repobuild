@@ -92,6 +92,8 @@ class Graph {
       }
       for (const TargetInfo* dep : node->dependencies()) {
         if (queued_targets.insert(dep->full_path()).second) {
+          LOG(INFO) << "Adding dep: " << node->target().full_path() << " -> "
+                    << dep->full_path();
           to_process.push(dep->full_path());
         }
       }

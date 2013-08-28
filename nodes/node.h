@@ -65,7 +65,10 @@ class Node {
 
   // Subnode handling.
   void ExtractSubnodes(std::vector<Node*>* nodes) {
-    *nodes = subnodes_;
+    for (Node* n : subnodes_) {
+      nodes->push_back(n);
+      n->ExtractSubnodes(nodes);
+    }
     owned_subnodes_.clear();
   }
   void AddSubNode(Node* node) {

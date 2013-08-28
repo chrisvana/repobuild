@@ -10,6 +10,7 @@
 #include "repobuild/env/input.h"
 #include "repobuild/nodes/autoconf.h"
 #include "repobuild/nodes/gen_sh.h"
+#include "repobuild/nodes/make.h"
 #include "repobuild/reader/buildfile.h"
 
 using std::map;
@@ -29,10 +30,6 @@ void AutoconfNode::Parse(BuildFile* file, const BuildFileNode& input) {
   vector<string> configure_args;
   ParseRepeatedString(input, "configure_args", &configure_args);
 
-  // configure_args
-  string postinstall;
-  ParseStringField(input, "postinstall", &postinstall);
-
   // Generate the output files.
   GenShNode* gen = new GenShNode(target().GetParallelTarget(file->NextName()),
                                  Node::input());
@@ -50,7 +47,7 @@ void AutoconfNode::Parse(BuildFile* file, const BuildFileNode& input) {
     user_env.append("; ");
   }
 
-  // Actuall command output ------
+  // Actual configure command output ------
   string build_setup =
       "mkdir -p $OBJ_DIR; "
       "DEST_DIR=$(pwd)/$GEN_DIR";
@@ -61,36 +58,23 @@ void AutoconfNode::Parse(BuildFile* file, const BuildFileNode& input) {
       "LDFLAGS=\"$LDFLAGS $USER_LDFLAGS\" "
       "CC=\"$CC\" "
       "CXX=\"$CXX\"";
-
-  // TODO(cvanarsdale): Configurable flags.
   string configure_cmd =
       "./configure --prefix=/ --cache-file=$GEN_DIR/config.cache";
   for (const string& it : configure_args) {
     configure_cmd.append(" " + it);
   }
-
-  string make_cmd =
-      "make install DESTDIR=$(pwd)/$GEN_DIR";
-
-  if (!postinstall.empty()) {
-    make_cmd += " && " + postinstall;
-  }
-
-  string clean_cmd =
-      "make DESTDIR=$(pwd)/$GEN_DIR clean";
-
-  vector<string> input_files;
-  ParseRepeatedFiles(input, "inputs", &input_files);
-
-  SetStrictFileMode(false);
-  vector<string> output_files;
-  ParseRepeatedString(input, "outs", &output_files);
-
-  gen->Set(build_setup + "; " + build_env + " " + configure_cmd + " && " +
-           make_cmd,
-           clean_cmd,
+  vector<string> input_files, output_files;
+  gen->Set(build_setup + "; " + build_env + " " + configure_cmd,
+           "",  // clean
            input_files,
            output_files);
+
+  // Make output --------------------------
+  MakeNode* make = new MakeNode(target().GetParallelTarget(file->NextName()),
+                                Node::input());
+  AddSubNode(make);
+  make->AddDependency(gen->target());
+  make->Parse(file, input);
 }
 
 }  // namespace repobuild
