@@ -31,9 +31,6 @@ void CCLibraryNode::Parse(BuildFile* file, const BuildFileNode& input) {
   // cc_objs
   ParseRepeatedFiles(input, "cc_objects", &objects_);
 
-  // TODO(cvanarsdale): sources/headers/objs in the conditional.
-
-
   // cc_compile_args, header_compile_args, cc_linker_args
   ParseRepeatedString(input, "cc_compile_args", &cc_compile_args_);
   ParseRepeatedString(input, "header_compile_args", &header_compile_args_);

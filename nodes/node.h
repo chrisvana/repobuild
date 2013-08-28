@@ -114,6 +114,9 @@ class Node {
   void ParseRepeatedFiles(const BuildFileNode& input,
                           const std::string& key,
                           std::vector<std::string>* output) const;
+  void ParseKeyValueStrings(const BuildFileNode& input,
+                            const std::string& key,
+                            std::map<std::string, std::string>* output) const;
   bool ParseStringField(const BuildFileNode& input,
                         const std::string& key,
                         std::string* field) const;

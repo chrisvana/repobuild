@@ -40,16 +40,7 @@ void Node::Parse(BuildFile* file, const BuildFileNode& input) {
     dependencies_.push_back(new TargetInfo(deps[i], file->filename()));
   }
   ParseBoolField(input, "strict_file_mode", &strict_file_mode_);
-  const Json::Value& env = input.object()["env"];
-  if (!env.isNull()) {
-    CHECK(env.isObject()) << "Expecting object for \"env\".";
-    for (const string& name : env.getMemberNames()) {
-      const Json::Value& val = env[name];
-      CHECK(val.isString()) << "Environment var (\"" << name
-                            << "\") must be string.";
-      env_variables_[name] = ParseSingleString(false, val.asString());
-    }
-  }
+  ParseKeyValueStrings(input, "env", &env_variables_);
 }
 
 void Node::WriteMake(const std::vector<const Node*>& all_deps,
@@ -130,6 +121,25 @@ bool Node::ParseBoolField(const BuildFileNode& input,
   }
   *field = json_field.asBool();
   return true;
+}
+
+
+void Node::ParseKeyValueStrings(const BuildFileNode& input,
+                                const string& key,
+                                map<string, string>* out) const {
+  const Json::Value& list = input.object()[key];
+  if (list.isNull()) {
+    return;
+  }
+  CHECK(list.isObject())
+      << "KeyValue list (\"" << key
+      << "\") must be object in " << target().full_path();
+  for (const string& name : list.getMemberNames()) {
+    const Json::Value& val = list[name];
+    CHECK(val.isString()) << "Value var (\"" << name
+                          << "\") must be string in " << target().full_path();
+    (*out)[name] = ParseSingleString(false, val.asString());
+  }
 }
 
 string Node::ParseSingleString(bool relative_gendir,
