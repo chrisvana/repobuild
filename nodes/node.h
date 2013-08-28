@@ -231,6 +231,7 @@ class Makefile {
 
   // Commands for rules.
   void WriteCommand(const std::string& command);
+  void WriteCommandBestEffort(const std::string& command);
 
   std::string* mutable_out() { return &out_; }
   const std::string& out() const { return out_; }

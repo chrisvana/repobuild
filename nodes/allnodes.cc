@@ -36,7 +36,7 @@ void NodeBuilder::GetAll(std::vector<NodeBuilder*>* nodes) {
   nodes->push_back(new NodeBuilderImpl<AutoconfNode>("autoconf"));
   nodes->push_back(new NodeBuilderImpl<CCLibraryNode>("cc_library"));
   nodes->push_back(new NodeBuilderImpl<CCBinaryNode>("cc_binary"));
-  nodes->push_back(new NodeBuilderImpl<MakeNode>("cmake"));
+  nodes->push_back(new NodeBuilderImpl<CmakeNode>("cmake"));
   nodes->push_back(new NodeBuilderImpl<ConfigNode>("config"));
   nodes->push_back(new NodeBuilderImpl<GoLibraryNode>("go_library"));
   nodes->push_back(new NodeBuilderImpl<GoBinaryNode>("go_binary"));

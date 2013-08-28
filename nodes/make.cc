@@ -18,10 +18,11 @@ using std::string;
 
 namespace repobuild {
 
-void MakeNode::ParseWithDirAndPostinstall(BuildFile* file,
-                                          const BuildFileNode& input,
-                                          const string& dest_dir,
-                                          const string& postinstall) {
+void MakeNode::ParseWithOptions(BuildFile* file,
+                                const BuildFileNode& input,
+                                const string& preinstall,
+                                const string& dest_dir,
+                                const string& postinstall) {
   Node::Parse(file, input);
 
   // configure_args
@@ -36,14 +37,17 @@ void MakeNode::ParseWithDirAndPostinstall(BuildFile* file,
   }
   AddSubNode(gen);
 
-  string make_cmd = "make install DESTDIR=" + dest_dir;
+  string make_cmd = "$MAKE install DESTDIR=" + dest_dir;
+  if (!preinstall.empty()) {
+    make_cmd = preinstall + " && " + make_cmd;
+  }
   if (!postinstall.empty()) {
     make_cmd += " && " + postinstall;
   }
   if (!user_postinstall.empty()) {
     make_cmd += " && " + user_postinstall;
   }
-  string clean_cmd = "make DESTDIR=" + dest_dir + " clean";
+  string clean_cmd = "$MAKE DESTDIR=" + dest_dir + " clean";
 
   vector<string> input_files;
   ParseRepeatedFiles(input, "inputs", &input_files);

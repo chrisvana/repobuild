@@ -97,7 +97,7 @@ void GenShNode::WriteMakeClean(const vector<const Node*>& all_deps,
 
   map<string, string> env_vars;
   CollectEnvVariables(all_deps, &env_vars);
-  out->WriteCommand(WriteCommand(env_vars, "", clean_cmd_, ""));
+  out->WriteCommandBestEffort(WriteCommand(env_vars, "", clean_cmd_, ""));
 }
 
 namespace {
@@ -160,7 +160,9 @@ string GenShNode::WriteCommand(const map<string, string>& env_vars,
   out.append(" eval '");
   out.append(MakefileEscape(cmd));
 
-  out.append("')");
+  string logfile = strings::JoinPath(cd_ ? RelativeGenDir() : GenDir(),
+                                     ".logfile");
+  out.append("' > " + logfile + " 2>&1 || (cat " + logfile + "; exit 1) )");
   if (!admin_cmd.empty()) {
     out.append(" && (");
     out.append(admin_cmd);

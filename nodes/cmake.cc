@@ -47,7 +47,7 @@ void CmakeNode::Parse(BuildFile* file, const BuildFileNode& input) {
     user_env.append("; ");
   }
 
-  // Actual cmake  command output ------
+  // Actual cmake command  ------
   string build_setup =
       "BASE=$(pwd); "
       "DEST_DIR=$(pwd)/$GEN_DIR; "
@@ -56,7 +56,7 @@ void CmakeNode::Parse(BuildFile* file, const BuildFileNode& input) {
       "cd $GEN_DIR/build";
   string build_env = user_env +"CC=$CC CXX=$CXX ";
   string cmake_cmd =
-      "cmake -DCMAKE_INSTALL_PREFIX=. -B $BASE "
+      "cmake -DCMAKE_INSTALL_PREFIX=. -B . $BASE "
       "-DCMAKE_CXX_FLAGS=\"$BASIC_CXXFLAGS $USER_CXXFLAGS\" "
       "-DCMAKE_C_FLAGS=\"$BASIC_CFLAGS $USER_CFLAGS\"";
   for (const string& it : cmake_args) {
@@ -69,18 +69,22 @@ void CmakeNode::Parse(BuildFile* file, const BuildFileNode& input) {
            output_files);
 
   // Make output --------------------------
+  string preinstall_cmd = build_setup;
   string postinstall_cmd =
       "(if [ -d \"$STAGING/$BASE\" ]; then"
-      " (for f in $(ls -d $STAGING/$RDBASE/*); do"
-      "  rm $DEST_DIR/$(basename $f); mv $f $DEST_DIR || exit 1;"
+      " (for f in $(ls -d $STAGING/$BASE/*); do"
+      "  rm ./../$(basename $f); mv $f $DEST_DIR || exit 1;"
       " done) &&"
-      " rm -rf $STAGING && find . -type d -empty -delete; else echo -n ''; "
+      " rm -rf $STAGING; else echo -n ''; "
       "fi)";
   MakeNode* make = new MakeNode(target().GetParallelTarget(file->NextName()),
                                 Node::input());
   AddSubNode(make);
   make->AddDependency(gen->target());
-  make->ParseWithDirAndPostinstall(file, input, "$STAGING", postinstall_cmd);
+  make->ParseWithOptions(file, input,
+                         preinstall_cmd,
+                         "$STAGING",
+                         postinstall_cmd);
 }
 
 }  // namespace repobuild

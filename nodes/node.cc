@@ -340,4 +340,13 @@ void Makefile::WriteCommand(const std::string& command) {
   out_.append("\n");
 }
 
+void Makefile::WriteCommandBestEffort(const std::string& command) {
+  out_.append("\t-");  // - == ignore failures
+  if (silent_) {
+    out_.append("@");
+  }
+  out_.append(command);
+  out_.append("\n");
+}
+
 }  // namespace repobuild

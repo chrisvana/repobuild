@@ -17,12 +17,13 @@ class MakeNode : public Node {
   }
   virtual ~MakeNode() {}
   virtual void Parse(BuildFile* file, const BuildFileNode& input) {
-    ParseWithDirAndPostinstall(file, input, "$(pwd)/$GEN_DIR", "");
+    ParseWithOptions(file, input, "", "$(pwd)/$GEN_DIR", "");
   }
-  void ParseWithDirAndPostinstall(BuildFile* file,
-                                  const BuildFileNode& input,
-                                  const std::string& dest_dir,
-                                  const std::string& postinstall);
+  void ParseWithOptions(BuildFile* file,
+                        const BuildFileNode& input,
+                        const std::string& preinstall,
+                        const std::string& dest_dir,
+                        const std::string& postinstall);
   virtual void WriteMakefile(const std::vector<const Node*>& all_deps,
                              Makefile* out) const {
     WriteBaseUserTarget(out);

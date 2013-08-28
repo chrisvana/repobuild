@@ -44,7 +44,6 @@
    }
  },
 
-
  { "cc_library": {
      "name" : "go_library",
      "cc_sources" : [ "go_library.cc" ],
