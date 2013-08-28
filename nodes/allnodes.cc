@@ -4,6 +4,7 @@
 #include <vector>
 #include "repobuild/nodes/allnodes.h"
 #include "repobuild/nodes/autoconf.h"
+#include "repobuild/nodes/cmake.h"
 #include "repobuild/nodes/node.h"
 #include "repobuild/nodes/cc_library.h"
 #include "repobuild/nodes/cc_binary.h"
@@ -35,6 +36,7 @@ void NodeBuilder::GetAll(std::vector<NodeBuilder*>* nodes) {
   nodes->push_back(new NodeBuilderImpl<AutoconfNode>("autoconf"));
   nodes->push_back(new NodeBuilderImpl<CCLibraryNode>("cc_library"));
   nodes->push_back(new NodeBuilderImpl<CCBinaryNode>("cc_binary"));
+  nodes->push_back(new NodeBuilderImpl<MakeNode>("cmake"));
   nodes->push_back(new NodeBuilderImpl<ConfigNode>("config"));
   nodes->push_back(new NodeBuilderImpl<GoLibraryNode>("go_library"));
   nodes->push_back(new NodeBuilderImpl<GoBinaryNode>("go_binary"));

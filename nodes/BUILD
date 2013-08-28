@@ -110,11 +110,22 @@
  } },
 
  { "cc_library": {
+     "name": "cmake",
+     "cc_sources" : [ "cmake.cc" ],
+     "cc_headers" : [ "cmake.h" ],
+     "dependencies": [ "//common/log:log",
+                       "//common/file:fileutil",
+                       "//common/strings:strutil",
+                       ":gen_sh"
+      ]
+ } },
+
+ { "cc_library": {
      "name" : "allnodes",
      "cc_sources" : [ "allnodes.cc" ],
      "cc_headers" : [ "allnodes.h" ],
      "dependencies": [ ":autoconf",
-                       ":node",
+                       ":cmake",
                        ":cc_library",
                        ":cc_binary",
                        ":confignode",
@@ -122,6 +133,7 @@
                        ":go_binary",
                        ":gen_sh",
                        ":make",
+                       ":node",
                        ":proto_library"
      ]
    }

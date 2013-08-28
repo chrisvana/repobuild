@@ -18,12 +18,15 @@ using std::string;
 
 namespace repobuild {
 
-void MakeNode::Parse(BuildFile* file, const BuildFileNode& input) {
+void MakeNode::ParseWithDirAndPostinstall(BuildFile* file,
+                                          const BuildFileNode& input,
+                                          const string& dest_dir,
+                                          const string& postinstall) {
   Node::Parse(file, input);
 
   // configure_args
-  string postinstall;
-  ParseStringField(input, "postinstall", &postinstall);
+  string user_postinstall;
+  ParseStringField(input, "postinstall", &user_postinstall);
 
   // Generate the output files.
   GenShNode* gen = new GenShNode(target().GetParallelTarget(file->NextName()),
@@ -33,11 +36,14 @@ void MakeNode::Parse(BuildFile* file, const BuildFileNode& input) {
   }
   AddSubNode(gen);
 
-  string make_cmd = "make install DESTDIR=$(pwd)/$GEN_DIR";
+  string make_cmd = "make install DESTDIR=" + dest_dir;
   if (!postinstall.empty()) {
     make_cmd += " && " + postinstall;
   }
-  string clean_cmd = "make DESTDIR=$(pwd)/$GEN_DIR clean";
+  if (!user_postinstall.empty()) {
+    make_cmd += " && " + user_postinstall;
+  }
+  string clean_cmd = "make DESTDIR=" + dest_dir + " clean";
 
   vector<string> input_files;
   ParseRepeatedFiles(input, "inputs", &input_files);
