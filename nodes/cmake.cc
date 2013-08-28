@@ -73,7 +73,7 @@ void CmakeNode::Parse(BuildFile* file, const BuildFileNode& input) {
   string postinstall_cmd =
       "(if [ -d \"$STAGING/$BASE\" ]; then"
       " (for f in $(ls -d $STAGING/$BASE/*); do"
-      "  rm ./../$(basename $f); mv $f $DEST_DIR || exit 1;"
+      "  rm -rf ./../$(basename $f); mv $f $DEST_DIR || exit 1;"
       " done) &&"
       " rm -rf $STAGING; else echo -n ''; "
       "fi)";
