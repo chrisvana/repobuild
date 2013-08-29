@@ -157,12 +157,12 @@ string GenShNode::WriteCommand(const map<string, string>& env_vars,
   // TODO: Pass up header_compile_args from dependencies as DEP_FLAGS
 
   // Execute command
-  out.append(" eval '");
+  out.append(" eval '(");
   out.append(MakefileEscape(cmd));
 
   string logfile = strings::JoinPath(cd_ ? RelativeGenDir() : GenDir(),
                                      ".logfile");
-  out.append("' > " + logfile + " 2>&1 || (cat " + logfile + "; exit 1) )");
+  out.append(")' > " + logfile + " 2>&1 || (cat " + logfile + "; exit 1) )");
   if (!admin_cmd.empty()) {
     out.append(" && (");
     out.append(admin_cmd);
