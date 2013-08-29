@@ -184,16 +184,26 @@ void Node::CollectDependencies(const vector<const Node*>& all_deps,
 }
 
 void Node::CollectObjects(const vector<const Node*>& all_deps,
-                          set<string>* out) const {
+                          vector<string>* out) const {
+  set<string> tmp;
   for (const Node* dep : all_deps) {
     vector<string> obj_files;
     dep->ObjectFiles(&obj_files);
-    for (const string& it : obj_files) { out->insert(it); }
+    for (const string& it : obj_files) {
+      if (tmp.insert(it).second) {
+        out->push_back(it);
+      }
+    }
   }
+
   {
     vector<string> obj_files;
     ObjectFiles(&obj_files);
-    for (const string& it : obj_files) { out->insert(it); }
+    for (const string& it : obj_files) {
+      if (tmp.insert(it).second) {
+        out->push_back(it);
+      }
+    }
   }
 }
 

@@ -1,6 +1,7 @@
 // Copyright 2013
 // Author: Christopher Van Arsdale
 
+#include <algorithm>
 #include <set>
 #include <string>
 #include <vector>
@@ -51,12 +52,18 @@ void CCBinaryNode::WriteLink(
     const vector<const Node*>& all_deps,
     const string& file,
     Makefile* out) const {
-  set<string> objects;
+  vector<string> objects;
   CollectObjects(all_deps, &objects);
 
   set<string> flags;
   CollectLinkFlags(all_deps, &flags);
 
+  // HACK(cvanarsdale):
+  // Sadly order matters to the (gcc) linker. It looks in later object files
+  // to find unresolved symbols. Since we collected the dependencies in order,
+  // we get the objects in order too (a <- b <- c, etc). We want c b a in the
+  // output, so "a" is last. Thus, we reverse the list.... shoot me.
+  std::reverse(objects.begin(), objects.end());
   string list = strings::JoinAll(objects, " ");
 
   // Link rule

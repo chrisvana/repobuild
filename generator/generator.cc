@@ -50,14 +50,26 @@ void ExpandNode(const Parser& parser,
 
 void GetFullDepList(const Parser& parser,
                     const Node* node,
-                    set<const Node*>* dependencies) {
+                    vector<const Node*>* dependencies,
+                    set<const Node*>* deps_set) {
   for (const TargetInfo* target : node->dependencies()) {
     const Node* dep = parser.GetNode(target->full_path());
     CHECK(node);  // checked above in ExpandNode.
-    if (dependencies->insert(dep).second) {
-      GetFullDepList(parser, dep, dependencies);
+    if (deps_set->insert(dep).second) {
+      GetFullDepList(parser, dep, dependencies, deps_set);
+      dependencies->push_back(dep);  // after this nodes dependencies
     }
   }
+}
+
+// GetFullDepList
+//  This returns dependencies in a DFS-style order. All dependencies of any
+//  node in the list will be ahead of it in the list.
+void GetFullDepList(const Parser& parser,
+                    const Node* node,
+                    vector<const Node*>* dependencies) {
+  set<const Node*> deps_set;
+  GetFullDepList(parser, node, dependencies, &deps_set);
 }
 
 }  // namespace
@@ -88,18 +100,16 @@ string Generator::GenerateMakefile(const Input& input) {
 
   // Generate the makefile.
   for (const Node* node : process_order) {
-    set<const Node*> deps;
-    GetFullDepList(parser, node, &deps);
-    vector<const Node*> all_deps(deps.begin(), deps.end());
+    vector<const Node*> all_deps;
+    GetFullDepList(parser, node, &all_deps);
     node->WriteMake(all_deps, &out);
   }
 
   // Write the make clean rule.
   out.StartRule("clean", "");
   for (const Node* node : process_order) {
-    set<const Node*> deps;
-    GetFullDepList(parser, node, &deps);
-    vector<const Node*> all_deps(deps.begin(), deps.end());
+    vector<const Node*> all_deps;
+    GetFullDepList(parser, node, &all_deps);
     node->WriteMakeClean(all_deps, &out);
   }
   out.WriteCommand("rm -rf " + input.object_dir());

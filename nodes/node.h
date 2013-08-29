@@ -129,7 +129,7 @@ class Node {
   void CollectDependencies(const std::vector<const Node*>& all_deps,
                            std::set<std::string>* files) const;
   void CollectObjects(const std::vector<const Node*>& all_deps,
-                      std::set<std::string>* files) const;
+                      std::vector<std::string>* files) const;
   void CollectLinkFlags(const std::vector<const Node*>& all_deps,
                         std::set<std::string>* flags) const;
   void CollectCompileFlags(bool cxx,
