@@ -5,12 +5,17 @@
 #include <set>
 #include <string>
 #include <vector>
+#include "common/base/flags.h"
 #include "common/log/log.h"
 #include "common/strings/path.h"
 #include "common/strings/strutil.h"
 #include "repobuild/env/input.h"
 #include "repobuild/nodes/gen_sh.h"
 #include "repobuild/reader/buildfile.h"
+
+DEFINE_bool(silent_gensh, true,
+            "If true, we only print out gen_sh stderr/stdout on "
+            "script failures.");
 
 using std::map;
 using std::string;
@@ -66,10 +71,10 @@ void GenShNode::WriteMakefile(const vector<const Node*>& all_deps,
     {  // compute prefix.
       set<string> compile_flags;
       CollectCompileFlags(true, all_deps, &compile_flags);
-      prefix = "DEP_CXXFLAGS= " + strings::JoinAll(compile_flags, " ");
+      prefix = "DEP_CXXFLAGS=\"" + strings::JoinAll(compile_flags, " ") + "\"";
       compile_flags.clear();
       CollectCompileFlags(false, all_deps, &compile_flags);
-      prefix += " DEP_CFLAGS= " + strings::JoinAll(compile_flags, " ");
+      prefix += " DEP_CFLAGS=\"" + strings::JoinAll(compile_flags, " ") + "\"";
     }
 
     map<string, string> env_vars;
@@ -159,10 +164,18 @@ string GenShNode::WriteCommand(const map<string, string>& env_vars,
   // Execute command
   out.append(" eval '(");
   out.append(MakefileEscape(cmd));
+  out.append(")'");
 
-  string logfile = strings::JoinPath(cd_ ? RelativeGenDir() : GenDir(),
-                                     ".logfile");
-  out.append(")' > " + logfile + " 2>&1 || (cat " + logfile + "; exit 1) )");
+  // Logfile, if any
+  if (FLAGS_silent_gensh) {
+    string logfile = strings::JoinPath(cd_ ? RelativeGenDir() : GenDir(),
+                                       ".logfile");
+    out.append(" > " + logfile + " 2>&1 || (cat " + logfile + "; exit 1)");
+  }
+
+  out.append(" )");  // matches top "(".
+
+  // Admin command, if any.
   if (!admin_cmd.empty()) {
     out.append(" && (");
     out.append(admin_cmd);

@@ -171,6 +171,11 @@ string Node::ParseSingleString(bool relative_gendir,
   vars.Set("$(SRC_DIR)", tmp);
   vars.Set("${SRC_DIR}", tmp);
 
+  tmp = (relative_gendir ? RelativeObjectDir() : ObjectDir());
+  vars.Set("$OBJ_DIR", tmp);
+  vars.Set("$(OBJ_DIR)", tmp);
+  vars.Set("${OBJ_DIR}", tmp);
+
   tmp = strings::Repeat(
       "../", strings::NumPathComponents(target().dir()));
   vars.Set("$ROOT_DIR", tmp);

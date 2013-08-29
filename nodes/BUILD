@@ -67,7 +67,8 @@
      "name" : "gen_sh",
      "cc_sources" : [ "gen_sh.cc" ],
      "cc_headers" : [ "gen_sh.h" ],
-     "dependencies": [ "//common/log:log",
+     "dependencies": [ "//common/base:flags",
+                       "//common/log:log",
                        "//common/strings:strutil",
                        ":node"
       ]
