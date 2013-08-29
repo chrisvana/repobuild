@@ -18,6 +18,16 @@ using std::string;
 using std::set;
 
 namespace repobuild {
+namespace {
+const char kHeaderVariable[] = "headers";
+const char kLinkerVariable[] = "cc_linker_args";
+const char kCCompileArgs[] = "c_compile_args";
+const char kCxxCompileArgs[] = "cxx_compile_args";
+const char kCHeaderArgs[] = "c_header_compile_args";
+const char kCxxHeaderArgs[] = "cxx_header_compile_args";
+const char kCGcc[] = "CC_GCC";
+const char kCxxGcc[] = "CXX_GCC";
+}
 
 void CCLibraryNode::Parse(BuildFile* file, const BuildFileNode& input) {
   Node::Parse(file, input);
@@ -66,11 +76,11 @@ void CCLibraryNode::Set(const vector<string>& sources,
 
 void CCLibraryNode::Init() {
   if (!headers_.empty()) {
-    MutableVariable("headers")->SetValue(strings::JoinAll(headers_, " "));
+    MutableVariable(kHeaderVariable)->SetValue(strings::JoinAll(headers_, " "));
   }
 
   // cc_compile_args
-  AddVariable("cxx_compile_args", "c_compile_args",
+  AddVariable(kCxxCompileArgs, kCCompileArgs,
               strings::JoinWith(
                   " ",
                   strings::JoinAll(cc_compile_args_, " "),
@@ -81,7 +91,7 @@ void CCLibraryNode::Init() {
                   strings::JoinAll(clang_cc_compile_args_, " ")));
   
   // header_compile_args
-  AddVariable("cxx_header_compile_args", "c_header_compile_args",
+  AddVariable(kCxxHeaderArgs, kCHeaderArgs,
               strings::JoinWith(
                   " ",
                   strings::JoinAll(header_compile_args_, " "),
@@ -92,7 +102,7 @@ void CCLibraryNode::Init() {
                   strings::JoinAll(clang_header_compile_args_, " ")));
 
   // cc_linker_args
-  AddVariable("cc_linker_args", "cc_linker_args",  // NB: no distinction.
+  AddVariable(kLinkerVariable, kLinkerVariable,  // NB: no distinction.
               strings::JoinWith(
                   " ",
                   strings::JoinAll(cc_linker_args_, " "),
@@ -162,7 +172,7 @@ void CCLibraryNode::WriteCompile(const string& source,
     output_compile_args = strings::JoinWith(
         " ",
         strings::JoinAll(header_compile_args, " "),
-        GetVariable(cpp ? "cxx_compile_args" : "c_compile_args").ref_name());
+        GetVariable(cpp ? kCxxCompileArgs : kCCompileArgs).ref_name());
   }
 
   out->WriteCommand("echo Compiling: " + source);
@@ -179,8 +189,8 @@ void CCLibraryNode::WriteCompile(const string& source,
 
 void CCLibraryNode::DependencyFiles(vector<string>* files) const {
   Node::DependencyFiles(files);
-  if (HasVariable("headers")) {
-    files->push_back(GetVariable("headers").ref_name());
+  if (HasVariable(kHeaderVariable)) {
+    files->push_back(GetVariable(kHeaderVariable).ref_name());
   }
 }
 
@@ -197,20 +207,20 @@ void CCLibraryNode::ObjectFiles(vector<string>* files) const {
 
 void CCLibraryNode::LinkFlags(std::set<std::string>* flags) const {
   Node::LinkFlags(flags);
-  if (HasVariable("cc_linker_args")) {
-    flags->insert(GetVariable("cc_linker_args").ref_name());
+  if (HasVariable(kLinkerVariable)) {
+    flags->insert(GetVariable(kLinkerVariable).ref_name());
   }
 }
 
 void CCLibraryNode::CompileFlags(bool cxx, std::set<std::string>* flags) const {
   Node::CompileFlags(cxx, flags);
   if (cxx) {
-    if (HasVariable("cxx_header_compile_args")) {
-      flags->insert(GetVariable("cxx_header_compile_args").ref_name());
+    if (HasVariable(kCxxHeaderArgs)) {
+      flags->insert(GetVariable(kCxxHeaderArgs).ref_name());
     }
   } else {
-    if (HasVariable("c_header_compile_args")) {
-      flags->insert(GetVariable("c_header_compile_args").ref_name());
+    if (HasVariable(kCHeaderArgs)) {
+      flags->insert(GetVariable(kCHeaderArgs).ref_name());
     }
   }
 }
@@ -290,14 +300,14 @@ string WriteCxxflag(const Input& input, bool gcc, bool basic) {
 void CCLibraryNode::WriteMakeHead(const Input& input, Makefile* out) {
   // Some conditional variables
   out->append("# Some compiler specific flag settings.\n");
-  out->append("CXX_GCC := $(shell $(CXX) --version | "
-             "egrep '(^gcc|^g\\+\\+)' | head -n 1 | wc -l)\n");
-  out->append("CC_GCC := $(shell $(CC) --version | "
+  out->append(string(kCxxGcc) + " := $(shell $(CXX) --version | "
+              "egrep '(^gcc|^g\\+\\+)' | head -n 1 | wc -l)\n");
+  out->append(string(kCGcc) + " := $(shell $(CC) --version | "
               "egrep '(^gcc|^g\\+\\+|^cc)' | head -n 1 | wc -l)\n");
 
   // Write the global values
   // CFLAGS:
-  out->append("ifeq ($(CC_GCC),1)\n");
+  out->append("ifeq ($(" + string(kCGcc) + "),1)\n");
   out->append("\t" + WriteCflag(input, true, false));
   out->append("\t" + WriteCflag(input, true, true));
   out->append("else\n");
@@ -306,7 +316,7 @@ void CCLibraryNode::WriteMakeHead(const Input& input, Makefile* out) {
   out->append("endif\n");
 
   // CXXFLAGS and LDFLAGS
-  out->append("ifeq ($(CXX_GCC),1)\n");
+  out->append("ifeq ($(" + string(kCxxGcc) + "),1)\n");
   out->append("\t" + WriteLdflag(input, true));
   out->append("\t" + WriteCxxflag(input, true, false));
   out->append("\t" + WriteCxxflag(input, true, true));
@@ -332,9 +342,9 @@ void CCLibraryNode::AddVariable(const string& cpp_name,
     }
   } else {
     MutableVariable(c_name)->SetCondition(
-        "CC_GCC", gcc_value, clang_value);
+        kCGcc, gcc_value, clang_value);
     MutableVariable(cpp_name)->SetCondition(
-        "CXX_GCC", gcc_value, clang_value);
+        kCxxGcc, gcc_value, clang_value);
   }
 }
 

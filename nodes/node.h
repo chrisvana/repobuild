@@ -23,20 +23,8 @@ class Makefile;
 
 class Node {
  public:
-  explicit Node(const TargetInfo& target,
-                const Input& input)
-      : target_(target),
-        input_(&input),
-        strict_file_mode_(true) {
-  }
-  virtual ~Node() {
-    for (auto it : dependencies_) {
-      delete it;
-    }
-    for (auto it : owned_subnodes_) {
-      delete it;
-    }
-  }
+  Node(const TargetInfo& target, const Input& input);
+  virtual ~Node();
 
   // Virtual interface.
   virtual void Parse(BuildFile* file, const BuildFileNode& input);

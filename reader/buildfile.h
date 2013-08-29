@@ -20,6 +20,7 @@ class BuildFileNode {
   BuildFileNode(const Json::Value& object);
   ~BuildFileNode();
 
+  // Data source
   const Json::Value& object() const { return *object_; }
 
  private:

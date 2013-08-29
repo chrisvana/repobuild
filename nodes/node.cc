@@ -32,6 +32,22 @@ const Json::Value& GetValue(const BuildFileNode& input, const string& key) {
 }
 }
 
+
+Node::Node(const TargetInfo& target, const Input& input)
+  : target_(target),
+    input_(&input),
+    strict_file_mode_(true) {
+}
+
+Node::~Node() {
+  for (auto it : dependencies_) {
+    delete it;
+  }
+  for (auto it : owned_subnodes_) {
+    delete it;
+  }
+}
+
 void Node::Parse(BuildFile* file, const BuildFileNode& input) {
   CHECK(input.object().isObject());
   vector<string> deps;

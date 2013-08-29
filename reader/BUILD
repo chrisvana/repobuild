@@ -17,6 +17,7 @@
      "dependencies": [ "//common/log:log",
                        "//common/file:fileutil",
                        "//common/strings:strutil",
+                       "//common/util:stl",
                        "//env:input",
                        "//env:target",
                        "//json:json",
