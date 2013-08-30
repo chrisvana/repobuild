@@ -10,6 +10,7 @@
 #include <set>
 #include <utility>
 #include <vector>
+#include "repobuild/env/resource.h"
 #include "repobuild/env/target.h"
 #include "common/strings/strutil.h"
 
@@ -30,14 +31,11 @@ class Node {
   virtual void Parse(BuildFile* file, const BuildFileNode& input);
   virtual void WriteMake(const std::vector<const Node*>& all_deps,
                          Makefile* out) const;
-  virtual void WriteMakeClean(Makefile* out) const {}
   virtual void WriteMakeClean(const std::vector<const Node*>& all_deps,
-                              Makefile* out) const {
-    WriteMakeClean(out);
-  }
-  virtual void DependencyFiles(std::vector<std::string>* files) const {}
-  virtual void ObjectFiles(std::vector<std::string>* files) const {}
-  virtual void FinalOutputs(std::vector<std::string>* outputs) const {}
+                              Makefile* out) const {}
+  virtual void DependencyFiles(std::vector<Resource>* files) const {}
+  virtual void ObjectFiles(std::vector<Resource>* files) const {}
+  virtual void FinalOutputs(std::vector<Resource>* outputs) const {}
   virtual void LinkFlags(std::set<std::string>* flags) const {}
   virtual void CompileFlags(bool cxx, std::set<std::string>* flags) const {}
   virtual void EnvVariables(std::map<std::string, std::string>* vars) const;
@@ -104,7 +102,7 @@ class Node {
                            std::vector<std::string>* output) const;
   void ParseRepeatedFiles(const BuildFileNode& input,
                           const std::string& key,
-                          std::vector<std::string>* output) const;
+                          std::vector<Resource>* output) const;
   void ParseKeyValueStrings(const BuildFileNode& input,
                             const std::string& key,
                             std::map<std::string, std::string>* output) const;
@@ -115,9 +113,9 @@ class Node {
                       const std::string& key,
                       bool* field) const;
   void CollectDependencies(const std::vector<const Node*>& all_deps,
-                           std::set<std::string>* files) const;
+                           std::set<Resource>* files) const;
   void CollectObjects(const std::vector<const Node*>& all_deps,
-                      std::vector<std::string>* files) const;
+                      std::vector<Resource>* files) const;
   void CollectLinkFlags(const std::vector<const Node*>& all_deps,
                         std::set<std::string>* flags) const;
   void CollectCompileFlags(bool cxx,
@@ -138,10 +136,10 @@ class Node {
   std::string RelativeSourceDir() const;
   std::string RelativeRootDir() const;
   std::string MakefileEscape(const std::string& str) const;
-  void WriteBaseUserTarget(const std::set<std::string>& deps,
+  void WriteBaseUserTarget(const std::set<Resource>& deps,
                            Makefile* out) const;
   void WriteBaseUserTarget(Makefile* out) const {
-    std::set<std::string> empty;
+    std::set<Resource> empty;
     WriteBaseUserTarget(empty, out);
   }
 
@@ -188,15 +186,15 @@ class SimpleLibraryNode : public Node {
   virtual ~SimpleLibraryNode() {}
   virtual void WriteMakefile(const std::vector<const Node*>& all_deps,
                              Makefile* out) const {}
-  virtual void DependencyFiles(std::vector<std::string>* files) const;
+  virtual void DependencyFiles(std::vector<Resource>* files) const;
 
   // Alterative to Parse()
-  virtual void Set(const std::vector<std::string>& sources) {
+  virtual void Set(const std::vector<Resource>& sources) {
     sources_ = sources;
   }
 
  protected:
-  std::vector<std::string> sources_;
+  std::vector<Resource> sources_;
 };
 
 class Makefile {

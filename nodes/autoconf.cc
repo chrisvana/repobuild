@@ -63,7 +63,8 @@ void AutoconfNode::Parse(BuildFile* file, const BuildFileNode& input) {
   for (const string& it : configure_args) {
     configure_cmd.append(" " + it);
   }
-  vector<string> input_files, output_files;
+  vector<Resource> input_files;
+  vector<string> output_files;
   gen->Set(build_setup + "; " + build_env + " " + configure_cmd,
            "",  // clean
            input_files,

@@ -1,4 +1,4 @@
-// Copyright 2013
+ // Copyright 2013
 // Author: Christopher Van Arsdale
 
 #include <map>
@@ -62,7 +62,8 @@ void CmakeNode::Parse(BuildFile* file, const BuildFileNode& input) {
   for (const string& it : cmake_args) {
     cmake_cmd.append(" " + it);
   }
-  vector<string> input_files, output_files;
+  vector<Resource> input_files;
+  vector<string> output_files;
   gen->Set(build_setup + "; " + build_env + " " + cmake_cmd,
            "",  // clean
            input_files,

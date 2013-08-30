@@ -118,15 +118,15 @@ string Generator::GenerateMakefile(const Input& input) {
   out.FinishRule();
 
   // Write the all rule.
-  set<string> outputs;
+  set<Resource> outputs;
   for (const Node* node : parser.all_nodes()) {
     if (input.contains_target(node->target().full_path())) {
-      vector<string> node_out;
+      vector<Resource> node_out;
       node->FinalOutputs(&node_out);
-      for (const string& output : node_out) {
+      for (const Resource& output : node_out) {
         outputs.insert(output);
       }
-      outputs.insert(node->target().make_path());
+      outputs.insert(Resource::FromRootPath(node->target().make_path()));
     }
   }
   out.WriteRule("all", strings::JoinAll(outputs, " "));

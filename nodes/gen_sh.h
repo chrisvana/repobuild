@@ -25,12 +25,12 @@ class GenShNode : public Node {
                               Makefile* out) const;
   virtual void WriteMakefile(const std::vector<const Node*>& all_deps,
                              Makefile* out) const;
-  virtual void DependencyFiles(std::vector<std::string>* files) const;
+  virtual void DependencyFiles(std::vector<Resource>* files) const;
 
   // Alternative to parse
   void Set(const std::string& build_cmd,
            const std::string& clean_cmd,
-           const std::vector<std::string>& input_files,
+           const std::vector<Resource>& input_files,
            const std::vector<std::string>& outputs);
   void SetCd(bool cd) { cd_ = cd; }
 
@@ -38,12 +38,12 @@ class GenShNode : public Node {
   std::string WriteCommand(const std::map<std::string, std::string>& env_vars,
                            const std::string& prefix,
                            const std::string& cmd,
-                           const std::string& touchfile) const;
-  std::string Touchfile() const;
+                           const std::string& admin_cmd) const;
+  Resource Touchfile() const;
 
   std::string build_cmd_;
   std::string clean_cmd_;
-  std::vector<std::string> input_files_;
+  std::vector<Resource> input_files_;
   std::vector<std::string> outputs_;
   bool cd_;
 };

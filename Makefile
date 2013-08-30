@@ -11,10 +11,14 @@ else
 	BASIC_CFLAGS= -stdlib=libc++ -pthread
 endif
 ifeq ($(CXX_GCC),1)
+	LD_FORCE_LINK_START := -Wl,--whole-archive
+	LD_FORCE_LINK_END := -Wl,--no-whole-archive
 	LDFLAGS= -lpthread -g -O3 -flto -L/usr/local/lib -L/opt/local/lib
 	CXXFLAGS= -pthread -g -Wall -Werror -Wno-sign-compare -Wno-unused-local-typedefs -Wno-error=unused-local-typedefs -O3 -flto -std=c++11 -DUSE_CXX0X
 	BASIC_CXXFLAGS= -pthread -std=c++11
 else
+	LD_FORCE_LINK_START := -Wl,-force_load
+	LD_FORCE_LINK_END := 
 	LDFLAGS= -stdlib=libc++ -lpthread -g -O3 -flto -L/usr/local/lib -L/opt/local/lib
 	CXXFLAGS= -stdlib=libc++ -pthread -g -Wall -Werror -Wno-sign-compare -O3 -flto -Qunused-arguments -fcolor-diagnostics -std=c++11 -DUSE_CXX0X
 	BASIC_CXXFLAGS= -stdlib=libc++ -pthread -std=c++11
@@ -22,11 +26,11 @@ endif
 
 
 .gen-src/repobuild: 
-	@mkdir -p .gen-src; [ -f . ] || mkdir -p .; ln -f -s .. .gen-src/repobuild
+	mkdir -p .gen-src; [ -f . ] || mkdir -p .; ln -f -s .. .gen-src/repobuild
 
 
 .gen-src/repobuild/.dummy: .gen-src/repobuild
-	@[ -f .gen-src/repobuild/.dummy ] || touch .gen-src/repobuild/.dummy
+	[ -f .gen-src/repobuild/.dummy ] || touch .gen-src/repobuild/.dummy
 
 __auto_name_0: .gen-src/repobuild
 
@@ -34,19 +38,19 @@ __auto_name_0: .gen-src/repobuild
 
 
 .gen-src/.gen-files/repobuild: 
-	@mkdir -p .gen-src/.gen-files; [ -f .gen-files ] || mkdir -p .gen-files; ln -f -s ../../.gen-files .gen-src/.gen-files/repobuild
+	mkdir -p .gen-src/.gen-files; [ -f .gen-files ] || mkdir -p .gen-files; ln -f -s ../../.gen-files .gen-src/.gen-files/repobuild
 
 
 .gen-src/.gen-files/repobuild/.dummy: .gen-src/.gen-files/repobuild
-	@[ -f .gen-src/.gen-files/repobuild/.dummy ] || touch .gen-src/.gen-files/repobuild/.dummy
+	[ -f .gen-src/.gen-files/repobuild/.dummy ] || touch .gen-src/.gen-files/repobuild/.dummy
 
 
 .gen-src/common: 
-	@mkdir -p .gen-src; [ -f common ] || mkdir -p common; ln -f -s ../common .gen-src/common
+	mkdir -p .gen-src; [ -f common ] || mkdir -p common; ln -f -s ../common .gen-src/common
 
 
 .gen-src/common/.dummy: .gen-src/common
-	@[ -f .gen-src/common/.dummy ] || touch .gen-src/common/.dummy
+	[ -f .gen-src/common/.dummy ] || touch .gen-src/common/.dummy
 
 common/__auto_name_0: .gen-src/common __auto_name_0
 
@@ -54,11 +58,11 @@ common/__auto_name_0: .gen-src/common __auto_name_0
 
 
 .gen-src/.gen-files/common: 
-	@mkdir -p .gen-src/.gen-files; [ -f .gen-files/common ] || mkdir -p .gen-files/common; ln -f -s ../../.gen-files/common .gen-src/.gen-files/common
+	mkdir -p .gen-src/.gen-files; [ -f .gen-files/common ] || mkdir -p .gen-files/common; ln -f -s ../../.gen-files/common .gen-src/.gen-files/common
 
 
 .gen-src/.gen-files/common/.dummy: .gen-src/.gen-files/common
-	@[ -f .gen-src/.gen-files/common/.dummy ] || touch .gen-src/.gen-files/common/.dummy
+	[ -f .gen-src/.gen-files/common/.dummy ] || touch .gen-src/.gen-files/common/.dummy
 
 c_compile_args.common/third_party/google/gflags/gflags := 
 ifeq ($(CC_GCC),1)
@@ -78,27 +82,27 @@ headers.common/third_party/google/gflags/gflags := common/third_party/google/gfl
 
 
 .gen-obj/common/third_party/google/gflags/src/gflags.cc.o: $(headers.common/third_party/google/gflags/gflags) .gen-src/.gen-files/common/.dummy .gen-src/.gen-files/repobuild/.dummy .gen-src/common/.dummy .gen-src/repobuild/.dummy common/third_party/google/gflags/src/gflags.cc
-	@mkdir -p .gen-obj/common/third_party/google/gflags/src
-	@echo Compiling: common/third_party/google/gflags/src/gflags.cc
-	@$(COMPILE.cc) -I. -I.gen-files -I.gen-src -I.gen-src/.gen-files $(cxx_header_compile_args.common/third_party/google/gflags/gflags) $(cxx_compile_args.common/third_party/google/gflags/gflags) common/third_party/google/gflags/src/gflags.cc -o .gen-obj/common/third_party/google/gflags/src/gflags.cc.o
+	mkdir -p .gen-obj/common/third_party/google/gflags/src
+	echo Compiling: common/third_party/google/gflags/src/gflags.cc
+	$(COMPILE.cc) -I. -I.gen-files -I.gen-src -I.gen-src/.gen-files $(cxx_header_compile_args.common/third_party/google/gflags/gflags) $(cxx_compile_args.common/third_party/google/gflags/gflags) common/third_party/google/gflags/src/gflags.cc -o .gen-obj/common/third_party/google/gflags/src/gflags.cc.o
 
 
 .gen-obj/common/third_party/google/gflags/src/gflags_completions.cc.o: $(headers.common/third_party/google/gflags/gflags) .gen-src/.gen-files/common/.dummy .gen-src/.gen-files/repobuild/.dummy .gen-src/common/.dummy .gen-src/repobuild/.dummy common/third_party/google/gflags/src/gflags_completions.cc
-	@mkdir -p .gen-obj/common/third_party/google/gflags/src
-	@echo Compiling: common/third_party/google/gflags/src/gflags_completions.cc
-	@$(COMPILE.cc) -I. -I.gen-files -I.gen-src -I.gen-src/.gen-files $(cxx_header_compile_args.common/third_party/google/gflags/gflags) $(cxx_compile_args.common/third_party/google/gflags/gflags) common/third_party/google/gflags/src/gflags_completions.cc -o .gen-obj/common/third_party/google/gflags/src/gflags_completions.cc.o
+	mkdir -p .gen-obj/common/third_party/google/gflags/src
+	echo Compiling: common/third_party/google/gflags/src/gflags_completions.cc
+	$(COMPILE.cc) -I. -I.gen-files -I.gen-src -I.gen-src/.gen-files $(cxx_header_compile_args.common/third_party/google/gflags/gflags) $(cxx_compile_args.common/third_party/google/gflags/gflags) common/third_party/google/gflags/src/gflags_completions.cc -o .gen-obj/common/third_party/google/gflags/src/gflags_completions.cc.o
 
 
 .gen-obj/common/third_party/google/gflags/src/gflags_nc.cc.o: $(headers.common/third_party/google/gflags/gflags) .gen-src/.gen-files/common/.dummy .gen-src/.gen-files/repobuild/.dummy .gen-src/common/.dummy .gen-src/repobuild/.dummy common/third_party/google/gflags/src/gflags_nc.cc
-	@mkdir -p .gen-obj/common/third_party/google/gflags/src
-	@echo Compiling: common/third_party/google/gflags/src/gflags_nc.cc
-	@$(COMPILE.cc) -I. -I.gen-files -I.gen-src -I.gen-src/.gen-files $(cxx_header_compile_args.common/third_party/google/gflags/gflags) $(cxx_compile_args.common/third_party/google/gflags/gflags) common/third_party/google/gflags/src/gflags_nc.cc -o .gen-obj/common/third_party/google/gflags/src/gflags_nc.cc.o
+	mkdir -p .gen-obj/common/third_party/google/gflags/src
+	echo Compiling: common/third_party/google/gflags/src/gflags_nc.cc
+	$(COMPILE.cc) -I. -I.gen-files -I.gen-src -I.gen-src/.gen-files $(cxx_header_compile_args.common/third_party/google/gflags/gflags) $(cxx_compile_args.common/third_party/google/gflags/gflags) common/third_party/google/gflags/src/gflags_nc.cc -o .gen-obj/common/third_party/google/gflags/src/gflags_nc.cc.o
 
 
 .gen-obj/common/third_party/google/gflags/src/gflags_reporting.cc.o: $(headers.common/third_party/google/gflags/gflags) .gen-src/.gen-files/common/.dummy .gen-src/.gen-files/repobuild/.dummy .gen-src/common/.dummy .gen-src/repobuild/.dummy common/third_party/google/gflags/src/gflags_reporting.cc
-	@mkdir -p .gen-obj/common/third_party/google/gflags/src
-	@echo Compiling: common/third_party/google/gflags/src/gflags_reporting.cc
-	@$(COMPILE.cc) -I. -I.gen-files -I.gen-src -I.gen-src/.gen-files $(cxx_header_compile_args.common/third_party/google/gflags/gflags) $(cxx_compile_args.common/third_party/google/gflags/gflags) common/third_party/google/gflags/src/gflags_reporting.cc -o .gen-obj/common/third_party/google/gflags/src/gflags_reporting.cc.o
+	mkdir -p .gen-obj/common/third_party/google/gflags/src
+	echo Compiling: common/third_party/google/gflags/src/gflags_reporting.cc
+	$(COMPILE.cc) -I. -I.gen-files -I.gen-src -I.gen-src/.gen-files $(cxx_header_compile_args.common/third_party/google/gflags/gflags) $(cxx_compile_args.common/third_party/google/gflags/gflags) common/third_party/google/gflags/src/gflags_reporting.cc -o .gen-obj/common/third_party/google/gflags/src/gflags_reporting.cc.o
 
 common/third_party/google/gflags/gflags: .gen-obj/common/third_party/google/gflags/src/gflags.cc.o .gen-obj/common/third_party/google/gflags/src/gflags_completions.cc.o .gen-obj/common/third_party/google/gflags/src/gflags_nc.cc.o .gen-obj/common/third_party/google/gflags/src/gflags_reporting.cc.o __auto_name_0 common/__auto_name_0
 
@@ -112,8 +116,8 @@ common/base/flags: common/third_party/google/gflags/gflags __auto_name_0 common/
 
 
 .gen-obj/common/third_party/google/glog/.__auto_name_0.dummy: $(headers.common/third_party/google/gflags/gflags) .gen-src/.gen-files/common/.dummy .gen-src/.gen-files/repobuild/.dummy .gen-src/common/.dummy .gen-src/repobuild/.dummy
-	@echo Script: //common/third_party/google/glog:__auto_name_0
-	@(mkdir -p .gen-files/common/third_party/google/glog; cd common/third_party/google/glog; GEN_DIR="../../../../.gen-files/common/third_party/google/glog" OBJ_DIR="../../../../.gen-obj/common/third_party/google/glog SRC_DIR="../../../../.gen-src/common/third_party/google/glog ROOT_DIR="../../../../" CXX_GCC="$(CXX_GCC)" CC_GCC="$(CC_GCC)" CC="$(CC)" CXX="$(CXX)" CXXFLAGS="$(CXXFLAGS)" BASIC_CXXFLAGS="$(BASIC_CXXFLAGS)" CFLAGS="$(CFLAGS)" BASIC_CFLAGS="$(BASIC_CFLAGS)" LDFLAGS="$(LDFLAGS)" MAKE="$(MAKE)" GFLAGS_LIB_ROOT=".gen-obj/common/third_party/google/gflags" GFLAGS_SRC_ROOT="common/third_party/google/gflags/src" DEP_CXXFLAGS="$(cxx_header_compile_args.common/third_party/google/gflags/gflags)" DEP_CFLAGS="$(c_header_compile_args.common/third_party/google/gflags/gflags)" eval '(mkdir -p $$OBJ_DIR; DEST_DIR=$$(pwd)/$$GEN_DIR; CXXFLAGS="$$BASIC_CXXFLAGS $$DEP_FLAGS $$USER_CXXFLAGS" CFLAGS="$$BASIC_CFLAGS $$DEP_FLAGS $$USER_CFLAGS" LDFLAGS="$$LDFLAGS $$USER_LDFLAGS" CC="$$CC" CXX="$$CXX" ./configure --prefix=/ --cache-file=$$GEN_DIR/config.cache --with-gflagssrc="../../../..//$$GFLAGS_SRC_ROOT" --with-gflagslib="../../../..//$$GFLAGS_LIB_ROOT/src/*.o")' > ../../../../.gen-files/common/third_party/google/glog/.logfile 2>&1 || (cat ../../../../.gen-files/common/third_party/google/glog/.logfile; exit 1) ) && (mkdir -p .gen-obj/common/third_party/google/glog; touch .gen-obj/common/third_party/google/glog/.__auto_name_0.dummy)
+	echo Script: //common/third_party/google/glog:__auto_name_0
+	(mkdir -p .gen-files/common/third_party/google/glog; cd common/third_party/google/glog; GEN_DIR="../../../../.gen-files/common/third_party/google/glog" OBJ_DIR="../../../../.gen-obj/common/third_party/google/glog SRC_DIR="../../../../.gen-src/common/third_party/google/glog ROOT_DIR="../../../../" CXX_GCC="$(CXX_GCC)" CC_GCC="$(CC_GCC)" CC="$(CC)" CXX="$(CXX)" CXXFLAGS="$(CXXFLAGS)" BASIC_CXXFLAGS="$(BASIC_CXXFLAGS)" CFLAGS="$(CFLAGS)" BASIC_CFLAGS="$(BASIC_CFLAGS)" LDFLAGS="$(LDFLAGS)" MAKE="$(MAKE)" GFLAGS_OBJS=".gen-obj/common/third_party/google/gflags/src/*.o" GFLAGS_SRC_ROOT="common/third_party/google/gflags/src" DEP_CXXFLAGS="$(cxx_header_compile_args.common/third_party/google/gflags/gflags)" DEP_CFLAGS="$(c_header_compile_args.common/third_party/google/gflags/gflags)" eval '(mkdir -p $$OBJ_DIR; DEST_DIR=$$(pwd)/$$GEN_DIR; CXXFLAGS="$$BASIC_CXXFLAGS $$DEP_FLAGS $$USER_CXXFLAGS" CFLAGS="$$BASIC_CFLAGS $$DEP_FLAGS $$USER_CFLAGS" LDFLAGS="$$LDFLAGS $$USER_LDFLAGS" CC="$$CC" CXX="$$CXX" ./configure --prefix=/ --cache-file=$$GEN_DIR/config.cache --with-gflagssrc="../../../..//$$GFLAGS_SRC_ROOT" --with-gflagslib="../../../..//$$GFLAGS_OBJS")' > ../../../../.gen-files/common/third_party/google/glog/.logfile 2>&1 || (cat ../../../../.gen-files/common/third_party/google/glog/.logfile; exit 1) ) && (mkdir -p .gen-obj/common/third_party/google/glog; touch .gen-obj/common/third_party/google/glog/.__auto_name_0.dummy)
 
 common/third_party/google/glog/__auto_name_0: .gen-obj/common/third_party/google/glog/.__auto_name_0.dummy common/third_party/google/gflags/gflags __auto_name_0 common/__auto_name_0
 
@@ -121,8 +125,8 @@ common/third_party/google/glog/__auto_name_0: .gen-obj/common/third_party/google
 
 
 .gen-obj/common/third_party/google/glog/.__auto_name_2.dummy: $(headers.common/third_party/google/gflags/gflags) .gen-obj/common/third_party/google/glog/.__auto_name_0.dummy .gen-src/.gen-files/common/.dummy .gen-src/.gen-files/repobuild/.dummy .gen-src/common/.dummy .gen-src/repobuild/.dummy
-	@echo Script: //common/third_party/google/glog:__auto_name_2
-	@(mkdir -p .gen-files/common/third_party/google/glog; cd common/third_party/google/glog; GEN_DIR="../../../../.gen-files/common/third_party/google/glog" OBJ_DIR="../../../../.gen-obj/common/third_party/google/glog SRC_DIR="../../../../.gen-src/common/third_party/google/glog ROOT_DIR="../../../../" CXX_GCC="$(CXX_GCC)" CC_GCC="$(CC_GCC)" CC="$(CC)" CXX="$(CXX)" CXXFLAGS="$(CXXFLAGS)" BASIC_CXXFLAGS="$(BASIC_CXXFLAGS)" CFLAGS="$(CFLAGS)" BASIC_CFLAGS="$(BASIC_CFLAGS)" LDFLAGS="$(LDFLAGS)" MAKE="$(MAKE)" GFLAGS_LIB_ROOT=".gen-obj/common/third_party/google/gflags" GFLAGS_SRC_ROOT="common/third_party/google/gflags/src" DEP_CXXFLAGS="$(cxx_header_compile_args.common/third_party/google/gflags/gflags)" DEP_CFLAGS="$(c_header_compile_args.common/third_party/google/gflags/gflags)" eval '($$MAKE install DESTDIR=$$(pwd)/$$GEN_DIR)' > ../../../../.gen-files/common/third_party/google/glog/.logfile 2>&1 || (cat ../../../../.gen-files/common/third_party/google/glog/.logfile; exit 1) ) && (mkdir -p .gen-obj/common/third_party/google/glog; touch .gen-obj/common/third_party/google/glog/.__auto_name_2.dummy)
+	echo Script: //common/third_party/google/glog:__auto_name_2
+	(mkdir -p .gen-files/common/third_party/google/glog; cd common/third_party/google/glog; GEN_DIR="../../../../.gen-files/common/third_party/google/glog" OBJ_DIR="../../../../.gen-obj/common/third_party/google/glog SRC_DIR="../../../../.gen-src/common/third_party/google/glog ROOT_DIR="../../../../" CXX_GCC="$(CXX_GCC)" CC_GCC="$(CC_GCC)" CC="$(CC)" CXX="$(CXX)" CXXFLAGS="$(CXXFLAGS)" BASIC_CXXFLAGS="$(BASIC_CXXFLAGS)" CFLAGS="$(CFLAGS)" BASIC_CFLAGS="$(BASIC_CFLAGS)" LDFLAGS="$(LDFLAGS)" MAKE="$(MAKE)" GFLAGS_OBJS=".gen-obj/common/third_party/google/gflags/src/*.o" GFLAGS_SRC_ROOT="common/third_party/google/gflags/src" DEP_CXXFLAGS="$(cxx_header_compile_args.common/third_party/google/gflags/gflags)" DEP_CFLAGS="$(c_header_compile_args.common/third_party/google/gflags/gflags)" eval '($$MAKE install DESTDIR=$$(pwd)/$$GEN_DIR)' > ../../../../.gen-files/common/third_party/google/glog/.logfile 2>&1 || (cat ../../../../.gen-files/common/third_party/google/glog/.logfile; exit 1) ) && (mkdir -p .gen-obj/common/third_party/google/glog; touch .gen-obj/common/third_party/google/glog/.__auto_name_2.dummy)
 
 common/third_party/google/glog/__auto_name_2: .gen-obj/common/third_party/google/glog/.__auto_name_2.dummy common/third_party/google/glog/__auto_name_0 common/third_party/google/gflags/gflags __auto_name_0 common/__auto_name_0
 
@@ -169,9 +173,9 @@ headers.common/base/init := common/base/init.h
 
 
 .gen-obj/common/base/init.cc.o: $(headers.common/base/flags) $(headers.common/base/init) $(headers.common/log/log) $(headers.common/third_party/google/gflags/gflags) $(headers.common/third_party/google/glog/glog_headers) $(headers.common/third_party/google/init/init) .gen-obj/common/third_party/google/glog/.__auto_name_0.dummy .gen-obj/common/third_party/google/glog/.__auto_name_2.dummy .gen-src/.gen-files/common/.dummy .gen-src/.gen-files/repobuild/.dummy .gen-src/common/.dummy .gen-src/repobuild/.dummy common/base/init.cc
-	@mkdir -p .gen-obj/common/base
-	@echo Compiling: common/base/init.cc
-	@$(COMPILE.cc) -I. -I.gen-files -I.gen-src -I.gen-src/.gen-files $(cxx_header_compile_args.common/third_party/google/gflags/gflags) $(cxx_header_compile_args.common/third_party/google/glog/glog_headers) common/base/init.cc -o .gen-obj/common/base/init.cc.o
+	mkdir -p .gen-obj/common/base
+	echo Compiling: common/base/init.cc
+	$(COMPILE.cc) -I. -I.gen-files -I.gen-src -I.gen-src/.gen-files $(cxx_header_compile_args.common/third_party/google/gflags/gflags) $(cxx_header_compile_args.common/third_party/google/glog/glog_headers) common/base/init.cc -o .gen-obj/common/base/init.cc.o
 
 common/base/init: .gen-obj/common/base/init.cc.o common/log/log common/third_party/google/init/init common/base/flags __auto_name_0 common/__auto_name_0
 
@@ -193,9 +197,9 @@ headers.common/base/time := common/base/time.h common/base/rdtsc.h
 
 
 .gen-obj/common/base/time.cc.o: $(headers.common/base/time) .gen-src/.gen-files/common/.dummy .gen-src/.gen-files/repobuild/.dummy .gen-src/common/.dummy .gen-src/repobuild/.dummy common/base/time.cc
-	@mkdir -p .gen-obj/common/base
-	@echo Compiling: common/base/time.cc
-	@$(COMPILE.cc) -I. -I.gen-files -I.gen-src -I.gen-src/.gen-files common/base/time.cc -o .gen-obj/common/base/time.cc.o
+	mkdir -p .gen-obj/common/base
+	echo Compiling: common/base/time.cc
+	$(COMPILE.cc) -I. -I.gen-files -I.gen-src -I.gen-src/.gen-files common/base/time.cc -o .gen-obj/common/base/time.cc.o
 
 common/base/time: .gen-obj/common/base/time.cc.o __auto_name_0 common/__auto_name_0
 
@@ -212,20 +216,20 @@ common/base/base_nomalloc: common/base/flags common/base/init common/base/macros
 .PHONY: common/base/base_nomalloc
 
 
-.gen-obj/common/third_party/google/gperftools/.__auto_name_0.dummy: .gen-src/.gen-files/common/.dummy .gen-src/.gen-files/repobuild/.dummy .gen-src/common/.dummy .gen-src/repobuild/.dummy
-	@echo Script: //common/third_party/google/gperftools:__auto_name_0
-	@(mkdir -p .gen-files/common/third_party/google/gperftools; cd common/third_party/google/gperftools; GEN_DIR="../../../../.gen-files/common/third_party/google/gperftools" OBJ_DIR="../../../../.gen-obj/common/third_party/google/gperftools SRC_DIR="../../../../.gen-src/common/third_party/google/gperftools ROOT_DIR="../../../../" CXX_GCC="$(CXX_GCC)" CC_GCC="$(CC_GCC)" CC="$(CC)" CXX="$(CXX)" CXXFLAGS="$(CXXFLAGS)" BASIC_CXXFLAGS="$(BASIC_CXXFLAGS)" CFLAGS="$(CFLAGS)" BASIC_CFLAGS="$(BASIC_CFLAGS)" LDFLAGS="$(LDFLAGS)" MAKE="$(MAKE)" DEP_CXXFLAGS="" DEP_CFLAGS="" eval '(mkdir -p $$OBJ_DIR; DEST_DIR=$$(pwd)/$$GEN_DIR; CXXFLAGS="$$BASIC_CXXFLAGS $$DEP_FLAGS $$USER_CXXFLAGS" CFLAGS="$$BASIC_CFLAGS $$DEP_FLAGS $$USER_CFLAGS" LDFLAGS="$$LDFLAGS $$USER_LDFLAGS" CC="$$CC" CXX="$$CXX" ./configure --prefix=/ --cache-file=$$GEN_DIR/config.cache)' > ../../../../.gen-files/common/third_party/google/gperftools/.logfile 2>&1 || (cat ../../../../.gen-files/common/third_party/google/gperftools/.logfile; exit 1) ) && (mkdir -p .gen-obj/common/third_party/google/gperftools; touch .gen-obj/common/third_party/google/gperftools/.__auto_name_0.dummy)
+.gen-obj/common/third_party/google/gperftools/.__auto_name_0.dummy: $(headers.common/third_party/google/gflags/gflags) .gen-src/.gen-files/common/.dummy .gen-src/.gen-files/repobuild/.dummy .gen-src/common/.dummy .gen-src/repobuild/.dummy
+	echo Script: //common/third_party/google/gperftools:__auto_name_0
+	(mkdir -p .gen-files/common/third_party/google/gperftools; cd common/third_party/google/gperftools; GEN_DIR="../../../../.gen-files/common/third_party/google/gperftools" OBJ_DIR="../../../../.gen-obj/common/third_party/google/gperftools SRC_DIR="../../../../.gen-src/common/third_party/google/gperftools ROOT_DIR="../../../../" CXX_GCC="$(CXX_GCC)" CC_GCC="$(CC_GCC)" CC="$(CC)" CXX="$(CXX)" CXXFLAGS="$(CXXFLAGS)" BASIC_CXXFLAGS="$(BASIC_CXXFLAGS)" CFLAGS="$(CFLAGS)" BASIC_CFLAGS="$(BASIC_CFLAGS)" LDFLAGS="$(LDFLAGS)" MAKE="$(MAKE)" GFLAGS_OBJS=".gen-obj/common/third_party/google/gflags/src/*.o" GFLAGS_SRC_ROOT="common/third_party/google/gflags/src" DEP_CXXFLAGS="$(cxx_header_compile_args.common/third_party/google/gflags/gflags)" DEP_CFLAGS="$(c_header_compile_args.common/third_party/google/gflags/gflags)" eval '(mkdir -p $$OBJ_DIR; DEST_DIR=$$(pwd)/$$GEN_DIR; CXXFLAGS="$$BASIC_CXXFLAGS $$DEP_FLAGS $$USER_CXXFLAGS" CFLAGS="$$BASIC_CFLAGS $$DEP_FLAGS $$USER_CFLAGS" LDFLAGS="$$LDFLAGS $$USER_LDFLAGS" CC="$$CC" CXX="$$CXX" ./configure --prefix=/ --cache-file=$$GEN_DIR/config.cache --with-gflagssrc="../../../..//$$GFLAGS_SRC_ROOT" --with-gflagslib="../../../..//$$GFLAGS_OBJS")' > ../../../../.gen-files/common/third_party/google/gperftools/.logfile 2>&1 || (cat ../../../../.gen-files/common/third_party/google/gperftools/.logfile; exit 1) ) && (mkdir -p .gen-obj/common/third_party/google/gperftools; touch .gen-obj/common/third_party/google/gperftools/.__auto_name_0.dummy)
 
-common/third_party/google/gperftools/__auto_name_0: .gen-obj/common/third_party/google/gperftools/.__auto_name_0.dummy __auto_name_0 common/__auto_name_0
+common/third_party/google/gperftools/__auto_name_0: .gen-obj/common/third_party/google/gperftools/.__auto_name_0.dummy common/third_party/google/gflags/gflags __auto_name_0 common/__auto_name_0
 
 .PHONY: common/third_party/google/gperftools/__auto_name_0
 
 
-.gen-obj/common/third_party/google/gperftools/.__auto_name_2.dummy: .gen-obj/common/third_party/google/gperftools/.__auto_name_0.dummy .gen-src/.gen-files/common/.dummy .gen-src/.gen-files/repobuild/.dummy .gen-src/common/.dummy .gen-src/repobuild/.dummy
-	@echo Script: //common/third_party/google/gperftools:__auto_name_2
-	@(mkdir -p .gen-files/common/third_party/google/gperftools; cd common/third_party/google/gperftools; GEN_DIR="../../../../.gen-files/common/third_party/google/gperftools" OBJ_DIR="../../../../.gen-obj/common/third_party/google/gperftools SRC_DIR="../../../../.gen-src/common/third_party/google/gperftools ROOT_DIR="../../../../" CXX_GCC="$(CXX_GCC)" CC_GCC="$(CC_GCC)" CC="$(CC)" CXX="$(CXX)" CXXFLAGS="$(CXXFLAGS)" BASIC_CXXFLAGS="$(BASIC_CXXFLAGS)" CFLAGS="$(CFLAGS)" BASIC_CFLAGS="$(BASIC_CFLAGS)" LDFLAGS="$(LDFLAGS)" MAKE="$(MAKE)" DEP_CXXFLAGS="" DEP_CFLAGS="" eval '($$MAKE install DESTDIR=$$(pwd)/$$GEN_DIR)' > ../../../../.gen-files/common/third_party/google/gperftools/.logfile 2>&1 || (cat ../../../../.gen-files/common/third_party/google/gperftools/.logfile; exit 1) ) && (mkdir -p .gen-obj/common/third_party/google/gperftools; touch .gen-obj/common/third_party/google/gperftools/.__auto_name_2.dummy)
+.gen-obj/common/third_party/google/gperftools/.__auto_name_2.dummy: $(headers.common/third_party/google/gflags/gflags) .gen-obj/common/third_party/google/gperftools/.__auto_name_0.dummy .gen-src/.gen-files/common/.dummy .gen-src/.gen-files/repobuild/.dummy .gen-src/common/.dummy .gen-src/repobuild/.dummy
+	echo Script: //common/third_party/google/gperftools:__auto_name_2
+	(mkdir -p .gen-files/common/third_party/google/gperftools; cd common/third_party/google/gperftools; GEN_DIR="../../../../.gen-files/common/third_party/google/gperftools" OBJ_DIR="../../../../.gen-obj/common/third_party/google/gperftools SRC_DIR="../../../../.gen-src/common/third_party/google/gperftools ROOT_DIR="../../../../" CXX_GCC="$(CXX_GCC)" CC_GCC="$(CC_GCC)" CC="$(CC)" CXX="$(CXX)" CXXFLAGS="$(CXXFLAGS)" BASIC_CXXFLAGS="$(BASIC_CXXFLAGS)" CFLAGS="$(CFLAGS)" BASIC_CFLAGS="$(BASIC_CFLAGS)" LDFLAGS="$(LDFLAGS)" MAKE="$(MAKE)" GFLAGS_OBJS=".gen-obj/common/third_party/google/gflags/src/*.o" GFLAGS_SRC_ROOT="common/third_party/google/gflags/src" DEP_CXXFLAGS="$(cxx_header_compile_args.common/third_party/google/gflags/gflags)" DEP_CFLAGS="$(c_header_compile_args.common/third_party/google/gflags/gflags)" eval '($$MAKE install DESTDIR=$$(pwd)/$$GEN_DIR)' > ../../../../.gen-files/common/third_party/google/gperftools/.logfile 2>&1 || (cat ../../../../.gen-files/common/third_party/google/gperftools/.logfile; exit 1) ) && (mkdir -p .gen-obj/common/third_party/google/gperftools; touch .gen-obj/common/third_party/google/gperftools/.__auto_name_2.dummy)
 
-common/third_party/google/gperftools/__auto_name_2: .gen-obj/common/third_party/google/gperftools/.__auto_name_2.dummy common/third_party/google/gperftools/__auto_name_0 __auto_name_0 common/__auto_name_0
+common/third_party/google/gperftools/__auto_name_2: .gen-obj/common/third_party/google/gperftools/.__auto_name_2.dummy common/third_party/google/gperftools/__auto_name_0 common/third_party/google/gflags/gflags __auto_name_0 common/__auto_name_0
 
 .PHONY: common/third_party/google/gperftools/__auto_name_2
 
@@ -247,11 +251,11 @@ common/third_party/google/gperftools/__auto_name_2: .gen-obj/common/third_party/
 
 .gen-files/common/third_party/google/gperftools/lib/libtcmalloc_minimal_debug.a: .gen-obj/common/third_party/google/gperftools/.__auto_name_2.dummy
 
-common/third_party/google/gperftools/__auto_name_1: common/third_party/google/gperftools/__auto_name_0 common/third_party/google/gperftools/__auto_name_2 __auto_name_0 common/__auto_name_0
+common/third_party/google/gperftools/__auto_name_1: common/third_party/google/gperftools/__auto_name_0 common/third_party/google/gflags/gflags common/third_party/google/gperftools/__auto_name_2 __auto_name_0 common/__auto_name_0
 
 .PHONY: common/third_party/google/gperftools/__auto_name_1
 
-common/third_party/google/gperftools/perf_gen: common/third_party/google/gperftools/__auto_name_0 common/third_party/google/gperftools/__auto_name_1 __auto_name_0 common/__auto_name_0
+common/third_party/google/gperftools/perf_gen: common/third_party/google/gflags/gflags common/third_party/google/gperftools/__auto_name_0 common/third_party/google/gperftools/__auto_name_1 __auto_name_0 common/__auto_name_0
 
 .PHONY: common/third_party/google/gperftools/perf_gen
 
@@ -271,9 +275,9 @@ headers.common/file/fileutil := common/file/fileutil.h
 
 
 .gen-obj/common/file/fileutil.cc.o: $(headers.common/file/fileutil) $(headers.common/log/log) $(headers.common/third_party/google/gflags/gflags) $(headers.common/third_party/google/glog/glog_headers) .gen-obj/common/third_party/google/glog/.__auto_name_0.dummy .gen-obj/common/third_party/google/glog/.__auto_name_2.dummy .gen-src/.gen-files/common/.dummy .gen-src/.gen-files/repobuild/.dummy .gen-src/common/.dummy .gen-src/repobuild/.dummy common/file/fileutil.cc
-	@mkdir -p .gen-obj/common/file
-	@echo Compiling: common/file/fileutil.cc
-	@$(COMPILE.cc) -I. -I.gen-files -I.gen-src -I.gen-src/.gen-files $(cxx_header_compile_args.common/third_party/google/gflags/gflags) $(cxx_header_compile_args.common/third_party/google/glog/glog_headers) common/file/fileutil.cc -o .gen-obj/common/file/fileutil.cc.o
+	mkdir -p .gen-obj/common/file
+	echo Compiling: common/file/fileutil.cc
+	$(COMPILE.cc) -I. -I.gen-files -I.gen-src -I.gen-src/.gen-files $(cxx_header_compile_args.common/third_party/google/gflags/gflags) $(cxx_header_compile_args.common/third_party/google/glog/glog_headers) common/file/fileutil.cc -o .gen-obj/common/file/fileutil.cc.o
 
 common/file/fileutil: .gen-obj/common/file/fileutil.cc.o common/log/log __auto_name_0 common/__auto_name_0
 
@@ -283,15 +287,15 @@ headers.common/third_party/google/re2/re2 := common/third_party/google/re2/strin
 
 
 .gen-obj/common/third_party/google/re2/stringpiece.cc.o: $(headers.common/third_party/google/re2/re2) .gen-src/.gen-files/common/.dummy .gen-src/.gen-files/repobuild/.dummy .gen-src/common/.dummy .gen-src/repobuild/.dummy common/third_party/google/re2/stringpiece.cc
-	@mkdir -p .gen-obj/common/third_party/google/re2
-	@echo Compiling: common/third_party/google/re2/stringpiece.cc
-	@$(COMPILE.cc) -I. -I.gen-files -I.gen-src -I.gen-src/.gen-files common/third_party/google/re2/stringpiece.cc -o .gen-obj/common/third_party/google/re2/stringpiece.cc.o
+	mkdir -p .gen-obj/common/third_party/google/re2
+	echo Compiling: common/third_party/google/re2/stringpiece.cc
+	$(COMPILE.cc) -I. -I.gen-files -I.gen-src -I.gen-src/.gen-files common/third_party/google/re2/stringpiece.cc -o .gen-obj/common/third_party/google/re2/stringpiece.cc.o
 
 
 .gen-obj/common/third_party/google/re2/stringprintf.cc.o: $(headers.common/third_party/google/re2/re2) .gen-src/.gen-files/common/.dummy .gen-src/.gen-files/repobuild/.dummy .gen-src/common/.dummy .gen-src/repobuild/.dummy common/third_party/google/re2/stringprintf.cc
-	@mkdir -p .gen-obj/common/third_party/google/re2
-	@echo Compiling: common/third_party/google/re2/stringprintf.cc
-	@$(COMPILE.cc) -I. -I.gen-files -I.gen-src -I.gen-src/.gen-files common/third_party/google/re2/stringprintf.cc -o .gen-obj/common/third_party/google/re2/stringprintf.cc.o
+	mkdir -p .gen-obj/common/third_party/google/re2
+	echo Compiling: common/third_party/google/re2/stringprintf.cc
+	$(COMPILE.cc) -I. -I.gen-files -I.gen-src -I.gen-src/.gen-files common/third_party/google/re2/stringprintf.cc -o .gen-obj/common/third_party/google/re2/stringprintf.cc.o
 
 common/third_party/google/re2/re2: .gen-obj/common/third_party/google/re2/stringpiece.cc.o .gen-obj/common/third_party/google/re2/stringprintf.cc.o __auto_name_0 common/__auto_name_0
 
@@ -305,21 +309,21 @@ headers.common/strings/strutil := common/strings/strutil.h common/strings/path.h
 
 
 .gen-obj/common/strings/strutil.cc.o: $(headers.common/strings/strutil) $(headers.common/third_party/google/re2/re2) .gen-src/.gen-files/common/.dummy .gen-src/.gen-files/repobuild/.dummy .gen-src/common/.dummy .gen-src/repobuild/.dummy common/strings/strutil.cc
-	@mkdir -p .gen-obj/common/strings
-	@echo Compiling: common/strings/strutil.cc
-	@$(COMPILE.cc) -I. -I.gen-files -I.gen-src -I.gen-src/.gen-files common/strings/strutil.cc -o .gen-obj/common/strings/strutil.cc.o
+	mkdir -p .gen-obj/common/strings
+	echo Compiling: common/strings/strutil.cc
+	$(COMPILE.cc) -I. -I.gen-files -I.gen-src -I.gen-src/.gen-files common/strings/strutil.cc -o .gen-obj/common/strings/strutil.cc.o
 
 
 .gen-obj/common/strings/path.cc.o: $(headers.common/strings/strutil) $(headers.common/third_party/google/re2/re2) .gen-src/.gen-files/common/.dummy .gen-src/.gen-files/repobuild/.dummy .gen-src/common/.dummy .gen-src/repobuild/.dummy common/strings/path.cc
-	@mkdir -p .gen-obj/common/strings
-	@echo Compiling: common/strings/path.cc
-	@$(COMPILE.cc) -I. -I.gen-files -I.gen-src -I.gen-src/.gen-files common/strings/path.cc -o .gen-obj/common/strings/path.cc.o
+	mkdir -p .gen-obj/common/strings
+	echo Compiling: common/strings/path.cc
+	$(COMPILE.cc) -I. -I.gen-files -I.gen-src -I.gen-src/.gen-files common/strings/path.cc -o .gen-obj/common/strings/path.cc.o
 
 
 .gen-obj/common/strings/varmap.cc.o: $(headers.common/strings/strutil) $(headers.common/third_party/google/re2/re2) .gen-src/.gen-files/common/.dummy .gen-src/.gen-files/repobuild/.dummy .gen-src/common/.dummy .gen-src/repobuild/.dummy common/strings/varmap.cc
-	@mkdir -p .gen-obj/common/strings
-	@echo Compiling: common/strings/varmap.cc
-	@$(COMPILE.cc) -I. -I.gen-files -I.gen-src -I.gen-src/.gen-files common/strings/varmap.cc -o .gen-obj/common/strings/varmap.cc.o
+	mkdir -p .gen-obj/common/strings
+	echo Compiling: common/strings/varmap.cc
+	$(COMPILE.cc) -I. -I.gen-files -I.gen-src -I.gen-src/.gen-files common/strings/varmap.cc -o .gen-obj/common/strings/varmap.cc.o
 
 common/strings/strutil: .gen-obj/common/strings/path.cc.o .gen-obj/common/strings/strutil.cc.o .gen-obj/common/strings/varmap.cc.o common/strings/stringpiece __auto_name_0 common/__auto_name_0
 
@@ -329,9 +333,9 @@ headers.env/input := env/input.h
 
 
 .gen-obj/env/input.cc.o: $(headers.common/base/flags) $(headers.common/strings/strutil) $(headers.common/third_party/google/gflags/gflags) $(headers.common/third_party/google/re2/re2) $(headers.env/input) .gen-src/.gen-files/common/.dummy .gen-src/.gen-files/repobuild/.dummy .gen-src/common/.dummy .gen-src/repobuild/.dummy env/input.cc
-	@mkdir -p .gen-obj/env
-	@echo Compiling: env/input.cc
-	@$(COMPILE.cc) -I. -I.gen-files -I.gen-src -I.gen-src/.gen-files $(cxx_header_compile_args.common/third_party/google/gflags/gflags) env/input.cc -o .gen-obj/env/input.cc.o
+	mkdir -p .gen-obj/env
+	echo Compiling: env/input.cc
+	$(COMPILE.cc) -I. -I.gen-files -I.gen-src -I.gen-src/.gen-files $(cxx_header_compile_args.common/third_party/google/gflags/gflags) env/input.cc -o .gen-obj/env/input.cc.o
 
 env/input: .gen-obj/env/input.cc.o common/base/flags common/strings/strutil __auto_name_0
 
@@ -341,21 +345,27 @@ headers.env/target := env/target.h
 
 
 .gen-obj/env/target.cc.o: $(headers.common/log/log) $(headers.common/strings/strutil) $(headers.common/third_party/google/gflags/gflags) $(headers.common/third_party/google/glog/glog_headers) $(headers.common/third_party/google/re2/re2) $(headers.env/target) .gen-obj/common/third_party/google/glog/.__auto_name_0.dummy .gen-obj/common/third_party/google/glog/.__auto_name_2.dummy .gen-src/.gen-files/common/.dummy .gen-src/.gen-files/repobuild/.dummy .gen-src/common/.dummy .gen-src/repobuild/.dummy env/target.cc
-	@mkdir -p .gen-obj/env
-	@echo Compiling: env/target.cc
-	@$(COMPILE.cc) -I. -I.gen-files -I.gen-src -I.gen-src/.gen-files $(cxx_header_compile_args.common/third_party/google/gflags/gflags) $(cxx_header_compile_args.common/third_party/google/glog/glog_headers) env/target.cc -o .gen-obj/env/target.cc.o
+	mkdir -p .gen-obj/env
+	echo Compiling: env/target.cc
+	$(COMPILE.cc) -I. -I.gen-files -I.gen-src -I.gen-src/.gen-files $(cxx_header_compile_args.common/third_party/google/gflags/gflags) $(cxx_header_compile_args.common/third_party/google/glog/glog_headers) env/target.cc -o .gen-obj/env/target.cc.o
 
 env/target: .gen-obj/env/target.cc.o common/log/log common/strings/strutil __auto_name_0
 
 .PHONY: env/target
 
+headers.common/util/stl := common/util/stl.h
+
+common/util/stl: __auto_name_0 common/__auto_name_0
+
+.PHONY: common/util/stl
+
 
 .gen-src/json: 
-	@mkdir -p .gen-src; [ -f json ] || mkdir -p json; ln -f -s ../json .gen-src/json
+	mkdir -p .gen-src; [ -f json ] || mkdir -p json; ln -f -s ../json .gen-src/json
 
 
 .gen-src/json/.dummy: .gen-src/json
-	@[ -f .gen-src/json/.dummy ] || touch .gen-src/json/.dummy
+	[ -f .gen-src/json/.dummy ] || touch .gen-src/json/.dummy
 
 json/__auto_name_0: .gen-src/json __auto_name_0
 
@@ -363,31 +373,31 @@ json/__auto_name_0: .gen-src/json __auto_name_0
 
 
 .gen-src/.gen-files/json: 
-	@mkdir -p .gen-src/.gen-files; [ -f .gen-files/json ] || mkdir -p .gen-files/json; ln -f -s ../../.gen-files/json .gen-src/.gen-files/json
+	mkdir -p .gen-src/.gen-files; [ -f .gen-files/json ] || mkdir -p .gen-files/json; ln -f -s ../../.gen-files/json .gen-src/.gen-files/json
 
 
 .gen-src/.gen-files/json/.dummy: .gen-src/.gen-files/json
-	@[ -f .gen-src/.gen-files/json/.dummy ] || touch .gen-src/.gen-files/json/.dummy
+	[ -f .gen-src/.gen-files/json/.dummy ] || touch .gen-src/.gen-files/json/.dummy
 
 headers.json/json := json/autolink.h json/config.h json/features.h json/forwards.h json/json.h json/reader.h json/value.h json/writer.h
 
 
 .gen-obj/json/json_reader.cpp.o: $(headers.json/json) .gen-src/.gen-files/json/.dummy .gen-src/.gen-files/repobuild/.dummy .gen-src/json/.dummy .gen-src/repobuild/.dummy json/json_reader.cpp
-	@mkdir -p .gen-obj/json
-	@echo Compiling: json/json_reader.cpp
-	@$(COMPILE.cc) -I. -I.gen-files -I.gen-src -I.gen-src/.gen-files json/json_reader.cpp -o .gen-obj/json/json_reader.cpp.o
+	mkdir -p .gen-obj/json
+	echo Compiling: json/json_reader.cpp
+	$(COMPILE.cc) -I. -I.gen-files -I.gen-src -I.gen-src/.gen-files json/json_reader.cpp -o .gen-obj/json/json_reader.cpp.o
 
 
 .gen-obj/json/json_value.cpp.o: $(headers.json/json) .gen-src/.gen-files/json/.dummy .gen-src/.gen-files/repobuild/.dummy .gen-src/json/.dummy .gen-src/repobuild/.dummy json/json_value.cpp
-	@mkdir -p .gen-obj/json
-	@echo Compiling: json/json_value.cpp
-	@$(COMPILE.cc) -I. -I.gen-files -I.gen-src -I.gen-src/.gen-files json/json_value.cpp -o .gen-obj/json/json_value.cpp.o
+	mkdir -p .gen-obj/json
+	echo Compiling: json/json_value.cpp
+	$(COMPILE.cc) -I. -I.gen-files -I.gen-src -I.gen-src/.gen-files json/json_value.cpp -o .gen-obj/json/json_value.cpp.o
 
 
 .gen-obj/json/json_writer.cpp.o: $(headers.json/json) .gen-src/.gen-files/json/.dummy .gen-src/.gen-files/repobuild/.dummy .gen-src/json/.dummy .gen-src/repobuild/.dummy json/json_writer.cpp
-	@mkdir -p .gen-obj/json
-	@echo Compiling: json/json_writer.cpp
-	@$(COMPILE.cc) -I. -I.gen-files -I.gen-src -I.gen-src/.gen-files json/json_writer.cpp -o .gen-obj/json/json_writer.cpp.o
+	mkdir -p .gen-obj/json
+	echo Compiling: json/json_writer.cpp
+	$(COMPILE.cc) -I. -I.gen-files -I.gen-src -I.gen-src/.gen-files json/json_writer.cpp -o .gen-obj/json/json_writer.cpp.o
 
 json/json: .gen-obj/json/json_reader.cpp.o .gen-obj/json/json_value.cpp.o .gen-obj/json/json_writer.cpp.o __auto_name_0 json/__auto_name_0
 
@@ -397,51 +407,57 @@ headers.reader/buildfile := reader/buildfile.h
 
 
 .gen-obj/reader/buildfile.cc.o: $(headers.common/log/log) $(headers.common/strings/strutil) $(headers.common/third_party/google/gflags/gflags) $(headers.common/third_party/google/glog/glog_headers) $(headers.common/third_party/google/re2/re2) $(headers.json/json) $(headers.reader/buildfile) .gen-obj/common/third_party/google/glog/.__auto_name_0.dummy .gen-obj/common/third_party/google/glog/.__auto_name_2.dummy .gen-src/.gen-files/common/.dummy .gen-src/.gen-files/json/.dummy .gen-src/.gen-files/repobuild/.dummy .gen-src/common/.dummy .gen-src/json/.dummy .gen-src/repobuild/.dummy reader/buildfile.cc
-	@mkdir -p .gen-obj/reader
-	@echo Compiling: reader/buildfile.cc
-	@$(COMPILE.cc) -I. -I.gen-files -I.gen-src -I.gen-src/.gen-files $(cxx_header_compile_args.common/third_party/google/gflags/gflags) $(cxx_header_compile_args.common/third_party/google/glog/glog_headers) reader/buildfile.cc -o .gen-obj/reader/buildfile.cc.o
+	mkdir -p .gen-obj/reader
+	echo Compiling: reader/buildfile.cc
+	$(COMPILE.cc) -I. -I.gen-files -I.gen-src -I.gen-src/.gen-files $(cxx_header_compile_args.common/third_party/google/gflags/gflags) $(cxx_header_compile_args.common/third_party/google/glog/glog_headers) reader/buildfile.cc -o .gen-obj/reader/buildfile.cc.o
 
 reader/buildfile: .gen-obj/reader/buildfile.cc.o common/log/log common/strings/strutil json/json __auto_name_0
 
 .PHONY: reader/buildfile
 
+headers.env/resource := env/resource.h
+
+
+.gen-obj/env/resource.cc.o: $(headers.common/strings/strutil) $(headers.common/third_party/google/re2/re2) $(headers.env/resource) .gen-src/.gen-files/common/.dummy .gen-src/.gen-files/repobuild/.dummy .gen-src/common/.dummy .gen-src/repobuild/.dummy env/resource.cc
+	mkdir -p .gen-obj/env
+	echo Compiling: env/resource.cc
+	$(COMPILE.cc) -I. -I.gen-files -I.gen-src -I.gen-src/.gen-files env/resource.cc -o .gen-obj/env/resource.cc.o
+
+env/resource: .gen-obj/env/resource.cc.o common/strings/strutil __auto_name_0
+
+.PHONY: env/resource
+
 headers.nodes/node := nodes/node.h
 
 
-.gen-obj/nodes/node.cc.o: $(headers.common/file/fileutil) $(headers.common/log/log) $(headers.common/strings/strutil) $(headers.common/third_party/google/gflags/gflags) $(headers.common/third_party/google/glog/glog_headers) $(headers.common/third_party/google/re2/re2) $(headers.json/json) $(headers.nodes/node) $(headers.reader/buildfile) .gen-obj/common/third_party/google/glog/.__auto_name_0.dummy .gen-obj/common/third_party/google/glog/.__auto_name_2.dummy .gen-src/.gen-files/common/.dummy .gen-src/.gen-files/json/.dummy .gen-src/.gen-files/repobuild/.dummy .gen-src/common/.dummy .gen-src/json/.dummy .gen-src/repobuild/.dummy nodes/node.cc
-	@mkdir -p .gen-obj/nodes
-	@echo Compiling: nodes/node.cc
-	@$(COMPILE.cc) -I. -I.gen-files -I.gen-src -I.gen-src/.gen-files $(cxx_header_compile_args.common/third_party/google/gflags/gflags) $(cxx_header_compile_args.common/third_party/google/glog/glog_headers) nodes/node.cc -o .gen-obj/nodes/node.cc.o
+.gen-obj/nodes/node.cc.o: $(headers.common/file/fileutil) $(headers.common/log/log) $(headers.common/strings/strutil) $(headers.common/third_party/google/gflags/gflags) $(headers.common/third_party/google/glog/glog_headers) $(headers.common/third_party/google/re2/re2) $(headers.common/util/stl) $(headers.env/resource) $(headers.env/target) $(headers.json/json) $(headers.nodes/node) $(headers.reader/buildfile) .gen-obj/common/third_party/google/glog/.__auto_name_0.dummy .gen-obj/common/third_party/google/glog/.__auto_name_2.dummy .gen-src/.gen-files/common/.dummy .gen-src/.gen-files/json/.dummy .gen-src/.gen-files/repobuild/.dummy .gen-src/common/.dummy .gen-src/json/.dummy .gen-src/repobuild/.dummy nodes/node.cc
+	mkdir -p .gen-obj/nodes
+	echo Compiling: nodes/node.cc
+	$(COMPILE.cc) -I. -I.gen-files -I.gen-src -I.gen-src/.gen-files $(cxx_header_compile_args.common/third_party/google/gflags/gflags) $(cxx_header_compile_args.common/third_party/google/glog/glog_headers) nodes/node.cc -o .gen-obj/nodes/node.cc.o
 
-nodes/node: .gen-obj/nodes/node.cc.o common/log/log common/file/fileutil common/strings/strutil reader/buildfile __auto_name_0
+nodes/node: .gen-obj/nodes/node.cc.o common/log/log common/file/fileutil common/strings/strutil common/util/stl reader/buildfile env/resource env/target __auto_name_0
 
 .PHONY: nodes/node
 
 headers.nodes/cc_library := nodes/cc_library.h
 
 
-.gen-obj/nodes/cc_library.cc.o: $(headers.common/file/fileutil) $(headers.common/log/log) $(headers.common/strings/strutil) $(headers.common/third_party/google/gflags/gflags) $(headers.common/third_party/google/glog/glog_headers) $(headers.common/third_party/google/re2/re2) $(headers.json/json) $(headers.nodes/cc_library) $(headers.nodes/node) $(headers.reader/buildfile) .gen-obj/common/third_party/google/glog/.__auto_name_0.dummy .gen-obj/common/third_party/google/glog/.__auto_name_2.dummy .gen-src/.gen-files/common/.dummy .gen-src/.gen-files/json/.dummy .gen-src/.gen-files/repobuild/.dummy .gen-src/common/.dummy .gen-src/json/.dummy .gen-src/repobuild/.dummy nodes/cc_library.cc
-	@mkdir -p .gen-obj/nodes
-	@echo Compiling: nodes/cc_library.cc
-	@$(COMPILE.cc) -I. -I.gen-files -I.gen-src -I.gen-src/.gen-files $(cxx_header_compile_args.common/third_party/google/gflags/gflags) $(cxx_header_compile_args.common/third_party/google/glog/glog_headers) nodes/cc_library.cc -o .gen-obj/nodes/cc_library.cc.o
+.gen-obj/nodes/cc_library.cc.o: $(headers.common/file/fileutil) $(headers.common/log/log) $(headers.common/strings/strutil) $(headers.common/third_party/google/gflags/gflags) $(headers.common/third_party/google/glog/glog_headers) $(headers.common/third_party/google/re2/re2) $(headers.common/util/stl) $(headers.env/resource) $(headers.env/target) $(headers.json/json) $(headers.nodes/cc_library) $(headers.nodes/node) $(headers.reader/buildfile) .gen-obj/common/third_party/google/glog/.__auto_name_0.dummy .gen-obj/common/third_party/google/glog/.__auto_name_2.dummy .gen-src/.gen-files/common/.dummy .gen-src/.gen-files/json/.dummy .gen-src/.gen-files/repobuild/.dummy .gen-src/common/.dummy .gen-src/json/.dummy .gen-src/repobuild/.dummy nodes/cc_library.cc
+	mkdir -p .gen-obj/nodes
+	echo Compiling: nodes/cc_library.cc
+	$(COMPILE.cc) -I. -I.gen-files -I.gen-src -I.gen-src/.gen-files $(cxx_header_compile_args.common/third_party/google/gflags/gflags) $(cxx_header_compile_args.common/third_party/google/glog/glog_headers) nodes/cc_library.cc -o .gen-obj/nodes/cc_library.cc.o
 
 nodes/cc_library: .gen-obj/nodes/cc_library.cc.o common/log/log common/file/fileutil common/strings/strutil nodes/node __auto_name_0
 
 .PHONY: nodes/cc_library
 
-headers.common/util/stl := common/util/stl.h
-
-common/util/stl: __auto_name_0 common/__auto_name_0
-
-.PHONY: common/util/stl
-
 headers.nodes/gen_sh := nodes/gen_sh.h
 
 
-.gen-obj/nodes/gen_sh.cc.o: $(headers.common/base/flags) $(headers.common/file/fileutil) $(headers.common/log/log) $(headers.common/strings/strutil) $(headers.common/third_party/google/gflags/gflags) $(headers.common/third_party/google/glog/glog_headers) $(headers.common/third_party/google/re2/re2) $(headers.json/json) $(headers.nodes/gen_sh) $(headers.nodes/node) $(headers.reader/buildfile) .gen-obj/common/third_party/google/glog/.__auto_name_0.dummy .gen-obj/common/third_party/google/glog/.__auto_name_2.dummy .gen-src/.gen-files/common/.dummy .gen-src/.gen-files/json/.dummy .gen-src/.gen-files/repobuild/.dummy .gen-src/common/.dummy .gen-src/json/.dummy .gen-src/repobuild/.dummy nodes/gen_sh.cc
-	@mkdir -p .gen-obj/nodes
-	@echo Compiling: nodes/gen_sh.cc
-	@$(COMPILE.cc) -I. -I.gen-files -I.gen-src -I.gen-src/.gen-files $(cxx_header_compile_args.common/third_party/google/gflags/gflags) $(cxx_header_compile_args.common/third_party/google/glog/glog_headers) nodes/gen_sh.cc -o .gen-obj/nodes/gen_sh.cc.o
+.gen-obj/nodes/gen_sh.cc.o: $(headers.common/base/flags) $(headers.common/file/fileutil) $(headers.common/log/log) $(headers.common/strings/strutil) $(headers.common/third_party/google/gflags/gflags) $(headers.common/third_party/google/glog/glog_headers) $(headers.common/third_party/google/re2/re2) $(headers.common/util/stl) $(headers.env/resource) $(headers.env/target) $(headers.json/json) $(headers.nodes/gen_sh) $(headers.nodes/node) $(headers.reader/buildfile) .gen-obj/common/third_party/google/glog/.__auto_name_0.dummy .gen-obj/common/third_party/google/glog/.__auto_name_2.dummy .gen-src/.gen-files/common/.dummy .gen-src/.gen-files/json/.dummy .gen-src/.gen-files/repobuild/.dummy .gen-src/common/.dummy .gen-src/json/.dummy .gen-src/repobuild/.dummy nodes/gen_sh.cc
+	mkdir -p .gen-obj/nodes
+	echo Compiling: nodes/gen_sh.cc
+	$(COMPILE.cc) -I. -I.gen-files -I.gen-src -I.gen-src/.gen-files $(cxx_header_compile_args.common/third_party/google/gflags/gflags) $(cxx_header_compile_args.common/third_party/google/glog/glog_headers) nodes/gen_sh.cc -o .gen-obj/nodes/gen_sh.cc.o
 
 nodes/gen_sh: .gen-obj/nodes/gen_sh.cc.o common/base/flags common/log/log common/strings/strutil nodes/node __auto_name_0
 
@@ -450,10 +466,10 @@ nodes/gen_sh: .gen-obj/nodes/gen_sh.cc.o common/base/flags common/log/log common
 headers.nodes/autoconf := nodes/autoconf.h
 
 
-.gen-obj/nodes/autoconf.cc.o: $(headers.common/base/flags) $(headers.common/file/fileutil) $(headers.common/log/log) $(headers.common/strings/strutil) $(headers.common/third_party/google/gflags/gflags) $(headers.common/third_party/google/glog/glog_headers) $(headers.common/third_party/google/re2/re2) $(headers.json/json) $(headers.nodes/autoconf) $(headers.nodes/gen_sh) $(headers.nodes/node) $(headers.reader/buildfile) .gen-obj/common/third_party/google/glog/.__auto_name_0.dummy .gen-obj/common/third_party/google/glog/.__auto_name_2.dummy .gen-src/.gen-files/common/.dummy .gen-src/.gen-files/json/.dummy .gen-src/.gen-files/repobuild/.dummy .gen-src/common/.dummy .gen-src/json/.dummy .gen-src/repobuild/.dummy nodes/autoconf.cc
-	@mkdir -p .gen-obj/nodes
-	@echo Compiling: nodes/autoconf.cc
-	@$(COMPILE.cc) -I. -I.gen-files -I.gen-src -I.gen-src/.gen-files $(cxx_header_compile_args.common/third_party/google/gflags/gflags) $(cxx_header_compile_args.common/third_party/google/glog/glog_headers) nodes/autoconf.cc -o .gen-obj/nodes/autoconf.cc.o
+.gen-obj/nodes/autoconf.cc.o: $(headers.common/base/flags) $(headers.common/file/fileutil) $(headers.common/log/log) $(headers.common/strings/strutil) $(headers.common/third_party/google/gflags/gflags) $(headers.common/third_party/google/glog/glog_headers) $(headers.common/third_party/google/re2/re2) $(headers.common/util/stl) $(headers.env/resource) $(headers.env/target) $(headers.json/json) $(headers.nodes/autoconf) $(headers.nodes/gen_sh) $(headers.nodes/node) $(headers.reader/buildfile) .gen-obj/common/third_party/google/glog/.__auto_name_0.dummy .gen-obj/common/third_party/google/glog/.__auto_name_2.dummy .gen-src/.gen-files/common/.dummy .gen-src/.gen-files/json/.dummy .gen-src/.gen-files/repobuild/.dummy .gen-src/common/.dummy .gen-src/json/.dummy .gen-src/repobuild/.dummy nodes/autoconf.cc
+	mkdir -p .gen-obj/nodes
+	echo Compiling: nodes/autoconf.cc
+	$(COMPILE.cc) -I. -I.gen-files -I.gen-src -I.gen-src/.gen-files $(cxx_header_compile_args.common/third_party/google/gflags/gflags) $(cxx_header_compile_args.common/third_party/google/glog/glog_headers) nodes/autoconf.cc -o .gen-obj/nodes/autoconf.cc.o
 
 nodes/autoconf: .gen-obj/nodes/autoconf.cc.o common/log/log common/file/fileutil common/strings/strutil nodes/gen_sh __auto_name_0
 
@@ -462,10 +478,10 @@ nodes/autoconf: .gen-obj/nodes/autoconf.cc.o common/log/log common/file/fileutil
 headers.nodes/cmake := nodes/cmake.h
 
 
-.gen-obj/nodes/cmake.cc.o: $(headers.common/base/flags) $(headers.common/file/fileutil) $(headers.common/log/log) $(headers.common/strings/strutil) $(headers.common/third_party/google/gflags/gflags) $(headers.common/third_party/google/glog/glog_headers) $(headers.common/third_party/google/re2/re2) $(headers.json/json) $(headers.nodes/cmake) $(headers.nodes/gen_sh) $(headers.nodes/node) $(headers.reader/buildfile) .gen-obj/common/third_party/google/glog/.__auto_name_0.dummy .gen-obj/common/third_party/google/glog/.__auto_name_2.dummy .gen-src/.gen-files/common/.dummy .gen-src/.gen-files/json/.dummy .gen-src/.gen-files/repobuild/.dummy .gen-src/common/.dummy .gen-src/json/.dummy .gen-src/repobuild/.dummy nodes/cmake.cc
-	@mkdir -p .gen-obj/nodes
-	@echo Compiling: nodes/cmake.cc
-	@$(COMPILE.cc) -I. -I.gen-files -I.gen-src -I.gen-src/.gen-files $(cxx_header_compile_args.common/third_party/google/gflags/gflags) $(cxx_header_compile_args.common/third_party/google/glog/glog_headers) nodes/cmake.cc -o .gen-obj/nodes/cmake.cc.o
+.gen-obj/nodes/cmake.cc.o: $(headers.common/base/flags) $(headers.common/file/fileutil) $(headers.common/log/log) $(headers.common/strings/strutil) $(headers.common/third_party/google/gflags/gflags) $(headers.common/third_party/google/glog/glog_headers) $(headers.common/third_party/google/re2/re2) $(headers.common/util/stl) $(headers.env/resource) $(headers.env/target) $(headers.json/json) $(headers.nodes/cmake) $(headers.nodes/gen_sh) $(headers.nodes/node) $(headers.reader/buildfile) .gen-obj/common/third_party/google/glog/.__auto_name_0.dummy .gen-obj/common/third_party/google/glog/.__auto_name_2.dummy .gen-src/.gen-files/common/.dummy .gen-src/.gen-files/json/.dummy .gen-src/.gen-files/repobuild/.dummy .gen-src/common/.dummy .gen-src/json/.dummy .gen-src/repobuild/.dummy nodes/cmake.cc
+	mkdir -p .gen-obj/nodes
+	echo Compiling: nodes/cmake.cc
+	$(COMPILE.cc) -I. -I.gen-files -I.gen-src -I.gen-src/.gen-files $(cxx_header_compile_args.common/third_party/google/gflags/gflags) $(cxx_header_compile_args.common/third_party/google/glog/glog_headers) nodes/cmake.cc -o .gen-obj/nodes/cmake.cc.o
 
 nodes/cmake: .gen-obj/nodes/cmake.cc.o common/log/log common/file/fileutil common/strings/strutil nodes/gen_sh __auto_name_0
 
@@ -474,10 +490,10 @@ nodes/cmake: .gen-obj/nodes/cmake.cc.o common/log/log common/file/fileutil commo
 headers.nodes/cc_binary := nodes/cc_binary.h
 
 
-.gen-obj/nodes/cc_binary.cc.o: $(headers.common/file/fileutil) $(headers.common/log/log) $(headers.common/strings/strutil) $(headers.common/third_party/google/gflags/gflags) $(headers.common/third_party/google/glog/glog_headers) $(headers.common/third_party/google/re2/re2) $(headers.json/json) $(headers.nodes/cc_binary) $(headers.nodes/node) $(headers.reader/buildfile) .gen-obj/common/third_party/google/glog/.__auto_name_0.dummy .gen-obj/common/third_party/google/glog/.__auto_name_2.dummy .gen-src/.gen-files/common/.dummy .gen-src/.gen-files/json/.dummy .gen-src/.gen-files/repobuild/.dummy .gen-src/common/.dummy .gen-src/json/.dummy .gen-src/repobuild/.dummy nodes/cc_binary.cc
-	@mkdir -p .gen-obj/nodes
-	@echo Compiling: nodes/cc_binary.cc
-	@$(COMPILE.cc) -I. -I.gen-files -I.gen-src -I.gen-src/.gen-files $(cxx_header_compile_args.common/third_party/google/gflags/gflags) $(cxx_header_compile_args.common/third_party/google/glog/glog_headers) nodes/cc_binary.cc -o .gen-obj/nodes/cc_binary.cc.o
+.gen-obj/nodes/cc_binary.cc.o: $(headers.common/file/fileutil) $(headers.common/log/log) $(headers.common/strings/strutil) $(headers.common/third_party/google/gflags/gflags) $(headers.common/third_party/google/glog/glog_headers) $(headers.common/third_party/google/re2/re2) $(headers.common/util/stl) $(headers.env/resource) $(headers.env/target) $(headers.json/json) $(headers.nodes/cc_binary) $(headers.nodes/node) $(headers.reader/buildfile) .gen-obj/common/third_party/google/glog/.__auto_name_0.dummy .gen-obj/common/third_party/google/glog/.__auto_name_2.dummy .gen-src/.gen-files/common/.dummy .gen-src/.gen-files/json/.dummy .gen-src/.gen-files/repobuild/.dummy .gen-src/common/.dummy .gen-src/json/.dummy .gen-src/repobuild/.dummy nodes/cc_binary.cc
+	mkdir -p .gen-obj/nodes
+	echo Compiling: nodes/cc_binary.cc
+	$(COMPILE.cc) -I. -I.gen-files -I.gen-src -I.gen-src/.gen-files $(cxx_header_compile_args.common/third_party/google/gflags/gflags) $(cxx_header_compile_args.common/third_party/google/glog/glog_headers) nodes/cc_binary.cc -o .gen-obj/nodes/cc_binary.cc.o
 
 nodes/cc_binary: .gen-obj/nodes/cc_binary.cc.o common/log/log common/strings/strutil nodes/node __auto_name_0
 
@@ -486,10 +502,10 @@ nodes/cc_binary: .gen-obj/nodes/cc_binary.cc.o common/log/log common/strings/str
 headers.nodes/confignode := nodes/confignode.h
 
 
-.gen-obj/nodes/confignode.cc.o: $(headers.common/file/fileutil) $(headers.common/log/log) $(headers.common/strings/strutil) $(headers.common/third_party/google/gflags/gflags) $(headers.common/third_party/google/glog/glog_headers) $(headers.common/third_party/google/re2/re2) $(headers.json/json) $(headers.nodes/confignode) $(headers.nodes/node) $(headers.reader/buildfile) .gen-obj/common/third_party/google/glog/.__auto_name_0.dummy .gen-obj/common/third_party/google/glog/.__auto_name_2.dummy .gen-src/.gen-files/common/.dummy .gen-src/.gen-files/json/.dummy .gen-src/.gen-files/repobuild/.dummy .gen-src/common/.dummy .gen-src/json/.dummy .gen-src/repobuild/.dummy nodes/confignode.cc
-	@mkdir -p .gen-obj/nodes
-	@echo Compiling: nodes/confignode.cc
-	@$(COMPILE.cc) -I. -I.gen-files -I.gen-src -I.gen-src/.gen-files $(cxx_header_compile_args.common/third_party/google/gflags/gflags) $(cxx_header_compile_args.common/third_party/google/glog/glog_headers) nodes/confignode.cc -o .gen-obj/nodes/confignode.cc.o
+.gen-obj/nodes/confignode.cc.o: $(headers.common/file/fileutil) $(headers.common/log/log) $(headers.common/strings/strutil) $(headers.common/third_party/google/gflags/gflags) $(headers.common/third_party/google/glog/glog_headers) $(headers.common/third_party/google/re2/re2) $(headers.common/util/stl) $(headers.env/resource) $(headers.env/target) $(headers.json/json) $(headers.nodes/confignode) $(headers.nodes/node) $(headers.reader/buildfile) .gen-obj/common/third_party/google/glog/.__auto_name_0.dummy .gen-obj/common/third_party/google/glog/.__auto_name_2.dummy .gen-src/.gen-files/common/.dummy .gen-src/.gen-files/json/.dummy .gen-src/.gen-files/repobuild/.dummy .gen-src/common/.dummy .gen-src/json/.dummy .gen-src/repobuild/.dummy nodes/confignode.cc
+	mkdir -p .gen-obj/nodes
+	echo Compiling: nodes/confignode.cc
+	$(COMPILE.cc) -I. -I.gen-files -I.gen-src -I.gen-src/.gen-files $(cxx_header_compile_args.common/third_party/google/gflags/gflags) $(cxx_header_compile_args.common/third_party/google/glog/glog_headers) nodes/confignode.cc -o .gen-obj/nodes/confignode.cc.o
 
 nodes/confignode: .gen-obj/nodes/confignode.cc.o common/log/log common/strings/strutil nodes/node __auto_name_0
 
@@ -498,10 +514,10 @@ nodes/confignode: .gen-obj/nodes/confignode.cc.o common/log/log common/strings/s
 headers.nodes/go_library := nodes/go_library.h
 
 
-.gen-obj/nodes/go_library.cc.o: $(headers.common/file/fileutil) $(headers.common/log/log) $(headers.common/strings/strutil) $(headers.common/third_party/google/gflags/gflags) $(headers.common/third_party/google/glog/glog_headers) $(headers.common/third_party/google/re2/re2) $(headers.json/json) $(headers.nodes/go_library) $(headers.nodes/node) $(headers.reader/buildfile) .gen-obj/common/third_party/google/glog/.__auto_name_0.dummy .gen-obj/common/third_party/google/glog/.__auto_name_2.dummy .gen-src/.gen-files/common/.dummy .gen-src/.gen-files/json/.dummy .gen-src/.gen-files/repobuild/.dummy .gen-src/common/.dummy .gen-src/json/.dummy .gen-src/repobuild/.dummy nodes/go_library.cc
-	@mkdir -p .gen-obj/nodes
-	@echo Compiling: nodes/go_library.cc
-	@$(COMPILE.cc) -I. -I.gen-files -I.gen-src -I.gen-src/.gen-files $(cxx_header_compile_args.common/third_party/google/gflags/gflags) $(cxx_header_compile_args.common/third_party/google/glog/glog_headers) nodes/go_library.cc -o .gen-obj/nodes/go_library.cc.o
+.gen-obj/nodes/go_library.cc.o: $(headers.common/file/fileutil) $(headers.common/log/log) $(headers.common/strings/strutil) $(headers.common/third_party/google/gflags/gflags) $(headers.common/third_party/google/glog/glog_headers) $(headers.common/third_party/google/re2/re2) $(headers.common/util/stl) $(headers.env/resource) $(headers.env/target) $(headers.json/json) $(headers.nodes/go_library) $(headers.nodes/node) $(headers.reader/buildfile) .gen-obj/common/third_party/google/glog/.__auto_name_0.dummy .gen-obj/common/third_party/google/glog/.__auto_name_2.dummy .gen-src/.gen-files/common/.dummy .gen-src/.gen-files/json/.dummy .gen-src/.gen-files/repobuild/.dummy .gen-src/common/.dummy .gen-src/json/.dummy .gen-src/repobuild/.dummy nodes/go_library.cc
+	mkdir -p .gen-obj/nodes
+	echo Compiling: nodes/go_library.cc
+	$(COMPILE.cc) -I. -I.gen-files -I.gen-src -I.gen-src/.gen-files $(cxx_header_compile_args.common/third_party/google/gflags/gflags) $(cxx_header_compile_args.common/third_party/google/glog/glog_headers) nodes/go_library.cc -o .gen-obj/nodes/go_library.cc.o
 
 nodes/go_library: .gen-obj/nodes/go_library.cc.o nodes/node __auto_name_0
 
@@ -510,10 +526,10 @@ nodes/go_library: .gen-obj/nodes/go_library.cc.o nodes/node __auto_name_0
 headers.nodes/go_binary := nodes/go_binary.h
 
 
-.gen-obj/nodes/go_binary.cc.o: $(headers.common/file/fileutil) $(headers.common/log/log) $(headers.common/strings/strutil) $(headers.common/third_party/google/gflags/gflags) $(headers.common/third_party/google/glog/glog_headers) $(headers.common/third_party/google/re2/re2) $(headers.json/json) $(headers.nodes/go_binary) $(headers.nodes/node) $(headers.reader/buildfile) .gen-obj/common/third_party/google/glog/.__auto_name_0.dummy .gen-obj/common/third_party/google/glog/.__auto_name_2.dummy .gen-src/.gen-files/common/.dummy .gen-src/.gen-files/json/.dummy .gen-src/.gen-files/repobuild/.dummy .gen-src/common/.dummy .gen-src/json/.dummy .gen-src/repobuild/.dummy nodes/go_binary.cc
-	@mkdir -p .gen-obj/nodes
-	@echo Compiling: nodes/go_binary.cc
-	@$(COMPILE.cc) -I. -I.gen-files -I.gen-src -I.gen-src/.gen-files $(cxx_header_compile_args.common/third_party/google/gflags/gflags) $(cxx_header_compile_args.common/third_party/google/glog/glog_headers) nodes/go_binary.cc -o .gen-obj/nodes/go_binary.cc.o
+.gen-obj/nodes/go_binary.cc.o: $(headers.common/file/fileutil) $(headers.common/log/log) $(headers.common/strings/strutil) $(headers.common/third_party/google/gflags/gflags) $(headers.common/third_party/google/glog/glog_headers) $(headers.common/third_party/google/re2/re2) $(headers.common/util/stl) $(headers.env/resource) $(headers.env/target) $(headers.json/json) $(headers.nodes/go_binary) $(headers.nodes/node) $(headers.reader/buildfile) .gen-obj/common/third_party/google/glog/.__auto_name_0.dummy .gen-obj/common/third_party/google/glog/.__auto_name_2.dummy .gen-src/.gen-files/common/.dummy .gen-src/.gen-files/json/.dummy .gen-src/.gen-files/repobuild/.dummy .gen-src/common/.dummy .gen-src/json/.dummy .gen-src/repobuild/.dummy nodes/go_binary.cc
+	mkdir -p .gen-obj/nodes
+	echo Compiling: nodes/go_binary.cc
+	$(COMPILE.cc) -I. -I.gen-files -I.gen-src -I.gen-src/.gen-files $(cxx_header_compile_args.common/third_party/google/gflags/gflags) $(cxx_header_compile_args.common/third_party/google/glog/glog_headers) nodes/go_binary.cc -o .gen-obj/nodes/go_binary.cc.o
 
 nodes/go_binary: .gen-obj/nodes/go_binary.cc.o common/log/log common/strings/strutil nodes/node __auto_name_0
 
@@ -522,10 +538,10 @@ nodes/go_binary: .gen-obj/nodes/go_binary.cc.o common/log/log common/strings/str
 headers.nodes/make := nodes/make.h
 
 
-.gen-obj/nodes/make.cc.o: $(headers.common/base/flags) $(headers.common/file/fileutil) $(headers.common/log/log) $(headers.common/strings/strutil) $(headers.common/third_party/google/gflags/gflags) $(headers.common/third_party/google/glog/glog_headers) $(headers.common/third_party/google/re2/re2) $(headers.json/json) $(headers.nodes/gen_sh) $(headers.nodes/make) $(headers.nodes/node) $(headers.reader/buildfile) .gen-obj/common/third_party/google/glog/.__auto_name_0.dummy .gen-obj/common/third_party/google/glog/.__auto_name_2.dummy .gen-src/.gen-files/common/.dummy .gen-src/.gen-files/json/.dummy .gen-src/.gen-files/repobuild/.dummy .gen-src/common/.dummy .gen-src/json/.dummy .gen-src/repobuild/.dummy nodes/make.cc
-	@mkdir -p .gen-obj/nodes
-	@echo Compiling: nodes/make.cc
-	@$(COMPILE.cc) -I. -I.gen-files -I.gen-src -I.gen-src/.gen-files $(cxx_header_compile_args.common/third_party/google/gflags/gflags) $(cxx_header_compile_args.common/third_party/google/glog/glog_headers) nodes/make.cc -o .gen-obj/nodes/make.cc.o
+.gen-obj/nodes/make.cc.o: $(headers.common/base/flags) $(headers.common/file/fileutil) $(headers.common/log/log) $(headers.common/strings/strutil) $(headers.common/third_party/google/gflags/gflags) $(headers.common/third_party/google/glog/glog_headers) $(headers.common/third_party/google/re2/re2) $(headers.common/util/stl) $(headers.env/resource) $(headers.env/target) $(headers.json/json) $(headers.nodes/gen_sh) $(headers.nodes/make) $(headers.nodes/node) $(headers.reader/buildfile) .gen-obj/common/third_party/google/glog/.__auto_name_0.dummy .gen-obj/common/third_party/google/glog/.__auto_name_2.dummy .gen-src/.gen-files/common/.dummy .gen-src/.gen-files/json/.dummy .gen-src/.gen-files/repobuild/.dummy .gen-src/common/.dummy .gen-src/json/.dummy .gen-src/repobuild/.dummy nodes/make.cc
+	mkdir -p .gen-obj/nodes
+	echo Compiling: nodes/make.cc
+	$(COMPILE.cc) -I. -I.gen-files -I.gen-src -I.gen-src/.gen-files $(cxx_header_compile_args.common/third_party/google/gflags/gflags) $(cxx_header_compile_args.common/third_party/google/glog/glog_headers) nodes/make.cc -o .gen-obj/nodes/make.cc.o
 
 nodes/make: .gen-obj/nodes/make.cc.o common/log/log common/file/fileutil common/strings/strutil nodes/gen_sh __auto_name_0
 
@@ -534,10 +550,10 @@ nodes/make: .gen-obj/nodes/make.cc.o common/log/log common/file/fileutil common/
 headers.nodes/proto_library := nodes/proto_library.h
 
 
-.gen-obj/nodes/proto_library.cc.o: $(headers.common/base/flags) $(headers.common/file/fileutil) $(headers.common/log/log) $(headers.common/strings/strutil) $(headers.common/third_party/google/gflags/gflags) $(headers.common/third_party/google/glog/glog_headers) $(headers.common/third_party/google/re2/re2) $(headers.json/json) $(headers.nodes/gen_sh) $(headers.nodes/node) $(headers.nodes/proto_library) $(headers.reader/buildfile) .gen-obj/common/third_party/google/glog/.__auto_name_0.dummy .gen-obj/common/third_party/google/glog/.__auto_name_2.dummy .gen-src/.gen-files/common/.dummy .gen-src/.gen-files/json/.dummy .gen-src/.gen-files/repobuild/.dummy .gen-src/common/.dummy .gen-src/json/.dummy .gen-src/repobuild/.dummy nodes/proto_library.cc
-	@mkdir -p .gen-obj/nodes
-	@echo Compiling: nodes/proto_library.cc
-	@$(COMPILE.cc) -I. -I.gen-files -I.gen-src -I.gen-src/.gen-files $(cxx_header_compile_args.common/third_party/google/gflags/gflags) $(cxx_header_compile_args.common/third_party/google/glog/glog_headers) nodes/proto_library.cc -o .gen-obj/nodes/proto_library.cc.o
+.gen-obj/nodes/proto_library.cc.o: $(headers.common/base/flags) $(headers.common/file/fileutil) $(headers.common/log/log) $(headers.common/strings/strutil) $(headers.common/third_party/google/gflags/gflags) $(headers.common/third_party/google/glog/glog_headers) $(headers.common/third_party/google/re2/re2) $(headers.common/util/stl) $(headers.env/resource) $(headers.env/target) $(headers.json/json) $(headers.nodes/gen_sh) $(headers.nodes/node) $(headers.nodes/proto_library) $(headers.reader/buildfile) .gen-obj/common/third_party/google/glog/.__auto_name_0.dummy .gen-obj/common/third_party/google/glog/.__auto_name_2.dummy .gen-src/.gen-files/common/.dummy .gen-src/.gen-files/json/.dummy .gen-src/.gen-files/repobuild/.dummy .gen-src/common/.dummy .gen-src/json/.dummy .gen-src/repobuild/.dummy nodes/proto_library.cc
+	mkdir -p .gen-obj/nodes
+	echo Compiling: nodes/proto_library.cc
+	$(COMPILE.cc) -I. -I.gen-files -I.gen-src -I.gen-src/.gen-files $(cxx_header_compile_args.common/third_party/google/gflags/gflags) $(cxx_header_compile_args.common/third_party/google/glog/glog_headers) nodes/proto_library.cc -o .gen-obj/nodes/proto_library.cc.o
 
 nodes/proto_library: .gen-obj/nodes/proto_library.cc.o common/log/log common/file/fileutil common/strings/strutil nodes/gen_sh __auto_name_0
 
@@ -546,10 +562,10 @@ nodes/proto_library: .gen-obj/nodes/proto_library.cc.o common/log/log common/fil
 headers.nodes/allnodes := nodes/allnodes.h
 
 
-.gen-obj/nodes/allnodes.cc.o: $(headers.common/base/flags) $(headers.common/file/fileutil) $(headers.common/log/log) $(headers.common/strings/strutil) $(headers.common/third_party/google/gflags/gflags) $(headers.common/third_party/google/glog/glog_headers) $(headers.common/third_party/google/re2/re2) $(headers.json/json) $(headers.nodes/allnodes) $(headers.nodes/autoconf) $(headers.nodes/cc_binary) $(headers.nodes/cc_library) $(headers.nodes/cmake) $(headers.nodes/confignode) $(headers.nodes/gen_sh) $(headers.nodes/go_binary) $(headers.nodes/go_library) $(headers.nodes/make) $(headers.nodes/node) $(headers.nodes/proto_library) $(headers.reader/buildfile) .gen-obj/common/third_party/google/glog/.__auto_name_0.dummy .gen-obj/common/third_party/google/glog/.__auto_name_2.dummy .gen-src/.gen-files/common/.dummy .gen-src/.gen-files/json/.dummy .gen-src/.gen-files/repobuild/.dummy .gen-src/common/.dummy .gen-src/json/.dummy .gen-src/repobuild/.dummy nodes/allnodes.cc
-	@mkdir -p .gen-obj/nodes
-	@echo Compiling: nodes/allnodes.cc
-	@$(COMPILE.cc) -I. -I.gen-files -I.gen-src -I.gen-src/.gen-files $(cxx_header_compile_args.common/third_party/google/gflags/gflags) $(cxx_header_compile_args.common/third_party/google/glog/glog_headers) nodes/allnodes.cc -o .gen-obj/nodes/allnodes.cc.o
+.gen-obj/nodes/allnodes.cc.o: $(headers.common/base/flags) $(headers.common/file/fileutil) $(headers.common/log/log) $(headers.common/strings/strutil) $(headers.common/third_party/google/gflags/gflags) $(headers.common/third_party/google/glog/glog_headers) $(headers.common/third_party/google/re2/re2) $(headers.common/util/stl) $(headers.env/resource) $(headers.env/target) $(headers.json/json) $(headers.nodes/allnodes) $(headers.nodes/autoconf) $(headers.nodes/cc_binary) $(headers.nodes/cc_library) $(headers.nodes/cmake) $(headers.nodes/confignode) $(headers.nodes/gen_sh) $(headers.nodes/go_binary) $(headers.nodes/go_library) $(headers.nodes/make) $(headers.nodes/node) $(headers.nodes/proto_library) $(headers.reader/buildfile) .gen-obj/common/third_party/google/glog/.__auto_name_0.dummy .gen-obj/common/third_party/google/glog/.__auto_name_2.dummy .gen-src/.gen-files/common/.dummy .gen-src/.gen-files/json/.dummy .gen-src/.gen-files/repobuild/.dummy .gen-src/common/.dummy .gen-src/json/.dummy .gen-src/repobuild/.dummy nodes/allnodes.cc
+	mkdir -p .gen-obj/nodes
+	echo Compiling: nodes/allnodes.cc
+	$(COMPILE.cc) -I. -I.gen-files -I.gen-src -I.gen-src/.gen-files $(cxx_header_compile_args.common/third_party/google/gflags/gflags) $(cxx_header_compile_args.common/third_party/google/glog/glog_headers) nodes/allnodes.cc -o .gen-obj/nodes/allnodes.cc.o
 
 nodes/allnodes: .gen-obj/nodes/allnodes.cc.o nodes/autoconf nodes/cmake nodes/cc_library nodes/cc_binary nodes/confignode nodes/go_library nodes/go_binary nodes/gen_sh nodes/make nodes/node nodes/proto_library __auto_name_0
 
@@ -558,10 +574,10 @@ nodes/allnodes: .gen-obj/nodes/allnodes.cc.o nodes/autoconf nodes/cmake nodes/cc
 headers.reader/parser := reader/parser.h
 
 
-.gen-obj/reader/parser.cc.o: $(headers.common/base/flags) $(headers.common/file/fileutil) $(headers.common/log/log) $(headers.common/strings/strutil) $(headers.common/third_party/google/gflags/gflags) $(headers.common/third_party/google/glog/glog_headers) $(headers.common/third_party/google/re2/re2) $(headers.common/util/stl) $(headers.env/input) $(headers.env/target) $(headers.json/json) $(headers.nodes/allnodes) $(headers.nodes/autoconf) $(headers.nodes/cc_binary) $(headers.nodes/cc_library) $(headers.nodes/cmake) $(headers.nodes/confignode) $(headers.nodes/gen_sh) $(headers.nodes/go_binary) $(headers.nodes/go_library) $(headers.nodes/make) $(headers.nodes/node) $(headers.nodes/proto_library) $(headers.reader/buildfile) $(headers.reader/parser) .gen-obj/common/third_party/google/glog/.__auto_name_0.dummy .gen-obj/common/third_party/google/glog/.__auto_name_2.dummy .gen-src/.gen-files/common/.dummy .gen-src/.gen-files/json/.dummy .gen-src/.gen-files/repobuild/.dummy .gen-src/common/.dummy .gen-src/json/.dummy .gen-src/repobuild/.dummy reader/parser.cc
-	@mkdir -p .gen-obj/reader
-	@echo Compiling: reader/parser.cc
-	@$(COMPILE.cc) -I. -I.gen-files -I.gen-src -I.gen-src/.gen-files $(cxx_header_compile_args.common/third_party/google/gflags/gflags) $(cxx_header_compile_args.common/third_party/google/glog/glog_headers) reader/parser.cc -o .gen-obj/reader/parser.cc.o
+.gen-obj/reader/parser.cc.o: $(headers.common/base/flags) $(headers.common/file/fileutil) $(headers.common/log/log) $(headers.common/strings/strutil) $(headers.common/third_party/google/gflags/gflags) $(headers.common/third_party/google/glog/glog_headers) $(headers.common/third_party/google/re2/re2) $(headers.common/util/stl) $(headers.env/input) $(headers.env/resource) $(headers.env/target) $(headers.json/json) $(headers.nodes/allnodes) $(headers.nodes/autoconf) $(headers.nodes/cc_binary) $(headers.nodes/cc_library) $(headers.nodes/cmake) $(headers.nodes/confignode) $(headers.nodes/gen_sh) $(headers.nodes/go_binary) $(headers.nodes/go_library) $(headers.nodes/make) $(headers.nodes/node) $(headers.nodes/proto_library) $(headers.reader/buildfile) $(headers.reader/parser) .gen-obj/common/third_party/google/glog/.__auto_name_0.dummy .gen-obj/common/third_party/google/glog/.__auto_name_2.dummy .gen-src/.gen-files/common/.dummy .gen-src/.gen-files/json/.dummy .gen-src/.gen-files/repobuild/.dummy .gen-src/common/.dummy .gen-src/json/.dummy .gen-src/repobuild/.dummy reader/parser.cc
+	mkdir -p .gen-obj/reader
+	echo Compiling: reader/parser.cc
+	$(COMPILE.cc) -I. -I.gen-files -I.gen-src -I.gen-src/.gen-files $(cxx_header_compile_args.common/third_party/google/gflags/gflags) $(cxx_header_compile_args.common/third_party/google/glog/glog_headers) reader/parser.cc -o .gen-obj/reader/parser.cc.o
 
 reader/parser: .gen-obj/reader/parser.cc.o common/log/log common/file/fileutil common/strings/strutil common/util/stl env/input env/target json/json nodes/allnodes reader/buildfile __auto_name_0
 
@@ -570,25 +586,25 @@ reader/parser: .gen-obj/reader/parser.cc.o common/log/log common/file/fileutil c
 headers.generator/generator := generator/generator.h
 
 
-.gen-obj/generator/generator.cc.o: $(headers.common/base/flags) $(headers.common/file/fileutil) $(headers.common/log/log) $(headers.common/strings/strutil) $(headers.common/third_party/google/gflags/gflags) $(headers.common/third_party/google/glog/glog_headers) $(headers.common/third_party/google/re2/re2) $(headers.common/util/stl) $(headers.env/input) $(headers.env/target) $(headers.generator/generator) $(headers.json/json) $(headers.nodes/allnodes) $(headers.nodes/autoconf) $(headers.nodes/cc_binary) $(headers.nodes/cc_library) $(headers.nodes/cmake) $(headers.nodes/confignode) $(headers.nodes/gen_sh) $(headers.nodes/go_binary) $(headers.nodes/go_library) $(headers.nodes/make) $(headers.nodes/node) $(headers.nodes/proto_library) $(headers.reader/buildfile) $(headers.reader/parser) .gen-obj/common/third_party/google/glog/.__auto_name_0.dummy .gen-obj/common/third_party/google/glog/.__auto_name_2.dummy .gen-src/.gen-files/common/.dummy .gen-src/.gen-files/json/.dummy .gen-src/.gen-files/repobuild/.dummy .gen-src/common/.dummy .gen-src/json/.dummy .gen-src/repobuild/.dummy generator/generator.cc
-	@mkdir -p .gen-obj/generator
-	@echo Compiling: generator/generator.cc
-	@$(COMPILE.cc) -I. -I.gen-files -I.gen-src -I.gen-src/.gen-files $(cxx_header_compile_args.common/third_party/google/gflags/gflags) $(cxx_header_compile_args.common/third_party/google/glog/glog_headers) generator/generator.cc -o .gen-obj/generator/generator.cc.o
+.gen-obj/generator/generator.cc.o: $(headers.common/base/flags) $(headers.common/file/fileutil) $(headers.common/log/log) $(headers.common/strings/strutil) $(headers.common/third_party/google/gflags/gflags) $(headers.common/third_party/google/glog/glog_headers) $(headers.common/third_party/google/re2/re2) $(headers.common/util/stl) $(headers.env/input) $(headers.env/resource) $(headers.env/target) $(headers.generator/generator) $(headers.json/json) $(headers.nodes/allnodes) $(headers.nodes/autoconf) $(headers.nodes/cc_binary) $(headers.nodes/cc_library) $(headers.nodes/cmake) $(headers.nodes/confignode) $(headers.nodes/gen_sh) $(headers.nodes/go_binary) $(headers.nodes/go_library) $(headers.nodes/make) $(headers.nodes/node) $(headers.nodes/proto_library) $(headers.reader/buildfile) $(headers.reader/parser) .gen-obj/common/third_party/google/glog/.__auto_name_0.dummy .gen-obj/common/third_party/google/glog/.__auto_name_2.dummy .gen-src/.gen-files/common/.dummy .gen-src/.gen-files/json/.dummy .gen-src/.gen-files/repobuild/.dummy .gen-src/common/.dummy .gen-src/json/.dummy .gen-src/repobuild/.dummy generator/generator.cc
+	mkdir -p .gen-obj/generator
+	echo Compiling: generator/generator.cc
+	$(COMPILE.cc) -I. -I.gen-files -I.gen-src -I.gen-src/.gen-files $(cxx_header_compile_args.common/third_party/google/gflags/gflags) $(cxx_header_compile_args.common/third_party/google/glog/glog_headers) generator/generator.cc -o .gen-obj/generator/generator.cc.o
 
 generator/generator: .gen-obj/generator/generator.cc.o common/log/log env/input nodes/node nodes/cc_library reader/parser __auto_name_0
 
 .PHONY: generator/generator
 
 
-.gen-obj/repobuild.cc.o: $(headers.common/base/flags) $(headers.common/base/init) $(headers.common/base/macros) $(headers.common/base/mutex) $(headers.common/base/time) $(headers.common/base/types) $(headers.common/file/fileutil) $(headers.common/log/log) $(headers.common/strings/strutil) $(headers.common/third_party/google/gflags/gflags) $(headers.common/third_party/google/glog/glog_headers) $(headers.common/third_party/google/init/init) $(headers.common/third_party/google/re2/re2) $(headers.common/util/stl) $(headers.env/input) $(headers.env/target) $(headers.generator/generator) $(headers.json/json) $(headers.nodes/allnodes) $(headers.nodes/autoconf) $(headers.nodes/cc_binary) $(headers.nodes/cc_library) $(headers.nodes/cmake) $(headers.nodes/confignode) $(headers.nodes/gen_sh) $(headers.nodes/go_binary) $(headers.nodes/go_library) $(headers.nodes/make) $(headers.nodes/node) $(headers.nodes/proto_library) $(headers.reader/buildfile) $(headers.reader/parser) .gen-obj/common/third_party/google/glog/.__auto_name_0.dummy .gen-obj/common/third_party/google/glog/.__auto_name_2.dummy .gen-obj/common/third_party/google/gperftools/.__auto_name_0.dummy .gen-obj/common/third_party/google/gperftools/.__auto_name_2.dummy .gen-src/.gen-files/common/.dummy .gen-src/.gen-files/json/.dummy .gen-src/.gen-files/repobuild/.dummy .gen-src/common/.dummy .gen-src/json/.dummy .gen-src/repobuild/.dummy repobuild.cc
-	@mkdir -p .gen-obj
-	@echo Compiling: repobuild.cc
-	@$(COMPILE.cc) -I. -I.gen-files -I.gen-src -I.gen-src/.gen-files $(cxx_header_compile_args.common/third_party/google/gflags/gflags) $(cxx_header_compile_args.common/third_party/google/glog/glog_headers) repobuild.cc -o .gen-obj/repobuild.cc.o
+.gen-obj/repobuild.cc.o: $(headers.common/base/flags) $(headers.common/base/init) $(headers.common/base/macros) $(headers.common/base/mutex) $(headers.common/base/time) $(headers.common/base/types) $(headers.common/file/fileutil) $(headers.common/log/log) $(headers.common/strings/strutil) $(headers.common/third_party/google/gflags/gflags) $(headers.common/third_party/google/glog/glog_headers) $(headers.common/third_party/google/init/init) $(headers.common/third_party/google/re2/re2) $(headers.common/util/stl) $(headers.env/input) $(headers.env/resource) $(headers.env/target) $(headers.generator/generator) $(headers.json/json) $(headers.nodes/allnodes) $(headers.nodes/autoconf) $(headers.nodes/cc_binary) $(headers.nodes/cc_library) $(headers.nodes/cmake) $(headers.nodes/confignode) $(headers.nodes/gen_sh) $(headers.nodes/go_binary) $(headers.nodes/go_library) $(headers.nodes/make) $(headers.nodes/node) $(headers.nodes/proto_library) $(headers.reader/buildfile) $(headers.reader/parser) .gen-obj/common/third_party/google/glog/.__auto_name_0.dummy .gen-obj/common/third_party/google/glog/.__auto_name_2.dummy .gen-obj/common/third_party/google/gperftools/.__auto_name_0.dummy .gen-obj/common/third_party/google/gperftools/.__auto_name_2.dummy .gen-src/.gen-files/common/.dummy .gen-src/.gen-files/json/.dummy .gen-src/.gen-files/repobuild/.dummy .gen-src/common/.dummy .gen-src/json/.dummy .gen-src/repobuild/.dummy repobuild.cc
+	mkdir -p .gen-obj
+	echo Compiling: repobuild.cc
+	$(COMPILE.cc) -I. -I.gen-files -I.gen-src -I.gen-src/.gen-files $(cxx_header_compile_args.common/third_party/google/gflags/gflags) $(cxx_header_compile_args.common/third_party/google/glog/glog_headers) repobuild.cc -o .gen-obj/repobuild.cc.o
 
 
-.gen-obj/repobuild: .gen-obj/repobuild.cc.o .gen-obj/generator/generator.cc.o .gen-obj/reader/parser.cc.o .gen-obj/nodes/allnodes.cc.o .gen-obj/nodes/proto_library.cc.o .gen-obj/nodes/make.cc.o .gen-obj/nodes/go_binary.cc.o .gen-obj/nodes/go_library.cc.o .gen-obj/nodes/confignode.cc.o .gen-obj/nodes/cc_binary.cc.o .gen-obj/nodes/cmake.cc.o .gen-obj/nodes/autoconf.cc.o .gen-obj/nodes/gen_sh.cc.o .gen-obj/nodes/cc_library.cc.o .gen-obj/nodes/node.cc.o .gen-obj/reader/buildfile.cc.o .gen-obj/json/json_writer.cpp.o .gen-obj/json/json_value.cpp.o .gen-obj/json/json_reader.cpp.o .gen-obj/env/target.cc.o .gen-obj/env/input.cc.o .gen-obj/common/strings/varmap.cc.o .gen-obj/common/strings/path.cc.o .gen-obj/common/strings/strutil.cc.o .gen-obj/common/third_party/google/re2/stringprintf.cc.o .gen-obj/common/third_party/google/re2/stringpiece.cc.o .gen-obj/common/file/fileutil.cc.o .gen-files/common/third_party/google/gperftools/lib/libprofiler.a .gen-obj/common/base/time.cc.o .gen-obj/common/base/init.cc.o .gen-files/common/third_party/google/glog/lib/libglog.a .gen-obj/common/third_party/google/gflags/src/gflags_reporting.cc.o .gen-obj/common/third_party/google/gflags/src/gflags_nc.cc.o .gen-obj/common/third_party/google/gflags/src/gflags_completions.cc.o .gen-obj/common/third_party/google/gflags/src/gflags.cc.o
-	@echo Linking: .gen-obj/repobuild
-	@$(LINK.cc) .gen-obj/repobuild.cc.o .gen-obj/generator/generator.cc.o .gen-obj/reader/parser.cc.o .gen-obj/nodes/allnodes.cc.o .gen-obj/nodes/proto_library.cc.o .gen-obj/nodes/make.cc.o .gen-obj/nodes/go_binary.cc.o .gen-obj/nodes/go_library.cc.o .gen-obj/nodes/confignode.cc.o .gen-obj/nodes/cc_binary.cc.o .gen-obj/nodes/cmake.cc.o .gen-obj/nodes/autoconf.cc.o .gen-obj/nodes/gen_sh.cc.o .gen-obj/nodes/cc_library.cc.o .gen-obj/nodes/node.cc.o .gen-obj/reader/buildfile.cc.o .gen-obj/json/json_writer.cpp.o .gen-obj/json/json_value.cpp.o .gen-obj/json/json_reader.cpp.o .gen-obj/env/target.cc.o .gen-obj/env/input.cc.o .gen-obj/common/strings/varmap.cc.o .gen-obj/common/strings/path.cc.o .gen-obj/common/strings/strutil.cc.o .gen-obj/common/third_party/google/re2/stringprintf.cc.o .gen-obj/common/third_party/google/re2/stringpiece.cc.o .gen-obj/common/file/fileutil.cc.o .gen-files/common/third_party/google/gperftools/lib/libprofiler.a .gen-obj/common/base/time.cc.o .gen-obj/common/base/init.cc.o .gen-files/common/third_party/google/glog/lib/libglog.a .gen-obj/common/third_party/google/gflags/src/gflags_reporting.cc.o .gen-obj/common/third_party/google/gflags/src/gflags_nc.cc.o .gen-obj/common/third_party/google/gflags/src/gflags_completions.cc.o .gen-obj/common/third_party/google/gflags/src/gflags.cc.o -o .gen-obj/repobuild
+.gen-obj/repobuild: .gen-obj/repobuild.cc.o .gen-obj/generator/generator.cc.o .gen-obj/reader/parser.cc.o .gen-obj/nodes/allnodes.cc.o .gen-obj/nodes/proto_library.cc.o .gen-obj/nodes/make.cc.o .gen-obj/nodes/go_binary.cc.o .gen-obj/nodes/go_library.cc.o .gen-obj/nodes/confignode.cc.o .gen-obj/nodes/cc_binary.cc.o .gen-obj/nodes/cmake.cc.o .gen-obj/nodes/autoconf.cc.o .gen-obj/nodes/gen_sh.cc.o .gen-obj/nodes/cc_library.cc.o .gen-obj/nodes/node.cc.o .gen-obj/env/resource.cc.o .gen-obj/reader/buildfile.cc.o .gen-obj/json/json_writer.cpp.o .gen-obj/json/json_value.cpp.o .gen-obj/json/json_reader.cpp.o .gen-obj/env/target.cc.o .gen-obj/env/input.cc.o .gen-obj/common/strings/varmap.cc.o .gen-obj/common/strings/path.cc.o .gen-obj/common/strings/strutil.cc.o .gen-obj/common/third_party/google/re2/stringprintf.cc.o .gen-obj/common/third_party/google/re2/stringpiece.cc.o .gen-obj/common/file/fileutil.cc.o .gen-files/common/third_party/google/gperftools/lib/libtcmalloc_and_profiler.a .gen-obj/common/base/time.cc.o .gen-obj/common/base/init.cc.o .gen-files/common/third_party/google/glog/lib/libglog.a .gen-obj/common/third_party/google/gflags/src/gflags_reporting.cc.o .gen-obj/common/third_party/google/gflags/src/gflags_nc.cc.o .gen-obj/common/third_party/google/gflags/src/gflags_completions.cc.o .gen-obj/common/third_party/google/gflags/src/gflags.cc.o
+	echo Linking: .gen-obj/repobuild
+	$(LINK.cc)  .gen-obj/repobuild.cc.o .gen-obj/generator/generator.cc.o .gen-obj/reader/parser.cc.o .gen-obj/nodes/allnodes.cc.o .gen-obj/nodes/proto_library.cc.o .gen-obj/nodes/make.cc.o .gen-obj/nodes/go_binary.cc.o .gen-obj/nodes/go_library.cc.o .gen-obj/nodes/confignode.cc.o .gen-obj/nodes/cc_binary.cc.o .gen-obj/nodes/cmake.cc.o .gen-obj/nodes/autoconf.cc.o .gen-obj/nodes/gen_sh.cc.o .gen-obj/nodes/cc_library.cc.o .gen-obj/nodes/node.cc.o .gen-obj/env/resource.cc.o .gen-obj/reader/buildfile.cc.o .gen-obj/json/json_writer.cpp.o .gen-obj/json/json_value.cpp.o .gen-obj/json/json_reader.cpp.o .gen-obj/env/target.cc.o .gen-obj/env/input.cc.o .gen-obj/common/strings/varmap.cc.o .gen-obj/common/strings/path.cc.o .gen-obj/common/strings/strutil.cc.o .gen-obj/common/third_party/google/re2/stringprintf.cc.o .gen-obj/common/third_party/google/re2/stringpiece.cc.o .gen-obj/common/file/fileutil.cc.o $(LD_FORCE_LINK_START) .gen-files/common/third_party/google/gperftools/lib/libtcmalloc_and_profiler.a $(LD_FORCE_LINK_END) .gen-obj/common/base/time.cc.o .gen-obj/common/base/init.cc.o .gen-files/common/third_party/google/glog/lib/libglog.a .gen-obj/common/third_party/google/gflags/src/gflags_reporting.cc.o .gen-obj/common/third_party/google/gflags/src/gflags_nc.cc.o .gen-obj/common/third_party/google/gflags/src/gflags_completions.cc.o .gen-obj/common/third_party/google/gflags/src/gflags.cc.o -o .gen-obj/repobuild
 
 repobuild: .gen-obj/repobuild common/base/base common/log/log common/file/fileutil common/strings/stringpiece common/strings/strutil env/input env/target generator/generator __auto_name_0
 
@@ -596,29 +612,29 @@ repobuild: .gen-obj/repobuild common/base/base common/log/log common/file/fileut
 
 
 repobuild: .gen-obj/repobuild
-	@pwd > /dev/null
-	@ln -f -s .gen-obj/repobuild repobuild
+	pwd > /dev/null
+	ln -f -s .gen-obj/repobuild repobuild
 
 
 clean: 
-	@rm -rf .gen-src/repobuild/.dummy
-	@rm -rf .gen-src/.gen-src/repobuild/repobuild
-	@rm -rf .gen-src/.gen-files/repobuild/.dummy
-	@rm -rf .gen-src/.gen-files/repobuild
-	@rm -rf .gen-src/common/.dummy
-	@rm -rf .gen-src/.gen-src/common/common
-	@rm -rf .gen-src/.gen-files/common/.dummy
-	@rm -rf .gen-src/.gen-files/common
-	-@(mkdir -p .gen-files/common/third_party/google/glog; cd common/third_party/google/glog; GEN_DIR="../../../../.gen-files/common/third_party/google/glog" OBJ_DIR="../../../../.gen-obj/common/third_party/google/glog SRC_DIR="../../../../.gen-src/common/third_party/google/glog ROOT_DIR="../../../../" CXX_GCC="$(CXX_GCC)" CC_GCC="$(CC_GCC)" CC="$(CC)" CXX="$(CXX)" CXXFLAGS="$(CXXFLAGS)" BASIC_CXXFLAGS="$(BASIC_CXXFLAGS)" CFLAGS="$(CFLAGS)" BASIC_CFLAGS="$(BASIC_CFLAGS)" LDFLAGS="$(LDFLAGS)" MAKE="$(MAKE)" GFLAGS_LIB_ROOT=".gen-obj/common/third_party/google/gflags" GFLAGS_SRC_ROOT="common/third_party/google/gflags/src"  eval '($$MAKE DESTDIR=$$(pwd)/$$GEN_DIR clean)' > ../../../../.gen-files/common/third_party/google/glog/.logfile 2>&1 || (cat ../../../../.gen-files/common/third_party/google/glog/.logfile; exit 1) )
-	-@(mkdir -p .gen-files/common/third_party/google/gperftools; cd common/third_party/google/gperftools; GEN_DIR="../../../../.gen-files/common/third_party/google/gperftools" OBJ_DIR="../../../../.gen-obj/common/third_party/google/gperftools SRC_DIR="../../../../.gen-src/common/third_party/google/gperftools ROOT_DIR="../../../../" CXX_GCC="$(CXX_GCC)" CC_GCC="$(CC_GCC)" CC="$(CC)" CXX="$(CXX)" CXXFLAGS="$(CXXFLAGS)" BASIC_CXXFLAGS="$(BASIC_CXXFLAGS)" CFLAGS="$(CFLAGS)" BASIC_CFLAGS="$(BASIC_CFLAGS)" LDFLAGS="$(LDFLAGS)" MAKE="$(MAKE)"  eval '($$MAKE DESTDIR=$$(pwd)/$$GEN_DIR clean)' > ../../../../.gen-files/common/third_party/google/gperftools/.logfile 2>&1 || (cat ../../../../.gen-files/common/third_party/google/gperftools/.logfile; exit 1) )
-	@rm -rf .gen-src/json/.dummy
-	@rm -rf .gen-src/.gen-src/json/json
-	@rm -rf .gen-src/.gen-files/json/.dummy
-	@rm -rf .gen-src/.gen-files/json
-	@rm -f repobuild
-	@rm -rf .gen-obj
-	@rm -rf .gen-files
-	@rm -rf .gen-src
+	rm -rf .gen-src/repobuild/.dummy
+	rm -rf .gen-src/.gen-src/repobuild/repobuild
+	rm -rf .gen-src/.gen-files/repobuild/.dummy
+	rm -rf .gen-src/.gen-files/repobuild
+	rm -rf .gen-src/common/.dummy
+	rm -rf .gen-src/.gen-src/common/common
+	rm -rf .gen-src/.gen-files/common/.dummy
+	rm -rf .gen-src/.gen-files/common
+	-(mkdir -p .gen-files/common/third_party/google/glog; cd common/third_party/google/glog; GEN_DIR="../../../../.gen-files/common/third_party/google/glog" OBJ_DIR="../../../../.gen-obj/common/third_party/google/glog SRC_DIR="../../../../.gen-src/common/third_party/google/glog ROOT_DIR="../../../../" CXX_GCC="$(CXX_GCC)" CC_GCC="$(CC_GCC)" CC="$(CC)" CXX="$(CXX)" CXXFLAGS="$(CXXFLAGS)" BASIC_CXXFLAGS="$(BASIC_CXXFLAGS)" CFLAGS="$(CFLAGS)" BASIC_CFLAGS="$(BASIC_CFLAGS)" LDFLAGS="$(LDFLAGS)" MAKE="$(MAKE)" GFLAGS_OBJS=".gen-obj/common/third_party/google/gflags/src/*.o" GFLAGS_SRC_ROOT="common/third_party/google/gflags/src"  eval '($$MAKE DESTDIR=$$(pwd)/$$GEN_DIR clean)' > ../../../../.gen-files/common/third_party/google/glog/.logfile 2>&1 || (cat ../../../../.gen-files/common/third_party/google/glog/.logfile; exit 1) )
+	-(mkdir -p .gen-files/common/third_party/google/gperftools; cd common/third_party/google/gperftools; GEN_DIR="../../../../.gen-files/common/third_party/google/gperftools" OBJ_DIR="../../../../.gen-obj/common/third_party/google/gperftools SRC_DIR="../../../../.gen-src/common/third_party/google/gperftools ROOT_DIR="../../../../" CXX_GCC="$(CXX_GCC)" CC_GCC="$(CC_GCC)" CC="$(CC)" CXX="$(CXX)" CXXFLAGS="$(CXXFLAGS)" BASIC_CXXFLAGS="$(BASIC_CXXFLAGS)" CFLAGS="$(CFLAGS)" BASIC_CFLAGS="$(BASIC_CFLAGS)" LDFLAGS="$(LDFLAGS)" MAKE="$(MAKE)" GFLAGS_OBJS=".gen-obj/common/third_party/google/gflags/src/*.o" GFLAGS_SRC_ROOT="common/third_party/google/gflags/src"  eval '($$MAKE DESTDIR=$$(pwd)/$$GEN_DIR clean)' > ../../../../.gen-files/common/third_party/google/gperftools/.logfile 2>&1 || (cat ../../../../.gen-files/common/third_party/google/gperftools/.logfile; exit 1) )
+	rm -rf .gen-src/json/.dummy
+	rm -rf .gen-src/.gen-src/json/json
+	rm -rf .gen-src/.gen-files/json/.dummy
+	rm -rf .gen-src/.gen-files/json
+	rm -f repobuild
+	rm -rf .gen-obj
+	rm -rf .gen-files
+	rm -rf .gen-src
 
 
 all: repobuild

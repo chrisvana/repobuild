@@ -7,6 +7,7 @@
 #include "common/log/log.h"
 #include "common/strings/path.h"
 #include "repobuild/env/input.h"
+#include "repobuild/env/resource.h"
 #include "repobuild/nodes/confignode.h"
 #include "repobuild/reader/buildfile.h"
 
@@ -44,8 +45,8 @@ void ConfigNode::WriteMakefile(const vector<const Node*>& all_deps,
 
   // (2) Main files
   {
-    set<string> targets;
-    targets.insert(dir);
+    set<Resource> targets;
+    targets.insert(Resource::FromRootPath(dir));
     WriteBaseUserTarget(targets, out);
   }
 
@@ -84,7 +85,8 @@ void ConfigNode::AddSymlink(const string& dir,
   out->FinishRule();
 }
 
-void ConfigNode::WriteMakeClean(Makefile* out) const {
+void ConfigNode::WriteMakeClean(const vector<const Node*>& all_deps,
+                                Makefile* out) const {
   if (component_src_.empty()) {
     return;
   }
@@ -95,19 +97,21 @@ void ConfigNode::WriteMakeClean(Makefile* out) const {
   out->WriteCommand("rm -rf " + SourceDir(input().genfile_dir()));
 }
 
-void ConfigNode::DependencyFiles(vector<string>* files) const {
+void ConfigNode::DependencyFiles(vector<Resource>* files) const {
   Node::DependencyFiles(files);
   if (!component_src_.empty()) {
-    files->push_back(DummyFile(SourceDir("")));
-    files->push_back(DummyFile(SourceDir(input().genfile_dir())));
+    files->push_back(Resource::FromRootPath(
+        DummyFile(SourceDir(""))));
+    files->push_back(Resource::FromRootPath(
+        DummyFile(SourceDir(input().genfile_dir()))));
   }
 }
 
-std::string ConfigNode::DummyFile(const string& dir) const {
+string ConfigNode::DummyFile(const string& dir) const {
   return MakefileEscape(strings::JoinPath(dir, ".dummy"));
 }
 
-std::string ConfigNode::SourceDir(const string& middle) const {
+string ConfigNode::SourceDir(const string& middle) const {
   if (middle.empty()) {
     return MakefileEscape(strings::JoinPath(input().source_dir(),
                                             component_src_));
@@ -117,7 +121,7 @@ std::string ConfigNode::SourceDir(const string& middle) const {
       strings::JoinPath(middle, component_src_)));
 }
 
-std::string ConfigNode::CurrentDir(const string& middle) const {
+string ConfigNode::CurrentDir(const string& middle) const {
   if (middle.empty()) {
     return strings::JoinPath(target().dir(), component_src_);
   }

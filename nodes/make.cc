@@ -49,7 +49,7 @@ void MakeNode::ParseWithOptions(BuildFile* file,
   }
   string clean_cmd = "$MAKE DESTDIR=" + dest_dir + " clean";
 
-  vector<string> input_files;
+  vector<Resource> input_files;
   ParseRepeatedFiles(input, "inputs", &input_files);
 
   vector<string> output_files;

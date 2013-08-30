@@ -34,10 +34,10 @@ void GenShNode::Parse(BuildFile* file, const BuildFileNode& input) {
   ParseRepeatedString(input, "outs", &outputs_);
 }
 
-void GenShNode::Set(const std::string& build_cmd,
-                    const std::string& clean_cmd,
-                    const std::vector<std::string>& input_files,
-                    const std::vector<std::string>& outputs) {
+void GenShNode::Set(const string& build_cmd,
+                    const string& clean_cmd,
+                    const vector<Resource>& input_files,
+                    const vector<string>& outputs) {
   build_cmd_ = build_cmd;
   clean_cmd_ = clean_cmd;
   input_files_ = input_files;
@@ -46,15 +46,15 @@ void GenShNode::Set(const std::string& build_cmd,
 
 void GenShNode::WriteMakefile(const vector<const Node*>& all_deps,
                               Makefile* out) const {
-  string touchfile = Touchfile();
+  Resource touchfile = Touchfile();
 
   // Inputs
-  set<string> input_files;
+  set<Resource> input_files;
   CollectDependencies(all_deps, &input_files);
   input_files.erase(touchfile);  // all but our own file.
 
   // Make target
-  out->StartRule(touchfile, strings::JoinWith(
+  out->StartRule(touchfile.path(), strings::JoinWith(
       " ",
       strings::JoinAll(input_files, " "),
       strings::JoinAll(input_files_, " ")));
@@ -65,7 +65,7 @@ void GenShNode::WriteMakefile(const vector<const Node*>& all_deps,
 
     string touch_cmd = "mkdir -p " +
         strings::JoinPath(input().object_dir(), target().dir()) +
-        "; touch " + touchfile;
+        "; touch " + touchfile.path();
 
     string prefix;
     {  // compute prefix.
@@ -84,13 +84,14 @@ void GenShNode::WriteMakefile(const vector<const Node*>& all_deps,
   out->FinishRule();
 
   {  // user target
-    set<string> output_targets;
+    set<Resource> output_targets;
     output_targets.insert(touchfile);
     WriteBaseUserTarget(output_targets, out);
   }
 
   for (const string& output : outputs_) {
-    out->WriteRule(strings::JoinPath(GenDir(), output), touchfile);
+    out->WriteRule(Resource::FromLocalPath(GenDir(), output).path(),
+                   touchfile.path());
   }
 }
 
@@ -184,12 +185,12 @@ string GenShNode::WriteCommand(const map<string, string>& env_vars,
   return out;
 }
 
-void GenShNode::DependencyFiles(vector<string>* files) const {
+void GenShNode::DependencyFiles(vector<Resource>* files) const {
   files->push_back(Touchfile());
 }
 
-string GenShNode::Touchfile() const {
-  return strings::JoinPath(
+Resource GenShNode::Touchfile() const {
+  return Resource::FromLocalPath(
       strings::JoinPath(input().object_dir(), target().dir()),
       "." + target().local_path() + ".dummy");
 }

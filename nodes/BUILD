@@ -6,7 +6,11 @@
      "dependencies": [ "//common/log:log",
                        "//common/file:fileutil",
                        "//common/strings:strutil",
-                       "//reader:buildfile" ]
+                       "//common/util:stl",
+                       "//reader:buildfile",
+                       "//env:resource",
+                       "//env:target"
+    ]
    }
  },
 

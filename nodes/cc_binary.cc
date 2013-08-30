@@ -27,32 +27,33 @@ void CCBinaryNode::WriteMakefile(const vector<const Node*>& all_deps,
   CCLibraryNode::WriteMakefileInternal(all_deps, false, out);
 
   // Output binary
-  string bin = strings::JoinPath(input().object_dir(), target().make_path());
+  Resource bin = Resource::FromLocalPath(input().object_dir(),
+                                         target().make_path());
   WriteLink(all_deps, bin, out);
 
   {  // Output user target
-    set<string> deps;
+    set<Resource> deps;
     deps.insert(bin);
     WriteBaseUserTarget(deps, out);
   }
 
   // Symlink to root dir.
-  string out_bin = OutBinary();
-  out->StartRule(out_bin, bin);
+  Resource out_bin = OutBinary();
+  out->StartRule(out_bin.path(), bin.path());
   out->WriteCommand("pwd > /dev/null");  // hack to work around make issue?
   out->WriteCommand(
       strings::Join(
           "ln -f -s ",
           strings::JoinPath(input().object_dir(), target().make_path()),
-          " ", out_bin));
+          " ", out_bin.path()));
   out->FinishRule();
 }
 
 void CCBinaryNode::WriteLink(
     const vector<const Node*>& all_deps,
-    const string& file,
+    const Resource& file,
     Makefile* out) const {
-  vector<string> objects;
+  vector<Resource> objects;
   CollectObjects(all_deps, &objects);
 
   set<string> flags;
@@ -64,28 +65,40 @@ void CCBinaryNode::WriteLink(
   // we get the objects in order too (a <- b <- c, etc). We want c b a in the
   // output, so "a" is last. Thus, we reverse the list.... shoot me.
   std::reverse(objects.begin(), objects.end());
-  string list = strings::JoinAll(objects, " ");
 
   // Link rule
-  out->StartRule(file, list);
-  out->WriteCommand("echo Linking: " + file);
+  out->StartRule(file.path(), strings::JoinAll(objects, " "));
+  out->WriteCommand("echo Linking: " + file.path());
+  string obj_list;
+  for (const Resource& r : objects) {
+    obj_list += " ";
+    bool alwayslink = r.has_tag("alwayslink");
+    if (alwayslink) {
+      obj_list += "$(LD_FORCE_LINK_START) ";
+    }
+    obj_list += r.path();
+    if (alwayslink) {
+      obj_list += " $(LD_FORCE_LINK_END)";
+    }
+  }
   out->WriteCommand(strings::JoinWith(
       " ",
-      "$(LINK.cc)", list, "-o", file,
+      "$(LINK.cc)", obj_list, "-o", file,
       strings::JoinAll(flags, " ")));
   out->FinishRule();
 }
 
-void CCBinaryNode::WriteMakeClean(Makefile* out) const {
-  out->WriteCommand("rm -f " + OutBinary());
+void CCBinaryNode::WriteMakeClean(const vector<const Node*>& all_deps,
+                                  Makefile* out) const {
+  out->WriteCommand("rm -f " + OutBinary().path());
 }
 
-void CCBinaryNode::FinalOutputs(vector<string>* outputs) const {
+void CCBinaryNode::FinalOutputs(vector<Resource>* outputs) const {
   outputs->push_back(OutBinary());
 }
 
-std::string CCBinaryNode::OutBinary() const {
-  return strings::JoinPath(input().root_dir(), target().local_path());
+Resource CCBinaryNode::OutBinary() const {
+  return Resource::FromLocalPath(input().root_dir(), target().local_path());
 }
 
 }  // namespace repobuild

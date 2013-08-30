@@ -8,6 +8,7 @@
 #include "common/strings/path.h"
 #include "common/strings/strutil.h"
 #include "common/strings/varmap.h"
+#include "common/util/stl.h"
 #include "repobuild/env/input.h"
 #include "repobuild/nodes/node.h"
 #include "repobuild/reader/buildfile.h"
@@ -40,12 +41,8 @@ Node::Node(const TargetInfo& target, const Input& input)
 }
 
 Node::~Node() {
-  for (auto it : dependencies_) {
-    delete it;
-  }
-  for (auto it : owned_subnodes_) {
-    delete it;
-  }
+  DeleteElements(&dependencies_);
+  DeleteElements(&owned_subnodes_);
 }
 
 void Node::Parse(BuildFile* file, const BuildFileNode& input) {
@@ -59,7 +56,7 @@ void Node::Parse(BuildFile* file, const BuildFileNode& input) {
   ParseKeyValueStrings(input, "env", &env_variables_);
 }
 
-void Node::WriteMake(const std::vector<const Node*>& all_deps,
+void Node::WriteMake(const vector<const Node*>& all_deps,
                      Makefile* out) const {
   WriteVariables(out->mutable_out());
   WriteMakefile(all_deps, out);
@@ -88,12 +85,10 @@ void Node::ParseRepeatedString(const BuildFileNode& input,
 
 void Node::ParseRepeatedFiles(const BuildFileNode& input,
                               const string& key,
-                              vector<std::string>* out) const {
+                              vector<Resource>* out) const {
   vector<string> temp;
   ParseRepeatedString(input, key, false /* absolute gen dir */, &temp);
   for (const string& file : temp) {
-    int size = out->size();
-
     // TODO(cvanarsdale): hacky.
     string glob;
     if (!strings::HasPrefix(file, GenDir())) {
@@ -102,16 +97,21 @@ void Node::ParseRepeatedFiles(const BuildFileNode& input,
       glob = file;
     }
 
-    CHECK(file::Glob(glob, out))
+    vector<string> tmp;
+    CHECK(file::Glob(glob, &tmp))
         << "Could not run glob("
         << glob
         << "), bad permissions?";
-    if (out->size() == size) {
+    if (tmp.empty()) {
       if (strict_file_mode_) {
         LOG(FATAL) << "No matched files: " << file
                    << " for target " << target().full_path();
       } else {
-        out->push_back(glob);
+        out->push_back(Resource::FromRootPath(glob));
+      }
+    } else {
+      for (const string& it : tmp) {
+        out->push_back(Resource::FromRootPath(it));
       }
     }
   }
@@ -191,26 +191,26 @@ void Node::EnvVariables(map<string, string>* env) const {
 }
 
 void Node::CollectDependencies(const vector<const Node*>& all_deps,
-                               set<string>* out) const {
+                               set<Resource>* out) const {
   for (int i = 0; i < all_deps.size(); ++i) {
-    vector<string> files;
+    vector<Resource> files;
     all_deps[i]->DependencyFiles(&files);
-    for (const string& it : files) { out->insert(it); }
+    for (const Resource& it : files) { out->insert(it); }
   }
-  vector<string> files;
+  vector<Resource> files;
   DependencyFiles(&files);
-  for (const string& it : files) {
+  for (const Resource& it : files) {
     out->insert(it);
   }
 }
 
 void Node::CollectObjects(const vector<const Node*>& all_deps,
-                          vector<string>* out) const {
-  set<string> tmp;
+                          vector<Resource>* out) const {
+  set<Resource> tmp;
   for (const Node* dep : all_deps) {
-    vector<string> obj_files;
+    vector<Resource> obj_files;
     dep->ObjectFiles(&obj_files);
-    for (const string& it : obj_files) {
+    for (const Resource& it : obj_files) {
       if (tmp.insert(it).second) {
         out->push_back(it);
       }
@@ -218,9 +218,9 @@ void Node::CollectObjects(const vector<const Node*>& all_deps,
   }
 
   {
-    vector<string> obj_files;
+    vector<Resource> obj_files;
     ObjectFiles(&obj_files);
-    for (const string& it : obj_files) {
+    for (const Resource& it : obj_files) {
       if (tmp.insert(it).second) {
         out->push_back(it);
       }
@@ -246,8 +246,8 @@ void Node::CollectCompileFlags(bool cxx,
 }
 
 void Node::CollectEnvVariables(
-    const std::vector<const Node*>& all_deps,
-    std::map<std::string, std::string>* vars) const {
+    const vector<const Node*>& all_deps,
+    map<string, string>* vars) const {
   for (const Node* dep : all_deps) {
     dep->EnvVariables(vars);
   }
@@ -292,13 +292,13 @@ string Node::MakefileEscape(const string& str) const {
   return strings::ReplaceAll(str, "$", "$$");
 }
 
-void Node::WriteBaseUserTarget(const set<string>& deps,
+void Node::WriteBaseUserTarget(const set<Resource>& deps,
                                Makefile* out) const {
   out->append(target().make_path());
   out->append(":");
-  for (const string& dep : deps) {
+  for (const Resource& dep : deps) {
     out->append(" ");
-    out->append(dep);
+    out->append(dep.path());
   }
   for (const TargetInfo* dep : dependencies()) {
     out->append(" ");
@@ -309,7 +309,7 @@ void Node::WriteBaseUserTarget(const set<string>& deps,
   out->append("\n\n");
 }
 
-void Node::MakeVariable::WriteMake(std::string* out) const {
+void Node::MakeVariable::WriteMake(string* out) const {
   if (name_.empty()) {
     return;
   }
@@ -342,15 +342,14 @@ void Node::MakeVariable::WriteMake(std::string* out) const {
   out->append("\n");
 }
 
-void SimpleLibraryNode::DependencyFiles(vector<string>* files) const {
+void SimpleLibraryNode::DependencyFiles(vector<Resource>* files) const {
   Node::DependencyFiles(files);
   for (int i = 0; i < sources_.size(); ++i) {
     files->push_back(sources_[i]);
   }
 }
 
-void Makefile::StartRule(const std::string& rule,
-                         const std::string& dependencies) {
+void Makefile::StartRule(const string& rule, const string& dependencies) {
   out_.append("\n");
   out_.append(rule);
   out_.append(": ");
@@ -362,7 +361,7 @@ void Makefile::FinishRule() {
   out_.append("\n");
 }
 
-void Makefile::WriteCommand(const std::string& command) {
+void Makefile::WriteCommand(const string& command) {
   out_.append("\t");
   if (silent_) {
     out_.append("@");
@@ -371,7 +370,7 @@ void Makefile::WriteCommand(const std::string& command) {
   out_.append("\n");
 }
 
-void Makefile::WriteCommandBestEffort(const std::string& command) {
+void Makefile::WriteCommandBestEffort(const string& command) {
   out_.append("\t-");  // - == ignore failures
   if (silent_) {
     out_.append("@");

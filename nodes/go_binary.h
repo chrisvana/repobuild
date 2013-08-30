@@ -19,14 +19,15 @@ class GoBinaryNode : public GoLibraryNode {
   virtual ~GoBinaryNode() {}
   virtual std::string Name() const { return "go_binary"; }
   virtual void Parse(BuildFile* file, const BuildFileNode& input);
-  virtual void WriteMakeClean(Makefile* out) const;
+  virtual void WriteMakeClean(const std::vector<const Node*>& all_deps,
+                              Makefile* out) const;
   virtual void WriteMakefile(const std::vector<const Node*>& all_deps,
                              Makefile* out) const;
-  virtual void FinalOutputs(std::vector<std::string>* outputs) const;
+  virtual void FinalOutputs(std::vector<Resource>* outputs) const;
 
  protected:
   // Helper.
-  std::string OutBinary() const;
+  Resource OutBinary() const;
 
   std::vector<std::string> go_build_args_;
 };

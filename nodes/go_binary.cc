@@ -27,16 +27,16 @@ void GoBinaryNode::WriteMakefile(const vector<const Node*>& all_deps,
   GoLibraryNode::WriteMakefile(all_deps, out);
 
   // Source files.
-  set<string> source_files;
+  set<Resource> source_files;
   CollectDependencies(all_deps, &source_files);
 
   // Output binary
-  string bin = strings::JoinPath(
+  Resource bin = Resource::FromLocalPath(
       strings::JoinPath(input().object_dir(), target().dir()),
       target().local_path());
-  out->StartRule(bin, strings::JoinAll(source_files, " "));
-  out->WriteCommand("echo Go build: " + bin);
-  out->WriteCommand("mkdir -p " + strings::PathDirname(bin));
+  out->StartRule(bin.path(), strings::JoinAll(source_files, " "));
+  out->WriteCommand("echo Go build: " + bin.path());
+  out->WriteCommand("mkdir -p " + bin.dirname());
   out->WriteCommand(
       strings::JoinWith(
           " ",
@@ -47,28 +47,29 @@ void GoBinaryNode::WriteMakefile(const vector<const Node*>& all_deps,
   out->FinishRule();
 
   // Symlink to root dir.
-  string out_bin = OutBinary();
-  out->StartRule(out_bin, bin);
+  Resource out_bin = OutBinary();
+  out->StartRule(out_bin.path(), bin.path());
   out->WriteCommand("pwd > /dev/null");  // hack to work around make issue?
   out->WriteCommand(
       strings::JoinWith(
           " ",
           "ln -f -s",
           strings::JoinPath(input().object_dir(), target().make_path()),
-          out_bin));
+          out_bin.path()));
   out->FinishRule();
 }
 
-void GoBinaryNode::WriteMakeClean(Makefile* out) const {
-  out->WriteCommand("rm -f " + OutBinary());
+void GoBinaryNode::WriteMakeClean(const vector<const Node*>& all_deps,
+                                  Makefile* out) const {
+  out->WriteCommand("rm -f " + OutBinary().path());
 }
 
-void GoBinaryNode::FinalOutputs(vector<string>* outputs) const {
+void GoBinaryNode::FinalOutputs(vector<Resource>* outputs) const {
   outputs->push_back(OutBinary());
 }
 
-std::string GoBinaryNode::OutBinary() const {
-  return strings::JoinPath(input().root_dir(), target().local_path());
+Resource GoBinaryNode::OutBinary() const {
+  return Resource::FromLocalPath(input().root_dir(), target().local_path());
 }
 
 }  // namespace repobuild

@@ -22,6 +22,8 @@ using std::set;
 namespace repobuild {
 
 void ProtoLibraryNode::Parse(BuildFile* file, const BuildFileNode& input) {
+  // TODO(cvanarsdale): This function is ugly.
+
   Node::Parse(file, input);
 
   // Generate the output files.
@@ -33,7 +35,7 @@ void ProtoLibraryNode::Parse(BuildFile* file, const BuildFileNode& input) {
   gen->SetCd(false);
   AddSubNode(gen);
   string build_cmd, clean_cmd;
-  vector<string> inputs, outputs;
+  vector<string> outputs;
 
   // And build them into a cc library
   CCLibraryNode* cc_lib = new CCLibraryNode(
@@ -41,9 +43,9 @@ void ProtoLibraryNode::Parse(BuildFile* file, const BuildFileNode& input) {
       Node::input());
   AddSubNode(cc_lib);
   cc_lib->AddDependency(gen->target());
-  vector<string> sources, headers;
+  vector<Resource> sources, headers;
 
-  vector<string> input_files;
+  vector<Resource> input_files;
   ParseRepeatedFiles(input, "sources", &input_files);
   if (input_files.empty()) {
     LOG(FATAL) << "proto_library requires input .proto files: "
@@ -53,11 +55,14 @@ void ProtoLibraryNode::Parse(BuildFile* file, const BuildFileNode& input) {
   build_cmd = "protoc --cpp_out=";
   build_cmd += Node::input().genfile_dir();
   clean_cmd = "rm -f";
-  for (const string& file : input_files) {
+  for (const Resource& input_file : input_files) {
+    string file = input_file.path();
+
     // Get just the relative path from this BUILD file.
     CHECK(strings::HasPrefix(file, target().dir()));
 
-    if (!strings::HasSuffix(file, ".proto")) {
+    if (!strings::HasSuffix(file, ".proto") ||
+        !strings::HasSuffix(file, ".protodevel")) {
       LOG(FATAL) << "Expected .proto suffix: "
                  << file
                  << " (from target " << target().full_path() << ").";
@@ -76,19 +81,19 @@ void ProtoLibraryNode::Parse(BuildFile* file, const BuildFileNode& input) {
     clean_cmd += " " + cpp_full;
     clean_cmd += " " + hpp_full;
 
-
     // Relative to BUILD file:
     outputs.push_back(cpp_file.substr(target().dir().size() + 1));
     outputs.push_back(hpp_file.substr(target().dir().size() + 1));
 
     // Relative to root:
-    sources.push_back(cpp_full);
-    headers.push_back(hpp_full);
+    sources.push_back(Resource::FromRootPath(cpp_full));
+    headers.push_back(Resource::FromRootPath(hpp_full));
   }
 
-  gen->Set(build_cmd, clean_cmd, inputs, outputs);
+  gen->Set(build_cmd, clean_cmd, input_files, outputs);
 
-  vector<string> objects, cc_compile_args, header_compile_args;  // dummies.
+  vector<Resource> objects;
+  vector<string> cc_compile_args, header_compile_args;  // dummies.
   cc_lib->Set(sources, headers, objects, cc_compile_args, header_compile_args);
 }
 

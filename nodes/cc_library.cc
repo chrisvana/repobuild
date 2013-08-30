@@ -41,6 +41,17 @@ void CCLibraryNode::Parse(BuildFile* file, const BuildFileNode& input) {
   // cc_objs
   ParseRepeatedFiles(input, "cc_objects", &objects_);
 
+  // alwayslink
+  bool alwayslink = false;
+  if (ParseBoolField(input, "alwayslink", &alwayslink) && alwayslink) {
+    for (Resource& r : objects_) {
+      r.add_tag("alwayslink");
+    }
+    for (Resource& r : sources_) {
+      r.add_tag("alwayslink");
+    }
+  }
+
   // cc_compile_args, header_compile_args, cc_linker_args
   ParseRepeatedString(input, "cc_compile_args", &cc_compile_args_);
   ParseRepeatedString(input, "header_compile_args", &header_compile_args_);
@@ -61,9 +72,9 @@ void CCLibraryNode::Parse(BuildFile* file, const BuildFileNode& input) {
   Init();
 }
 
-void CCLibraryNode::Set(const vector<string>& sources,
-                        const vector<string>& headers,
-                        const vector<string>& objects,
+void CCLibraryNode::Set(const vector<Resource>& sources,
+                        const vector<Resource>& headers,
+                        const vector<Resource>& objects,
                         const vector<string>& cc_compile_args,
                         const vector<string>& header_compile_args) {
   sources_ = sources;
@@ -122,7 +133,7 @@ void CCLibraryNode::WriteMakefileInternal(const vector<const Node*>& all_deps,
                                           bool should_write_target,
                                           Makefile* out) const {
   // Figure out the set of input files.
-  set<string> input_files;
+  set<Resource> input_files;
   CollectDependencies(all_deps, &input_files);
 
   // Now write phases, one per .cc
@@ -133,31 +144,32 @@ void CCLibraryNode::WriteMakefileInternal(const vector<const Node*>& all_deps,
 
   // Now write user target (so users can type "make path/to/exec|lib").
   if (should_write_target) {
-    set<string> targets;
-    for (const string& source : sources_) {
+    set<Resource> targets;
+    for (const Resource& source : sources_) {
       targets.insert(ObjForSource(source));
     }
     WriteBaseUserTarget(targets, out);
   }
 }
 
-void CCLibraryNode::WriteCompile(const string& source,
-                                 const set<string>& input_files,
+void CCLibraryNode::WriteCompile(const Resource& source,
+                                 const set<Resource>& input_files,
                                  const vector<const Node*>& all_deps,
                                  Makefile* out) const {
-  string obj = ObjForSource(source);
+  Resource obj = ObjForSource(source);
 
   // Rule=> obj: <input header files> source.cc
-  out->StartRule(obj, strings::JoinWith(" ",
-                                           strings::JoinAll(input_files, " "),
-                                           source));
+  out->StartRule(obj.path(),
+                 strings::JoinWith(" ",
+                                   strings::JoinAll(input_files, " "),
+                                   source.path()));
 
   // Mkdir command.
-  out->WriteCommand("mkdir -p " + strings::PathDirname(obj));
+  out->WriteCommand("mkdir -p " + obj.dirname());
 
   // Compile command.
-  bool cpp = (strings::HasSuffix(source, ".cc") ||
-              strings::HasSuffix(source, ".cpp"));
+  bool cpp = (strings::HasSuffix(source.basename(), ".cc") ||
+              strings::HasSuffix(source.basename(), ".cpp"));
   string compile = DefaultCompileFlags(cpp);
   string include_dirs = strings::JoinWith(
       " ",
@@ -175,44 +187,44 @@ void CCLibraryNode::WriteCompile(const string& source,
         GetVariable(cpp ? kCxxCompileArgs : kCCompileArgs).ref_name());
   }
 
-  out->WriteCommand("echo Compiling: " + source);
+  out->WriteCommand("echo Compiling: " + source.path());
   out->WriteCommand(strings::JoinWith(
       " ",
       compile,
       include_dirs,
       output_compile_args,
-      source,
-      "-o " + obj));
+      source.path(),
+      "-o " + obj.path()));
 
   out->FinishRule();
 }
 
-void CCLibraryNode::DependencyFiles(vector<string>* files) const {
+void CCLibraryNode::DependencyFiles(vector<Resource>* files) const {
   Node::DependencyFiles(files);
   if (HasVariable(kHeaderVariable)) {
-    files->push_back(GetVariable(kHeaderVariable).ref_name());
+    files->push_back(Resource::FromRaw(
+        GetVariable(kHeaderVariable).ref_name()));
   }
 }
 
-void CCLibraryNode::ObjectFiles(vector<string>* files) const {
+void CCLibraryNode::ObjectFiles(vector<Resource>* files) const {
   Node::ObjectFiles(files);
-  for (int i = 0; i < sources_.size(); ++i) {
-    files->push_back(strings::JoinPath(input().object_dir(),
-                                       sources_[i] + ".o"));
+  for (const Resource& src : sources_) {
+    files->push_back(ObjForSource(src));
   }
-  for (const string& obj : objects_) {
+  for (const Resource& obj : objects_) {
     files->push_back(obj);
   }
 }
 
-void CCLibraryNode::LinkFlags(std::set<std::string>* flags) const {
+void CCLibraryNode::LinkFlags(set<string>* flags) const {
   Node::LinkFlags(flags);
   if (HasVariable(kLinkerVariable)) {
     flags->insert(GetVariable(kLinkerVariable).ref_name());
   }
 }
 
-void CCLibraryNode::CompileFlags(bool cxx, std::set<std::string>* flags) const {
+void CCLibraryNode::CompileFlags(bool cxx, set<string>* flags) const {
   Node::CompileFlags(cxx, flags);
   if (cxx) {
     if (HasVariable(kCxxHeaderArgs)) {
@@ -225,12 +237,13 @@ void CCLibraryNode::CompileFlags(bool cxx, std::set<std::string>* flags) const {
   }
 }
 
-std::string CCLibraryNode::DefaultCompileFlags(bool cpp_mode) const {
+string CCLibraryNode::DefaultCompileFlags(bool cpp_mode) const {
   return (cpp_mode ? "$(COMPILE.cc)" : "$(COMPILE.c)");
 }
 
 namespace {
 
+// TODO(cvanarsdale): Flag? Data file?
 bool IsBasicFlag(const string& flag) {
   return (strings::HasPrefix(flag, "-stdlib") ||
           strings::HasPrefix(flag, "-std") ||  // redundant, but for clarity.
@@ -317,18 +330,25 @@ void CCLibraryNode::WriteMakeHead(const Input& input, Makefile* out) {
 
   // CXXFLAGS and LDFLAGS
   out->append("ifeq ($(" + string(kCxxGcc) + "),1)\n");
+  out->append("\tLD_FORCE_LINK_START := -Wl,--whole-archive\n");
+  out->append("\tLD_FORCE_LINK_END := -Wl,--no-whole-archive\n");
   out->append("\t" + WriteLdflag(input, true));
   out->append("\t" + WriteCxxflag(input, true, false));
   out->append("\t" + WriteCxxflag(input, true, true));
   out->append("else\n");
+  out->append("\tLD_FORCE_LINK_START := -Wl,-force_load\n");
+  out->append("\tLD_FORCE_LINK_END := \n");
   out->append("\t" + WriteLdflag(input, false));
   out->append("\t" + WriteCxxflag(input, false, false));
   out->append("\t" + WriteCxxflag(input, false, true));
   out->append("endif\n\n");
 }
 
-string CCLibraryNode::ObjForSource(const std::string& source) const {
-  return strings::JoinPath(input().object_dir(), source + ".o");
+Resource CCLibraryNode::ObjForSource(const Resource& source) const {
+  Resource r = Resource::FromLocalPath(input().object_dir(),
+                                       source.path() + ".o");
+  r.CopyTags(source);
+  return r;
 }
 
 void CCLibraryNode::AddVariable(const string& cpp_name,
