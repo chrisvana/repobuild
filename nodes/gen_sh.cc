@@ -51,12 +51,15 @@ void GenShNode::WriteMakefile(const vector<const Node*>& all_deps,
   // Inputs
   set<Resource> input_files;
   CollectDependencies(all_deps, &input_files);
+  vector<Resource> obj_files;
+  CollectObjects(all_deps, &obj_files);
   input_files.erase(touchfile);  // all but our own file.
 
   // Make target
   out->StartRule(touchfile.path(), strings::JoinWith(
       " ",
       strings::JoinAll(input_files, " "),
+      strings::JoinAll(obj_files, " "),
       strings::JoinAll(input_files_, " ")));
 
   // Build command.
