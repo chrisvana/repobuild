@@ -10,8 +10,8 @@ Declarative style build system, similar to google's BUILD file system. Other exa
 Gyp: https://code.google.com/p/gyp/<br/>
 Buck Build: http://facebook.github.io/buck/<br/>
 Selenium build: https://code.google.com/p/selenium/wiki/CrazyFunBuild<br/>
-... and there are others.
-
+... and there are others that are similar:<br/>
+Ant: https://ant.apache.org/
 
 --
 TODOs
@@ -28,6 +28,3 @@ Remote paths will need some configuring.
 
 MAKE
 Currently this whole thing generates a makefile. In an ideal world, it would also wrap a lot of the build system (pump, distcc, ccache, etc) to make that seemless.
-
-LINKING
-All of the object files get linked at the same time. Probably significantly better to create merged, shared object files.
