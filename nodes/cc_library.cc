@@ -313,10 +313,10 @@ string WriteCxxflag(const Input& input, bool gcc, bool basic) {
 void CCLibraryNode::WriteMakeHead(const Input& input, Makefile* out) {
   // Some conditional variables
   out->append("# Some compiler specific flag settings.\n");
-  out->append(string(kCxxGcc) + " := $(shell $(CXX) --version | "
-              "egrep '(^gcc|^g\\+\\+)' | head -n 1 | wc -l)\n");
-  out->append(string(kCGcc) + " := $(shell $(CC) --version | "
-              "egrep '(^gcc|^g\\+\\+|^cc)' | head -n 1 | wc -l)\n");
+  out->append(string(kCxxGcc) + " := $(shell echo $$($(CXX) --version | "
+              "egrep '(^gcc|^g\\+\\+)' | head -n 1 | wc -l))\n");
+  out->append(string(kCGcc) + " := $(shell echo $$($(CC) --version | "
+              "egrep '(^gcc|^g\\+\\+|^cc)' | head -n 1 | wc -l))\n");
 
   // Write the global values
   // CFLAGS:

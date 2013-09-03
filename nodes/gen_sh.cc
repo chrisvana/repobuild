@@ -23,6 +23,9 @@ using std::vector;
 using std::set;
 
 namespace repobuild {
+namespace {
+const char kRootDir[] = "ROOT_DIR";
+}
 
 void GenShNode::Parse(BuildFile* file, const BuildFileNode& input) {
   Node::Parse(file, input);
@@ -42,6 +45,12 @@ void GenShNode::Set(const string& build_cmd,
   clean_cmd_ = clean_cmd;
   input_files_ = input_files;
   outputs_ = outputs;
+}
+
+// static
+void GenShNode::WriteMakeHead(const Input& input, Makefile* out) {
+  out->append("# Environment flag settings.\n");
+  out->append(string(kRootDir) + " := $(shell pwd)\n");
 }
 
 void GenShNode::WriteMakefile(const vector<const Node*>& all_deps,
@@ -132,6 +141,7 @@ string GenShNode::WriteCommand(const map<string, string>& env_vars,
   }
 
   // Environment.
+  // TODO(cvanarsdale): Get rid of cd_ stuff and replace with $ROOT_DIR.
   out.append("; GEN_DIR=\"");
   out.append(cd_ ? RelativeGenDir() : GenDir());
   out.append("\"");
@@ -139,10 +149,8 @@ string GenShNode::WriteCommand(const map<string, string>& env_vars,
   out.append(cd_ ? RelativeObjectDir() : ObjectDir());
   out.append(" SRC_DIR=\"");
   out.append(cd_ ? RelativeSourceDir() : SourceDir());
-  out.append(" ROOT_DIR=\"");
-  out.append(cd_ ? RelativeRootDir() : "./");
+  out.append(" ROOT_DIR=\"$(" + string(kRootDir) + ")\" ");
 
-  out.append("\"");
   AddEnvVar("CXX_GCC", &out);
   AddEnvVar("CC_GCC", &out);
   AddEnvVar("CC", &out);

@@ -53,7 +53,7 @@ void CmakeNode::Parse(BuildFile* file, const BuildFileNode& input) {
       "DEST_DIR=$(pwd)/$GEN_DIR; "
       "mkdir -p $DEST_DIR/build; "
       "STAGING=$DEST_DIR/.staging; "
-      "cd $GEN_DIR/build";
+      "cd $GEN_DIR";
   string build_env = user_env +"CC=$CC CXX=$CXX ";
   string cmake_cmd =
       "cmake -DCMAKE_INSTALL_PREFIX=. -B . $BASE "
@@ -74,7 +74,7 @@ void CmakeNode::Parse(BuildFile* file, const BuildFileNode& input) {
   string postinstall_cmd =
       "(if [ -d \"$STAGING/$BASE\" ]; then"
       " (for f in $(ls -d $STAGING/$BASE/*); do"
-      "  rm -rf ./../$(basename $f); mv $f $DEST_DIR || exit 1;"
+      "  rm -rf $DEST_DIR/$(basename \"$f\"); mv $f $DEST_DIR || exit 1;"
       " done) &&"
       " rm -rf $STAGING; else echo -n ''; "
       "fi)";

@@ -34,6 +34,9 @@ class GenShNode : public Node {
            const std::vector<std::string>& outputs);
   void SetCd(bool cd) { cd_ = cd; }
 
+  // Static preprocessors
+  static void WriteMakeHead(const Input& input, Makefile* out);
+
  protected:
   std::string WriteCommand(const std::map<std::string, std::string>& env_vars,
                            const std::string& prefix,
