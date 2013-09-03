@@ -53,7 +53,7 @@ void CmakeNode::Parse(BuildFile* file, const BuildFileNode& input) {
       "DEST_DIR=$(pwd)/$GEN_DIR; "
       "mkdir -p $DEST_DIR/build; "
       "STAGING=$DEST_DIR/.staging; "
-      "cd $GEN_DIR";
+      "cd $GEN_DIR/build";
   string build_env = user_env +"CC=$CC CXX=$CXX ";
   string cmake_cmd =
       "cmake -DCMAKE_INSTALL_PREFIX=. -B . $BASE "
