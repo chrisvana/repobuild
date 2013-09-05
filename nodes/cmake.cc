@@ -22,6 +22,15 @@ namespace repobuild {
 void CmakeNode::Parse(BuildFile* file, const BuildFileNode& input) {
   Node::Parse(file, input);
 
+  // CMakeLists.txt file directory
+  string cmake_dir;
+  ParseStringField(input, "cmake_dir", &cmake_dir);
+  if (cmake_dir.empty()) {
+    cmake_dir = "$(pwd)";
+  } else {
+    cmake_dir = "$(pwd)/" + cmake_dir;
+  }
+
   // configure_env
   vector<string> cmake_envs;
   ParseRepeatedString(input, "cmake_env", &cmake_envs);
@@ -49,7 +58,7 @@ void CmakeNode::Parse(BuildFile* file, const BuildFileNode& input) {
 
   // Actual cmake command  ------
   string build_setup =
-      "BASE=$(pwd); "
+      "BASE=" + cmake_dir + "; "
       "DEST_DIR=$(pwd)/$GEN_DIR; "
       "mkdir -p $DEST_DIR/build; "
       "STAGING=$DEST_DIR/.staging; "

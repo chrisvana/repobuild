@@ -29,6 +29,12 @@ void MakeNode::ParseWithOptions(BuildFile* file,
   string user_postinstall;
   ParseStringField(input, "postinstall", &user_postinstall);
 
+  // make_target
+  string make_target;
+  if (!ParseStringField(input, "make_target", &make_target)) {
+    make_target = "install";
+  }
+
   // Generate the output files.
   GenShNode* gen = new GenShNode(target().GetParallelTarget(file->NextName()),
                                  Node::input());
@@ -37,7 +43,7 @@ void MakeNode::ParseWithOptions(BuildFile* file,
   }
   AddSubNode(gen);
 
-  string make_cmd = "$MAKE install DESTDIR=" + dest_dir;
+  string make_cmd = "$MAKE " + make_target + " DESTDIR=" + dest_dir;
   if (!preinstall.empty()) {
     make_cmd = preinstall + " && " + make_cmd;
   }
