@@ -1,20 +1,20 @@
 // Copyright 2013
 // Author: Christopher Van Arsdale
 
-#ifndef _REPOBUILD_NODES_GO_LIBRARY_H__
-#define _REPOBUILD_NODES_GO_LIBRARY_H__
+#ifndef _REPOBUILD_NODES_PY_LIBRARY_H__
+#define _REPOBUILD_NODES_PY_LIBRARY_H__
 
 #include "repobuild/nodes/node.h"
 
 namespace repobuild {
 
-class GoLibraryNode : public SimpleLibraryNode {
+class PyLibraryNode : public SimpleLibraryNode {
  public:
-  GoLibraryNode(const TargetInfo& t,
+  PyLibraryNode(const TargetInfo& t,
                 const Input& i)
       : SimpleLibraryNode(t, i) {
   }
-  virtual ~GoLibraryNode() {}
+  virtual ~PyLibraryNode() {}
   virtual void Parse(BuildFile* file, const BuildFileNode& input);
   virtual void WriteMakefile(const std::vector<const Node*>& all_deps,
                              Makefile* out) const {
@@ -30,4 +30,4 @@ class GoLibraryNode : public SimpleLibraryNode {
 
 }  // namespace repobuild
 
-# endif  // _REPOBUILD_NODES_GO_LIBRARY_H__
+# endif  // _REPOBUILD_NODES_PY_LIBRARY_H__

@@ -1,23 +1,23 @@
 // Copyright 2013
 // Author: Christopher Van Arsdale
 
-#ifndef _REPOBUILD_NODES_GO_BINARY_H__
-#define _REPOBUILD_NODES_GO_BINARY_H__
+#ifndef _REPOBUILD_NODES_PY_BINARY_H__
+#define _REPOBUILD_NODES_PY_BINARY_H__
 
 #include <string>
 #include <vector>
 #include "repobuild/nodes/node.h"
-#include "repobuild/nodes/go_library.h"
+#include "repobuild/nodes/py_library.h"
 
 namespace repobuild {
 
-class GoBinaryNode : public GoLibraryNode {
+class PyBinaryNode : public PyLibraryNode {
  public:
-  GoBinaryNode(const TargetInfo& t,
+  PyBinaryNode(const TargetInfo& t,
                const Input& i)
-      : GoLibraryNode(t, i) {
+      : PyLibraryNode(t, i) {
   }
-  virtual ~GoBinaryNode() {}
+  virtual ~PyBinaryNode() {}
   virtual void Parse(BuildFile* file, const BuildFileNode& input);
   virtual void WriteMakeClean(const std::vector<const Node*>& all_deps,
                               Makefile* out) const;
@@ -25,13 +25,17 @@ class GoBinaryNode : public GoLibraryNode {
                              Makefile* out) const;
   virtual void FinalOutputs(std::vector<Resource>* outputs) const;
 
+  static void WriteMakeHead(const Input& input, Makefile* out);
+
  protected:
   // Helper.
   Resource OutBinary() const;
+  Resource OutEgg() const;
 
-  std::vector<std::string> go_build_args_;
+  std::vector<std::string> py_build_args_;
+  std::string py_version_, py_default_module_;
 };
 
 }  // namespace repobuild
 
-# endif  // _REPOBUILD_NODES_GO_BINARY_H__
+# endif  // _REPOBUILD_NODES_PY_BINARY_H__

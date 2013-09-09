@@ -24,17 +24,19 @@ void GoBinaryNode::Parse(BuildFile* file, const BuildFileNode& input) {
 
 void GoBinaryNode::WriteMakefile(const vector<const Node*>& all_deps,
                                  Makefile* out) const {
-  GoLibraryNode::WriteMakefile(all_deps, out);
+  GoLibraryNode::WriteMakefileInternal(all_deps, false, out);
 
   // Source files.
-  set<Resource> source_files;
-  CollectDependencies(all_deps, &source_files);
+  set<Resource> deps;
+  vector<Resource> source_files;
+  CollectObjects(all_deps, &source_files);
+  CollectDependencies(all_deps, &deps);
 
   // Output binary
   Resource bin = Resource::FromLocalPath(
       strings::JoinPath(input().object_dir(), target().dir()),
       target().local_path());
-  out->StartRule(bin.path(), strings::JoinAll(source_files, " "));
+  out->StartRule(bin.path(), strings::JoinAll(deps, " "));
   out->WriteCommand("echo Go build: " + bin.path());
   out->WriteCommand("mkdir -p " + bin.dirname());
   out->WriteCommand(

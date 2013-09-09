@@ -181,6 +181,7 @@ string GenShNode::WriteCommand(const map<string, string>& env_vars,
   // Logfile, if any
   if (FLAGS_silent_gensh) {
     string logfile = strings::JoinPath(cd_ ? RelativeGenDir() : GenDir(),
+                                       "." + target().local_path() +
                                        ".logfile");
     out.append(" > " + logfile + " 2>&1 || (cat " + logfile + "; exit 1)");
   }
@@ -199,12 +200,5 @@ string GenShNode::WriteCommand(const map<string, string>& env_vars,
 void GenShNode::DependencyFiles(vector<Resource>* files) const {
   files->push_back(Touchfile());
 }
-
-Resource GenShNode::Touchfile() const {
-  return Resource::FromLocalPath(
-      strings::JoinPath(input().object_dir(), target().dir()),
-      "." + target().local_path() + ".dummy");
-}
-
 
 }  // namespace repobuild

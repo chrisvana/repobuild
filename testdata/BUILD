@@ -31,5 +31,12 @@
      "dependencies": [ ":foo", ":bar" ],
      "cc_linker_args": [ "-lm" ]
    }
+ },
+
+ { "py_binary": {
+     "name" : "py_main",
+     "py_sources" : [ "test.py" ],
+     "dependencies": [ "//testdata/a:test" ]
+   }
  }
 ]

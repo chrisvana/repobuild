@@ -61,7 +61,7 @@ void ProtoLibraryNode::Parse(BuildFile* file, const BuildFileNode& input) {
     // Get just the relative path from this BUILD file.
     CHECK(strings::HasPrefix(file, target().dir()));
 
-    if (!strings::HasSuffix(file, ".proto") ||
+    if (!strings::HasSuffix(file, ".proto") &&
         !strings::HasSuffix(file, ".protodevel")) {
       LOG(FATAL) << "Expected .proto suffix: "
                  << file

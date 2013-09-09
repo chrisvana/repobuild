@@ -37,12 +37,13 @@ class GenShNode : public Node {
   // Static preprocessors
   static void WriteMakeHead(const Input& input, Makefile* out);
 
+  std::string Logfile() const;
+
  protected:
   std::string WriteCommand(const std::map<std::string, std::string>& env_vars,
                            const std::string& prefix,
                            const std::string& cmd,
                            const std::string& admin_cmd) const;
-  Resource Touchfile() const;
 
   std::string build_cmd_;
   std::string clean_cmd_;

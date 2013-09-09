@@ -68,6 +68,25 @@
  },
 
  { "cc_library": {
+     "name" : "py_library",
+     "cc_sources" : [ "py_library.cc" ],
+     "cc_headers" : [ "py_library.h" ],
+     "dependencies": [ ":node" ]
+   }
+ },
+
+ { "cc_library": {
+     "name" : "py_binary",
+     "cc_sources" : [ "py_binary.cc" ],
+     "cc_headers" : [ "py_binary.h" ],
+     "dependencies": [ "//common/log:log",
+                       "//common/strings:strutil",
+                       ":node"
+      ]
+   }
+ },
+
+ { "cc_library": {
      "name" : "gen_sh",
      "cc_sources" : [ "gen_sh.cc" ],
      "cc_headers" : [ "gen_sh.h" ],
@@ -138,7 +157,9 @@
                        ":gen_sh",
                        ":make",
                        ":node",
-                       ":proto_library"
+                       ":proto_library",
+                       ":py_library",
+                       ":py_binary"
      ]
    }
  }

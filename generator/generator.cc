@@ -11,6 +11,7 @@
 #include "repobuild/reader/parser.h"
 #include "repobuild/nodes/cc_library.h"  // TODO(cvanarsdale): clunky, remove.
 #include "repobuild/nodes/gen_sh.h"  // TODO(cvanarsdale): clunky, remove.
+#include "repobuild/nodes/py_binary.h"  // TODO(cvanarsdale): clunky, remove.
 
 using std::string;
 using std::vector;
@@ -92,6 +93,7 @@ string Generator::GenerateMakefile(const Input& input) {
   // TODO(cvanarsdale): Make this part of the parser's static registry?
   GenShNode::WriteMakeHead(input, &out);
   CCLibraryNode::WriteMakeHead(input, &out);
+  PyBinaryNode::WriteMakeHead(input, &out);
 
   // Figure out the order we want to write in our Makefile.
   set<const Node*> parents, seen;

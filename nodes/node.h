@@ -135,7 +135,10 @@ class Node {
   std::string SourceDir() const;
   std::string RelativeSourceDir() const;
   std::string RelativeRootDir() const;
+  std::string GetRelative(const std::string& path) const;
   std::string MakefileEscape(const std::string& str) const;
+  Resource Touchfile(const std::string& suffix) const;
+  Resource Touchfile() const { return Touchfile(""); }
   void WriteBaseUserTarget(const std::set<Resource>& deps,
                            Makefile* out) const;
   void WriteBaseUserTarget(Makefile* out) const {
@@ -187,6 +190,7 @@ class SimpleLibraryNode : public Node {
   virtual void WriteMakefile(const std::vector<const Node*>& all_deps,
                              Makefile* out) const {}
   virtual void DependencyFiles(std::vector<Resource>* files) const;
+  virtual void ObjectFiles(std::vector<Resource>* files) const;
 
   // Alterative to Parse()
   virtual void Set(const std::vector<Resource>& sources) {

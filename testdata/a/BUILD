@@ -20,6 +20,11 @@
      "name" : "bar_pred_a",
      "cc_sources" : [ "bar.cc" ]
    }
- }
+ },
+
+{  "py_library": {
+     "name": "test",
+     "py_sources": [ "test.py" ]
+} }
 
 ]

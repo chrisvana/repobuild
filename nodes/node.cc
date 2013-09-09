@@ -254,10 +254,11 @@ string Node::GenDir() const {
 }
 
 string Node::RelativeGenDir() const {
-  return strings::JoinPath(
-      strings::Repeat("../", strings::NumPathComponents(target().dir())) +
-      input().genfile_dir(),
-      target().dir());
+  return GetRelative(strings::JoinPath(input().genfile_dir(), target().dir()));
+}
+
+string Node::GetRelative(const string& path) const {
+  return strings::JoinPath(RelativeRootDir(), path);
 }
 
 string Node::ObjectDir() const { 
@@ -265,8 +266,7 @@ string Node::ObjectDir() const {
 }
 
 string Node::RelativeObjectDir() const {
-  return strings::JoinPath(RelativeRootDir() + input().object_dir(),
-                           target().dir());
+  return GetRelative(strings::JoinPath(input().object_dir(), target().dir()));
 }
 
 string Node::SourceDir() const { 
@@ -274,11 +274,8 @@ string Node::SourceDir() const {
 }
 
 string Node::RelativeSourceDir() const {
-  return strings::JoinPath(RelativeRootDir() + input().source_dir(),
-                           target().dir());
+  return GetRelative(strings::JoinPath(input().source_dir(), target().dir()));
 }
-
-
 string Node::RelativeRootDir() const {
   return strings::Repeat("../", strings::NumPathComponents(target().dir()));
 }
@@ -296,8 +293,10 @@ void Node::WriteBaseUserTarget(const set<Resource>& deps,
     out->append(dep.path());
   }
   for (const TargetInfo* dep : dependencies()) {
-    out->append(" ");
-    out->append(dep->make_path());
+    if (dep->make_path() != target().make_path()) {
+      out->append(" ");
+      out->append(dep->make_path());
+    }
   }
   out->append("\n\n.PHONY: ");
   out->append(target().make_path());
@@ -337,8 +336,21 @@ void Node::MakeVariable::WriteMake(string* out) const {
   out->append("\n");
 }
 
+Resource Node::Touchfile(const string& suffix) const {
+  return Resource::FromLocalPath(
+      strings::JoinPath(input().object_dir(), target().dir()),
+      "." + target().local_path() + suffix + ".dummy");
+}
+
 void SimpleLibraryNode::DependencyFiles(vector<Resource>* files) const {
   Node::DependencyFiles(files);
+  for (int i = 0; i < sources_.size(); ++i) {
+    files->push_back(sources_[i]);
+  }
+}
+
+void SimpleLibraryNode::ObjectFiles(vector<Resource>* files) const {
+  Node::ObjectFiles(files);
   for (int i = 0; i < sources_.size(); ++i) {
     files->push_back(sources_[i]);
   }
