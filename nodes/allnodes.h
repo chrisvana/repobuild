@@ -12,12 +12,17 @@
 
 namespace repobuild {
 
+class Input;
+class Makefile;
+class TargetInfo;
+
 class NodeBuilder {
  public:
   virtual ~NodeBuilder() {}
   virtual std::string Name() const = 0;
   virtual Node* NewNode(const TargetInfo& target,
                         const Input& input) = 0;
+  virtual void WriteMakeHead(const Input& input, Makefile* out) = 0;
 
   static void GetAll(std::vector<NodeBuilder*>* nodes);
 };
@@ -32,6 +37,8 @@ class NodeBuilderSet {
   Node* NewNode(const std::string& name,
                 const TargetInfo& target,
                 const Input& input) const;
+
+  void WriteMakeHead(const Input& input, Makefile* makefile);
 
  private:
   DISALLOW_COPY_AND_ASSIGN(NodeBuilderSet);

@@ -35,27 +35,39 @@ class NodeBuilderImpl : public NodeBuilder {
                         const Input& input) {
     return new T(target, input);
   }
+  virtual void WriteMakeHead(const Input& input, Makefile* out) {}
+
  private:
   std::string name_;
+};
+
+template <typename T>
+class NodeBuilderImplHead : public NodeBuilderImpl<T> {
+ public:
+  NodeBuilderImplHead(const std::string& name) : NodeBuilderImpl<T>(name) {}
+  virtual void WriteMakeHead(const Input& input, Makefile* out) {
+    T::WriteMakeHead(input, out);
+  }
 };
 }
 
 // static
 void NodeBuilder::GetAll(std::vector<NodeBuilder*>* nodes) {
+  nodes->push_back(new NodeBuilderImplHead<GenShNode>("gen_sh"));
+  nodes->push_back(new NodeBuilderImplHead<CCLibraryNode>("cc_library"));
+  nodes->push_back(new NodeBuilderImplHead<PyBinaryNode>("py_binary"));
+
   nodes->push_back(new NodeBuilderImpl<AutoconfNode>("autoconf"));
-  nodes->push_back(new NodeBuilderImpl<CCLibraryNode>("cc_library"));
   nodes->push_back(new NodeBuilderImpl<CCBinaryNode>("cc_binary"));
   nodes->push_back(new NodeBuilderImpl<CmakeNode>("cmake"));
   nodes->push_back(new NodeBuilderImpl<ConfigNode>("config"));
   nodes->push_back(new NodeBuilderImpl<GoLibraryNode>("go_library"));
   nodes->push_back(new NodeBuilderImpl<GoBinaryNode>("go_binary"));
-  nodes->push_back(new NodeBuilderImpl<GenShNode>("gen_sh"));
   nodes->push_back(new NodeBuilderImpl<JavaLibraryNode>("java_library"));
   nodes->push_back(new NodeBuilderImpl<JavaBinaryNode>("java_binary"));
   nodes->push_back(new NodeBuilderImpl<MakeNode>("make"));
   nodes->push_back(new NodeBuilderImpl<ProtoLibraryNode>("proto_library"));
   nodes->push_back(new NodeBuilderImpl<PyLibraryNode>("py_library"));
-  nodes->push_back(new NodeBuilderImpl<PyBinaryNode>("py_binary"));
 }
 
 NodeBuilderSet::NodeBuilderSet() {
@@ -88,6 +100,12 @@ Node* NodeBuilderSet::NewNode(const string& name,
     return NULL;
   }
   return it->second->NewNode(target, input);
+}
+
+void NodeBuilderSet::WriteMakeHead(const Input& input, Makefile* makefile) {
+  for (auto it : nodes_) {
+    it.second->WriteMakeHead(input, makefile);
+  }
 }
 
 }  // namespace repobuild
