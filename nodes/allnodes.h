@@ -4,8 +4,11 @@
 #ifndef _REPOBUILD_NODES_ALLNODES_H__
 #define _REPOBUILD_NODES_ALLNODES_H__
 
+#include <string>
 #include <vector>
-#include "repobuild/nodes/node.h"
+#include <map>
+#include "common/base/macros.h"
+#include "repobuild/nodes/node.h"  // convenience for libraries.
 
 namespace repobuild {
 
@@ -17,6 +20,25 @@ class NodeBuilder {
                         const Input& input) = 0;
 
   static void GetAll(std::vector<NodeBuilder*>* nodes);
+};
+
+class NodeBuilderSet {
+ public:
+  NodeBuilderSet();  // uses NodeBuilder::GetAll.
+  explicit NodeBuilderSet(const std::vector<NodeBuilder*>& nodes);
+  ~NodeBuilderSet();
+
+  // Node generator:
+  Node* NewNode(const std::string& name,
+                const TargetInfo& target,
+                const Input& input) const;
+
+ private:
+  DISALLOW_COPY_AND_ASSIGN(NodeBuilderSet);
+
+  void Init(const std::vector<NodeBuilder*>& nodes);
+
+  std::map<std::string, NodeBuilder*> nodes_;
 };
 
 }  // namespace repobuild

@@ -5,8 +5,7 @@
      "cc_headers" : [ "generator.h" ],
      "dependencies": [ "//common/log:log",
                        "//env:input",
-                       "//nodes:node",
-                       "//nodes:cc_library",
+                       "//nodes:allnodes",
                        "//reader:parser"
      ]
    }

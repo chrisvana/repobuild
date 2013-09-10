@@ -29,7 +29,7 @@ namespace {
 // ParseNode
 //  Helper to parse a node given the BUILD file contents, the name of the
 //  node (e.g. cc_library, go_library, etc), 
-Node* ParseNode(NodeBuilder* builder,
+Node* ParseNode(const NodeBuilderSet* builder_set,
                 BuildFile* file,
                 BuildFileNode* file_node,
                 const Input& input,
@@ -50,7 +50,8 @@ Node* ParseNode(NodeBuilder* builder,
 
   // Generate the node.
   TargetInfo target(":" + node_name, file->filename());
-  Node* node = builder->NewNode(target, input);
+  Node* node = builder_set->NewNode(key, target, input);
+  LOG_IF(FATAL, node == NULL) << "Uknown build rule: " << key;
   node->Parse(file, BuildFileNode(value));
   return node;
 }
@@ -59,13 +60,13 @@ Node* ParseNode(NodeBuilder* builder,
 //  This does the heavy lifting of parsing a set of dependent build files.
 class Graph {
  public:
-  explicit Graph(const Input& input) : input_(input) {
-    NodeBuilder::GetAll(&node_builders_);
+  Graph(const Input& input, const NodeBuilderSet* builder_set)
+      : input_(input),
+        builder_set_(builder_set) {
     Parse();
   }
 
   ~Graph() {
-    DeleteElements(&node_builders_);
     DeleteValues(&build_files_);
     DeleteValues(&nodes_);
   }
@@ -132,18 +133,7 @@ class Graph {
           << "Expected json object (file = " << file->filename() << "): "
           << node->object();
       for (const string& key : node->object().getMemberNames()) {
-        // Find the right parser.
-        NodeBuilder* builder = NULL;
-        for (NodeBuilder* b : node_builders_) {
-          if (b->Name() == key) {
-            builder = b;
-            break;
-          }
-        }
-        LOG_IF(FATAL, builder == NULL) << "Uknown build rule: " << key;
-
-        // Actually do node->Parse():
-        SaveNode(ParseNode(builder, file, node, input_, key), &nodes);
+        SaveNode(ParseNode(builder_set_, file, node, input_, key), &nodes);
       }
     }
 
@@ -235,7 +225,7 @@ class Graph {
   const Input& input_;
 
   // The generated data.
-  vector<NodeBuilder*> node_builders_;
+  const NodeBuilderSet* builder_set_;
   map<string, BuildFile*> build_files_;
   map<string, Node*> nodes_;
   vector<Node*> inputs_;  // subset of nodes_.
@@ -246,7 +236,9 @@ class Graph {
 };
 }
 
-Parser::Parser() {}
+Parser::Parser(const NodeBuilderSet* builder_set)
+    : builder_set_(builder_set) {
+}
 
 Parser::~Parser() {
   Reset();
@@ -255,7 +247,7 @@ Parser::~Parser() {
 void Parser::Parse(const Input& input) {
   Reset();
 
-  Graph graph(input);
+  Graph graph(input, builder_set_);
   graph.Extract(&input_nodes_, &all_nodes_, &builds_);
   for (auto it : all_nodes_) {
     all_node_vec_.push_back(it.second);

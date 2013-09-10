@@ -12,10 +12,11 @@ namespace repobuild {
 class BuildFile;
 class Input;
 class Node;
+class NodeBuilderSet;
 
 class Parser {
  public:
-  Parser();
+  explicit Parser(const NodeBuilderSet* builder_set /* keeps reference */);
   ~Parser();
 
   // Mutators.
@@ -45,6 +46,7 @@ class Parser {
  private:
   void Reset();
 
+  const NodeBuilderSet* builder_set_;
   std::unique_ptr<Input> input_;
   std::vector<Node*> input_nodes_, all_node_vec_;
   std::map<std::string, BuildFile*> builds_;
