@@ -123,14 +123,13 @@ class Node {
   BuildFileNodeReader* current_reader() const { return build_reader_.get(); }
 
   // Directory helpers.
-  std::string GenDir() const;
-  std::string RelativeGenDir() const;
-  std::string ObjectDir() const;
-  std::string RelativeObjectDir() const;
-  std::string SourceDir() const;
-  std::string RelativeSourceDir() const;
-  std::string RelativeRootDir() const;
-  std::string GetRelative(const std::string& path) const;
+  std::string GenDir() const { return gen_dir_; }
+  std::string RelativeGenDir() const { return relative_gen_dir_; }
+  std::string ObjectDir() const { return obj_dir_; }
+  std::string RelativeObjectDir() const { return relative_obj_dir_; }
+  std::string SourceDir() const { return src_dir_; }
+  std::string RelativeSourceDir() const { return relative_src_dir_; }
+  std::string RelativeRootDir() const { return relative_root_dir_; }
 
   // Makefile helpers.
   std::string MakefileEscape(const std::string& str) const;
@@ -171,6 +170,9 @@ class Node {
   TargetInfo target_;
   const Input* input_;
   std::vector<TargetInfo> dep_targets_;
+  std::string src_dir_, obj_dir_, gen_dir_;
+  std::string relative_root_dir_, relative_src_dir_;
+  std::string relative_obj_dir_, relative_gen_dir_;
 
   // Parsing info
   bool strict_file_mode_;

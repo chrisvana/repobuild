@@ -25,6 +25,22 @@ Node::Node(const TargetInfo& target, const Input& input)
     : target_(target),
       input_(&input),
       strict_file_mode_(true) {
+  gen_dir_ = strings::JoinPath(input.genfile_dir(), target.dir());
+  src_dir_ = strings::JoinPath(input.source_dir(), target.dir());
+  obj_dir_ = strings::JoinPath(input.object_dir(), target.dir());
+
+  relative_root_dir_ =
+      strings::Repeat("../", strings::NumPathComponents(target.dir()));
+  relative_gen_dir_ = strings::JoinPath(
+      relative_root_dir_,
+      strings::JoinPath(input.genfile_dir(), target.dir()));
+  relative_src_dir_ = strings::JoinPath(
+      relative_root_dir_,
+      strings::JoinPath(input.source_dir(), target.dir()));
+  relative_obj_dir_ = strings::JoinPath(
+      relative_root_dir_,
+      strings::JoinPath(input.object_dir(), target.dir()));
+
 }
 
 Node::~Node() {
@@ -120,37 +136,6 @@ void Node::CompileFlags(bool cxx, set<string>* flags) const {
   for (Node* node : dependencies_) {
     node->CompileFlags(cxx, flags);
   }
-}
-
-string Node::GenDir() const { 
-  return strings::JoinPath(input().genfile_dir(), target().dir());
-}
-
-string Node::RelativeGenDir() const {
-  return GetRelative(strings::JoinPath(input().genfile_dir(), target().dir()));
-}
-
-string Node::GetRelative(const string& path) const {
-  return strings::JoinPath(RelativeRootDir(), path);
-}
-
-string Node::ObjectDir() const { 
-  return strings::JoinPath(input().object_dir(), target().dir());
-}
-
-string Node::RelativeObjectDir() const {
-  return GetRelative(strings::JoinPath(input().object_dir(), target().dir()));
-}
-
-string Node::SourceDir() const { 
-  return strings::JoinPath(input().source_dir(), target().dir());
-}
-
-string Node::RelativeSourceDir() const {
-  return GetRelative(strings::JoinPath(input().source_dir(), target().dir()));
-}
-string Node::RelativeRootDir() const {
-  return strings::Repeat("../", strings::NumPathComponents(target().dir()));
 }
 
 string Node::MakefileEscape(const string& str) const {
