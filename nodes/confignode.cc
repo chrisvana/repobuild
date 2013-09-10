@@ -19,13 +19,17 @@ namespace repobuild {
 
 void ConfigNode::Parse(BuildFile* file, const BuildFileNode& input) {
   Node::Parse(file, input);
-  if (current_reader()->ParseStringField("component", &component_src_)) {
-    file->AddBaseDependency(target().full_path());
-    current_reader()->ParseStringField("component_root", &component_root_);
-  } else {
+  if (!current_reader()->ParseStringField("component", &component_src_)) {
     LOG(FATAL) << "Could not parse \"component\" in "
                << target().dir() << " config node.";
   }
+
+  file->AddBaseDependency(target().full_path());
+  current_reader()->ParseStringField("component_root", &component_root_);
+  source_dummy_file_ =
+      Resource::FromRootPath(DummyFile(SourceDir("")));
+  gendir_dummy_file_ =
+      Resource::FromRootPath(DummyFile(SourceDir(Node::input().genfile_dir())));
 }
 
 void ConfigNode::WriteMakefile(const vector<const Node*>& all_deps,
@@ -91,19 +95,17 @@ void ConfigNode::WriteMakeClean(const vector<const Node*>& all_deps,
     return;
   }
 
-  out->WriteCommand("rm -rf " + DummyFile(SourceDir("")));
+  out->WriteCommand("rm -rf " + source_dummy_file_.path());
   out->WriteCommand("rm -rf " + SourceDir(SourceDir("")));
-  out->WriteCommand("rm -rf " + DummyFile(SourceDir(input().genfile_dir())));
+  out->WriteCommand("rm -rf " + gendir_dummy_file_.path());
   out->WriteCommand("rm -rf " + SourceDir(input().genfile_dir()));
 }
 
 void ConfigNode::DependencyFiles(set<Resource>* files) const {
   Node::DependencyFiles(files);
   if (!component_src_.empty()) {
-    files->insert(Resource::FromRootPath(
-        DummyFile(SourceDir(""))));
-    files->insert(Resource::FromRootPath(
-        DummyFile(SourceDir(input().genfile_dir()))));
+    files->insert(source_dummy_file_);
+    files->insert(gendir_dummy_file_);
   }
 }
 

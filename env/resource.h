@@ -17,6 +17,9 @@ class Resource {
   static Resource FromLocalPath(const std::string& path,
                                 const std::string& local);
 
+  Resource() {}
+  ~Resource() {}
+
   // accessors
   const std::string& path() const { return root_path_; }
   const std::string& basename() const { return basename_; }

@@ -6,6 +6,7 @@
 
 #include <string>
 #include "repobuild/nodes/node.h"
+#include "repobuild/env/resource.h"
 
 namespace repobuild {
 
@@ -33,6 +34,7 @@ class ConfigNode : public Node {
   std::string CurrentDir(const std::string& middle) const;
 
   std::string component_src_, component_root_;
+  Resource source_dummy_file_, gendir_dummy_file_;
 };
 
 }  // namespace repobuild
