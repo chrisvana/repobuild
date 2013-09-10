@@ -4,6 +4,7 @@
 #include <string>
 #include <ostream>
 #include "common/strings/path.h"
+#include "common/strings/strutil.h"
 #include "repobuild/env/resource.h"
 
 using std::string;

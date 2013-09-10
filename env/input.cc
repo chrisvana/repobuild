@@ -59,6 +59,9 @@ Input::Input() {
     AddFlag("-L", "-L/opt/local/lib");
   }
 
+  // Java compiler
+  AddFlag("-JC", "-g");
+
   silent_make_ = FLAGS_silent_make;
 }
 

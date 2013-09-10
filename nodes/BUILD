@@ -87,6 +87,27 @@
  },
 
  { "cc_library": {
+     "name" : "java_library",
+     "cc_sources" : [ "java_library.cc" ],
+     "cc_headers" : [ "java_library.h" ],
+     "dependencies": [ "//common/log:log",
+                       "//common/strings:strutil",
+                       ":node" ]
+   }
+ },
+
+ { "cc_library": {
+     "name" : "java_binary",
+     "cc_sources" : [ "java_binary.cc" ],
+     "cc_headers" : [ "java_binary.h" ],
+     "dependencies": [ "//common/log:log",
+                       "//common/strings:strutil",
+                       ":node"
+      ]
+   }
+ },
+
+ { "cc_library": {
      "name" : "gen_sh",
      "cc_sources" : [ "gen_sh.cc" ],
      "cc_headers" : [ "gen_sh.h" ],
@@ -155,6 +176,8 @@
                        ":go_library",
                        ":go_binary",
                        ":gen_sh",
+                       ":java_library",
+                       ":java_binary",
                        ":make",
                        ":node",
                        ":proto_library",

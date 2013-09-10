@@ -12,6 +12,8 @@
 #include "repobuild/nodes/go_library.h"
 #include "repobuild/nodes/go_binary.h"
 #include "repobuild/nodes/gen_sh.h"
+#include "repobuild/nodes/java_library.h"
+#include "repobuild/nodes/java_binary.h"
 #include "repobuild/nodes/make.h"
 #include "repobuild/nodes/proto_library.h"
 #include "repobuild/nodes/py_library.h"
@@ -43,6 +45,8 @@ void NodeBuilder::GetAll(std::vector<NodeBuilder*>* nodes) {
   nodes->push_back(new NodeBuilderImpl<GoLibraryNode>("go_library"));
   nodes->push_back(new NodeBuilderImpl<GoBinaryNode>("go_binary"));
   nodes->push_back(new NodeBuilderImpl<GenShNode>("gen_sh"));
+  nodes->push_back(new NodeBuilderImpl<JavaLibraryNode>("java_library"));
+  nodes->push_back(new NodeBuilderImpl<JavaBinaryNode>("java_binary"));
   nodes->push_back(new NodeBuilderImpl<MakeNode>("make"));
   nodes->push_back(new NodeBuilderImpl<ProtoLibraryNode>("proto_library"));
   nodes->push_back(new NodeBuilderImpl<PyLibraryNode>("py_library"));

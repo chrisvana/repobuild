@@ -25,6 +25,10 @@
 {  "py_library": {
      "name": "test",
      "py_sources": [ "test.py" ]
-} }
+} },
 
+{  "java_library": {
+     "name": "test_java",
+     "java_sources": [ "ATest.java" ]
+} }
 ]

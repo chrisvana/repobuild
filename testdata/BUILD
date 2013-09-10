@@ -38,5 +38,12 @@
      "py_sources" : [ "test.py" ],
      "dependencies": [ "//testdata/a:test" ]
    }
+ },
+
+ { "java_binary": {
+     "name" : "java_main",
+     "java_sources" : [ "MainClass.java" ],
+     "dependencies": [ "//testdata/a:test_java" ]
+   }
  }
 ]
