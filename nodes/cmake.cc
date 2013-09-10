@@ -24,7 +24,7 @@ void CmakeNode::Parse(BuildFile* file, const BuildFileNode& input) {
 
   // CMakeLists.txt file directory
   string cmake_dir;
-  ParseStringField(input, "cmake_dir", &cmake_dir);
+  current_reader()->ParseStringField("cmake_dir", &cmake_dir);
   if (cmake_dir.empty()) {
     cmake_dir = "$(pwd)";
   } else {
@@ -33,11 +33,11 @@ void CmakeNode::Parse(BuildFile* file, const BuildFileNode& input) {
 
   // configure_env
   vector<string> cmake_envs;
-  ParseRepeatedString(input, "cmake_env", &cmake_envs);
+  current_reader()->ParseRepeatedString("cmake_env", &cmake_envs);
 
   // cmake_args
   vector<string> cmake_args;
-  ParseRepeatedString(input, "cmake_args", &cmake_args);
+  current_reader()->ParseRepeatedString("cmake_args", &cmake_args);
 
   // Generate the output files.
   GenShNode* gen = new GenShNode(target().GetParallelTarget(file->NextName()),

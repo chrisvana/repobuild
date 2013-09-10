@@ -29,12 +29,12 @@ const char kRootDir[] = "ROOT_DIR";
 
 void GenShNode::Parse(BuildFile* file, const BuildFileNode& input) {
   Node::Parse(file, input);
-  if (!ParseStringField(input, "build_cmd", &build_cmd_)) {
+  if (!current_reader()->ParseStringField("build_cmd", &build_cmd_)) {
     LOG(FATAL) << "Could not parse build_cmd.";
   }
-  ParseStringField(input, "clean", &clean_cmd_);
-  ParseRepeatedFiles(input, "input_files", &input_files_);
-  ParseRepeatedString(input, "outs", &outputs_);
+  current_reader()->ParseStringField("clean", &clean_cmd_);
+  current_reader()->ParseRepeatedFiles("input_files", &input_files_);
+  current_reader()->ParseRepeatedString("outs", &outputs_);
 }
 
 void GenShNode::Set(const string& build_cmd,

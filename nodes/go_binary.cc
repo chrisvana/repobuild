@@ -19,7 +19,7 @@ namespace repobuild {
 
 void GoBinaryNode::Parse(BuildFile* file, const BuildFileNode& input) {
   GoLibraryNode::Parse(file, input);
-  ParseRepeatedString(input, "go_build_args", &go_build_args_);
+  current_reader()->ParseRepeatedString("go_build_args", &go_build_args_);
 }
 
 void GoBinaryNode::WriteMakefile(const vector<const Node*>& all_deps,

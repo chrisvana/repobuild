@@ -27,11 +27,11 @@ void MakeNode::ParseWithOptions(BuildFile* file,
 
   // configure_args
   string user_postinstall;
-  ParseStringField(input, "postinstall", &user_postinstall);
+  current_reader()->ParseStringField("postinstall", &user_postinstall);
 
   // make_target
   string make_target;
-  if (!ParseStringField(input, "make_target", &make_target)) {
+  if (!current_reader()->ParseStringField("make_target", &make_target)) {
     make_target = "install";
   }
 
@@ -56,10 +56,10 @@ void MakeNode::ParseWithOptions(BuildFile* file,
   string clean_cmd = "$MAKE DESTDIR=" + dest_dir + " clean";
 
   vector<Resource> input_files;
-  ParseRepeatedFiles(input, "inputs", &input_files);
+  current_reader()->ParseRepeatedFiles("inputs", &input_files);
 
   vector<string> output_files;
-  ParseRepeatedString(input, "outs", &output_files);
+  current_reader()->ParseRepeatedString("outs", &output_files);
 
   gen->Set(make_cmd,
            clean_cmd,

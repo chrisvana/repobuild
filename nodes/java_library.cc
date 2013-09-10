@@ -21,18 +21,22 @@ void JavaLibraryNode::Parse(BuildFile* file, const BuildFileNode& input) {
   Node::Parse(file, input);
 
   // java_sources
-  ParseRepeatedFiles(input, "java_sources", &sources_);
+  current_reader()->ParseRepeatedFiles("java_sources", &sources_);
   for (const Resource& source : sources_) {
     CHECK(strings::HasSuffix(source.path(), ".java"))
         << "Invalid java source "
         << source << " in target " << target().full_path();
   }
 
-  // java_local_compile_args, java_compile_args, java_jar_args
-  ParseRepeatedString(input, "java_local_compile_args",
-                      &java_local_compile_args_);
-  ParseRepeatedString(input, "java_compile_args", &java_compile_args_);
-  ParseRepeatedString(input, "java_jar_args", &java_jar_args_);
+  // javac args
+  current_reader()->ParseRepeatedString("java_local_compile_args",
+                                        &java_local_compile_args_);
+  current_reader()->ParseRepeatedString("java_compile_args",  // inherited.
+                                        &java_compile_args_);
+
+  // jar args
+  current_reader()->ParseRepeatedString("java_jar_args",
+                                        &java_jar_args_);
 }
 
 void JavaLibraryNode::WriteMakefileInternal(

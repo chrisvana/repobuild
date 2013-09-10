@@ -19,9 +19,9 @@ namespace repobuild {
 
 void ConfigNode::Parse(BuildFile* file, const BuildFileNode& input) {
   Node::Parse(file, input);
-  if (ParseStringField(input, "component", &component_src_)) {
+  if (current_reader()->ParseStringField("component", &component_src_)) {
     file->AddBaseDependency(target().full_path());
-    ParseStringField(input, "component_root", &component_root_);
+    current_reader()->ParseStringField("component_root", &component_root_);
   } else {
     LOG(FATAL) << "Could not parse \"component\" in "
                << target().dir() << " config node.";

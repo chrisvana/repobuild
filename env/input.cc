@@ -57,10 +57,10 @@ Input::Input() {
     AddFlag("-L", "-flto");
     AddFlag("-L", "-L/usr/local/lib");
     AddFlag("-L", "-L/opt/local/lib");
-  }
 
-  // Java compiler
-  AddFlag("-JC", "-g");
+    // Java compiler
+    AddFlag("-JC", "-g");
+  }
 
   silent_make_ = FLAGS_silent_make;
 }

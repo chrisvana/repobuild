@@ -33,17 +33,18 @@ void CCLibraryNode::Parse(BuildFile* file, const BuildFileNode& input) {
   Node::Parse(file, input);
 
   // cc_sources
-  ParseRepeatedFiles(input, "cc_sources", &sources_);
+  current_reader()->ParseRepeatedFiles("cc_sources", &sources_);
 
   // cc_headers
-  ParseRepeatedFiles(input, "cc_headers", &headers_);
+  current_reader()->ParseRepeatedFiles("cc_headers", &headers_);
 
   // cc_objs
-  ParseRepeatedFiles(input, "cc_objects", &objects_);
+  current_reader()->ParseRepeatedFiles("cc_objects", &objects_);
 
   // alwayslink
   bool alwayslink = false;
-  if (ParseBoolField(input, "alwayslink", &alwayslink) && alwayslink) {
+  if (current_reader()->ParseBoolField("alwayslink", &alwayslink) &&
+      alwayslink) {
     for (Resource& r : objects_) {
       r.add_tag("alwayslink");
     }
@@ -53,21 +54,28 @@ void CCLibraryNode::Parse(BuildFile* file, const BuildFileNode& input) {
   }
 
   // cc_compile_args, header_compile_args, cc_linker_args
-  ParseRepeatedString(input, "cc_compile_args", &cc_compile_args_);
-  ParseRepeatedString(input, "header_compile_args", &header_compile_args_);
-  ParseRepeatedString(input, "cc_linker_args", &cc_linker_args_);
+  current_reader()->ParseRepeatedString("cc_compile_args",
+                                        &cc_compile_args_);
+  current_reader()->ParseRepeatedString("header_compile_args",
+                                        &header_compile_args_);
+  current_reader()->ParseRepeatedString("cc_linker_args",
+                                        &cc_linker_args_);
 
   // gcc
-  ParseRepeatedString(input, "gcc.cc_compile_args", &gcc_cc_compile_args_);
-  ParseRepeatedString(input, "gcc.header_compile_args",
-                      &gcc_header_compile_args_);
-  ParseRepeatedString(input, "gcc.cc_linker_args", &gcc_cc_linker_args_);
+  current_reader()->ParseRepeatedString("gcc.cc_compile_args",
+                                        &gcc_cc_compile_args_);
+  current_reader()->ParseRepeatedString("gcc.header_compile_args",
+                                        &gcc_header_compile_args_);
+  current_reader()->ParseRepeatedString("gcc.cc_linker_args",
+                                        &gcc_cc_linker_args_);
 
   // clang
-  ParseRepeatedString(input, "clang.cc_compile_args", &clang_cc_compile_args_);
-  ParseRepeatedString(input, "clang.header_compile_args",
-                      &clang_header_compile_args_);
-  ParseRepeatedString(input, "clang.cc_linker_args", &clang_cc_linker_args_);
+  current_reader()->ParseRepeatedString("clang.cc_compile_args",
+                                        &clang_cc_compile_args_);
+  current_reader()->ParseRepeatedString("clang.header_compile_args",
+                                        &clang_header_compile_args_);
+  current_reader()->ParseRepeatedString("clang.cc_linker_args",
+                                        &clang_cc_linker_args_);
 
   Init();
 }

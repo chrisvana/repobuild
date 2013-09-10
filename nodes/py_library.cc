@@ -17,7 +17,7 @@ void PyLibraryNode::Parse(BuildFile* file, const BuildFileNode& input) {
   SimpleLibraryNode::Parse(file, input);
 
   // py_sources
-  ParseRepeatedFiles(input, "py_sources", &sources_);
+  current_reader()->ParseRepeatedFiles("py_sources", &sources_);
 }
 
 void PyLibraryNode::WriteMakefileInternal(

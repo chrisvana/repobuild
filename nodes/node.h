@@ -18,6 +18,7 @@ namespace repobuild {
 
 class BuildFile;
 class BuildFileNode;
+class BuildFileNodeReader;
 class Input;
 
 class Makefile;
@@ -90,28 +91,11 @@ class Node {
   virtual void WriteMakefile(const std::vector<const Node*>& all_deps,
                              Makefile* out) const = 0;
 
-  // Helpers
-  void ParseRepeatedString(const BuildFileNode& input,
-                           const std::string& key,
-                           std::vector<std::string>* output) const {
-    ParseRepeatedString(input, key, false /* use root path */, output);
-  }
-  void ParseRepeatedString(const BuildFileNode& input,
-                           const std::string& key,
-                           bool relative_gendir,
-                           std::vector<std::string>* output) const;
-  void ParseRepeatedFiles(const BuildFileNode& input,
-                          const std::string& key,
-                          std::vector<Resource>* output) const;
-  void ParseKeyValueStrings(const BuildFileNode& input,
-                            const std::string& key,
-                            std::map<std::string, std::string>* output) const;
-  bool ParseStringField(const BuildFileNode& input,
-                        const std::string& key,
-                        std::string* field) const;
-  bool ParseBoolField(const BuildFileNode& input,
-                      const std::string& key,
-                      bool* field) const;
+  // Parsing helpers
+  BuildFileNodeReader* NewBuildReader(const BuildFileNode& node) const;
+  BuildFileNodeReader* current_reader() const { return build_reader_.get(); }
+
+  // Dependency helpers
   void CollectDependencies(const std::vector<const Node*>& all_deps,
                            std::set<Resource>* files) const;
   void CollectObjects(const std::vector<const Node*>& all_deps,
@@ -123,11 +107,8 @@ class Node {
                            std::set<std::string>* flags) const;
   void CollectEnvVariables(const std::vector<const Node*>& all_deps,
                            std::map<std::string, std::string>* vars) const;
-  std::string ParseSingleString(const std::string& input) const {
-    return ParseSingleString(true, input);
-  }
-  std::string ParseSingleString(bool relative_gendir,
-                                const std::string& input) const;
+
+  // Directory helpers.
   std::string GenDir() const;
   std::string RelativeGenDir() const;
   std::string ObjectDir() const;
@@ -136,6 +117,8 @@ class Node {
   std::string RelativeSourceDir() const;
   std::string RelativeRootDir() const;
   std::string GetRelative(const std::string& path) const;
+
+  // Makefile helpers.
   std::string MakefileEscape(const std::string& str) const;
   Resource Touchfile(const std::string& suffix) const;
   Resource Touchfile() const { return Touchfile(""); }
@@ -145,7 +128,6 @@ class Node {
     std::set<Resource> empty;
     WriteBaseUserTarget(empty, out);
   }
-
   void WriteVariables(std::string* out) const {
     for (auto const& it : make_variables_) {
       it.second->WriteMake(out);
@@ -175,6 +157,7 @@ class Node {
   const Input* input_;
   std::vector<TargetInfo*> dependencies_;
   bool strict_file_mode_;
+  std::unique_ptr<BuildFileNodeReader> build_reader_;
 
   std::vector<Node*> subnodes_, owned_subnodes_;
   std::map<std::string, MakeVariable*> make_variables_;

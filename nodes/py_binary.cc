@@ -45,12 +45,12 @@ void WriteLocalLink(const Resource& original,
 
 void PyBinaryNode::Parse(BuildFile* file, const BuildFileNode& input) {
   PyLibraryNode::Parse(file, input);
-  ParseRepeatedString(input, "py_build_args", &py_build_args_);
-  ParseStringField(input, "py_version", &py_version_);
+  current_reader()->ParseRepeatedString("py_build_args", &py_build_args_);
+  current_reader()->ParseStringField("py_version", &py_version_);
   if (py_version_.empty()) {
     py_version_ = "1.0";
   }
-  ParseStringField(input, "py_default_module", &py_default_module_);
+  current_reader()->ParseStringField("py_default_module", &py_default_module_);
   if (py_default_module_.empty() && sources_.size() == 1) {
     py_default_module_ = GetPyModule(sources_[0].path());
   }

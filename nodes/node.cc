@@ -10,9 +10,9 @@
 #include "common/strings/varmap.h"
 #include "common/util/stl.h"
 #include "repobuild/env/input.h"
+#include "repobuild/json/json.h"
 #include "repobuild/nodes/node.h"
 #include "repobuild/reader/buildfile.h"
-#include "repobuild/json/json.h"
 
 using std::map;
 using std::string;
@@ -20,24 +20,11 @@ using std::vector;
 using std::set;
 
 namespace repobuild {
-namespace {
-const Json::Value& GetValue(const BuildFileNode& input, const string& key) {
-  const Json::Value* current = &input.object();
-  for (const string& subkey : strings::SplitString(key, ".")) {
-    if (current->isNull()) {
-      break;
-    }
-    current = &(*current)[subkey];
-  }
-  return *current;
-}
-}
-
 
 Node::Node(const TargetInfo& target, const Input& input)
-  : target_(target),
-    input_(&input),
-    strict_file_mode_(true) {
+    : target_(target),
+      input_(&input),
+      strict_file_mode_(true) {
 }
 
 Node::~Node() {
@@ -46,14 +33,22 @@ Node::~Node() {
 }
 
 void Node::Parse(BuildFile* file, const BuildFileNode& input) {
-  CHECK(input.object().isObject());
+  // Set up build reader.
+  CHECK(input.object().isObject())
+      << "Expected object for node " << target().full_path();
+  build_reader_.reset(NewBuildReader(input));
+  current_reader()->ParseBoolField("strict_file_mode", &strict_file_mode_);
+  build_reader_->SetStrictFileMode(strict_file_mode_);
+
+  // Figure out our dependencies.
   vector<string> deps;
-  ParseRepeatedString(input, "dependencies", &deps);
+  current_reader()->ParseRepeatedString("dependencies", &deps);
   for (int i = 0; i < deps.size(); ++i) {
     dependencies_.push_back(new TargetInfo(deps[i], file->filename()));
   }
-  ParseBoolField(input, "strict_file_mode", &strict_file_mode_);
-  ParseKeyValueStrings(input, "env", &env_variables_);
+
+  // Parse environment variables.
+  current_reader()->ParseKeyValueStrings("env", &env_variables_);
 }
 
 void Node::WriteMake(const vector<const Node*>& all_deps,
@@ -66,117 +61,21 @@ void Node::AddDependency(const TargetInfo& other) {
   dependencies_.push_back(new TargetInfo(other));
 }
 
-void Node::ParseRepeatedString(const BuildFileNode& input,
-                               const string& key,
-                               bool relative_gendir,
-                               vector<string>* out) const {
-  const Json::Value& array = GetValue(input, key);
-  if (!array.isNull()) {
-    CHECK(array.isArray()) << "Expecting array for key " << key << ": "
-                           << input.object();
-    for (int i = 0; i < array.size(); ++i) {
-      const Json::Value& single = array[i];
-      CHECK(single.isString()) << "Expecting string for item of " << key << ": "
-                               << input.object();
-      out->push_back(ParseSingleString(relative_gendir, single.asString()));
-    }
-  }
-}
-
-void Node::ParseRepeatedFiles(const BuildFileNode& input,
-                              const string& key,
-                              vector<Resource>* out) const {
-  vector<string> temp;
-  ParseRepeatedString(input, key, false /* absolute gen dir */, &temp);
-  for (const string& file : temp) {
-    // TODO(cvanarsdale): hacky.
-    string glob;
-    if (!strings::HasPrefix(file, GenDir())) {
-      glob = strings::JoinPath(target().dir(), file);
-    } else {
-      glob = file;
-    }
-
-    vector<string> tmp;
-    CHECK(file::Glob(glob, &tmp))
-        << "Could not run glob("
-        << glob
-        << "), bad permissions?";
-    if (tmp.empty()) {
-      if (strict_file_mode_) {
-        LOG(FATAL) << "No matched files: " << file
-                   << " for target " << target().full_path();
-      } else {
-        out->push_back(Resource::FromRootPath(glob));
-      }
-    } else {
-      for (const string& it : tmp) {
-        out->push_back(Resource::FromRootPath(it));
-      }
-    }
-  }
-}
-
-bool Node::ParseStringField(const BuildFileNode& input,
-                            const string& key,
-                            string* field) const {
-  const Json::Value& json_field = GetValue(input, key);
-  if (!json_field.isString()) {
-    return false;
-  }
-  *field = ParseSingleString(json_field.asString());
-  return true;
-}
-
-bool Node::ParseBoolField(const BuildFileNode& input,
-                          const string& key,
-                          bool* field) const {
-  const Json::Value& json_field = GetValue(input, key);
-  if (!json_field.isBool()) {
-    return false;
-  }
-  *field = json_field.asBool();
-  return true;
-}
-
-
-void Node::ParseKeyValueStrings(const BuildFileNode& input,
-                                const string& key,
-                                map<string, string>* out) const {
-  const Json::Value& list = input.object()[key];
-  if (list.isNull()) {
-    return;
-  }
-  CHECK(list.isObject())
-      << "KeyValue list (\"" << key
-      << "\") must be object in " << target().full_path();
-  for (const string& name : list.getMemberNames()) {
-    const Json::Value& val = list[name];
-    CHECK(val.isString()) << "Value var (\"" << name
-                          << "\") must be string in " << target().full_path();
-    (*out)[name] = ParseSingleString(false, val.asString());
-  }
-}
-
-string Node::ParseSingleString(bool relative_gendir,
-                               const string& str) const {
-  strings::VarMap vars;
-  string tmp = (relative_gendir ? RelativeGenDir() : GenDir());
-  vars.Set("$GEN_DIR", tmp);
-  vars.Set("$(GEN_DIR)", tmp);
-  vars.Set("${GEN_DIR}", tmp);
-
-  tmp = target().dir();
-  vars.Set("$SRC_DIR", tmp);
-  vars.Set("$(SRC_DIR)", tmp);
-  vars.Set("${SRC_DIR}", tmp);
-
-  tmp = (relative_gendir ? RelativeObjectDir() : ObjectDir());
-  vars.Set("$OBJ_DIR", tmp);
-  vars.Set("$(OBJ_DIR)", tmp);
-  vars.Set("${OBJ_DIR}", tmp);
-
-  return vars.Replace(str);
+BuildFileNodeReader* Node::NewBuildReader(const BuildFileNode& node) const {
+  BuildFileNodeReader* reader = new BuildFileNodeReader(node);
+  reader->SetReplaceVariable(false, "GEN_DIR", GenDir());
+  reader->SetReplaceVariable(true, "GEN_DIR", RelativeGenDir());
+  reader->SetReplaceVariable(false, "OBJ_DIR", ObjectDir());
+  reader->SetReplaceVariable(true, "OBJ_DIR", RelativeObjectDir());
+  reader->SetReplaceVariable(false, "SRC_DIR", target().dir());
+  reader->SetReplaceVariable(true, "SRC_DIR", target().dir());
+  reader->AddFileAbsPrefix(input().genfile_dir());
+  reader->AddFileAbsPrefix(input().source_dir());
+  reader->AddFileAbsPrefix(input().object_dir());
+  reader->SetStrictFileMode(strict_file_mode_);
+  reader->SetErrorPath(target().full_path());
+  reader->SetFilePath(target().dir());
+  return reader;
 }
 
 void Node::EnvVariables(map<string, string>* env) const {

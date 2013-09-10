@@ -46,7 +46,7 @@ void ProtoLibraryNode::Parse(BuildFile* file, const BuildFileNode& input) {
   vector<Resource> sources, headers;
 
   vector<Resource> input_files;
-  ParseRepeatedFiles(input, "sources", &input_files);
+  current_reader()->ParseRepeatedFiles("sources", &input_files);
   if (input_files.empty()) {
     LOG(FATAL) << "proto_library requires input .proto files: "
                << target().full_path();

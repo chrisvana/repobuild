@@ -21,7 +21,7 @@ namespace repobuild {
 
 void JavaBinaryNode::Parse(BuildFile* file, const BuildFileNode& input) {
   JavaLibraryNode::Parse(file, input);
-  ParseRepeatedString(input, "java_manifest", &java_manifest_);
+  current_reader()->ParseRepeatedString("java_manifest", &java_manifest_);
   bool have_main_class = false;
   for (const string& j : java_manifest_) {
     have_main_class |= strings::HasPrefix(j, "Main-Class:");

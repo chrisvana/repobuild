@@ -7,6 +7,8 @@
 #include <iterator>
 #include <vector>
 #include "common/log/log.h"
+#include "common/strings/path.h"
+#include "common/strings/strutil.h"
 #include "repobuild/env/input.h"
 #include "repobuild/nodes/autoconf.h"
 #include "repobuild/nodes/gen_sh.h"
@@ -24,11 +26,16 @@ void AutoconfNode::Parse(BuildFile* file, const BuildFileNode& input) {
 
   // configure_env
   vector<string> configure_envs;
-  ParseRepeatedString(input, "configure_env", &configure_envs);
+  current_reader()->ParseRepeatedString("configure_env", &configure_envs);
 
   // configure_args
   vector<string> configure_args;
-  ParseRepeatedString(input, "configure_args", &configure_args);
+  current_reader()->ParseRepeatedString("configure_args", &configure_args);
+
+  string configure_dir;
+  current_reader()->ParseStringField("configure_dir", &configure_dir);
+  string configure = (configure_dir.empty() ? "./configure" :
+                      strings::JoinPath(configure_dir, "configure"));
 
   // Generate the output files.
   GenShNode* gen = new GenShNode(target().GetParallelTarget(file->NextName()),
@@ -41,10 +48,7 @@ void AutoconfNode::Parse(BuildFile* file, const BuildFileNode& input) {
   // Users are allowed to specify custom env arg overrides.
   string user_env;
   if (!configure_envs.empty()) {
-    for (const string& it : configure_envs) {
-      user_env.append(" " + it);
-    }
-    user_env.append("; ");
+    user_env = strings::JoinAll(configure_envs, " ") + "; ";
   }
 
   // Actual configure command output ------
@@ -58,11 +62,9 @@ void AutoconfNode::Parse(BuildFile* file, const BuildFileNode& input) {
       "LDFLAGS=\"$LDFLAGS $USER_LDFLAGS\" "
       "CC=\"$CC\" "
       "CXX=\"$CXX\"";
-  string configure_cmd =
-      "./configure --prefix=/ --cache-file=$GEN_DIR/config.cache";
-  for (const string& it : configure_args) {
-    configure_cmd.append(" " + it);
-  }
+  string configure_cmd = (configure +
+                          " --prefix=/ --cache-file=$GEN_DIR/config.cache " +
+                          strings::JoinAll(configure_args, " "));
   vector<Resource> input_files;
   vector<string> output_files;
   gen->Set(build_setup + "; " + build_env + " " + configure_cmd,

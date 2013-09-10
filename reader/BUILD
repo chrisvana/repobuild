@@ -3,9 +3,12 @@
      "name" : "buildfile",
      "cc_sources" : [ "buildfile.cc" ],
      "cc_headers" : [ "buildfile.h" ],
-     "dependencies": [ "//common/log:log",
+     "dependencies": [ "//common/base:macros",
+                       "//common/log:log",
+                       "//common/file:fileutil",
                        "//common/strings:strutil",
-                       "//json:json"
+                       "//json:json",
+                       "//env:resource"
      ]
    }
  },

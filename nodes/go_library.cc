@@ -17,7 +17,7 @@ void GoLibraryNode::Parse(BuildFile* file, const BuildFileNode& input) {
   SimpleLibraryNode::Parse(file, input);
 
   // go_sources
-  ParseRepeatedFiles(input, "go_sources", &sources_);
+  current_reader()->ParseRepeatedFiles("go_sources", &sources_);
 }
 
 void GoLibraryNode::WriteMakefileInternal(
