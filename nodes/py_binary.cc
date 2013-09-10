@@ -56,9 +56,8 @@ void PyBinaryNode::Parse(BuildFile* file, const BuildFileNode& input) {
   }
 }
 
-void PyBinaryNode::WriteMakefile(const vector<const Node*>& all_deps,
-                                 Makefile* out) const {
-  PyLibraryNode::WriteMakefileInternal(all_deps, false, out);
+void PyBinaryNode::WriteMakefile(Makefile* out) const {
+  PyLibraryNode::WriteMakefileInternal(false, out);
 
   // Source files.
   set<Resource> deps;
@@ -153,8 +152,7 @@ void PyBinaryNode::WriteMakeHead(const Input& input, Makefile* out) {
   out->FinishRule();
 }
 
-void PyBinaryNode::WriteMakeClean(const vector<const Node*>& all_deps,
-                                  Makefile* out) const {
+void PyBinaryNode::WriteMakeClean(Makefile* out) const {
   out->WriteCommand("rm -f " + OutBinary().path());
   out->WriteCommand("rm -f " + OutEgg().path());
   out->WriteCommand("rm -rf " + strings::JoinPath(

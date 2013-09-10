@@ -19,19 +19,15 @@ class CCBinaryNode : public CCLibraryNode {
   }
   virtual ~CCBinaryNode() {}
   virtual void Parse(BuildFile* file, const BuildFileNode& input);
-  virtual void WriteMakeClean(const std::vector<const Node*>& all_deps,
-                              Makefile* out) const;
-  virtual void WriteMakefile(const std::vector<const Node*>& all_deps,
-                             Makefile* out) const;
+  virtual void WriteMakeClean(Makefile* out) const;
+  virtual void WriteMakefile(Makefile* out) const;
   virtual void FinalOutputs(std::set<Resource>* outputs) const;
 
  protected:
   // Helper.
   Resource OutBinary() const;
 
-  void WriteLink(const std::vector<const Node*>& all_deps,
-                 const Resource& file,
-                 Makefile* out) const;
+  void WriteLink(const Resource& file, Makefile* out) const;
 };
 
 }  // namespace repobuild

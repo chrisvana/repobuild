@@ -17,8 +17,7 @@ class AutoconfNode : public Node {
   }
   virtual ~AutoconfNode() {}
   virtual void Parse(BuildFile* file, const BuildFileNode& input);
-  virtual void WriteMakefile(const std::vector<const Node*>& all_deps,
-                             Makefile* out) const {
+  virtual void WriteMakefile(Makefile* out) const {
     WriteBaseUserTarget(out);
   }
 };

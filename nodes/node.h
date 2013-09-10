@@ -53,10 +53,8 @@ class Node {
 
   // Virtual interface.
   virtual void Parse(BuildFile* file, const BuildFileNode& input);
-  virtual void WriteMake(const std::vector<const Node*>& all_deps,
-                         Makefile* out) const;
-  virtual void WriteMakeClean(const std::vector<const Node*>& all_deps,
-                              Makefile* out) const {}
+  virtual void WriteMake(Makefile* out) const;
+  virtual void WriteMakeClean(Makefile* out) const {}
   virtual void DependencyFiles(std::set<Resource>* files) const;
   virtual void ObjectFiles(ObjectFileSet* files) const;
   virtual void FinalOutputs(std::set<Resource>* outputs) const;
@@ -115,8 +113,7 @@ class Node {
   };
 
   // The main thing to override.
-  virtual void WriteMakefile(const std::vector<const Node*>& all_deps,
-                             Makefile* out) const = 0;
+  virtual void WriteMakefile(Makefile* out) const = 0;
 
   // Parsing helpers
   BuildFileNodeReader* NewBuildReader(const BuildFileNode& node) const;
@@ -191,8 +188,7 @@ class SimpleLibraryNode : public Node {
  public:
   SimpleLibraryNode(const TargetInfo& t, const Input& i) : Node(t, i) {}
   virtual ~SimpleLibraryNode() {}
-  virtual void WriteMakefile(const std::vector<const Node*>& all_deps,
-                             Makefile* out) const {}
+  virtual void WriteMakefile(Makefile* out) const {}
   virtual void DependencyFiles(std::set<Resource>* files) const;
   virtual void ObjectFiles(ObjectFileSet* files) const;
 

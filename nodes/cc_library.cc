@@ -132,13 +132,11 @@ void CCLibraryNode::Init() {
                   strings::JoinAll(gcc_cc_linker_args_, " ")));
 }
 
-void CCLibraryNode::WriteMakefile(const vector<const Node*>& all_deps,
-                                  Makefile* out) const {
-  WriteMakefileInternal(all_deps, true, out);
+void CCLibraryNode::WriteMakefile(Makefile* out) const {
+  WriteMakefileInternal(true, out);
 }
 
-void CCLibraryNode::WriteMakefileInternal(const vector<const Node*>& all_deps,
-                                          bool should_write_target,
+void CCLibraryNode::WriteMakefileInternal(bool should_write_target,
                                           Makefile* out) const {
   // Figure out the set of input files.
   set<Resource> input_files;
@@ -147,7 +145,7 @@ void CCLibraryNode::WriteMakefileInternal(const vector<const Node*>& all_deps,
   // Now write phases, one per .cc
   for (int i = 0; i < sources_.size(); ++i) {
     // Output object.
-    WriteCompile(sources_[i], input_files, all_deps, out);
+    WriteCompile(sources_[i], input_files, out);
   }
 
   // Now write user target (so users can type "make path/to/exec|lib").
@@ -162,7 +160,6 @@ void CCLibraryNode::WriteMakefileInternal(const vector<const Node*>& all_deps,
 
 void CCLibraryNode::WriteCompile(const Resource& source,
                                  const set<Resource>& input_files,
-                                 const vector<const Node*>& all_deps,
                                  Makefile* out) const {
   Resource obj = ObjForSource(source);
 

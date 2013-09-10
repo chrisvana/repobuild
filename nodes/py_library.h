@@ -16,15 +16,13 @@ class PyLibraryNode : public SimpleLibraryNode {
   }
   virtual ~PyLibraryNode() {}
   virtual void Parse(BuildFile* file, const BuildFileNode& input);
-  virtual void WriteMakefile(const std::vector<const Node*>& all_deps,
-                             Makefile* out) const {
-    WriteMakefileInternal(all_deps, true, out);
+  virtual void WriteMakefile(Makefile* out) const {
+    WriteMakefileInternal(true, out);
   }
   virtual void DependencyFiles(std::set<Resource>* files) const;
 
  protected:
-  void WriteMakefileInternal(const std::vector<const Node*>& all_deps,
-                             bool write_user_target,
+  void WriteMakefileInternal(bool write_user_target,
                              Makefile* out) const;
 };
 

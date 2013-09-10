@@ -53,8 +53,7 @@ void GenShNode::WriteMakeHead(const Input& input, Makefile* out) {
   out->append(string(kRootDir) + " := $(shell pwd)\n");
 }
 
-void GenShNode::WriteMakefile(const vector<const Node*>& all_deps,
-                              Makefile* out) const {
+void GenShNode::WriteMakefile(Makefile* out) const {
   Resource touchfile = Touchfile();
 
   // Inputs
@@ -107,8 +106,7 @@ void GenShNode::WriteMakefile(const vector<const Node*>& all_deps,
   }
 }
 
-void GenShNode::WriteMakeClean(const vector<const Node*>& all_deps,
-                               Makefile* out) const {
+void GenShNode::WriteMakeClean(Makefile* out) const {
   if (clean_cmd_.empty()) {
     return;
   }

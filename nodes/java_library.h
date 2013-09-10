@@ -19,21 +19,17 @@ class JavaLibraryNode : public Node {
   }
   virtual ~JavaLibraryNode() {}
   virtual void Parse(BuildFile* file, const BuildFileNode& input);
-  virtual void WriteMakefile(const std::vector<const Node*>& all_deps,
-                             Makefile* out) const {
-    WriteMakefileInternal(all_deps, true, out);
+  virtual void WriteMakefile(Makefile* out) const {
+    WriteMakefileInternal(true, out);
   }
   virtual void ObjectFiles(ObjectFileSet* files) const;
   virtual void LinkFlags(std::set<std::string>* flags) const;
   virtual void CompileFlags(bool cxx, std::set<std::string>* flags) const;
 
  protected:
-  void WriteMakefileInternal(const std::vector<const Node*>& all_deps,
-                             bool write_user_target,
-                             Makefile* out) const;
+  void WriteMakefileInternal(bool write_user_target, Makefile* out) const;
   void WriteCompile(const Resource& source,
                     const std::set<Resource>& input_files,
-                    const std::vector<const Node*>& all_deps,
                     Makefile* out) const;
   Resource ClassFile(const Resource& source) const;
 

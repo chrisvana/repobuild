@@ -19,10 +19,8 @@ class JavaBinaryNode : public JavaLibraryNode {
   }
   virtual ~JavaBinaryNode() {}
   virtual void Parse(BuildFile* file, const BuildFileNode& input);
-  virtual void WriteMakeClean(const std::vector<const Node*>& all_deps,
-                              Makefile* out) const;
-  virtual void WriteMakefile(const std::vector<const Node*>& all_deps,
-                             Makefile* out) const;
+  virtual void WriteMakeClean(Makefile* out) const;
+  virtual void WriteMakefile(Makefile* out) const;
   virtual void FinalOutputs(std::set<Resource>* outputs) const;
 
  protected:
@@ -30,9 +28,7 @@ class JavaBinaryNode : public JavaLibraryNode {
   Resource OutBinary() const;
   Resource JarName() const;
 
-  void WriteJar(const std::vector<const Node*>& all_deps,
-                const Resource& file,
-                Makefile* out) const;
+  void WriteJar(const Resource& file, Makefile* out) const;
 
   std::vector<std::string> java_manifest_;
 };

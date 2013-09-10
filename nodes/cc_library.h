@@ -19,8 +19,7 @@ class CCLibraryNode : public Node {
   }
   virtual ~CCLibraryNode() {}
   virtual void Parse(BuildFile* file, const BuildFileNode& input);
-  virtual void WriteMakefile(const std::vector<const Node*>& all_deps,
-                             Makefile* out) const;
+  virtual void WriteMakefile(Makefile* out) const;
   virtual void DependencyFiles(std::set<Resource>* files) const;
   virtual void ObjectFiles(ObjectFileSet* files) const;
   virtual void LinkFlags(std::set<std::string>* flags) const;
@@ -41,11 +40,8 @@ class CCLibraryNode : public Node {
   std::string DefaultCompileFlags(bool cpp_mode) const;
   void WriteCompile(const Resource& source,
                     const std::set<Resource>& input_files,
-                    const std::vector<const Node*>& all_deps,
                     Makefile* out) const;
-  void WriteMakefileInternal(const std::vector<const Node*>& all_deps,
-                             bool should_write_target,
-                             Makefile* out) const;
+  void WriteMakefileInternal(bool should_write_target, Makefile* out) const;
   Resource ObjForSource(const Resource& source) const;
   void AddVariable(const std::string& cpp_name,
                    const std::string& c_name,

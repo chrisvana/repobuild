@@ -66,10 +66,9 @@ void Node::Parse(BuildFile* file, const BuildFileNode& input) {
   current_reader()->ParseKeyValueStrings("env", &env_variables_);
 }
 
-void Node::WriteMake(const vector<const Node*>& all_deps,
-                     Makefile* out) const {
+void Node::WriteMake(Makefile* out) const {
   WriteVariables(out->mutable_out());
-  WriteMakefile(all_deps, out);
+  WriteMakefile(out);
 }
 
 void Node::AddDependencyTarget(const TargetInfo& other) {

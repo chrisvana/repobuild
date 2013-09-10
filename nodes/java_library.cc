@@ -39,10 +39,8 @@ void JavaLibraryNode::Parse(BuildFile* file, const BuildFileNode& input) {
                                         &java_jar_args_);
 }
 
-void JavaLibraryNode::WriteMakefileInternal(
-    const std::vector<const Node*>& all_deps,
-    bool write_user_target,
-    Makefile* out) const {
+void JavaLibraryNode::WriteMakefileInternal(bool write_user_target,
+                                            Makefile* out) const {
   // Figure out the set of input files.
   set<Resource> input_files;
   DependencyFiles(&input_files);
@@ -50,7 +48,7 @@ void JavaLibraryNode::WriteMakefileInternal(
   // Now write phases, one per .cc
   for (int i = 0; i < sources_.size(); ++i) {
     // Output object.
-    WriteCompile(sources_[i], input_files, all_deps, out);
+    WriteCompile(sources_[i], input_files, out);
   }
 
   // Now write user target (so users can type "make path/to/exec|lib").
@@ -65,7 +63,6 @@ void JavaLibraryNode::WriteMakefileInternal(
 
 void JavaLibraryNode::WriteCompile(const Resource& source,
                                    const set<Resource>& input_files,
-                                   const vector<const Node*>& all_deps,
                                    Makefile* out) const {
   Resource obj = ClassFile(source);
 

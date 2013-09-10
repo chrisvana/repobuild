@@ -1,6 +1,7 @@
 // Copyright 2013
 // Author: Christopher Van Arsdale
 
+#include <iostream>
 #include <set>
 #include <vector>
 #include <string>
@@ -34,12 +35,7 @@ void ExpandNode(const Parser& parser,
   }
 
   // Now expand our sub-node dependencies.
-  for (const TargetInfo& target : node->dep_targets()) {
-    const Node* dep = parser.GetNode(target.full_path());
-    if (dep == NULL) {
-      LOG(FATAL) << "Could not find dependency " << target.full_path()
-                 << " of target " << node->target().full_path();
-    }
+  for (const Node* dep : node->dependencies()) {
     ExpandNode(parser, dep, parents, seen, to_process);
   }
 
@@ -48,31 +44,7 @@ void ExpandNode(const Parser& parser,
   to_process->push_back(node);
 }
 
-void GetFullDepList(const Parser& parser,
-                    const Node* node,
-                    vector<const Node*>* dependencies,
-                    set<const Node*>* deps_set) {
-  for (const TargetInfo& target : node->dep_targets()) {
-    const Node* dep = parser.GetNode(target.full_path());
-    CHECK(node);  // checked above in ExpandNode.
-    if (deps_set->insert(dep).second) {
-      GetFullDepList(parser, dep, dependencies, deps_set);
-      dependencies->push_back(dep);  // after this nodes dependencies
-    }
-  }
-}
-
-// GetFullDepList
-//  This returns dependencies in a DFS-style order. All dependencies of any
-//  node in the list will be ahead of it in the list.
-void GetFullDepList(const Parser& parser,
-                    const Node* node,
-                    vector<const Node*>* dependencies) {
-  set<const Node*> deps_set;
-  GetFullDepList(parser, node, dependencies, &deps_set);
-}
-
-}  // namespace
+}  // anonymous namespace
 
 Generator::Generator() {
 }
@@ -101,19 +73,17 @@ string Generator::GenerateMakefile(const Input& input) {
     ExpandNode(parser, node, &parents, &seen, &process_order);
   }
 
+  std::cout << "Generating: Makefile" << std::endl;
+
   // Generate the makefile.
   for (const Node* node : process_order) {
-    vector<const Node*> all_deps;
-    GetFullDepList(parser, node, &all_deps);
-    node->WriteMake(all_deps, &out);
+    node->WriteMake(&out);
   }
 
   // Write the make clean rule.
   out.StartRule("clean", "");
   for (const Node* node : process_order) {
-    vector<const Node*> all_deps;
-    GetFullDepList(parser, node, &all_deps);
-    node->WriteMakeClean(all_deps, &out);
+    node->WriteMakeClean(&out);
   }
   out.WriteCommand("rm -rf " + input.object_dir());
   out.WriteCommand("rm -rf " + input.genfile_dir());

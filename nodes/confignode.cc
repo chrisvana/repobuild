@@ -32,8 +32,7 @@ void ConfigNode::Parse(BuildFile* file, const BuildFileNode& input) {
       Resource::FromRootPath(DummyFile(SourceDir(Node::input().genfile_dir())));
 }
 
-void ConfigNode::WriteMakefile(const vector<const Node*>& all_deps,
-                               Makefile* out) const {
+void ConfigNode::WriteMakefile(Makefile* out) const {
   if (component_src_.empty()) {
     return;
   }
@@ -89,8 +88,7 @@ void ConfigNode::AddSymlink(const string& dir,
   out->FinishRule();
 }
 
-void ConfigNode::WriteMakeClean(const vector<const Node*>& all_deps,
-                                Makefile* out) const {
+void ConfigNode::WriteMakeClean(Makefile* out) const {
   if (component_src_.empty()) {
     return;
   }

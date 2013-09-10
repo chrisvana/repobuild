@@ -22,9 +22,8 @@ void GoBinaryNode::Parse(BuildFile* file, const BuildFileNode& input) {
   current_reader()->ParseRepeatedString("go_build_args", &go_build_args_);
 }
 
-void GoBinaryNode::WriteMakefile(const vector<const Node*>& all_deps,
-                                 Makefile* out) const {
-  GoLibraryNode::WriteMakefileInternal(all_deps, false, out);
+void GoBinaryNode::WriteMakefile(Makefile* out) const {
+  GoLibraryNode::WriteMakefileInternal(false, out);
 
   // Source files.
   set<Resource> deps;
@@ -62,8 +61,7 @@ void GoBinaryNode::WriteMakefile(const vector<const Node*>& all_deps,
   out->FinishRule();
 }
 
-void GoBinaryNode::WriteMakeClean(const vector<const Node*>& all_deps,
-                                  Makefile* out) const {
+void GoBinaryNode::WriteMakeClean(Makefile* out) const {
   out->WriteCommand("rm -f " + OutBinary().path());
 }
 

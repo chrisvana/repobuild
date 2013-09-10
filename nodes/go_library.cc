@@ -20,11 +20,9 @@ void GoLibraryNode::Parse(BuildFile* file, const BuildFileNode& input) {
   current_reader()->ParseRepeatedFiles("go_sources", &sources_);
 }
 
-void GoLibraryNode::WriteMakefileInternal(
-    const std::vector<const Node*>& all_deps,
-    bool write_user_target,
-    Makefile* out) const {
-  SimpleLibraryNode::WriteMakefile(all_deps, out);
+void GoLibraryNode::WriteMakefileInternal(bool write_user_target,
+                                          Makefile* out) const {
+  SimpleLibraryNode::WriteMakefile(out);
 
   // Syntax check.
   string sources = strings::JoinAll(sources_, " ");
