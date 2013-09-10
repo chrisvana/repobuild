@@ -40,8 +40,9 @@ void CmakeNode::Parse(BuildFile* file, const BuildFileNode& input) {
   current_reader()->ParseRepeatedString("cmake_args", &cmake_args);
 
   // Generate the output files.
-  GenShNode* gen = new GenShNode(target().GetParallelTarget(file->NextName()),
-                                 Node::input());
+  GenShNode* gen = new GenShNode(
+      target().GetParallelTarget(file->NextName(target().local_path())),
+      Node::input());
   for (const TargetInfo* dep : dependencies()) {
     gen->AddDependency(*dep);
   }
@@ -87,8 +88,9 @@ void CmakeNode::Parse(BuildFile* file, const BuildFileNode& input) {
       " done) &&"
       " rm -rf $STAGING; else echo -n ''; "
       "fi)";
-  MakeNode* make = new MakeNode(target().GetParallelTarget(file->NextName()),
-                                Node::input());
+  MakeNode* make = new MakeNode(
+      target().GetParallelTarget(file->NextName(target().local_path())),
+      Node::input());
   AddSubNode(make);
   make->AddDependency(gen->target());
   make->ParseWithOptions(file, input,

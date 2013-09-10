@@ -45,7 +45,7 @@ Node* ParseNode(const NodeBuilderSet* builder_set,
                                     << file->filename();
     node_name = name.asString();
   } else {
-    node_name = file->NextName();
+    node_name = file->NextName("auto_");
   }
 
   // Generate the node.

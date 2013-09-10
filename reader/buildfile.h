@@ -53,7 +53,7 @@ class BuildFile {
   const std::set<std::string>& base_dependencies() const { return base_deps_; }
 
   // Helpers.
-  std::string NextName();  // auto generated target name.
+  std::string NextName(const std::string& name_base);  // auto generated name.
 
  private:
   std::string filename_;

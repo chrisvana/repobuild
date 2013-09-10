@@ -65,8 +65,8 @@ void BuildFile::Parse(const string& input) {
   }
 }
 
-string BuildFile::NextName() {
-  return strings::StringPrintf("__auto_name_%d", name_counter_++);
+string BuildFile::NextName(const string& name_base) {
+  return strings::Join(name_base, ".", name_counter_++);
 }
 
 void BuildFile::MergeParent(BuildFile* parent) {

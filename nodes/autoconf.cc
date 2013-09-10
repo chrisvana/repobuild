@@ -38,8 +38,9 @@ void AutoconfNode::Parse(BuildFile* file, const BuildFileNode& input) {
                       strings::JoinPath(configure_dir, "configure"));
 
   // Generate the output files.
-  GenShNode* gen = new GenShNode(target().GetParallelTarget(file->NextName()),
-                                 Node::input());
+  GenShNode* gen = new GenShNode(
+      target().GetParallelTarget(file->NextName(target().local_path())),
+      Node::input());
   for (const TargetInfo* dep : dependencies()) {
     gen->AddDependency(*dep);
   }
@@ -73,8 +74,9 @@ void AutoconfNode::Parse(BuildFile* file, const BuildFileNode& input) {
            output_files);
 
   // Make output --------------------------
-  MakeNode* make = new MakeNode(target().GetParallelTarget(file->NextName()),
-                                Node::input());
+  MakeNode* make = new MakeNode(
+      target().GetParallelTarget(file->NextName(target().local_path())),
+      Node::input());
   AddSubNode(make);
   make->AddDependency(gen->target());
   make->Parse(file, input);

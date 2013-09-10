@@ -27,8 +27,9 @@ void ProtoLibraryNode::Parse(BuildFile* file, const BuildFileNode& input) {
   Node::Parse(file, input);
 
   // Generate the output files.
-  GenShNode* gen = new GenShNode(target().GetParallelTarget(file->NextName()),
-                                 Node::input());
+  GenShNode* gen = new GenShNode(
+      target().GetParallelTarget(file->NextName(target().local_path())),
+      Node::input());
   for (const TargetInfo* dep : dependencies()) {
     gen->AddDependency(*dep);
   }
@@ -39,7 +40,7 @@ void ProtoLibraryNode::Parse(BuildFile* file, const BuildFileNode& input) {
 
   // And build them into a cc library
   CCLibraryNode* cc_lib = new CCLibraryNode(
-      target().GetParallelTarget(file->NextName()),
+      target().GetParallelTarget(file->NextName(target().local_path())),
       Node::input());
   AddSubNode(cc_lib);
   cc_lib->AddDependency(gen->target());
