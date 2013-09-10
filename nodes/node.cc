@@ -28,7 +28,6 @@ Node::Node(const TargetInfo& target, const Input& input)
 }
 
 Node::~Node() {
-  DeleteElements(&dependencies_);
   DeleteElements(&owned_subnodes_);
 }
 
@@ -44,7 +43,7 @@ void Node::Parse(BuildFile* file, const BuildFileNode& input) {
   vector<string> deps;
   current_reader()->ParseRepeatedString("dependencies", &deps);
   for (int i = 0; i < deps.size(); ++i) {
-    dependencies_.push_back(new TargetInfo(deps[i], file->filename()));
+    dep_targets_.push_back(TargetInfo(deps[i], file->filename()));
   }
 
   // Parse environment variables.
@@ -57,8 +56,12 @@ void Node::WriteMake(const vector<const Node*>& all_deps,
   WriteMakefile(all_deps, out);
 }
 
-void Node::AddDependency(const TargetInfo& other) {
-  dependencies_.push_back(new TargetInfo(other));
+void Node::AddDependencyTarget(const TargetInfo& other) {
+  dep_targets_.push_back(other);
+}
+
+void Node::AddDependencyNode(Node* dependency) {
+  dependencies_.push_back(dependency);
 }
 
 BuildFileNodeReader* Node::NewBuildReader(const BuildFileNode& node) const {
@@ -79,73 +82,44 @@ BuildFileNodeReader* Node::NewBuildReader(const BuildFileNode& node) const {
 }
 
 void Node::EnvVariables(map<string, string>* env) const {
+  for (Node* node : dependencies_) {
+    node->EnvVariables(env);
+  }
   for (const auto& it : env_variables_) {
     (*env)[it.first] = it.second;
   }
 }
 
-void Node::CollectDependencies(const vector<const Node*>& all_deps,
-                               set<Resource>* out) const {
-  for (int i = 0; i < all_deps.size(); ++i) {
-    vector<Resource> files;
-    all_deps[i]->DependencyFiles(&files);
-    for (const Resource& it : files) { out->insert(it); }
-  }
-  vector<Resource> files;
-  DependencyFiles(&files);
-  for (const Resource& it : files) {
-    out->insert(it);
+void Node::DependencyFiles(set<Resource>* files) const {
+  for (Node* node : dependencies_) {
+    node->DependencyFiles(files);
   }
 }
 
-void Node::CollectObjects(const vector<const Node*>& all_deps,
-                          vector<Resource>* out) const {
-  set<Resource> tmp;
-  for (const Node* dep : all_deps) {
-    vector<Resource> obj_files;
-    dep->ObjectFiles(&obj_files);
-    for (const Resource& it : obj_files) {
-      if (tmp.insert(it).second) {
-        out->push_back(it);
-      }
-    }
-  }
-
-  {
-    vector<Resource> obj_files;
-    ObjectFiles(&obj_files);
-    for (const Resource& it : obj_files) {
-      if (tmp.insert(it).second) {
-        out->push_back(it);
-      }
-    }
+void Node::ObjectFiles(ObjectFileSet* files) const {
+  // NB: Order matters for gcc object files (sadly), so we do something trickier
+  // to get a vector in the right order.
+  for (Node* node : dependencies_) {
+    node->ObjectFiles(files);
   }
 }
 
-void Node::CollectLinkFlags(const vector<const Node*>& all_deps,
-                            set<string>* out) const {
-  for (const Node* dep : all_deps) {
-    dep->LinkFlags(out);
+void Node::FinalOutputs(set<Resource>* outputs) const {
+  for (Node* node : dependencies_) {
+    node->FinalOutputs(outputs);
   }
-  LinkFlags(out);
 }
 
-void Node::CollectCompileFlags(bool cxx,
-                               const vector<const Node*>& all_deps,
-                               set<string>* out) const {
-  for (const Node* dep : all_deps) {
-    dep->CompileFlags(cxx, out);
+void Node::LinkFlags(set<string>* flags) const {
+  for (Node* node : dependencies_) {
+    node->LinkFlags(flags);
   }
-  CompileFlags(cxx, out);
 }
 
-void Node::CollectEnvVariables(
-    const vector<const Node*>& all_deps,
-    map<string, string>* vars) const {
-  for (const Node* dep : all_deps) {
-    dep->EnvVariables(vars);
+void Node::CompileFlags(bool cxx, set<string>* flags) const {
+  for (Node* node : dependencies_) {
+    node->CompileFlags(cxx, flags);
   }
-  EnvVariables(vars);
 }
 
 string Node::GenDir() const { 
@@ -191,10 +165,10 @@ void Node::WriteBaseUserTarget(const set<Resource>& deps,
     out->append(" ");
     out->append(dep.path());
   }
-  for (const TargetInfo* dep : dependencies()) {
-    if (dep->make_path() != target().make_path()) {
+  for (const TargetInfo& dep : dep_targets()) {
+    if (dep.make_path() != target().make_path()) {
       out->append(" ");
-      out->append(dep->make_path());
+      out->append(dep.make_path());
     }
   }
   out->append("\n\n.PHONY: ");
@@ -241,17 +215,17 @@ Resource Node::Touchfile(const string& suffix) const {
       "." + target().local_path() + suffix + ".dummy");
 }
 
-void SimpleLibraryNode::DependencyFiles(vector<Resource>* files) const {
+void SimpleLibraryNode::DependencyFiles(set<Resource>* files) const {
   Node::DependencyFiles(files);
   for (int i = 0; i < sources_.size(); ++i) {
-    files->push_back(sources_[i]);
+    files->insert(sources_[i]);
   }
 }
 
-void SimpleLibraryNode::ObjectFiles(vector<Resource>* files) const {
+void SimpleLibraryNode::ObjectFiles(ObjectFileSet* files) const {
   Node::ObjectFiles(files);
   for (int i = 0; i < sources_.size(); ++i) {
-    files->push_back(sources_[i]);
+    files->Add(sources_[i]);
   }
 }
 

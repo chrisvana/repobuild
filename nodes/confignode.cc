@@ -97,12 +97,12 @@ void ConfigNode::WriteMakeClean(const vector<const Node*>& all_deps,
   out->WriteCommand("rm -rf " + SourceDir(input().genfile_dir()));
 }
 
-void ConfigNode::DependencyFiles(vector<Resource>* files) const {
+void ConfigNode::DependencyFiles(set<Resource>* files) const {
   Node::DependencyFiles(files);
   if (!component_src_.empty()) {
-    files->push_back(Resource::FromRootPath(
+    files->insert(Resource::FromRootPath(
         DummyFile(SourceDir(""))));
-    files->push_back(Resource::FromRootPath(
+    files->insert(Resource::FromRootPath(
         DummyFile(SourceDir(input().genfile_dir()))));
   }
 }

@@ -59,16 +59,16 @@ void GenShNode::WriteMakefile(const vector<const Node*>& all_deps,
 
   // Inputs
   set<Resource> input_files;
-  CollectDependencies(all_deps, &input_files);
-  vector<Resource> obj_files;
-  CollectObjects(all_deps, &obj_files);
-  input_files.erase(touchfile);  // all but our own file.
+  Node::DependencyFiles(&input_files);  // all but our own.
+
+  ObjectFileSet obj_files;
+  ObjectFiles(&obj_files);
 
   // Make target
   out->StartRule(touchfile.path(), strings::JoinWith(
       " ",
       strings::JoinAll(input_files, " "),
-      strings::JoinAll(obj_files, " "),
+      strings::JoinAll(obj_files.files(), " "),
       strings::JoinAll(input_files_, " ")));
 
   // Build command.
@@ -82,15 +82,15 @@ void GenShNode::WriteMakefile(const vector<const Node*>& all_deps,
     string prefix;
     {  // compute prefix.
       set<string> compile_flags;
-      CollectCompileFlags(true, all_deps, &compile_flags);
+      CompileFlags(true, &compile_flags);
       prefix = "DEP_CXXFLAGS=\"" + strings::JoinAll(compile_flags, " ") + "\"";
       compile_flags.clear();
-      CollectCompileFlags(false, all_deps, &compile_flags);
+      CompileFlags(false, &compile_flags);
       prefix += " DEP_CFLAGS=\"" + strings::JoinAll(compile_flags, " ") + "\"";
     }
 
     map<string, string> env_vars;
-    CollectEnvVariables(all_deps, &env_vars);
+    EnvVariables(&env_vars);
     out->WriteCommand(WriteCommand(env_vars, prefix, build_cmd_, touch_cmd));
   }
   out->FinishRule();
@@ -114,7 +114,7 @@ void GenShNode::WriteMakeClean(const vector<const Node*>& all_deps,
   }
 
   map<string, string> env_vars;
-  CollectEnvVariables(all_deps, &env_vars);
+  EnvVariables(&env_vars);
   out->WriteCommandBestEffort(WriteCommand(env_vars, "", clean_cmd_, ""));
 }
 
@@ -197,8 +197,10 @@ string GenShNode::WriteCommand(const map<string, string>& env_vars,
   return out;
 }
 
-void GenShNode::DependencyFiles(vector<Resource>* files) const {
-  files->push_back(Touchfile());
+void GenShNode::DependencyFiles(set<Resource>* files) const {
+  // NB: We intentionally do not pass on sub-dependency files.
+  // Node::DependencyFiles(files);
+  files->insert(Touchfile());
 }
 
 }  // namespace repobuild

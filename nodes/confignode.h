@@ -22,7 +22,7 @@ class ConfigNode : public Node {
                               Makefile* out) const;
   virtual void WriteMakefile(const std::vector<const Node*>& all_deps,
                              Makefile* out) const;
-  virtual void DependencyFiles(std::vector<Resource>* files) const;
+  virtual void DependencyFiles(std::set<Resource>* files) const;
 
  protected:
   void AddSymlink(const std::string& dir,

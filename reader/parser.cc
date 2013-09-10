@@ -109,6 +109,16 @@ class Graph {
         inputs_.push_back(node);
       }
     }
+
+    // Now make sure all nodes point to their subnodes.
+    for (auto it : nodes_) {
+      Node* node = it.second;
+      for (const TargetInfo& info : node->dep_targets()) {
+        Node* dep = nodes_[info.full_path()];
+        CHECK(dep);
+        node->AddDependencyNode(dep);
+      }
+    }
   }
 
   BuildFile* AddFile(const string& filename) {
@@ -145,7 +155,7 @@ class Graph {
       CHECK(base_dep);
       for (Node* node : nodes) {
         if (node->target().full_path() != additional_dep) {
-          node->AddDependency(base_dep->target());
+          node->AddDependencyTarget(base_dep->target());
         }
       }
     }
@@ -159,12 +169,12 @@ class Graph {
     Node* node = nodes_[target.full_path()];
     LOG_IF(FATAL, node == NULL) << "Could not find target: "
                                 << target.full_path();
-    for (const TargetInfo* dep : node->dependencies()) {
-      if (already_queued_.insert(dep->full_path()).second) {
+    for (const TargetInfo& dep : node->dep_targets()) {
+      if (already_queued_.insert(dep.full_path()).second) {
         VLOG(1) << "Adding dep: "
                 << node->target().full_path()
-                << " -> " << dep->full_path();
-        to_process_.push(dep->full_path());
+                << " -> " << dep.full_path();
+        to_process_.push(dep.full_path());
       }
     }
   }

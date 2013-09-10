@@ -4,6 +4,7 @@
 #ifndef _REPOBUILD_NODES_NODE_H__
 #define _REPOBUILD_NODES_NODE_H__
 
+#include <list>
 #include <map>
 #include <memory>
 #include <string>
@@ -25,6 +26,28 @@ class Makefile;
 
 class Node {
  public:
+  class ObjectFileSet {
+   public:
+    ObjectFileSet() {}
+    ~ObjectFileSet() {}
+
+    const std::list<Resource>& files() const { return files_; }
+    void Add(const Resource& resource) {
+      // HACK(cvanarsdale):
+      // Sadly order matters to the (gcc) linker. It looks in later object
+      // files to find unresolved symbols. We collect the dependencies
+      // bottom up, so we push resources onto the front of the list so
+      // unencumbered resources end up in the back of the list.
+      if (fileset_.insert(resource).second) {
+        files_.push_front(resource);
+      }
+    }
+
+   private:
+    std::set<Resource> fileset_;
+    std::list<Resource> files_;
+  };
+
   Node(const TargetInfo& target, const Input& input);
   virtual ~Node();
 
@@ -34,21 +57,25 @@ class Node {
                          Makefile* out) const;
   virtual void WriteMakeClean(const std::vector<const Node*>& all_deps,
                               Makefile* out) const {}
-  virtual void DependencyFiles(std::vector<Resource>* files) const {}
-  virtual void ObjectFiles(std::vector<Resource>* files) const {}
-  virtual void FinalOutputs(std::vector<Resource>* outputs) const {}
-  virtual void LinkFlags(std::set<std::string>* flags) const {}
-  virtual void CompileFlags(bool cxx, std::set<std::string>* flags) const {}
+  virtual void DependencyFiles(std::set<Resource>* files) const;
+  virtual void ObjectFiles(ObjectFileSet* files) const;
+  virtual void FinalOutputs(std::set<Resource>* outputs) const;
+  virtual void LinkFlags(std::set<std::string>* flags) const;
+  virtual void CompileFlags(bool cxx, std::set<std::string>* flags) const;
   virtual void EnvVariables(std::map<std::string, std::string>* vars) const;
 
   // Accessors.
   const Input& input() const { return *input_; }
   const TargetInfo& target() const { return target_; }
-  const std::vector<TargetInfo*> dependencies() const { return dependencies_; }
+  const std::vector<TargetInfo> dep_targets() const { return dep_targets_; }
+  const std::vector<Node*> dependencies() const { return dependencies_; }
 
   // Mutators
-  void AddDependency(const TargetInfo& other);
+  void AddDependencyTarget(const TargetInfo& other);
   void SetStrictFileMode(bool strict) { strict_file_mode_ = strict; }
+
+  // Called from outside:
+  void AddDependencyNode(Node* dependency);
 
   // Subnode handling.
   void ExtractSubnodes(std::vector<Node*>* nodes) {
@@ -59,7 +86,7 @@ class Node {
     owned_subnodes_.clear();
   }
   void AddSubNode(Node* node) {
-    AddDependency(node->target());
+    AddDependencyTarget(node->target());
     subnodes_.push_back(node);
     owned_subnodes_.push_back(node);
   }
@@ -94,19 +121,6 @@ class Node {
   // Parsing helpers
   BuildFileNodeReader* NewBuildReader(const BuildFileNode& node) const;
   BuildFileNodeReader* current_reader() const { return build_reader_.get(); }
-
-  // Dependency helpers
-  void CollectDependencies(const std::vector<const Node*>& all_deps,
-                           std::set<Resource>* files) const;
-  void CollectObjects(const std::vector<const Node*>& all_deps,
-                      std::vector<Resource>* files) const;
-  void CollectLinkFlags(const std::vector<const Node*>& all_deps,
-                        std::set<std::string>* flags) const;
-  void CollectCompileFlags(bool cxx,
-                           const std::vector<const Node*>& all_deps,
-                           std::set<std::string>* flags) const;
-  void CollectEnvVariables(const std::vector<const Node*>& all_deps,
-                           std::map<std::string, std::string>* vars) const;
 
   // Directory helpers.
   std::string GenDir() const;
@@ -153,15 +167,20 @@ class Node {
   }
 
  private:
+  // Input info.
   TargetInfo target_;
   const Input* input_;
-  std::vector<TargetInfo*> dependencies_;
+  std::vector<TargetInfo> dep_targets_;
+
+  // Parsing info
   bool strict_file_mode_;
   std::unique_ptr<BuildFileNodeReader> build_reader_;
-
-  std::vector<Node*> subnodes_, owned_subnodes_;
-  std::map<std::string, MakeVariable*> make_variables_;
   std::map<std::string, std::string> env_variables_;
+
+  // Subnode/variables/etc handling.
+  std::vector<Node*> subnodes_, owned_subnodes_;
+  std::vector<Node*> dependencies_;  // not owned.
+  std::map<std::string, MakeVariable*> make_variables_;
 };
 
 // SimpleLibraryNode
@@ -172,8 +191,8 @@ class SimpleLibraryNode : public Node {
   virtual ~SimpleLibraryNode() {}
   virtual void WriteMakefile(const std::vector<const Node*>& all_deps,
                              Makefile* out) const {}
-  virtual void DependencyFiles(std::vector<Resource>* files) const;
-  virtual void ObjectFiles(std::vector<Resource>* files) const;
+  virtual void DependencyFiles(std::set<Resource>* files) const;
+  virtual void ObjectFiles(ObjectFileSet* files) const;
 
   // Alterative to Parse()
   virtual void Set(const std::vector<Resource>& sources) {

@@ -23,7 +23,7 @@ class JavaLibraryNode : public Node {
                              Makefile* out) const {
     WriteMakefileInternal(all_deps, true, out);
   }
-  virtual void ObjectFiles(std::vector<Resource>* files) const;
+  virtual void ObjectFiles(ObjectFileSet* files) const;
   virtual void LinkFlags(std::set<std::string>* flags) const;
   virtual void CompileFlags(bool cxx, std::set<std::string>* flags) const;
 

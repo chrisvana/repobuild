@@ -142,7 +142,7 @@ void CCLibraryNode::WriteMakefileInternal(const vector<const Node*>& all_deps,
                                           Makefile* out) const {
   // Figure out the set of input files.
   set<Resource> input_files;
-  CollectDependencies(all_deps, &input_files);
+  DependencyFiles(&input_files);
 
   // Now write phases, one per .cc
   for (int i = 0; i < sources_.size(); ++i) {
@@ -188,7 +188,7 @@ void CCLibraryNode::WriteCompile(const Resource& source,
   string output_compile_args;
   {
     set<string> header_compile_args;
-    CollectCompileFlags(cpp, all_deps, &header_compile_args);
+    CompileFlags(cpp, &header_compile_args);
     output_compile_args = strings::JoinWith(
         " ",
         strings::JoinAll(header_compile_args, " "),
@@ -207,21 +207,21 @@ void CCLibraryNode::WriteCompile(const Resource& source,
   out->FinishRule();
 }
 
-void CCLibraryNode::DependencyFiles(vector<Resource>* files) const {
+void CCLibraryNode::DependencyFiles(set<Resource>* files) const {
   Node::DependencyFiles(files);
   if (HasVariable(kHeaderVariable)) {
-    files->push_back(Resource::FromRaw(
+    files->insert(Resource::FromRaw(
         GetVariable(kHeaderVariable).ref_name()));
   }
 }
 
-void CCLibraryNode::ObjectFiles(vector<Resource>* files) const {
+void CCLibraryNode::ObjectFiles(ObjectFileSet* files) const {
   Node::ObjectFiles(files);
   for (const Resource& src : sources_) {
-    files->push_back(ObjForSource(src));
+    files->Add(ObjForSource(src));
   }
   for (const Resource& obj : objects_) {
-    files->push_back(obj);
+    files->Add(obj);
   }
 }
 

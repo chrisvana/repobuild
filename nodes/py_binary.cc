@@ -62,12 +62,12 @@ void PyBinaryNode::WriteMakefile(const vector<const Node*>& all_deps,
 
   // Source files.
   set<Resource> deps;
-  CollectDependencies(all_deps, &deps);
-  deps.erase(Resource::FromRaw(target().make_path()));  // ignore output.
-  vector<Resource> sources;
-  CollectObjects(all_deps, &sources);
+  DependencyFiles(&deps);
+
+  ObjectFileSet sources;
+  ObjectFiles(&sources);
   vector<string> relative_sources;
-  for (const Resource& r : sources) {
+  for (const Resource& r : sources.files()) {
     relative_sources.push_back(
         strings::JoinPath("$(ROOT_DIR)", r.path()));
   }
@@ -162,9 +162,10 @@ void PyBinaryNode::WriteMakeClean(const vector<const Node*>& all_deps,
       target().make_path() + ".egg-info"));
 }
 
-void PyBinaryNode::FinalOutputs(vector<Resource>* outputs) const {
-  outputs->push_back(OutBinary());
-  outputs->push_back(OutEgg());
+void PyBinaryNode::FinalOutputs(set<Resource>* outputs) const {
+  PyLibraryNode::FinalOutputs(outputs);
+  outputs->insert(OutBinary());
+  outputs->insert(OutEgg());
 }
 
 Resource PyBinaryNode::OutBinary() const {

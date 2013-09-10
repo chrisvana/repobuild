@@ -28,9 +28,10 @@ void GoBinaryNode::WriteMakefile(const vector<const Node*>& all_deps,
 
   // Source files.
   set<Resource> deps;
-  vector<Resource> source_files;
-  CollectObjects(all_deps, &source_files);
-  CollectDependencies(all_deps, &deps);
+  DependencyFiles(&deps);
+
+  ObjectFileSet source_files;
+  ObjectFiles(&source_files);
 
   // Output binary
   Resource bin = Resource::FromLocalPath(
@@ -45,7 +46,7 @@ void GoBinaryNode::WriteMakefile(const vector<const Node*>& all_deps,
           "go build -o", bin,
           strings::JoinAll(input().flags("-G"), " "),
           strings::JoinAll(go_build_args_, " "),
-          strings::JoinAll(source_files, " ")));
+          strings::JoinAll(source_files.files(), " ")));
   out->FinishRule();
 
   // Symlink to root dir.
@@ -66,8 +67,9 @@ void GoBinaryNode::WriteMakeClean(const vector<const Node*>& all_deps,
   out->WriteCommand("rm -f " + OutBinary().path());
 }
 
-void GoBinaryNode::FinalOutputs(vector<Resource>* outputs) const {
-  outputs->push_back(OutBinary());
+void GoBinaryNode::FinalOutputs(set<Resource>* outputs) const {
+  Node::FinalOutputs(outputs);
+  outputs->insert(OutBinary());
 }
 
 Resource GoBinaryNode::OutBinary() const {

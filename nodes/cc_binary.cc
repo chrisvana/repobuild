@@ -53,24 +53,17 @@ void CCBinaryNode::WriteLink(
     const vector<const Node*>& all_deps,
     const Resource& file,
     Makefile* out) const {
-  vector<Resource> objects;
-  CollectObjects(all_deps, &objects);
+  ObjectFileSet objects;
+  ObjectFiles(&objects);
 
   set<string> flags;
-  CollectLinkFlags(all_deps, &flags);
-
-  // HACK(cvanarsdale):
-  // Sadly order matters to the (gcc) linker. It looks in later object files
-  // to find unresolved symbols. Since we collected the dependencies in order,
-  // we get the objects in order too (a <- b <- c, etc). We want c b a in the
-  // output, so "a" is last. Thus, we reverse the list.... shoot me.
-  std::reverse(objects.begin(), objects.end());
+  LinkFlags(&flags);
 
   // Link rule
-  out->StartRule(file.path(), strings::JoinAll(objects, " "));
+  out->StartRule(file.path(), strings::JoinAll(objects.files(), " "));
   out->WriteCommand("echo Linking: " + file.path());
   string obj_list;
-  for (const Resource& r : objects) {
+  for (const Resource& r : objects.files()) {
     obj_list += " ";
     bool alwayslink = r.has_tag("alwayslink");
     if (alwayslink) {
@@ -93,8 +86,9 @@ void CCBinaryNode::WriteMakeClean(const vector<const Node*>& all_deps,
   out->WriteCommand("rm -f " + OutBinary().path());
 }
 
-void CCBinaryNode::FinalOutputs(vector<Resource>* outputs) const {
-  outputs->push_back(OutBinary());
+void CCBinaryNode::FinalOutputs(set<Resource>* outputs) const {
+  CCLibraryNode::FinalOutputs(outputs);
+  outputs->insert(OutBinary());
 }
 
 Resource CCBinaryNode::OutBinary() const {

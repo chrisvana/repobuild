@@ -41,8 +41,8 @@ void AutoconfNode::Parse(BuildFile* file, const BuildFileNode& input) {
   GenShNode* gen = new GenShNode(
       target().GetParallelTarget(file->NextName(target().local_path())),
       Node::input());
-  for (const TargetInfo* dep : dependencies()) {
-    gen->AddDependency(*dep);
+  for (const TargetInfo& dep : dep_targets()) {
+    gen->AddDependencyTarget(dep);
   }
   AddSubNode(gen);
 
@@ -78,7 +78,7 @@ void AutoconfNode::Parse(BuildFile* file, const BuildFileNode& input) {
       target().GetParallelTarget(file->NextName(target().local_path())),
       Node::input());
   AddSubNode(make);
-  make->AddDependency(gen->target());
+  make->AddDependencyTarget(gen->target());
   make->Parse(file, input);
 }
 

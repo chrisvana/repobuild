@@ -23,7 +23,7 @@ class GoBinaryNode : public GoLibraryNode {
                               Makefile* out) const;
   virtual void WriteMakefile(const std::vector<const Node*>& all_deps,
                              Makefile* out) const;
-  virtual void FinalOutputs(std::vector<Resource>* outputs) const;
+  virtual void FinalOutputs(std::set<Resource>* outputs) const;
 
  protected:
   // Helper.

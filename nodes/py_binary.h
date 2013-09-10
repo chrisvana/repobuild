@@ -23,7 +23,7 @@ class PyBinaryNode : public PyLibraryNode {
                               Makefile* out) const;
   virtual void WriteMakefile(const std::vector<const Node*>& all_deps,
                              Makefile* out) const;
-  virtual void FinalOutputs(std::vector<Resource>* outputs) const;
+  virtual void FinalOutputs(std::set<Resource>* outputs) const;
 
   static void WriteMakeHead(const Input& input, Makefile* out);
 

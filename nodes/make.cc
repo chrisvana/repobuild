@@ -39,8 +39,8 @@ void MakeNode::ParseWithOptions(BuildFile* file,
   GenShNode* gen = new GenShNode(
       target().GetParallelTarget(file->NextName(target().local_path())),
       Node::input());
-  for (const TargetInfo* dep : dependencies()) {
-    gen->AddDependency(*dep);
+  for (const TargetInfo& dep : dep_targets()) {
+    gen->AddDependencyTarget(dep);
   }
   AddSubNode(gen);
 

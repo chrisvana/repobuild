@@ -25,7 +25,7 @@ class GenShNode : public Node {
                               Makefile* out) const;
   virtual void WriteMakefile(const std::vector<const Node*>& all_deps,
                              Makefile* out) const;
-  virtual void DependencyFiles(std::vector<Resource>* files) const;
+  virtual void DependencyFiles(std::set<Resource>* files) const;
 
   // Alternative to parse
   void Set(const std::string& build_cmd,

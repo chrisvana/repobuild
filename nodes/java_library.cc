@@ -45,7 +45,7 @@ void JavaLibraryNode::WriteMakefileInternal(
     Makefile* out) const {
   // Figure out the set of input files.
   set<Resource> input_files;
-  CollectDependencies(all_deps, &input_files);
+  DependencyFiles(&input_files);
 
   // Now write phases, one per .cc
   for (int i = 0; i < sources_.size(); ++i) {
@@ -93,14 +93,12 @@ void JavaLibraryNode::WriteCompile(const Resource& source,
                                           input().genfile_dir())));
 
   // javac compile args.
-  string output_compile_args;
-  {
-    set<string> compile_args;
-    CollectCompileFlags(false /* ignored */, all_deps, &compile_args);
-    for (const string& f : input().flags("-JC")) {
-      compile_args.insert(f);
-    }
-    output_compile_args = strings::JoinAll(compile_args, " ");
+  set<string> compile_args;
+  CompileFlags(false /* ignored */, &compile_args);
+  compile_args.insert(java_local_compile_args_.begin(),
+                      java_local_compile_args_.end());
+  for (const string& f : input().flags("-JC")) {
+    compile_args.insert(f);
   }
 
   out->WriteCommand("echo Compiling: " + source.path());
@@ -109,7 +107,7 @@ void JavaLibraryNode::WriteCompile(const Resource& source,
       compile,
       "-d " + input().object_dir(),
       "-s " + input().genfile_dir(),
-      output_compile_args,
+      strings::JoinAll(compile_args, " "),
       include_dirs,
       source.path()));
 
@@ -117,22 +115,18 @@ void JavaLibraryNode::WriteCompile(const Resource& source,
 }
 
 void JavaLibraryNode::LinkFlags(std::set<std::string>* flags) const {
-  for (const string& f : java_jar_args_) {
-    flags->insert(f);
-  }
+  flags->insert(java_jar_args_.begin(), java_jar_args_.end());
 }
 
 void JavaLibraryNode::CompileFlags(bool cxx,
                                    std::set<std::string>* flags) const {
-  for (const string& f : java_compile_args_) {
-    flags->insert(f);
-  }
+  flags->insert(java_compile_args_.begin(), java_compile_args_.end());
 }
 
-void JavaLibraryNode::ObjectFiles(vector<Resource>* files) const {
+void JavaLibraryNode::ObjectFiles(ObjectFileSet* files) const {
   Node::ObjectFiles(files);
   for (const Resource& r : sources_) {
-    files->push_back(ClassFile(r));
+    files->Add(ClassFile(r));
   }
 }
 

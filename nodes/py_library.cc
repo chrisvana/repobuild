@@ -37,15 +37,14 @@ void PyLibraryNode::WriteMakefileInternal(
   // User target.
   if (write_user_target) {
     set<Resource> deps;
-    CollectDependencies(all_deps, &deps);
-    deps.insert(Touchfile());
+    DependencyFiles(&deps);
     WriteBaseUserTarget(deps, out);
   }
 }
 
-void PyLibraryNode::DependencyFiles(vector<Resource>* files) const {
+void PyLibraryNode::DependencyFiles(set<Resource>* files) const {
   SimpleLibraryNode::DependencyFiles(files);
-  files->push_back(Touchfile());
+  files->insert(Touchfile());
 }
 
 }  // namespace repobuild

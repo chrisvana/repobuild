@@ -70,24 +70,22 @@ void JavaBinaryNode::WriteJar(
     const Resource& file,
     Makefile* out) const {
   // Collect objects, and strip .obj-dir prefix.
-  vector<Resource> objects;
+  ObjectFileSet objects;
   vector<string> class_paths;
-  CollectObjects(all_deps, &objects);
-  for (int i = 0; i < objects.size(); ++i) {
+  ObjectFiles(&objects);
+  for (const Resource& r : objects.files()) {
     // "jar" runs from the object directory.
-    if (!strings::HasPrefix(objects[i].path(), input().object_dir() + "/")) {
+    if (!strings::HasPrefix(r.path(), input().object_dir() + "/")) {
       LOG(FATAL) << "Jar needs all objects to be in object_dir: "
                  << input().object_dir()
-                 << "\", but have \""
-                 << objects[i] << "\"";
+                 << "\", but have \"" << r << "\"";
     }
-    class_paths.push_back(objects[i].path().substr(
-        input().object_dir().size() + 1));
+    class_paths.push_back(r.path().substr(input().object_dir().size() + 1));
   }
 
   // Collect flags.
   set<string> flags;
-  CollectLinkFlags(all_deps, &flags);
+  LinkFlags(&flags);
   for (const string& f : input().flags("-J")) {
     flags.insert(f);
   }
@@ -103,7 +101,7 @@ void JavaBinaryNode::WriteJar(
   }
   man_cmd += "; do echo \"$$line\" >> " + manifest.path() + "; done; ";
   man_cmd += "touch " + manifest.path() + "'";
-  out->StartRule(manifest.path(), strings::JoinAll(objects, " "));
+  out->StartRule(manifest.path(), strings::JoinAll(objects.files(), " "));
   out->WriteCommand(man_cmd);
   out->FinishRule();
 
@@ -111,7 +109,7 @@ void JavaBinaryNode::WriteJar(
   out->StartRule(file.path(),
                  strings::JoinWith(" ",
                                    manifest.path(),
-                                   strings::JoinAll(objects, " ")));
+                                   strings::JoinAll(objects.files(), " ")));
   out->WriteCommand("echo Jaring: " + file.path());
   out->WriteCommand(strings::JoinWith(
       " ",
@@ -130,8 +128,9 @@ void JavaBinaryNode::WriteMakeClean(const vector<const Node*>& all_deps,
   out->WriteCommand("rm -f " + JarName().path());
 }
 
-void JavaBinaryNode::FinalOutputs(vector<Resource>* outputs) const {
-  outputs->push_back(OutBinary());
+void JavaBinaryNode::FinalOutputs(set<Resource>* outputs) const {
+  JavaLibraryNode::FinalOutputs(outputs);
+  outputs->insert(OutBinary());
 }
 
 Resource JavaBinaryNode::OutBinary() const {

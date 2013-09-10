@@ -21,8 +21,8 @@ class CCLibraryNode : public Node {
   virtual void Parse(BuildFile* file, const BuildFileNode& input);
   virtual void WriteMakefile(const std::vector<const Node*>& all_deps,
                              Makefile* out) const;
-  virtual void DependencyFiles(std::vector<Resource>* files) const;
-  virtual void ObjectFiles(std::vector<Resource>* files) const;
+  virtual void DependencyFiles(std::set<Resource>* files) const;
+  virtual void ObjectFiles(ObjectFileSet* files) const;
   virtual void LinkFlags(std::set<std::string>* flags) const;
   virtual void CompileFlags(bool cxx, std::set<std::string>* flags) const;
 

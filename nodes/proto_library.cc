@@ -30,8 +30,8 @@ void ProtoLibraryNode::Parse(BuildFile* file, const BuildFileNode& input) {
   GenShNode* gen = new GenShNode(
       target().GetParallelTarget(file->NextName(target().local_path())),
       Node::input());
-  for (const TargetInfo* dep : dependencies()) {
-    gen->AddDependency(*dep);
+  for (const TargetInfo& dep : dep_targets()) {
+    gen->AddDependencyTarget(dep);
   }
   gen->SetCd(false);
   AddSubNode(gen);
@@ -43,7 +43,7 @@ void ProtoLibraryNode::Parse(BuildFile* file, const BuildFileNode& input) {
       target().GetParallelTarget(file->NextName(target().local_path())),
       Node::input());
   AddSubNode(cc_lib);
-  cc_lib->AddDependency(gen->target());
+  cc_lib->AddDependencyTarget(gen->target());
   vector<Resource> sources, headers;
 
   vector<Resource> input_files;

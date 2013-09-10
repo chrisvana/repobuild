@@ -20,7 +20,7 @@ class GoLibraryNode : public SimpleLibraryNode {
                              Makefile* out) const {
     WriteMakefileInternal(all_deps, true, out);
   }
-  virtual void DependencyFiles(std::vector<Resource>* files) const;
+  virtual void DependencyFiles(std::set<Resource>* files) const;
 
  protected:
   void WriteMakefileInternal(const std::vector<const Node*>& all_deps,

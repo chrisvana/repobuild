@@ -34,10 +34,10 @@ void ExpandNode(const Parser& parser,
   }
 
   // Now expand our sub-node dependencies.
-  for (const TargetInfo* target : node->dependencies()) {
-    const Node* dep = parser.GetNode(target->full_path());
+  for (const TargetInfo& target : node->dep_targets()) {
+    const Node* dep = parser.GetNode(target.full_path());
     if (dep == NULL) {
-      LOG(FATAL) << "Could not find dependency " << target->full_path()
+      LOG(FATAL) << "Could not find dependency " << target.full_path()
                  << " of target " << node->target().full_path();
     }
     ExpandNode(parser, dep, parents, seen, to_process);
@@ -52,8 +52,8 @@ void GetFullDepList(const Parser& parser,
                     const Node* node,
                     vector<const Node*>* dependencies,
                     set<const Node*>* deps_set) {
-  for (const TargetInfo* target : node->dependencies()) {
-    const Node* dep = parser.GetNode(target->full_path());
+  for (const TargetInfo& target : node->dep_targets()) {
+    const Node* dep = parser.GetNode(target.full_path());
     CHECK(node);  // checked above in ExpandNode.
     if (deps_set->insert(dep).second) {
       GetFullDepList(parser, dep, dependencies, deps_set);
@@ -124,11 +124,7 @@ string Generator::GenerateMakefile(const Input& input) {
   set<Resource> outputs;
   for (const Node* node : parser.all_nodes()) {
     if (input.contains_target(node->target().full_path())) {
-      vector<Resource> node_out;
-      node->FinalOutputs(&node_out);
-      for (const Resource& output : node_out) {
-        outputs.insert(output);
-      }
+      node->FinalOutputs(&outputs);
       outputs.insert(Resource::FromRootPath(node->target().make_path()));
     }
   }
