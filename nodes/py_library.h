@@ -21,6 +21,9 @@ class PyLibraryNode : public SimpleLibraryNode {
   }
   virtual void DependencyFiles(std::set<Resource>* files) const;
 
+  // For manual construction.
+  void Set(const std::vector<Resource>& sources);
+
  protected:
   void WriteMakefileInternal(bool write_user_target,
                              Makefile* out) const;

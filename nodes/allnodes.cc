@@ -81,10 +81,11 @@ NodeBuilderSet::NodeBuilderSet(const vector<NodeBuilder*>& nodes) {
 }
 
 NodeBuilderSet::~NodeBuilderSet() {
-  DeleteValues(&nodes_);
+  DeleteElements(&all_nodes_);
 }
 
 void NodeBuilderSet::Init(const vector<NodeBuilder*>& nodes) {
+  all_nodes_ = nodes;  // in order copy.
   for (NodeBuilder* n : nodes) {
     NodeBuilder** it = &nodes_[n->Name()];
     CHECK(*it == NULL) << "Duplicate node builder: " << n->Name();
@@ -103,8 +104,8 @@ Node* NodeBuilderSet::NewNode(const string& name,
 }
 
 void NodeBuilderSet::WriteMakeHead(const Input& input, Makefile* makefile) {
-  for (auto it : nodes_) {
-    it.second->WriteMakeHead(input, makefile);
+  for (NodeBuilder* builder : all_nodes_) {
+    builder->WriteMakeHead(input, makefile);
   }
 }
 

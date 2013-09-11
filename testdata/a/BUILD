@@ -4,7 +4,14 @@
  { "proto_library": {
      "name" : "a_proto",
      "sources" : [ "a.proto" ],
-     "dependencies" : [ "//third_party/protobuf:proto" ]
+     "dependencies" : [ "//third_party/protobuf:cc_proto",
+                        "//third_party/protobuf:java_proto" ],
+     "generate_cc": true,
+     "generate_java": true
+
+// TODO:
+//     "generate_go": true,
+//     "generate_python": true
    }
  },
 
@@ -29,6 +36,7 @@
 
 {  "java_library": {
      "name": "test_java",
-     "java_sources": [ "ATest.java" ]
+     "java_sources": [ "ATest.java" ],
+     "dependencies": [ ":a_proto" ]
 } }
 ]

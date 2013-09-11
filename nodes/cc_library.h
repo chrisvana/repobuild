@@ -52,6 +52,8 @@ class CCLibraryNode : public Node {
   std::vector<Resource> headers_;
   std::vector<Resource> objects_;
 
+  std::vector<std::string> cc_include_dirs_;
+
   std::vector<std::string> cc_compile_args_;
   std::vector<std::string> header_compile_args_;
   std::vector<std::string> cc_linker_args_;

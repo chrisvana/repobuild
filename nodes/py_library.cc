@@ -45,4 +45,8 @@ void PyLibraryNode::DependencyFiles(set<Resource>* files) const {
   files->insert(Touchfile());
 }
 
+void PyLibraryNode::Set(const vector<Resource>& sources) {
+  sources_ = sources;
+}
+
 }  // namespace repobuild

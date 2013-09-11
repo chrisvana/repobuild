@@ -53,6 +53,15 @@ void CCLibraryNode::Parse(BuildFile* file, const BuildFileNode& input) {
     }
   }
 
+  // cc_include_dirs
+  vector<Resource> cc_include_dirs;
+  current_reader()->ParseRepeatedFiles("cc_include_dirs",
+                                       false,  // directory need not exist.
+                                       &cc_include_dirs);
+  for (const Resource& r : cc_include_dirs) {
+    cc_include_dirs_.push_back(r.path());
+  }
+
   // cc_compile_args, header_compile_args, cc_linker_args
   current_reader()->ParseRepeatedString("cc_compile_args",
                                         &cc_compile_args_);
@@ -182,6 +191,13 @@ void CCLibraryNode::WriteCompile(const Resource& source,
       "-I" + input().genfile_dir(),
       "-I" + input().source_dir(),
       "-I" + strings::JoinPath(input().source_dir(), input().genfile_dir()));
+
+  set<string> more_include_dirs;
+  IncludeDirs(&more_include_dirs);
+  for (const string& str: more_include_dirs) {
+    include_dirs += " -I" + str;
+  }
+
   string output_compile_args;
   {
     set<string> header_compile_args;

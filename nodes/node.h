@@ -60,6 +60,7 @@ class Node {
   virtual void FinalOutputs(std::set<Resource>* outputs) const;
   virtual void LinkFlags(std::set<std::string>* flags) const;
   virtual void CompileFlags(bool cxx, std::set<std::string>* flags) const;
+  virtual void IncludeDirs(std::set<std::string>* dirs) const;
   virtual void EnvVariables(std::map<std::string, std::string>* vars) const;
 
   // Accessors.

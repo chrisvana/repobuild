@@ -40,7 +40,6 @@ Node::Node(const TargetInfo& target, const Input& input)
   relative_obj_dir_ = strings::JoinPath(
       relative_root_dir_,
       strings::JoinPath(input.object_dir(), target.dir()));
-
 }
 
 Node::~Node() {
@@ -134,6 +133,12 @@ void Node::LinkFlags(set<string>* flags) const {
 void Node::CompileFlags(bool cxx, set<string>* flags) const {
   for (Node* node : dependencies_) {
     node->CompileFlags(cxx, flags);
+  }
+}
+
+void Node::IncludeDirs(set<string>* dirs) const {
+  for (Node* node : dependencies_) {
+    node->IncludeDirs(dirs);
   }
 }
 

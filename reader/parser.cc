@@ -96,10 +96,23 @@ class Graph {
     }
 
     // Parse our dependency graph using something like BFS.
+    set<string> processed_targets;
     while (!to_process_.empty()) {
-      ProcessTarget(to_process_.front());
+      const string& key = to_process_.front();
+      processed_targets.insert(key);
+      ProcessTarget(key);
       to_process_.pop();
     }
+
+    // Get rid of all non-processed nodes (nodes in files that we ignored
+    // because they were not on our dependency chain).
+    map<string, Node*> copy;
+    for (const string& key : processed_targets) {
+      copy[key] = nodes_[key];
+      nodes_.erase(key);
+    }
+    DeleteValues(&nodes_);
+    swap(nodes_, copy);
 
     // Figure out which ones came from our input, and save them specially.
     for (auto it : nodes_) {
@@ -115,7 +128,8 @@ class Graph {
       Node* node = it.second;
       for (const TargetInfo& info : node->dep_targets()) {
         Node* dep = nodes_[info.full_path()];
-        CHECK(dep);
+        CHECK(dep) << "Cannot find: " << info.full_path()
+                   << ", which is dependency of " << node->target().full_path();
         node->AddDependencyNode(dep);
       }
     }

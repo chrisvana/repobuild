@@ -139,12 +139,18 @@ bool BuildFileNodeReader::ParseStringField(const string& key,
   return true;
 }
 
-// Parse files.
 void BuildFileNodeReader::ParseRepeatedFiles(const string& key,
+                                             bool strict_file_mode,
                                              vector<Resource>* output) const {
   vector<string> temp;
   ParseRepeatedString(key, &temp);
-  for (const string& file : temp) {
+  ParseFilesFromString(temp, strict_file_mode, output);
+}
+
+void BuildFileNodeReader::ParseFilesFromString(const vector<string>& input,
+                                               bool strict_file_mode,
+                                               vector<Resource>* output) const {
+  for (const string& file : input) {
     // TODO(cvanarsdale): hacky. Probably better to make build file have more
     // complex syntax. E.g.:
     // build_file_list = [ "local.cc", { "gen": "generated.cc" }, ... ]
@@ -160,7 +166,7 @@ void BuildFileNodeReader::ParseRepeatedFiles(const string& key,
     CHECK(file::Glob(glob, &tmp))
         << "Could not run glob(" << glob << "), bad filesystem permissions?";
     if (tmp.empty()) {
-      if (strict_file_mode_) {
+      if (strict_file_mode) {
         LOG(FATAL) << "No matched files: " << file
                    << " for target " << error_path_;
       } else {
@@ -171,6 +177,16 @@ void BuildFileNodeReader::ParseRepeatedFiles(const string& key,
         output->push_back(Resource::FromRootPath(it));
       }
     }
+  }
+}
+
+void BuildFileNodeReader::ParseSingleFile(const string& key,
+                                          bool strict_file_mode,
+                                          vector<Resource>* output) const {
+  string tmp;
+  if (ParseStringField(key, &tmp)) {
+    vector<string> fake;
+    ParseFilesFromString(fake, strict_file_mode, output);
   }
 }
 

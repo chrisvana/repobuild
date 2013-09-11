@@ -45,6 +45,7 @@ class NodeBuilderSet {
 
   void Init(const std::vector<NodeBuilder*>& nodes);
 
+  std::vector<NodeBuilder*> all_nodes_;
   std::map<std::string, NodeBuilder*> nodes_;
 };
 

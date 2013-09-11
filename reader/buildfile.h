@@ -93,13 +93,25 @@ class BuildFileNodeReader {
 
   // Parse files.
   void ParseRepeatedFiles(const std::string& key,
+                          std::vector<Resource>* output) const {
+    ParseRepeatedFiles(key, strict_file_mode_, output);
+  }
+  void ParseRepeatedFiles(const std::string& key,
+                          bool strict_file_mode,
                           std::vector<Resource>* output) const;
+  void ParseSingleFile(const std::string& key,
+                       bool strict_file_mode,
+                       std::vector<Resource>* output) const;
 
   // Parse bool.
   bool ParseBoolField(const std::string& key,
                       bool* field) const;
 
  private:
+  void ParseFilesFromString(const std::vector<std::string>& input,
+                            bool strict_file_mode,
+                            std::vector<Resource>* output) const;
+
   DISALLOW_COPY_AND_ASSIGN(BuildFileNodeReader);
 
   std::string RewriteSingleString(bool mode, const std::string& str) const;

@@ -22,10 +22,18 @@ void JavaLibraryNode::Parse(BuildFile* file, const BuildFileNode& input) {
 
   // java_sources
   current_reader()->ParseRepeatedFiles("java_sources", &sources_);
-  for (const Resource& source : sources_) {
-    CHECK(strings::HasSuffix(source.path(), ".java"))
-        << "Invalid java source "
-        << source << " in target " << target().full_path();
+
+  // root dir for output class files, which is also a class path down below,
+  // see Init().
+  current_reader()->ParseStringField("java_out_root", &java_out_root_);
+
+  // classpath info.
+  vector<Resource> java_classpath_dirs;
+  current_reader()->ParseRepeatedFiles("java_additional_classpaths",
+                                       false,  // directory need not exist.
+                                       &java_classpath_dirs);
+  for (const Resource& r : java_classpath_dirs) {
+    java_classpath_.push_back(r.path());
   }
 
   // javac args
@@ -37,6 +45,27 @@ void JavaLibraryNode::Parse(BuildFile* file, const BuildFileNode& input) {
   // jar args
   current_reader()->ParseRepeatedString("java_jar_args",
                                         &java_jar_args_);
+
+  Init();
+}
+
+void JavaLibraryNode::Set(const vector<Resource>& sources) {
+  sources_ = sources;
+  Init();
+}
+
+void JavaLibraryNode::Init() {
+  for (const Resource& source : sources_) {
+    CHECK(strings::HasSuffix(source.path(), ".java"))
+        << "Invalid java source "
+        << source << " in target " << target().full_path();
+  }
+  if (java_out_root_.empty()) {
+    java_out_root_ = input().object_dir();
+  } else {
+    java_out_root_ = strings::JoinPath(ObjectDir(), java_out_root_);
+  }
+  java_classpath_.push_back(java_out_root_); 
 }
 
 void JavaLibraryNode::WriteMakefileInternal(bool write_user_target,
@@ -45,11 +74,8 @@ void JavaLibraryNode::WriteMakefileInternal(bool write_user_target,
   set<Resource> input_files;
   DependencyFiles(&input_files);
 
-  // Now write phases, one per .cc
-  for (int i = 0; i < sources_.size(); ++i) {
-    // Output object.
-    WriteCompile(sources_[i], input_files, out);
-  }
+  // Compile all .java files at the same time, for efficiency.
+  WriteCompile(input_files, out);
 
   // Now write user target (so users can type "make path/to/exec|lib").
   if (write_user_target) {
@@ -61,22 +87,33 @@ void JavaLibraryNode::WriteMakefileInternal(bool write_user_target,
   }
 }
 
-void JavaLibraryNode::WriteCompile(const Resource& source,
-                                   const set<Resource>& input_files,
+void JavaLibraryNode::WriteCompile(const set<Resource>& input_files,
                                    Makefile* out) const {
-  Resource obj = ClassFile(source);
+  set<string> directories;
+  string obj_files;
+  for (const Resource& source : sources_) {
+    Resource obj = ClassFile(source);
+    obj_files += (!obj_files.empty() ? " " : "") + obj.path();
+    directories.insert(obj.dirname());
+  }
 
-  // Rule=> obj: <input header files> source.cc
-  out->StartRule(obj.path(),
+  // Rule=> obj1 obj2 obj3: <input header files> source1.java source.java ...
+  out->StartRule(obj_files,
                  strings::JoinWith(" ",
                                    strings::JoinAll(input_files, " "),
-                                   source.path()));
+                                   strings::JoinAll(sources_, " ")));
 
-  // Mkdir command.
-  out->WriteCommand("mkdir -p " + obj.dirname());
+  // Mkdir commands.
+  for (const string d : directories) {
+    out->WriteCommand("mkdir -p " + d);
+  }
 
   // Compile command.
   string compile = "javac";
+
+  // Collect class paths.
+  set<string> java_classpath;
+  IncludeDirs(&java_classpath);
 
   // class path.
   string include_dirs = strings::JoinWith(
@@ -87,7 +124,8 @@ void JavaLibraryNode::WriteCompile(const Resource& source,
                         input().genfile_dir(),
                         input().source_dir(),
                         strings::JoinPath(input().source_dir(),
-                                          input().genfile_dir())));
+                                          input().genfile_dir()),
+                        strings::JoinAll(java_classpath, ":")));
 
   // javac compile args.
   set<string> compile_args;
@@ -98,15 +136,15 @@ void JavaLibraryNode::WriteCompile(const Resource& source,
     compile_args.insert(f);
   }
 
-  out->WriteCommand("echo Compiling: " + source.path());
+  out->WriteCommand("echo Compiling: " + target().make_path());
   out->WriteCommand(strings::JoinWith(
       " ",
       compile,
-      "-d " + input().object_dir(),
+      "-d " + java_out_root_,
       "-s " + input().genfile_dir(),
       strings::JoinAll(compile_args, " "),
       include_dirs,
-      source.path()));
+      strings::JoinAll(sources_, " ")));
 
   out->FinishRule();
 }
@@ -118,6 +156,10 @@ void JavaLibraryNode::LinkFlags(std::set<std::string>* flags) const {
 void JavaLibraryNode::CompileFlags(bool cxx,
                                    std::set<std::string>* flags) const {
   flags->insert(java_compile_args_.begin(), java_compile_args_.end());
+}
+
+void JavaLibraryNode::IncludeDirs(std::set<std::string>* dirs) const {
+  dirs->insert(java_classpath_.begin(), java_classpath_.end());
 }
 
 void JavaLibraryNode::ObjectFiles(ObjectFileSet* files) const {
