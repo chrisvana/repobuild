@@ -56,14 +56,14 @@ void PyBinaryNode::Parse(BuildFile* file, const BuildFileNode& input) {
   }
 }
 
-void PyBinaryNode::WriteMakefile(Makefile* out) const {
-  PyLibraryNode::WriteMakefileInternal(false, out);
+void PyBinaryNode::LocalWriteMake(Makefile* out) const {
+  PyLibraryNode::LocalWriteMakeInternal(false, out);
 
   // Source files.
-  set<Resource> deps;
+  ResourceFileSet deps;
   DependencyFiles(&deps);
 
-  ObjectFileSet sources;
+  ResourceFileSet sources;
   ObjectFiles(&sources);
   vector<string> relative_sources;
   for (const Resource& r : sources.files()) {
@@ -77,7 +77,7 @@ void PyBinaryNode::WriteMakefile(Makefile* out) const {
       strings::JoinPath(input().object_dir(), target().dir()),
       target().local_path() + ".egg");
   out->StartRule(egg_touchfile.path(),
-                 strings::Join(strings::JoinAll(deps, " "), " ",
+                 strings::Join(strings::JoinAll(deps.files(), " "), " ",
                                SetupFile(input())));
   out->WriteCommand("echo python build: " + egg_bin.path());
   out->WriteCommand("mkdir -p " + egg_touchfile.dirname());
@@ -124,8 +124,8 @@ void PyBinaryNode::WriteMakefile(Makefile* out) const {
 
   // User target
   if (target().make_path() != OutBinary().path()) {
-    set<Resource> user_deps;
-    user_deps.insert(egg_bin);
+    ResourceFileSet user_deps;
+    user_deps.Add(egg_bin);
     WriteBaseUserTarget(user_deps, out);
   }
   WriteLocalLink(bin, OutBinary(), out);
@@ -152,7 +152,7 @@ void PyBinaryNode::WriteMakeHead(const Input& input, Makefile* out) {
   out->FinishRule();
 }
 
-void PyBinaryNode::WriteMakeClean(Makefile* out) const {
+void PyBinaryNode::LocalWriteMakeClean(Makefile* out) const {
   out->WriteCommand("rm -f " + OutBinary().path());
   out->WriteCommand("rm -f " + OutEgg().path());
   out->WriteCommand("rm -rf " + strings::JoinPath(
@@ -160,10 +160,10 @@ void PyBinaryNode::WriteMakeClean(Makefile* out) const {
       target().make_path() + ".egg-info"));
 }
 
-void PyBinaryNode::FinalOutputs(set<Resource>* outputs) const {
-  PyLibraryNode::FinalOutputs(outputs);
-  outputs->insert(OutBinary());
-  outputs->insert(OutEgg());
+void PyBinaryNode::LocalFinalOutputs(ResourceFileSet* outputs) const {
+  PyLibraryNode::LocalFinalOutputs(outputs);
+  outputs->Add(OutBinary());
+  outputs->Add(OutEgg());
 }
 
 Resource PyBinaryNode::OutBinary() const {

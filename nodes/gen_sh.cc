@@ -53,20 +53,20 @@ void GenShNode::WriteMakeHead(const Input& input, Makefile* out) {
   out->append(string(kRootDir) + " := $(shell pwd)\n");
 }
 
-void GenShNode::WriteMakefile(Makefile* out) const {
+void GenShNode::LocalWriteMake(Makefile* out) const {
   Resource touchfile = Touchfile();
 
   // Inputs
-  set<Resource> input_files;
-  Node::DependencyFiles(&input_files);  // all but our own.
+  ResourceFileSet input_files;
+  InputDependencyFiles(&input_files);  // all but our own.
 
-  ObjectFileSet obj_files;
+  ResourceFileSet obj_files;
   ObjectFiles(&obj_files);
 
   // Make target
   out->StartRule(touchfile.path(), strings::JoinWith(
       " ",
-      strings::JoinAll(input_files, " "),
+      strings::JoinAll(input_files.files(), " "),
       strings::JoinAll(obj_files.files(), " "),
       strings::JoinAll(input_files_, " ")));
 
@@ -95,8 +95,8 @@ void GenShNode::WriteMakefile(Makefile* out) const {
   out->FinishRule();
 
   {  // user target
-    set<Resource> output_targets;
-    output_targets.insert(touchfile);
+    ResourceFileSet output_targets;
+    output_targets.Add(touchfile);
     WriteBaseUserTarget(output_targets, out);
   }
 
@@ -106,7 +106,7 @@ void GenShNode::WriteMakefile(Makefile* out) const {
   }
 }
 
-void GenShNode::WriteMakeClean(Makefile* out) const {
+void GenShNode::LocalWriteMakeClean(Makefile* out) const {
   if (clean_cmd_.empty()) {
     return;
   }
@@ -195,10 +195,8 @@ string GenShNode::WriteCommand(const map<string, string>& env_vars,
   return out;
 }
 
-void GenShNode::DependencyFiles(set<Resource>* files) const {
-  // NB: We intentionally do not pass on sub-dependency files.
-  // Node::DependencyFiles(files);
-  files->insert(Touchfile());
+void GenShNode::LocalDependencyFiles(ResourceFileSet* files) const {
+  files->Add(Touchfile());
 }
 
 }  // namespace repobuild

@@ -17,7 +17,7 @@ class CmakeNode : public Node {
   }
   virtual ~CmakeNode() {}
   virtual void Parse(BuildFile* file, const BuildFileNode& input);
-  virtual void WriteMakefile(Makefile* out) const {
+  virtual void LocalWriteMake(Makefile* out) const {
     WriteBaseUserTarget(out);
   }
 };

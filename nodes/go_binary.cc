@@ -22,21 +22,21 @@ void GoBinaryNode::Parse(BuildFile* file, const BuildFileNode& input) {
   current_reader()->ParseRepeatedString("go_build_args", &go_build_args_);
 }
 
-void GoBinaryNode::WriteMakefile(Makefile* out) const {
-  GoLibraryNode::WriteMakefileInternal(false, out);
+void GoBinaryNode::LocalWriteMake(Makefile* out) const {
+  GoLibraryNode::LocalWriteMakeInternal(false, out);
 
   // Source files.
-  set<Resource> deps;
+  ResourceFileSet deps;
   DependencyFiles(&deps);
 
-  ObjectFileSet source_files;
+  ResourceFileSet source_files;
   ObjectFiles(&source_files);
 
   // Output binary
   Resource bin = Resource::FromLocalPath(
       strings::JoinPath(input().object_dir(), target().dir()),
       target().local_path());
-  out->StartRule(bin.path(), strings::JoinAll(deps, " "));
+  out->StartRule(bin.path(), strings::JoinAll(deps.files(), " "));
   out->WriteCommand("echo Go build: " + bin.path());
   out->WriteCommand("mkdir -p " + bin.dirname());
   out->WriteCommand(
@@ -61,13 +61,13 @@ void GoBinaryNode::WriteMakefile(Makefile* out) const {
   out->FinishRule();
 }
 
-void GoBinaryNode::WriteMakeClean(Makefile* out) const {
+void GoBinaryNode::LocalWriteMakeClean(Makefile* out) const {
   out->WriteCommand("rm -f " + OutBinary().path());
 }
 
-void GoBinaryNode::FinalOutputs(set<Resource>* outputs) const {
-  Node::FinalOutputs(outputs);
-  outputs->insert(OutBinary());
+void GoBinaryNode::LocalFinalOutputs(ResourceFileSet* outputs) const {
+  Node::LocalFinalOutputs(outputs);
+  outputs->Add(OutBinary());
 }
 
 Resource GoBinaryNode::OutBinary() const {

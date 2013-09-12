@@ -32,7 +32,7 @@ void ConfigNode::Parse(BuildFile* file, const BuildFileNode& input) {
       Resource::FromRootPath(DummyFile(SourceDir(Node::input().genfile_dir())));
 }
 
-void ConfigNode::WriteMakefile(Makefile* out) const {
+void ConfigNode::LocalWriteMake(Makefile* out) const {
   if (component_src_.empty()) {
     return;
   }
@@ -48,8 +48,8 @@ void ConfigNode::WriteMakefile(Makefile* out) const {
 
   // (2) Main files
   {
-    set<Resource> targets;
-    targets.insert(Resource::FromRootPath(dir));
+    ResourceFileSet targets;
+    targets.Add(Resource::FromRootPath(dir));
     WriteBaseUserTarget(targets, out);
   }
 
@@ -88,7 +88,7 @@ void ConfigNode::AddSymlink(const string& dir,
   out->FinishRule();
 }
 
-void ConfigNode::WriteMakeClean(Makefile* out) const {
+void ConfigNode::LocalWriteMakeClean(Makefile* out) const {
   if (component_src_.empty()) {
     return;
   }
@@ -99,11 +99,11 @@ void ConfigNode::WriteMakeClean(Makefile* out) const {
   out->WriteCommand("rm -rf " + SourceDir(input().genfile_dir()));
 }
 
-void ConfigNode::DependencyFiles(set<Resource>* files) const {
-  Node::DependencyFiles(files);
+void ConfigNode::LocalDependencyFiles(ResourceFileSet* files) const {
+  Node::LocalDependencyFiles(files);
   if (!component_src_.empty()) {
-    files->insert(source_dummy_file_);
-    files->insert(gendir_dummy_file_);
+    files->Add(source_dummy_file_);
+    files->Add(gendir_dummy_file_);
   }
 }
 

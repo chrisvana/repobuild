@@ -18,7 +18,7 @@ class ProtoLibraryNode : public Node {
   }
   virtual ~ProtoLibraryNode() {}
   virtual void Parse(BuildFile* file, const BuildFileNode& input);
-  virtual void WriteMakefile(Makefile* out) const {
+  virtual void LocalWriteMake(Makefile* out) const {
     WriteBaseUserTarget(out);
   }
 

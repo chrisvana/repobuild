@@ -21,9 +21,6 @@ class GenShNode : public Node {
   virtual ~GenShNode() {}
   virtual std::string Name() const { return "gen_sh"; }
   virtual void Parse(BuildFile* file, const BuildFileNode& input);
-  virtual void WriteMakeClean(Makefile* out) const;
-  virtual void WriteMakefile(Makefile* out) const;
-  virtual void DependencyFiles(std::set<Resource>* files) const;
 
   // Alternative to parse
   void Set(const std::string& build_cmd,
@@ -42,6 +39,15 @@ class GenShNode : public Node {
                            const std::string& prefix,
                            const std::string& cmd,
                            const std::string& admin_cmd) const;
+
+  virtual void LocalWriteMakeClean(Makefile* out) const;
+  virtual void LocalWriteMake(Makefile* out) const;
+  virtual void LocalDependencyFiles(ResourceFileSet* files) const;
+
+  // NB: We intentionally do not pass on sub-dependency files.
+  virtual bool IncludeDependencies(const DependencyCollectionType& type) const {
+    return type != DEPENDENCY_FILES;
+  }
 
   std::string build_cmd_;
   std::string clean_cmd_;

@@ -68,10 +68,10 @@ void JavaLibraryNode::Init() {
   java_classpath_.push_back(java_out_root_); 
 }
 
-void JavaLibraryNode::WriteMakefileInternal(bool write_user_target,
-                                            Makefile* out) const {
+void JavaLibraryNode::LocalWriteMakeInternal(bool write_user_target,
+                                             Makefile* out) const {
   // Figure out the set of input files.
-  set<Resource> input_files;
+  ResourceFileSet input_files;
   DependencyFiles(&input_files);
 
   // Compile all .java files at the same time, for efficiency.
@@ -79,15 +79,15 @@ void JavaLibraryNode::WriteMakefileInternal(bool write_user_target,
 
   // Now write user target (so users can type "make path/to/exec|lib").
   if (write_user_target) {
-    set<Resource> targets;
+    ResourceFileSet targets;
     for (const Resource& source : sources_) {
-      targets.insert(ClassFile(source));
+      targets.Add(ClassFile(source));
     }
     WriteBaseUserTarget(targets, out);
   }
 }
 
-void JavaLibraryNode::WriteCompile(const set<Resource>& input_files,
+void JavaLibraryNode::WriteCompile(const ResourceFileSet& input_files,
                                    Makefile* out) const {
   set<string> directories;
   string obj_files;
@@ -100,7 +100,7 @@ void JavaLibraryNode::WriteCompile(const set<Resource>& input_files,
   // Rule=> obj1 obj2 obj3: <input header files> source1.java source.java ...
   out->StartRule(obj_files,
                  strings::JoinWith(" ",
-                                   strings::JoinAll(input_files, " "),
+                                   strings::JoinAll(input_files.files(), " "),
                                    strings::JoinAll(sources_, " ")));
 
   // Mkdir commands.
@@ -149,21 +149,21 @@ void JavaLibraryNode::WriteCompile(const set<Resource>& input_files,
   out->FinishRule();
 }
 
-void JavaLibraryNode::LinkFlags(std::set<std::string>* flags) const {
+void JavaLibraryNode::LocalLinkFlags(std::set<std::string>* flags) const {
   flags->insert(java_jar_args_.begin(), java_jar_args_.end());
 }
 
-void JavaLibraryNode::CompileFlags(bool cxx,
+void JavaLibraryNode::LocalCompileFlags(bool cxx,
                                    std::set<std::string>* flags) const {
   flags->insert(java_compile_args_.begin(), java_compile_args_.end());
 }
 
-void JavaLibraryNode::IncludeDirs(std::set<std::string>* dirs) const {
+void JavaLibraryNode::LocalIncludeDirs(std::set<std::string>* dirs) const {
   dirs->insert(java_classpath_.begin(), java_classpath_.end());
 }
 
-void JavaLibraryNode::ObjectFiles(ObjectFileSet* files) const {
-  Node::ObjectFiles(files);
+void JavaLibraryNode::LocalObjectFiles(ResourceFileSet* files) const {
+  Node::LocalObjectFiles(files);
   for (const Resource& r : sources_) {
     files->Add(ClassFile(r));
   }

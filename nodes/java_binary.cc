@@ -41,8 +41,8 @@ void JavaBinaryNode::Parse(BuildFile* file, const BuildFileNode& input) {
   }
 }
 
-void JavaBinaryNode::WriteMakefile(Makefile* out) const {
-  JavaLibraryNode::WriteMakefileInternal(false, out);
+void JavaBinaryNode::LocalWriteMake(Makefile* out) const {
+  JavaLibraryNode::LocalWriteMakeInternal(false, out);
 
   // Output binary
   Resource bin = Resource::FromLocalPath(input().object_dir(),
@@ -50,8 +50,8 @@ void JavaBinaryNode::WriteMakefile(Makefile* out) const {
   WriteJar(bin, out);
 
   {  // Output user target
-    set<Resource> deps;
-    deps.insert(bin);
+    ResourceFileSet deps;
+    deps.Add(bin);
     WriteBaseUserTarget(deps, out);
   }
 
@@ -69,7 +69,7 @@ void JavaBinaryNode::WriteMakefile(Makefile* out) const {
 
 void JavaBinaryNode::WriteJar(const Resource& file, Makefile* out) const {
   // Collect objects, and strip .obj-dir prefix.
-  ObjectFileSet objects;
+  ResourceFileSet objects;
   vector<string> class_paths;
   ObjectFiles(&objects);
   for (const Resource& r : objects.files()) {
@@ -121,14 +121,14 @@ void JavaBinaryNode::WriteJar(const Resource& file, Makefile* out) const {
   out->FinishRule();
 }
 
-void JavaBinaryNode::WriteMakeClean(Makefile* out) const {
+void JavaBinaryNode::LocalWriteMakeClean(Makefile* out) const {
   out->WriteCommand("rm -f " + OutBinary().path());
   out->WriteCommand("rm -f " + JarName().path());
 }
 
-void JavaBinaryNode::FinalOutputs(set<Resource>* outputs) const {
-  JavaLibraryNode::FinalOutputs(outputs);
-  outputs->insert(OutBinary());
+void JavaBinaryNode::LocalFinalOutputs(ResourceFileSet* outputs) const {
+  JavaLibraryNode::LocalFinalOutputs(outputs);
+  outputs->Add(OutBinary());
 }
 
 Resource JavaBinaryNode::OutBinary() const {

@@ -67,7 +67,11 @@ void Node::Parse(BuildFile* file, const BuildFileNode& input) {
 
 void Node::WriteMake(Makefile* out) const {
   WriteVariables(out->mutable_out());
-  WriteMakefile(out);
+  LocalWriteMake(out);
+}
+
+void Node::WriteMakeClean(Makefile* out) const {
+  LocalWriteMakeClean(out);
 }
 
 void Node::AddDependencyTarget(const TargetInfo& other) {
@@ -95,62 +99,127 @@ BuildFileNodeReader* Node::NewBuildReader(const BuildFileNode& node) const {
   return reader;
 }
 
-void Node::EnvVariables(map<string, string>* env) const {
-  for (Node* node : dependencies_) {
-    node->EnvVariables(env);
+void Node::CollectAllDependencies(const DependencyCollectionType& type,
+                                  set<Node*>* all_deps_set,
+                                  vector<Node*>* all_deps) const {
+  // NB: Order matters here. Anything in the vector will have all of its
+  // dependencies listed ahead of it.
+  if (IncludeDependencies(type)) {
+    for (Node* node : dependencies_) {
+      if (all_deps_set->insert(node).second) {
+        node->CollectAllDependencies(type, all_deps_set, all_deps);
+        all_deps->push_back(node);
+      }
+    }
   }
+}
+
+void Node::InputEnvVariables(map<string, string>* env) const {
+  vector<Node*> all_deps;
+  CollectAllDependencies(ENV_VARIABLES, &all_deps);
+  for (Node* node : all_deps) {
+    node->LocalEnvVariables(env);
+  }
+}
+
+void Node::LocalEnvVariables(map<string, string>* env) const {
   for (const auto& it : env_variables_) {
     (*env)[it.first] = it.second;
   }
 }
 
-void Node::DependencyFiles(set<Resource>* files) const {
-  for (Node* node : dependencies_) {
-    node->DependencyFiles(files);
+void Node::InputDependencyFiles(ResourceFileSet* files) const {
+  vector<Node*> all_deps;
+  CollectAllDependencies(DEPENDENCY_FILES, &all_deps);
+  for (Node* node : all_deps) {
+    node->LocalDependencyFiles(files);
   }
 }
 
-void Node::ObjectFiles(ObjectFileSet* files) const {
-  // NB: Order matters for gcc object files (sadly), so we do something trickier
-  // to get a vector in the right order.
-  for (Node* node : dependencies_) {
-    node->ObjectFiles(files);
+void Node::InputObjectFiles(ResourceFileSet* files) const {
+  vector<Node*> all_deps;
+  CollectAllDependencies(OBJECT_FILES, &all_deps);
+  for (Node* node : all_deps) {
+    node->LocalObjectFiles(files);
   }
 }
 
-void Node::FinalOutputs(set<Resource>* outputs) const {
-  for (Node* node : dependencies_) {
-    node->FinalOutputs(outputs);
+void Node::InputFinalOutputs(ResourceFileSet* outputs) const {
+  vector<Node*> all_deps;
+  CollectAllDependencies(FINAL_OUTPUTS, &all_deps);
+  for (Node* node : all_deps) {
+    node->LocalFinalOutputs(outputs);
   }
+}
+
+void Node::InputLinkFlags(set<string>* flags) const {
+  vector<Node*> all_deps;
+  CollectAllDependencies(LINK_FLAGS, &all_deps);
+  for (Node* node : all_deps) {
+    node->LocalLinkFlags(flags);
+  }
+}
+
+void Node::InputCompileFlags(bool cxx, set<string>* flags) const {
+  vector<Node*> all_deps;
+  CollectAllDependencies(COMPILE_FLAGS, &all_deps);
+  for (Node* node : all_deps) {
+    node->LocalCompileFlags(cxx, flags);
+  }
+}
+
+void Node::InputIncludeDirs(set<string>* dirs) const {
+  vector<Node*> all_deps;
+  CollectAllDependencies(INCLUDE_DIRS, &all_deps);
+  for (Node* node : all_deps) {
+    node->LocalIncludeDirs(dirs);
+  }
+}
+
+void Node::EnvVariables(map<string, string>* env) const {
+  InputEnvVariables(env);
+  LocalEnvVariables(env);
+}
+
+void Node::DependencyFiles(ResourceFileSet* files) const {
+  InputDependencyFiles(files);
+  LocalDependencyFiles(files);
+}
+
+void Node::ObjectFiles(ResourceFileSet* files) const {
+  InputObjectFiles(files);
+  LocalObjectFiles(files);
+}
+
+void Node::FinalOutputs(ResourceFileSet* outputs) const {
+  InputFinalOutputs(outputs);
+  LocalFinalOutputs(outputs);
 }
 
 void Node::LinkFlags(set<string>* flags) const {
-  for (Node* node : dependencies_) {
-    node->LinkFlags(flags);
-  }
+  InputLinkFlags(flags);
+  LocalLinkFlags(flags);
 }
 
 void Node::CompileFlags(bool cxx, set<string>* flags) const {
-  for (Node* node : dependencies_) {
-    node->CompileFlags(cxx, flags);
-  }
+  InputCompileFlags(cxx, flags);
+  LocalCompileFlags(cxx, flags);
 }
 
 void Node::IncludeDirs(set<string>* dirs) const {
-  for (Node* node : dependencies_) {
-    node->IncludeDirs(dirs);
-  }
+  InputIncludeDirs(dirs);
+  LocalIncludeDirs(dirs);
 }
 
 string Node::MakefileEscape(const string& str) const {
   return strings::ReplaceAll(str, "$", "$$");
 }
 
-void Node::WriteBaseUserTarget(const set<Resource>& deps,
+void Node::WriteBaseUserTarget(const ResourceFileSet& deps,
                                Makefile* out) const {
   out->append(target().make_path());
   out->append(":");
-  for (const Resource& dep : deps) {
+  for (const Resource& dep : deps.files()) {
     out->append(" ");
     out->append(dep.path());
   }
@@ -204,15 +273,15 @@ Resource Node::Touchfile(const string& suffix) const {
       "." + target().local_path() + suffix + ".dummy");
 }
 
-void SimpleLibraryNode::DependencyFiles(set<Resource>* files) const {
-  Node::DependencyFiles(files);
+void SimpleLibraryNode::LocalDependencyFiles(ResourceFileSet* files) const {
+  Node::LocalDependencyFiles(files);
   for (int i = 0; i < sources_.size(); ++i) {
-    files->insert(sources_[i]);
+    files->Add(sources_[i]);
   }
 }
 
-void SimpleLibraryNode::ObjectFiles(ObjectFileSet* files) const {
-  Node::ObjectFiles(files);
+void SimpleLibraryNode::LocalObjectFiles(ResourceFileSet* files) const {
+  Node::LocalObjectFiles(files);
   for (int i = 0; i < sources_.size(); ++i) {
     files->Add(sources_[i]);
   }

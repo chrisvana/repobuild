@@ -7,6 +7,7 @@
 #include <string>
 #include "common/log/log.h"
 #include "repobuild/env/input.h"
+#include "repobuild/env/resource.h"
 #include "repobuild/generator/generator.h"
 #include "nodes/node.h"
 #include "repobuild/reader/parser.h"
@@ -91,14 +92,14 @@ string Generator::GenerateMakefile(const Input& input) {
   out.FinishRule();
 
   // Write the all rule.
-  set<Resource> outputs;
+  ResourceFileSet outputs;
   for (const Node* node : parser.all_nodes()) {
     if (input.contains_target(node->target().full_path())) {
       node->FinalOutputs(&outputs);
-      outputs.insert(Resource::FromRootPath(node->target().make_path()));
+      outputs.Add(Resource::FromRootPath(node->target().make_path()));
     }
   }
-  out.WriteRule("all", strings::JoinAll(outputs, " "));
+out.WriteRule("all", strings::JoinAll(outputs.files(), " "));
 
   // Not real files:
   out.WriteRule(".PHONY", "clean all");

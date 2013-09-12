@@ -22,8 +22,8 @@ void CCBinaryNode::Parse(BuildFile* file, const BuildFileNode& input) {
   CCLibraryNode::Parse(file, input);
 }
 
-void CCBinaryNode::WriteMakefile(Makefile* out) const {
-  CCLibraryNode::WriteMakefileInternal(false, out);
+void CCBinaryNode::LocalWriteMake(Makefile* out) const {
+  CCLibraryNode::LocalWriteMakeInternal(false, out);
 
   // Output binary
   Resource bin = Resource::FromLocalPath(input().object_dir(),
@@ -31,8 +31,8 @@ void CCBinaryNode::WriteMakefile(Makefile* out) const {
   WriteLink(bin, out);
 
   {  // Output user target
-    set<Resource> deps;
-    deps.insert(bin);
+    ResourceFileSet deps;
+    deps.Add(bin);
     WriteBaseUserTarget(deps, out);
   }
 
@@ -49,7 +49,7 @@ void CCBinaryNode::WriteMakefile(Makefile* out) const {
 }
 
 void CCBinaryNode::WriteLink(const Resource& file, Makefile* out) const {
-  ObjectFileSet objects;
+  ResourceFileSet objects;
   ObjectFiles(&objects);
 
   set<string> flags;
@@ -77,13 +77,13 @@ void CCBinaryNode::WriteLink(const Resource& file, Makefile* out) const {
   out->FinishRule();
 }
 
-void CCBinaryNode::WriteMakeClean(Makefile* out) const {
+void CCBinaryNode::LocalWriteMakeClean(Makefile* out) const {
   out->WriteCommand("rm -f " + OutBinary().path());
 }
 
-void CCBinaryNode::FinalOutputs(set<Resource>* outputs) const {
-  CCLibraryNode::FinalOutputs(outputs);
-  outputs->insert(OutBinary());
+void CCBinaryNode::LocalFinalOutputs(ResourceFileSet* outputs) const {
+  CCLibraryNode::LocalFinalOutputs(outputs);
+  outputs->Add(OutBinary());
 }
 
 Resource CCBinaryNode::OutBinary() const {

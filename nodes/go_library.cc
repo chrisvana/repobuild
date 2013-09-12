@@ -18,15 +18,26 @@ void GoLibraryNode::Parse(BuildFile* file, const BuildFileNode& input) {
 
   // go_sources
   current_reader()->ParseRepeatedFiles("go_sources", &sources_);
+
+  Init();
 }
 
-void GoLibraryNode::WriteMakefileInternal(bool write_user_target,
-                                          Makefile* out) const {
-  SimpleLibraryNode::WriteMakefile(out);
+void GoLibraryNode::Init() {
+  touchfile_ = Touchfile();
+}
+
+void GoLibraryNode::Set(const vector<Resource>& sources) {
+  sources_ = sources;
+  Init();
+}
+
+void GoLibraryNode::LocalWriteMakeInternal(bool write_user_target,
+                                           Makefile* out) const {
+  SimpleLibraryNode::LocalWriteMake(out);
 
   // Syntax check.
   string sources = strings::JoinAll(sources_, " ");
-  out->StartRule(Touchfile().path(), sources);
+  out->StartRule(touchfile_.path(), sources);
   out->WriteCommand(
       "mkdir -p " + ObjectDir() +
       "; gofmt -e " + sources + " && touch " + Touchfile().path());
@@ -34,15 +45,15 @@ void GoLibraryNode::WriteMakefileInternal(bool write_user_target,
 
   // User target.
   if (write_user_target) {
-    set<Resource> deps;
+    ResourceFileSet deps;
     DependencyFiles(&deps);
     WriteBaseUserTarget(deps, out);
   }
 }
 
-void GoLibraryNode::DependencyFiles(set<Resource>* files) const {
-  SimpleLibraryNode::DependencyFiles(files);
-  files->insert(Touchfile());
+void GoLibraryNode::LocalDependencyFiles(ResourceFileSet* files) const {
+  SimpleLibraryNode::LocalDependencyFiles(files);
+  files->Add(touchfile_);
 }
 
 }  // namespace repobuild

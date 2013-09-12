@@ -19,9 +19,9 @@ class GoBinaryNode : public GoLibraryNode {
   }
   virtual ~GoBinaryNode() {}
   virtual void Parse(BuildFile* file, const BuildFileNode& input);
-  virtual void WriteMakeClean(Makefile* out) const;
-  virtual void WriteMakefile(Makefile* out) const;
-  virtual void FinalOutputs(std::set<Resource>* outputs) const;
+  virtual void LocalWriteMakeClean(Makefile* out) const;
+  virtual void LocalWriteMake(Makefile* out) const;
+  virtual void LocalFinalOutputs(ResourceFileSet* outputs) const;
 
  protected:
   // Helper.

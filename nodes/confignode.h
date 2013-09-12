@@ -19,9 +19,9 @@ class ConfigNode : public Node {
   virtual ~ConfigNode() {}
   virtual std::string Name() const { return "config"; }
   virtual void Parse(BuildFile* file, const BuildFileNode& input);
-  virtual void WriteMakeClean(Makefile* out) const;
-  virtual void WriteMakefile(Makefile* out) const;
-  virtual void DependencyFiles(std::set<Resource>* files) const;
+  virtual void LocalWriteMakeClean(Makefile* out) const;
+  virtual void LocalWriteMake(Makefile* out) const;
+  virtual void LocalDependencyFiles(ResourceFileSet* files) const;
 
  protected:
   void AddSymlink(const std::string& dir,

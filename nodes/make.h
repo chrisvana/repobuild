@@ -24,7 +24,7 @@ class MakeNode : public Node {
                         const std::string& preinstall,
                         const std::string& dest_dir,
                         const std::string& postinstall);
-  virtual void WriteMakefile(Makefile* out) const {
+  virtual void LocalWriteMake(Makefile* out) const {
     WriteBaseUserTarget(out);
   }
 };

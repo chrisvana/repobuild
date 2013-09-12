@@ -20,21 +20,21 @@ class JavaLibraryNode : public Node {
   }
   virtual ~JavaLibraryNode() {}
   virtual void Parse(BuildFile* file, const BuildFileNode& input);
-  virtual void WriteMakefile(Makefile* out) const {
-    WriteMakefileInternal(true, out);
+  virtual void LocalWriteMake(Makefile* out) const {
+    LocalWriteMakeInternal(true, out);
   }
-  virtual void ObjectFiles(ObjectFileSet* files) const;
-  virtual void LinkFlags(std::set<std::string>* flags) const;
-  virtual void CompileFlags(bool cxx, std::set<std::string>* flags) const;
-  virtual void IncludeDirs(std::set<std::string>* dirs) const;
+  virtual void LocalObjectFiles(ResourceFileSet* files) const;
+  virtual void LocalLinkFlags(std::set<std::string>* flags) const;
+  virtual void LocalCompileFlags(bool cxx, std::set<std::string>* flags) const;
+  virtual void LocalIncludeDirs(std::set<std::string>* dirs) const;
 
   // For direct construction.
   void Set(const std::vector<Resource>& sources);
 
  protected:
   void Init();
-  void WriteMakefileInternal(bool write_user_target, Makefile* out) const;
-  void WriteCompile(const std::set<Resource>& input_files,
+  void LocalWriteMakeInternal(bool write_user_target, Makefile* out) const;
+  void WriteCompile(const ResourceFileSet& input_files,
                     Makefile* out) const;
   Resource ClassFile(const Resource& source) const;
 

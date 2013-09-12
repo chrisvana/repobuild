@@ -19,11 +19,11 @@ class CCLibraryNode : public Node {
   }
   virtual ~CCLibraryNode() {}
   virtual void Parse(BuildFile* file, const BuildFileNode& input);
-  virtual void WriteMakefile(Makefile* out) const;
-  virtual void DependencyFiles(std::set<Resource>* files) const;
-  virtual void ObjectFiles(ObjectFileSet* files) const;
-  virtual void LinkFlags(std::set<std::string>* flags) const;
-  virtual void CompileFlags(bool cxx, std::set<std::string>* flags) const;
+  virtual void LocalWriteMake(Makefile* out) const;
+  virtual void LocalDependencyFiles(ResourceFileSet* files) const;
+  virtual void LocalObjectFiles(ResourceFileSet* files) const;
+  virtual void LocalLinkFlags(std::set<std::string>* flags) const;
+  virtual void LocalCompileFlags(bool cxx, std::set<std::string>* flags) const;
 
   // Alterative to Parse()
   void Set(const std::vector<Resource>& sources,
@@ -39,9 +39,9 @@ class CCLibraryNode : public Node {
   void Init();
   std::string DefaultCompileFlags(bool cpp_mode) const;
   void WriteCompile(const Resource& source,
-                    const std::set<Resource>& input_files,
+                    const ResourceFileSet& input_files,
                     Makefile* out) const;
-  void WriteMakefileInternal(bool should_write_target, Makefile* out) const;
+  void LocalWriteMakeInternal(bool should_write_target, Makefile* out) const;
   Resource ObjForSource(const Resource& source) const;
   void AddVariable(const std::string& cpp_name,
                    const std::string& c_name,

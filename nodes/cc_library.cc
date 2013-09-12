@@ -141,14 +141,14 @@ void CCLibraryNode::Init() {
                   strings::JoinAll(gcc_cc_linker_args_, " ")));
 }
 
-void CCLibraryNode::WriteMakefile(Makefile* out) const {
-  WriteMakefileInternal(true, out);
+void CCLibraryNode::LocalWriteMake(Makefile* out) const {
+  LocalWriteMakeInternal(true, out);
 }
 
-void CCLibraryNode::WriteMakefileInternal(bool should_write_target,
-                                          Makefile* out) const {
+void CCLibraryNode::LocalWriteMakeInternal(bool should_write_target,
+                                           Makefile* out) const {
   // Figure out the set of input files.
-  set<Resource> input_files;
+  ResourceFileSet input_files;
   DependencyFiles(&input_files);
 
   // Now write phases, one per .cc
@@ -159,23 +159,23 @@ void CCLibraryNode::WriteMakefileInternal(bool should_write_target,
 
   // Now write user target (so users can type "make path/to/exec|lib").
   if (should_write_target) {
-    set<Resource> targets;
+    ResourceFileSet targets;
     for (const Resource& source : sources_) {
-      targets.insert(ObjForSource(source));
+      targets.Add(ObjForSource(source));
     }
     WriteBaseUserTarget(targets, out);
   }
 }
 
 void CCLibraryNode::WriteCompile(const Resource& source,
-                                 const set<Resource>& input_files,
+                                 const ResourceFileSet& input_files,
                                  Makefile* out) const {
   Resource obj = ObjForSource(source);
 
   // Rule=> obj: <input header files> source.cc
   out->StartRule(obj.path(),
                  strings::JoinWith(" ",
-                                   strings::JoinAll(input_files, " "),
+                                   strings::JoinAll(input_files.files(), " "),
                                    source.path()));
 
   // Mkdir command.
@@ -220,33 +220,35 @@ void CCLibraryNode::WriteCompile(const Resource& source,
   out->FinishRule();
 }
 
-void CCLibraryNode::DependencyFiles(set<Resource>* files) const {
-  Node::DependencyFiles(files);
+void CCLibraryNode::LocalDependencyFiles(ResourceFileSet* files) const {
+  Node::LocalDependencyFiles(files);
   if (HasVariable(kHeaderVariable)) {
-    files->insert(Resource::FromRaw(
+    files->Add(Resource::FromRaw(
         GetVariable(kHeaderVariable).ref_name()));
   }
 }
 
-void CCLibraryNode::ObjectFiles(ObjectFileSet* files) const {
-  Node::ObjectFiles(files);
-  for (const Resource& src : sources_) {
-    files->Add(ObjForSource(src));
-  }
-  for (const Resource& obj : objects_) {
-    files->Add(obj);
+void CCLibraryNode::LocalObjectFiles(ResourceFileSet* files) const {
+  if (files->type() & ResourceFileSet::CC_OBJ) {
+    Node::LocalObjectFiles(files);
+    for (const Resource& src : sources_) {
+      files->Add(ObjForSource(src));
+    }
+    for (const Resource& obj : objects_) {
+      files->Add(obj);
+    }
   }
 }
 
-void CCLibraryNode::LinkFlags(set<string>* flags) const {
-  Node::LinkFlags(flags);
+void CCLibraryNode::LocalLinkFlags(set<string>* flags) const {
+  Node::LocalLinkFlags(flags);
   if (HasVariable(kLinkerVariable)) {
     flags->insert(GetVariable(kLinkerVariable).ref_name());
   }
 }
 
-void CCLibraryNode::CompileFlags(bool cxx, set<string>* flags) const {
-  Node::CompileFlags(cxx, flags);
+void CCLibraryNode::LocalCompileFlags(bool cxx, set<string>* flags) const {
+  Node::LocalCompileFlags(cxx, flags);
   if (cxx) {
     if (HasVariable(kCxxHeaderArgs)) {
       flags->insert(GetVariable(kCxxHeaderArgs).ref_name());

@@ -26,42 +26,27 @@ class Makefile;
 
 class Node {
  public:
-  class ObjectFileSet {
-   public:
-    ObjectFileSet() {}
-    ~ObjectFileSet() {}
-
-    const std::list<Resource>& files() const { return files_; }
-    void Add(const Resource& resource) {
-      // HACK(cvanarsdale):
-      // Sadly order matters to the (gcc) linker. It looks in later object
-      // files to find unresolved symbols. We collect the dependencies
-      // bottom up, so we push resources onto the front of the list so
-      // unencumbered resources end up in the back of the list.
-      if (fileset_.insert(resource).second) {
-        files_.push_front(resource);
-      }
-    }
-
-   private:
-    std::set<Resource> fileset_;
-    std::list<Resource> files_;
-  };
 
   Node(const TargetInfo& target, const Input& input);
   virtual ~Node();
 
-  // Virtual interface.
+  // Initialization
   virtual void Parse(BuildFile* file, const BuildFileNode& input);
-  virtual void WriteMake(Makefile* out) const;
-  virtual void WriteMakeClean(Makefile* out) const {}
-  virtual void DependencyFiles(std::set<Resource>* files) const;
-  virtual void ObjectFiles(ObjectFileSet* files) const;
-  virtual void FinalOutputs(std::set<Resource>* outputs) const;
-  virtual void LinkFlags(std::set<std::string>* flags) const;
-  virtual void CompileFlags(bool cxx, std::set<std::string>* flags) const;
-  virtual void IncludeDirs(std::set<std::string>* dirs) const;
-  virtual void EnvVariables(std::map<std::string, std::string>* vars) const;
+
+  // Makefile generation.
+  void WriteMake(Makefile* out) const;
+  void WriteMakeClean(Makefile* out) const;
+
+  // Internal object/resource handling.
+  void DependencyFiles(ResourceFileSet* files) const;
+  void ObjectFiles(ResourceFileSet* files) const;
+  void FinalOutputs(ResourceFileSet* outputs) const;
+
+  // Flag inheritence
+  void LinkFlags(std::set<std::string>* flags) const;
+  void CompileFlags(bool cxx, std::set<std::string>* flags) const;
+  void IncludeDirs(std::set<std::string>* dirs) const;
+  void EnvVariables(std::map<std::string, std::string>* vars) const;
 
   // Accessors.
   const Input& input() const { return *input_; }
@@ -114,7 +99,17 @@ class Node {
   };
 
   // The main thing to override.
-  virtual void WriteMakefile(Makefile* out) const = 0;
+  virtual void LocalWriteMake(Makefile* out) const = 0;
+  virtual void LocalWriteMakeClean(Makefile* out) const {}
+  virtual void LocalDependencyFiles(ResourceFileSet* files) const {}
+  virtual void LocalObjectFiles(ResourceFileSet* files) const {}
+  virtual void LocalFinalOutputs(ResourceFileSet* outputs) const {}
+  virtual void LocalLinkFlags(std::set<std::string>* flags) const {}
+  virtual void LocalCompileFlags(bool cxx,
+                                 std::set<std::string>* flags) const {}
+  virtual void LocalIncludeDirs(std::set<std::string>* dirs) const {}
+  virtual void LocalEnvVariables(
+      std::map<std::string, std::string>* vars) const;
 
   // Parsing helpers
   BuildFileNodeReader* NewBuildReader(const BuildFileNode& node) const;
@@ -133,10 +128,10 @@ class Node {
   std::string MakefileEscape(const std::string& str) const;
   Resource Touchfile(const std::string& suffix) const;
   Resource Touchfile() const { return Touchfile(""); }
-  void WriteBaseUserTarget(const std::set<Resource>& deps,
+  void WriteBaseUserTarget(const ResourceFileSet& deps,
                            Makefile* out) const;
   void WriteBaseUserTarget(Makefile* out) const {
-    std::set<Resource> empty;
+    ResourceFileSet empty;
     WriteBaseUserTarget(empty, out);
   }
   void WriteVariables(std::string* out) const {
@@ -161,6 +156,36 @@ class Node {
       *var = new MakeVariable(name + "." + target().make_path());
     }
     return *var;
+  }
+
+  // Dependency helpers
+  void InputDependencyFiles(ResourceFileSet* files) const;
+  void InputObjectFiles(ResourceFileSet* files) const;
+  void InputFinalOutputs(ResourceFileSet* outputs) const;
+  void InputLinkFlags(std::set<std::string>* flags) const;
+  void InputCompileFlags(bool cxx, std::set<std::string>* flags) const;
+  void InputIncludeDirs(std::set<std::string>* dirs) const;
+  void InputEnvVariables(std::map<std::string, std::string>* vars) const;
+
+  enum DependencyCollectionType {
+    DEPENDENCY_FILES = 0,
+    OBJECT_FILES = 1,
+    FINAL_OUTPUTS = 2,
+    LINK_FLAGS = 3,
+    COMPILE_FLAGS = 4,
+    INCLUDE_DIRS = 5,
+    ENV_VARIABLES = 6
+  };
+  void CollectAllDependencies(const DependencyCollectionType& type,
+                              std::vector<Node*>* all_deps) const {
+    std::set<Node*> all_deps_set(all_deps->begin(), all_deps->end());
+    CollectAllDependencies(type, &all_deps_set, all_deps);
+  }
+  void CollectAllDependencies(const DependencyCollectionType& type,
+                              std::set<Node*>* all_deps_set,
+                              std::vector<Node*>* all_deps) const;
+  virtual bool IncludeDependencies(const DependencyCollectionType& type) const {
+    return true;
   }
 
  private:
@@ -189,12 +214,12 @@ class SimpleLibraryNode : public Node {
  public:
   SimpleLibraryNode(const TargetInfo& t, const Input& i) : Node(t, i) {}
   virtual ~SimpleLibraryNode() {}
-  virtual void WriteMakefile(Makefile* out) const {}
-  virtual void DependencyFiles(std::set<Resource>* files) const;
-  virtual void ObjectFiles(ObjectFileSet* files) const;
+  virtual void LocalWriteMake(Makefile* out) const {}
+  virtual void LocalDependencyFiles(ResourceFileSet* files) const;
+  virtual void LocalObjectFiles(ResourceFileSet* files) const;
 
   // Alterative to Parse()
-  virtual void Set(const std::vector<Resource>& sources) {
+  virtual void LocalSet(const std::vector<Resource>& sources) {
     sources_ = sources;
   }
 
