@@ -1,6 +1,9 @@
 // Copyright 2013
 // Author: Christopher Van Arsdale
 
+#include <algorithm>
+#include <map>
+#include <set>
 #include <string>
 #include <vector>
 #include "common/log/log.h"
@@ -276,6 +279,26 @@ Resource Node::Touchfile(const string& suffix) const {
   return Resource::FromLocalPath(
       strings::JoinPath(input().object_dir(), target().dir()),
       "." + target().local_path() + suffix + ".dummy");
+}
+
+string Node::StripSpecialDirs(const string& path) const {
+  string dir = path;
+  while (true) {
+    if (strings::HasPrefix(dir, input().genfile_dir())) {
+      dir = dir.substr(std::min(input().genfile_dir().size() + 1, dir.size()));
+      continue;
+    }
+    if (strings::HasPrefix(dir, input().source_dir())) {
+      dir = dir.substr(std::min(input().source_dir().size() + 1, dir.size()));
+      continue;
+    }
+    if (strings::HasPrefix(dir, input().object_dir())) {
+      dir = dir.substr(std::min(input().object_dir().size() + 1, dir.size()));
+      continue;
+    }
+    break;
+  }
+  return dir;
 }
 
 void SimpleLibraryNode::LocalDependencyFiles(LanguageType lang,

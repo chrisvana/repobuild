@@ -35,10 +35,15 @@ class ProtoLibraryNode : public Node {
   Node* GeneratePython(const std::vector<Resource>& input_prefixes,
                        std::vector<std::string>* outputs,
                        BuildFile* file);
-  Node* GenerateJava(const std::vector<Resource>& input_prefixes,
+  Node* GenerateJava(BuildFile* file,
+                     const BuildFileNode& input,
+                     const std::vector<Resource>& input_prefixes,
                      const std::vector<std::string>& java_classnames,
-                     std::vector<std::string>* outputs,
-                     BuildFile* file);
+                     std::vector<std::string>* outputs);
+  void AddDefaultDependency(BuildFile* file,
+                            const BuildFileNode& input,
+                            const std::string& dep_name,
+                            Node* node);
 };
 
 }  // namespace repobuild

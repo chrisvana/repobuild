@@ -14,6 +14,18 @@ DEFINE_bool(add_default_flags, true,
 DEFINE_bool(silent_make, true,
             "If false, make prints out commands before execution.");
 
+DEFINE_string(proto_cc_library, "//third_party/protobuf:cc_proto",
+              "Default cc_library for proto_library to include.");
+
+DEFINE_string(proto_java_library, "//third_party/protobuf:java_proto",
+              "Default java_library for proto_library to include.");
+
+DEFINE_string(proto_go_library, "//third_party/protobuf:go_proto",
+              "Default go_library for proto_library to include.");
+
+DEFINE_string(proto_py_library, "//third_party/protobuf:py_proto",
+              "Default cc_library for proto_library to include.");
+
 // TODO(cvanarsdale): A default configuration file ('.repobuild') that contains
 // flags. We can search the path/tree/homedir for it.
 
@@ -63,6 +75,11 @@ Input::Input() {
   }
 
   silent_make_ = FLAGS_silent_make;
+
+  default_cc_proto_ = FLAGS_proto_cc_library;
+  default_java_proto_ = FLAGS_proto_java_library;
+  default_go_proto_ = FLAGS_proto_go_library;
+  default_py_proto_ = FLAGS_proto_py_library;
 }
 
 const std::vector<std::string>& Input::flags(const std::string& key) const {

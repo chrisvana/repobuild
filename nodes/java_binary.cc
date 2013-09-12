@@ -56,14 +56,10 @@ void JavaBinaryNode::LocalWriteMake(Makefile* out) const {
   }
 
   // Symlink to root dir.
-  Resource out_bin = OutBinary();
+  Resource out_bin = JarName();
   out->StartRule(out_bin.path(), bin.path());
   out->WriteCommand("pwd > /dev/null");  // hack to work around make issue?
-  out->WriteCommand(
-      strings::Join(
-          "ln -f -s ",
-          strings::JoinPath(input().object_dir(), target().make_path()),
-          " ", out_bin.path()));
+  out->WriteCommand("ln -f -s " + bin.path() + " " + out_bin.path());
   out->FinishRule();
 }
 
@@ -94,7 +90,7 @@ void JavaBinaryNode::WriteJar(const Resource& file, Makefile* out) const {
       strings::JoinPath(input().genfile_dir(),
                         target().dir()),
       target().local_path() + ".manifest");
-  string man_cmd = "eval 'rm " + manifest.path() + "; for line in";
+  string man_cmd = "eval 'rm -f " + manifest.path() + "; for line in";
   for (const string& str : java_manifest_) {
     man_cmd += " \"" + str + "\"";
   }
@@ -122,18 +118,13 @@ void JavaBinaryNode::WriteJar(const Resource& file, Makefile* out) const {
 }
 
 void JavaBinaryNode::LocalWriteMakeClean(Makefile* out) const {
-  out->WriteCommand("rm -f " + OutBinary().path());
   out->WriteCommand("rm -f " + JarName().path());
 }
 
 void JavaBinaryNode::LocalFinalOutputs(LanguageType lang,
                                        ResourceFileSet* outputs) const {
   JavaLibraryNode::LocalFinalOutputs(lang, outputs);
-  outputs->Add(OutBinary());
-}
-
-Resource JavaBinaryNode::OutBinary() const {
-  return Resource::FromLocalPath(input().root_dir(), target().local_path());
+  outputs->Add(JarName());
 }
 
 Resource JavaBinaryNode::JarName() const {

@@ -31,12 +31,16 @@ class JavaLibraryNode : public Node {
                                  std::set<std::string>* flags) const;
   virtual void LocalIncludeDirs(LanguageType lang,
                                 std::set<std::string>* dirs) const;
+  virtual void LocalDependencyFiles(LanguageType lang,
+                                    ResourceFileSet* files) const;
 
   // For direct construction.
-  void Set(const std::vector<Resource>& sources);
+  void Set(BuildFile* file,
+           const BuildFileNode& input,
+           const std::vector<Resource>& sources);
 
  protected:
-  void Init();
+  void ParseInternal(BuildFile* file, const BuildFileNode& input);
   void LocalWriteMakeInternal(bool write_user_target, Makefile* out) const;
   void WriteCompile(const ResourceFileSet& input_files,
                     Makefile* out) const;

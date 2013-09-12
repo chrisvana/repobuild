@@ -139,6 +139,7 @@ class Node {
   std::string SourceDir() const { return src_dir_; }
   std::string RelativeSourceDir() const { return relative_src_dir_; }
   std::string RelativeRootDir() const { return relative_root_dir_; }
+  std::string StripSpecialDirs(const std::string& path) const;
 
   // Makefile helpers.
   std::string MakefileEscape(const std::string& str) const;

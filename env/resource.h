@@ -53,15 +53,7 @@ extern std::ostream& operator<<(std::ostream& o, const Resource& r);
 
 class ResourceFileSet {
  public:
-  // Type specification
-  enum ResourceFileType {
-    SOURCE = 0x1,
-    CC_OBJ = 0x2,
-    JAVA_OBJ = 0x4,
-    ALL = 0x7
-  };
-
-  ResourceFileSet() : type_(ALL) {}
+  ResourceFileSet() {}
   ~ResourceFileSet() {}
 
   // Files.
@@ -77,14 +69,9 @@ class ResourceFileSet {
     }
   }
 
-  // Types.
-  ResourceFileType type() const { return type_; }
-  void set_type(ResourceFileType type) { type_ = type; }
-
  private:
   std::set<Resource> fileset_;
   std::list<Resource> files_;
-  ResourceFileType type_;
 };
 
 }  // namespace repobuild

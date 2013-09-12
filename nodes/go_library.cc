@@ -38,9 +38,9 @@ void GoLibraryNode::LocalWriteMakeInternal(bool write_user_target,
   // Syntax check.
   string sources = strings::JoinAll(sources_, " ");
   out->StartRule(touchfile_.path(), sources);
-  out->WriteCommand(
-      "mkdir -p " + ObjectDir() +
-      "; gofmt -e " + sources + " && touch " + Touchfile().path());
+  out->WriteCommand("mkdir -p " + ObjectDir());
+  out->WriteCommand("echo \"Compiling: " + target().full_path() + " (go)\"");
+  out->WriteCommand("gofmt -e " + sources + " && touch " + Touchfile().path());
   out->FinishRule();
 
   // User target.

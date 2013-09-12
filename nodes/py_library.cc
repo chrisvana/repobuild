@@ -29,9 +29,11 @@ void PyLibraryNode::LocalWriteMakeInternal(bool write_user_target,
   // Syntax check.
   string sources = strings::JoinAll(sources_, " ");
   out->StartRule(touchfile_.path(), sources);
-  out->WriteCommand("mkdir -p " + ObjectDir() +
-                    "; python -m py_compile " + sources +
-                    " && touch " + Touchfile().path());
+  out->WriteCommand("mkdir -p " + ObjectDir());
+  out->WriteCommand("echo \"Compiling: " + target().full_path() +
+                    " (python)\"");
+  out->WriteCommand("python -m py_compile " + sources + " && touch " +
+                    Touchfile().path());
   out->FinishRule();
 
   // User target.

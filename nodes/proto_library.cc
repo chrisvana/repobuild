@@ -25,8 +25,6 @@ using std::set;
 namespace repobuild {
 
 void ProtoLibraryNode::Parse(BuildFile* file, const BuildFileNode& input) {
-  // TODO(cvanarsdale): This function is ugly.
-
   Node::Parse(file, input);
 
   // Read the input files.
@@ -67,8 +65,15 @@ void ProtoLibraryNode::Parse(BuildFile* file, const BuildFileNode& input) {
   // c++
   if (generate_cc) {
     build_cmd += " --cpp_out=" + Node::input().genfile_dir();
-    GenerateCpp(input_prefixes, &outputs, file)->AddDependencyTarget(
-        gen->target());
+    Node* cpp = GenerateCpp(input_prefixes, &outputs, file);
+    cpp->AddDependencyTarget(gen->target());
+
+    // Figure out our cc base library dependencies.
+    string dep;
+    if (!current_reader()->ParseStringField("proto_cc_dep", &dep)) {
+      dep = Node::input().default_cc_proto();
+    }
+    cpp->AddDependencyTarget(TargetInfo(dep, file->filename()));
   }
 
   // java
@@ -76,22 +81,44 @@ void ProtoLibraryNode::Parse(BuildFile* file, const BuildFileNode& input) {
     build_cmd += " --java_out=" + Node::input().genfile_dir();
     vector<string> java_classnames;
     current_reader()->ParseRepeatedString("java_classnames", &java_classnames);
-    GenerateJava(input_prefixes, java_classnames, &outputs, file)->
-        AddDependencyTarget(gen->target());
+    Node* java = GenerateJava(file, input, input_prefixes,
+                              java_classnames, &outputs);
+    java->AddDependencyTarget(gen->target());
+
+    // Figure out our cc base library dependencies.
+    string dep;
+    if (!current_reader()->ParseStringField("proto_java_dep", &dep)) {
+      dep = Node::input().default_java_proto();
+    }
+    java->AddDependencyTarget(TargetInfo(dep, file->filename()));
   }
 
   // python
   if (generate_python) {
     build_cmd += " --python_out=" + Node::input().genfile_dir();
-    GeneratePython(input_prefixes, &outputs, file)->AddDependencyTarget(
-        gen->target());
+    Node* python = GeneratePython(input_prefixes, &outputs, file);
+    python->AddDependencyTarget(gen->target());
+
+    // Figure out our cc base library dependencies.
+    string dep;
+    if (!current_reader()->ParseStringField("proto_py_dep", &dep)) {
+      dep = Node::input().default_py_proto();
+    }
+    python->AddDependencyTarget(TargetInfo(dep, file->filename()));
   }
 
   // go
   if (generate_go) {
     build_cmd += " --go_out=" + Node::input().genfile_dir();
-    GenerateGo(input_prefixes, &outputs, file)->AddDependencyTarget(
-        gen->target());
+    Node* go = GenerateGo(input_prefixes, &outputs, file);
+    go->AddDependencyTarget(gen->target());
+
+    // Figure out our cc base library dependencies.
+    string dep;
+    if (!current_reader()->ParseStringField("proto_go_dep", &dep)) {
+      dep = Node::input().default_go_proto();
+    }
+    go->AddDependencyTarget(TargetInfo(dep, file->filename()));
   }
 
   build_cmd += " " + strings::JoinWith(
@@ -167,10 +194,11 @@ Node* ProtoLibraryNode::GenerateCpp(const vector<Resource>& input_prefixes,
   return cc_lib;
 }
 
-Node* ProtoLibraryNode::GenerateJava(const vector<Resource>& input_prefixes,
+Node* ProtoLibraryNode::GenerateJava(BuildFile* file,
+                                     const BuildFileNode& input,
+                                     const vector<Resource>& input_prefixes,
                                      const vector<string>& java_classnames,
-                                     vector<string>* outputs,
-                                     BuildFile* file) {
+                                     vector<string>* outputs) {
   vector<Resource> java_sources;
   if (java_classnames.size() > 0 &&
       java_classnames.size() != input_prefixes.size()) {
@@ -205,8 +233,7 @@ Node* ProtoLibraryNode::GenerateJava(const vector<Resource>& input_prefixes,
       target().GetParallelTarget(file->NextName(target().local_path())),
       Node::input());
   AddSubNode(java_lib);
-
-  java_lib->Set(java_sources);
+  java_lib->Set(file, input, java_sources);
   return java_lib;
 }
 
@@ -261,6 +288,13 @@ Node* ProtoLibraryNode::GenerateGo(const vector<Resource>& input_prefixes,
 
   go_lib->Set(go_sources);
   return go_lib;
+}
+
+void ProtoLibraryNode::AddDefaultDependency(BuildFile* file,
+                                            const BuildFileNode& input,
+                                            const string& dep_name,
+                                            Node* node) {
+  // Figure out our cc base library dependencies.
 }
 
 }  // namespace repobuild

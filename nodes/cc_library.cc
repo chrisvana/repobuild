@@ -208,7 +208,8 @@ void CCLibraryNode::WriteCompile(const Resource& source,
         GetVariable(cpp ? kCxxCompileArgs : kCCompileArgs).ref_name());
   }
 
-  out->WriteCommand("echo Compiling: " + source.path());
+  out->WriteCommand("echo \"Compiling: " + source.path() +
+                    " (" + (cpp ? "c++" : "c") + ")\"");
   out->WriteCommand(strings::JoinWith(
       " ",
       compile,
@@ -230,21 +231,26 @@ void CCLibraryNode::LocalDependencyFiles(LanguageType lang,
 
 void CCLibraryNode::LocalObjectFiles(LanguageType lang,
                                      ResourceFileSet* files) const {
-  if (files->type() & ResourceFileSet::CC_OBJ) {
-    for (const Resource& src : sources_) {
-      files->Add(ObjForSource(src));
-    }
-    for (const Resource& obj : objects_) {
-      files->Add(obj);
-    }
+  for (const Resource& src : sources_) {
+    files->Add(ObjForSource(src));
+  }
+  for (const Resource& obj : objects_) {
+    files->Add(obj);
   }
 }
 
 void CCLibraryNode::LocalLinkFlags(LanguageType lang,
                                    set<string>* flags) const {
-  if (HasVariable(kLinkerVariable)) {
-    flags->insert(GetVariable(kLinkerVariable).ref_name());
+  if (lang == C_LANG || lang == CPP) {
+    if (HasVariable(kLinkerVariable)) {
+      flags->insert(GetVariable(kLinkerVariable).ref_name());
+    }
   }
+}
+
+void CCLibraryNode::LocalIncludeDirs(LanguageType lang,
+                                     set<string>* dirs) const {
+  dirs->insert(cc_include_dirs_.begin(), cc_include_dirs_.end());
 }
 
 void CCLibraryNode::LocalCompileFlags(LanguageType lang,
@@ -369,7 +375,7 @@ void CCLibraryNode::WriteMakeHead(const Input& input, Makefile* out) {
 
 Resource CCLibraryNode::ObjForSource(const Resource& source) const {
   Resource r = Resource::FromLocalPath(input().object_dir(),
-                                       source.path() + ".o");
+                                       StripSpecialDirs(source.path()) + ".o");
   r.CopyTags(source);
   return r;
 }

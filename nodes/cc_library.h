@@ -28,6 +28,8 @@ class CCLibraryNode : public Node {
                               std::set<std::string>* flags) const;
   virtual void LocalCompileFlags(LanguageType lang,
                                  std::set<std::string>* flags) const;
+  virtual void LocalIncludeDirs(LanguageType lang,
+                                std::set<std::string>* flags) const;
 
   // Alterative to Parse()
   void Set(const std::vector<Resource>& sources,
