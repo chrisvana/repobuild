@@ -20,10 +20,14 @@ class CCLibraryNode : public Node {
   virtual ~CCLibraryNode() {}
   virtual void Parse(BuildFile* file, const BuildFileNode& input);
   virtual void LocalWriteMake(Makefile* out) const;
-  virtual void LocalDependencyFiles(ResourceFileSet* files) const;
-  virtual void LocalObjectFiles(ResourceFileSet* files) const;
-  virtual void LocalLinkFlags(std::set<std::string>* flags) const;
-  virtual void LocalCompileFlags(bool cxx, std::set<std::string>* flags) const;
+  virtual void LocalDependencyFiles(LanguageType lang,
+                                    ResourceFileSet* files) const;
+  virtual void LocalObjectFiles(LanguageType lang,
+                                ResourceFileSet* files) const;
+  virtual void LocalLinkFlags(LanguageType lang,
+                              std::set<std::string>* flags) const;
+  virtual void LocalCompileFlags(LanguageType lang,
+                                 std::set<std::string>* flags) const;
 
   // Alterative to Parse()
   void Set(const std::vector<Resource>& sources,

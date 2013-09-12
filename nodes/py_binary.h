@@ -21,7 +21,7 @@ class PyBinaryNode : public PyLibraryNode {
   virtual void Parse(BuildFile* file, const BuildFileNode& input);
   virtual void LocalWriteMakeClean(Makefile* out) const;
   virtual void LocalWriteMake(Makefile* out) const;
-  virtual void LocalFinalOutputs(ResourceFileSet* outputs) const;
+  virtual void LocalFinalOutputs(LanguageType lang,ResourceFileSet* outputs) const;
 
   static void WriteMakeHead(const Input& input, Makefile* out);
 

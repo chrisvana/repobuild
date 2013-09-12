@@ -72,7 +72,7 @@ void JavaLibraryNode::LocalWriteMakeInternal(bool write_user_target,
                                              Makefile* out) const {
   // Figure out the set of input files.
   ResourceFileSet input_files;
-  DependencyFiles(&input_files);
+  DependencyFiles(JAVA, &input_files);
 
   // Compile all .java files at the same time, for efficiency.
   WriteCompile(input_files, out);
@@ -113,7 +113,7 @@ void JavaLibraryNode::WriteCompile(const ResourceFileSet& input_files,
 
   // Collect class paths.
   set<string> java_classpath;
-  IncludeDirs(&java_classpath);
+  IncludeDirs(JAVA, &java_classpath);
 
   // class path.
   string include_dirs = strings::JoinWith(
@@ -129,7 +129,7 @@ void JavaLibraryNode::WriteCompile(const ResourceFileSet& input_files,
 
   // javac compile args.
   set<string> compile_args;
-  CompileFlags(false /* ignored */, &compile_args);
+  CompileFlags(JAVA, &compile_args);
   compile_args.insert(java_local_compile_args_.begin(),
                       java_local_compile_args_.end());
   for (const string& f : input().flags("-JC")) {
@@ -149,21 +149,28 @@ void JavaLibraryNode::WriteCompile(const ResourceFileSet& input_files,
   out->FinishRule();
 }
 
-void JavaLibraryNode::LocalLinkFlags(std::set<std::string>* flags) const {
-  flags->insert(java_jar_args_.begin(), java_jar_args_.end());
+void JavaLibraryNode::LocalLinkFlags(LanguageType lang,
+                                     std::set<std::string>* flags) const {
+  if (lang == JAVA) {
+    flags->insert(java_jar_args_.begin(), java_jar_args_.end());
+  }
 }
 
-void JavaLibraryNode::LocalCompileFlags(bool cxx,
-                                   std::set<std::string>* flags) const {
-  flags->insert(java_compile_args_.begin(), java_compile_args_.end());
+void JavaLibraryNode::LocalCompileFlags(LanguageType lang,
+                                        std::set<std::string>* flags) const {
+  if (lang == JAVA) {
+    flags->insert(java_compile_args_.begin(), java_compile_args_.end());
+  }
 }
 
-void JavaLibraryNode::LocalIncludeDirs(std::set<std::string>* dirs) const {
+void JavaLibraryNode::LocalIncludeDirs(LanguageType lang,
+                                       std::set<std::string>* dirs) const {
   dirs->insert(java_classpath_.begin(), java_classpath_.end());
 }
 
-void JavaLibraryNode::LocalObjectFiles(ResourceFileSet* files) const {
-  Node::LocalObjectFiles(files);
+void JavaLibraryNode::LocalObjectFiles(LanguageType lang,
+                                       ResourceFileSet* files) const {
+  Node::LocalObjectFiles(lang, files);
   for (const Resource& r : sources_) {
     files->Add(ClassFile(r));
   }

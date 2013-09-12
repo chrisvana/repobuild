@@ -42,11 +42,14 @@ class GenShNode : public Node {
 
   virtual void LocalWriteMakeClean(Makefile* out) const;
   virtual void LocalWriteMake(Makefile* out) const;
-  virtual void LocalDependencyFiles(ResourceFileSet* files) const;
+  virtual void LocalDependencyFiles(LanguageType lang,
+                                    ResourceFileSet* files) const;
 
-  // NB: We intentionally do not pass on sub-dependency files.
-  virtual bool IncludeDependencies(const DependencyCollectionType& type) const {
-    return type != DEPENDENCY_FILES;
+  // NB: We intentionally do not pass on sub-dependency files, and rely soley
+  // on our "touchfile'.
+  virtual bool IncludeDependencies(DependencyCollectionType type,
+                                   LanguageType lang) const {
+    return (type != DEPENDENCY_FILES);
   }
 
   std::string build_cmd_;

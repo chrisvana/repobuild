@@ -26,6 +26,15 @@ class Makefile;
 
 class Node {
  public:
+  // TODO(cvanarsdale): This is hacky.
+  enum LanguageType {
+    C_LANG = 0,
+    CPP = 1,
+    JAVA = 2,
+    PYTHON = 3,
+    GOLANG = 4,
+    NO_LANG = 5,
+  };
 
   Node(const TargetInfo& target, const Input& input);
   virtual ~Node();
@@ -38,15 +47,16 @@ class Node {
   void WriteMakeClean(Makefile* out) const;
 
   // Internal object/resource handling.
-  void DependencyFiles(ResourceFileSet* files) const;
-  void ObjectFiles(ResourceFileSet* files) const;
-  void FinalOutputs(ResourceFileSet* outputs) const;
+  void DependencyFiles(LanguageType lang, ResourceFileSet* files) const;
+  void ObjectFiles(LanguageType lang, ResourceFileSet* files) const;
+  void FinalOutputs(LanguageType lang, ResourceFileSet* outputs) const;
 
   // Flag inheritence
-  void LinkFlags(std::set<std::string>* flags) const;
-  void CompileFlags(bool cxx, std::set<std::string>* flags) const;
-  void IncludeDirs(std::set<std::string>* dirs) const;
-  void EnvVariables(std::map<std::string, std::string>* vars) const;
+  void LinkFlags(LanguageType lang, std::set<std::string>* flags) const;
+  void CompileFlags(LanguageType lang, std::set<std::string>* flags) const;
+  void IncludeDirs(LanguageType lang, std::set<std::string>* dirs) const;
+  void EnvVariables(LanguageType lang,
+                    std::map<std::string, std::string>* vars) const;
 
   // Accessors.
   const Input& input() const { return *input_; }
@@ -101,14 +111,20 @@ class Node {
   // The main thing to override.
   virtual void LocalWriteMake(Makefile* out) const = 0;
   virtual void LocalWriteMakeClean(Makefile* out) const {}
-  virtual void LocalDependencyFiles(ResourceFileSet* files) const {}
-  virtual void LocalObjectFiles(ResourceFileSet* files) const {}
-  virtual void LocalFinalOutputs(ResourceFileSet* outputs) const {}
-  virtual void LocalLinkFlags(std::set<std::string>* flags) const {}
-  virtual void LocalCompileFlags(bool cxx,
+  virtual void LocalDependencyFiles(LanguageType lang,
+                                    ResourceFileSet* files) const {}
+  virtual void LocalObjectFiles(LanguageType lang,
+                                ResourceFileSet* files) const {}
+  virtual void LocalFinalOutputs(LanguageType lang,
+                                 ResourceFileSet* outputs) const {}
+  virtual void LocalLinkFlags(LanguageType lang,
+                              std::set<std::string>* flags) const {}
+  virtual void LocalCompileFlags(LanguageType lang,
                                  std::set<std::string>* flags) const {}
-  virtual void LocalIncludeDirs(std::set<std::string>* dirs) const {}
+  virtual void LocalIncludeDirs(LanguageType lang,
+                                std::set<std::string>* dirs) const {}
   virtual void LocalEnvVariables(
+      LanguageType lang, 
       std::map<std::string, std::string>* vars) const;
 
   // Parsing helpers
@@ -159,13 +175,14 @@ class Node {
   }
 
   // Dependency helpers
-  void InputDependencyFiles(ResourceFileSet* files) const;
-  void InputObjectFiles(ResourceFileSet* files) const;
-  void InputFinalOutputs(ResourceFileSet* outputs) const;
-  void InputLinkFlags(std::set<std::string>* flags) const;
-  void InputCompileFlags(bool cxx, std::set<std::string>* flags) const;
-  void InputIncludeDirs(std::set<std::string>* dirs) const;
-  void InputEnvVariables(std::map<std::string, std::string>* vars) const;
+  void InputDependencyFiles(LanguageType lang, ResourceFileSet* files) const;
+  void InputObjectFiles(LanguageType lang, ResourceFileSet* files) const;
+  void InputFinalOutputs(LanguageType lang, ResourceFileSet* outputs) const;
+  void InputLinkFlags(LanguageType lang, std::set<std::string>* flags) const;
+  void InputCompileFlags(LanguageType lang, std::set<std::string>* flags) const;
+  void InputIncludeDirs(LanguageType lang, std::set<std::string>* dirs) const;
+  void InputEnvVariables(LanguageType lang,
+                         std::map<std::string, std::string>* vars) const;
 
   enum DependencyCollectionType {
     DEPENDENCY_FILES = 0,
@@ -176,15 +193,18 @@ class Node {
     INCLUDE_DIRS = 5,
     ENV_VARIABLES = 6
   };
-  void CollectAllDependencies(const DependencyCollectionType& type,
+  void CollectAllDependencies(DependencyCollectionType type,
+                              LanguageType lang,
                               std::vector<Node*>* all_deps) const {
     std::set<Node*> all_deps_set(all_deps->begin(), all_deps->end());
-    CollectAllDependencies(type, &all_deps_set, all_deps);
+    CollectAllDependencies(type, lang, &all_deps_set, all_deps);
   }
-  void CollectAllDependencies(const DependencyCollectionType& type,
+  void CollectAllDependencies(DependencyCollectionType type,
+                              LanguageType lang,
                               std::set<Node*>* all_deps_set,
                               std::vector<Node*>* all_deps) const;
-  virtual bool IncludeDependencies(const DependencyCollectionType& type) const {
+  virtual bool IncludeDependencies(DependencyCollectionType type,
+                                   LanguageType lang) const {
     return true;
   }
 
@@ -215,11 +235,13 @@ class SimpleLibraryNode : public Node {
   SimpleLibraryNode(const TargetInfo& t, const Input& i) : Node(t, i) {}
   virtual ~SimpleLibraryNode() {}
   virtual void LocalWriteMake(Makefile* out) const {}
-  virtual void LocalDependencyFiles(ResourceFileSet* files) const;
-  virtual void LocalObjectFiles(ResourceFileSet* files) const;
+  virtual void LocalDependencyFiles(LanguageType lang,
+                                    ResourceFileSet* files) const;
+  virtual void LocalObjectFiles(LanguageType lang,
+                                ResourceFileSet* files) const;
 
   // Alterative to Parse()
-  virtual void LocalSet(const std::vector<Resource>& sources) {
+  virtual void LocalSet(LanguageType lang,const std::vector<Resource>& sources) {
     sources_ = sources;
   }
 

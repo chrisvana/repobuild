@@ -21,7 +21,7 @@ class GoLibraryNode : public SimpleLibraryNode {
   virtual void LocalWriteMake(Makefile* out) const {
     LocalWriteMakeInternal(true, out);
   }
-  virtual void LocalDependencyFiles(ResourceFileSet* files) const;
+  virtual void LocalDependencyFiles(LanguageType lang,ResourceFileSet* files) const;
 
   // Manual construction.
   void Set(const std::vector<Resource>& sources);

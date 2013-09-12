@@ -95,11 +95,11 @@ string Generator::GenerateMakefile(const Input& input) {
   ResourceFileSet outputs;
   for (const Node* node : parser.all_nodes()) {
     if (input.contains_target(node->target().full_path())) {
-      node->FinalOutputs(&outputs);
+      node->FinalOutputs(Node::NO_LANG, &outputs);
       outputs.Add(Resource::FromRootPath(node->target().make_path()));
     }
   }
-out.WriteRule("all", strings::JoinAll(outputs.files(), " "));
+  out.WriteRule("all", strings::JoinAll(outputs.files(), " "));
 
   // Not real files:
   out.WriteRule(".PHONY", "clean all");

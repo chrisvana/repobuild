@@ -149,7 +149,7 @@ void CCLibraryNode::LocalWriteMakeInternal(bool should_write_target,
                                            Makefile* out) const {
   // Figure out the set of input files.
   ResourceFileSet input_files;
-  DependencyFiles(&input_files);
+  DependencyFiles(CPP, &input_files);
 
   // Now write phases, one per .cc
   for (int i = 0; i < sources_.size(); ++i) {
@@ -193,7 +193,7 @@ void CCLibraryNode::WriteCompile(const Resource& source,
       "-I" + strings::JoinPath(input().source_dir(), input().genfile_dir()));
 
   set<string> more_include_dirs;
-  IncludeDirs(&more_include_dirs);
+  IncludeDirs(cpp ? CPP : C_LANG, &more_include_dirs);
   for (const string& str: more_include_dirs) {
     include_dirs += " -I" + str;
   }
@@ -201,7 +201,7 @@ void CCLibraryNode::WriteCompile(const Resource& source,
   string output_compile_args;
   {
     set<string> header_compile_args;
-    CompileFlags(cpp, &header_compile_args);
+    CompileFlags(cpp ? CPP : C_LANG, &header_compile_args);
     output_compile_args = strings::JoinWith(
         " ",
         strings::JoinAll(header_compile_args, " "),
@@ -220,17 +220,17 @@ void CCLibraryNode::WriteCompile(const Resource& source,
   out->FinishRule();
 }
 
-void CCLibraryNode::LocalDependencyFiles(ResourceFileSet* files) const {
-  Node::LocalDependencyFiles(files);
+void CCLibraryNode::LocalDependencyFiles(LanguageType lang,
+                                         ResourceFileSet* files) const {
   if (HasVariable(kHeaderVariable)) {
     files->Add(Resource::FromRaw(
         GetVariable(kHeaderVariable).ref_name()));
   }
 }
 
-void CCLibraryNode::LocalObjectFiles(ResourceFileSet* files) const {
+void CCLibraryNode::LocalObjectFiles(LanguageType lang,
+                                     ResourceFileSet* files) const {
   if (files->type() & ResourceFileSet::CC_OBJ) {
-    Node::LocalObjectFiles(files);
     for (const Resource& src : sources_) {
       files->Add(ObjForSource(src));
     }
@@ -240,20 +240,20 @@ void CCLibraryNode::LocalObjectFiles(ResourceFileSet* files) const {
   }
 }
 
-void CCLibraryNode::LocalLinkFlags(set<string>* flags) const {
-  Node::LocalLinkFlags(flags);
+void CCLibraryNode::LocalLinkFlags(LanguageType lang,
+                                   set<string>* flags) const {
   if (HasVariable(kLinkerVariable)) {
     flags->insert(GetVariable(kLinkerVariable).ref_name());
   }
 }
 
-void CCLibraryNode::LocalCompileFlags(bool cxx, set<string>* flags) const {
-  Node::LocalCompileFlags(cxx, flags);
-  if (cxx) {
+void CCLibraryNode::LocalCompileFlags(LanguageType lang,
+                                      set<string>* flags) const {
+  if (lang == CPP) {
     if (HasVariable(kCxxHeaderArgs)) {
       flags->insert(GetVariable(kCxxHeaderArgs).ref_name());
     }
-  } else {
+  } else if (lang == C_LANG) {
     if (HasVariable(kCHeaderArgs)) {
       flags->insert(GetVariable(kCHeaderArgs).ref_name());
     }

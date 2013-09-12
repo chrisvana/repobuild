@@ -61,10 +61,10 @@ void PyBinaryNode::LocalWriteMake(Makefile* out) const {
 
   // Source files.
   ResourceFileSet deps;
-  DependencyFiles(&deps);
+  DependencyFiles(PYTHON, &deps);
 
   ResourceFileSet sources;
-  ObjectFiles(&sources);
+  ObjectFiles(PYTHON, &sources);
   vector<string> relative_sources;
   for (const Resource& r : sources.files()) {
     relative_sources.push_back(
@@ -160,8 +160,9 @@ void PyBinaryNode::LocalWriteMakeClean(Makefile* out) const {
       target().make_path() + ".egg-info"));
 }
 
-void PyBinaryNode::LocalFinalOutputs(ResourceFileSet* outputs) const {
-  PyLibraryNode::LocalFinalOutputs(outputs);
+void PyBinaryNode::LocalFinalOutputs(LanguageType lang,
+                                     ResourceFileSet* outputs) const {
+  PyLibraryNode::LocalFinalOutputs(lang,outputs);
   outputs->Add(OutBinary());
   outputs->Add(OutEgg());
 }

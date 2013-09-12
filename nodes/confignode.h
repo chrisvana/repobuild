@@ -21,7 +21,7 @@ class ConfigNode : public Node {
   virtual void Parse(BuildFile* file, const BuildFileNode& input);
   virtual void LocalWriteMakeClean(Makefile* out) const;
   virtual void LocalWriteMake(Makefile* out) const;
-  virtual void LocalDependencyFiles(ResourceFileSet* files) const;
+  virtual void LocalDependencyFiles(LanguageType lang,ResourceFileSet* files) const;
 
  protected:
   void AddSymlink(const std::string& dir,

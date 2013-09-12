@@ -99,116 +99,121 @@ BuildFileNodeReader* Node::NewBuildReader(const BuildFileNode& node) const {
   return reader;
 }
 
-void Node::CollectAllDependencies(const DependencyCollectionType& type,
+void Node::CollectAllDependencies(DependencyCollectionType type,
+                                  LanguageType lang,
                                   set<Node*>* all_deps_set,
                                   vector<Node*>* all_deps) const {
   // NB: Order matters here. Anything in the vector will have all of its
   // dependencies listed ahead of it.
-  if (IncludeDependencies(type)) {
+  if (IncludeDependencies(type, lang)) {
     for (Node* node : dependencies_) {
       if (all_deps_set->insert(node).second) {
-        node->CollectAllDependencies(type, all_deps_set, all_deps);
+        node->CollectAllDependencies(type, lang, all_deps_set, all_deps);
         all_deps->push_back(node);
       }
     }
   }
 }
 
-void Node::InputEnvVariables(map<string, string>* env) const {
+void Node::InputEnvVariables(LanguageType lang,
+                             map<string, string>* env) const {
   vector<Node*> all_deps;
-  CollectAllDependencies(ENV_VARIABLES, &all_deps);
+  CollectAllDependencies(ENV_VARIABLES, lang, &all_deps);
   for (Node* node : all_deps) {
-    node->LocalEnvVariables(env);
+    node->LocalEnvVariables(lang, env);
   }
 }
 
-void Node::LocalEnvVariables(map<string, string>* env) const {
+void Node::LocalEnvVariables(LanguageType lang,
+                             map<string, string>* env) const {
   for (const auto& it : env_variables_) {
     (*env)[it.first] = it.second;
   }
 }
 
-void Node::InputDependencyFiles(ResourceFileSet* files) const {
+void Node::InputDependencyFiles(LanguageType lang,
+                                ResourceFileSet* files) const {
   vector<Node*> all_deps;
-  CollectAllDependencies(DEPENDENCY_FILES, &all_deps);
+  CollectAllDependencies(DEPENDENCY_FILES, lang, &all_deps);
   for (Node* node : all_deps) {
-    node->LocalDependencyFiles(files);
+    node->LocalDependencyFiles(lang, files);
   }
 }
 
-void Node::InputObjectFiles(ResourceFileSet* files) const {
+void Node::InputObjectFiles(LanguageType lang, ResourceFileSet* files) const {
   vector<Node*> all_deps;
-  CollectAllDependencies(OBJECT_FILES, &all_deps);
+  CollectAllDependencies(OBJECT_FILES, lang, &all_deps);
   for (Node* node : all_deps) {
-    node->LocalObjectFiles(files);
+    node->LocalObjectFiles(lang, files);
   }
 }
 
-void Node::InputFinalOutputs(ResourceFileSet* outputs) const {
+void Node::InputFinalOutputs(LanguageType lang,
+                             ResourceFileSet* outputs) const {
   vector<Node*> all_deps;
-  CollectAllDependencies(FINAL_OUTPUTS, &all_deps);
+  CollectAllDependencies(FINAL_OUTPUTS, lang, &all_deps);
   for (Node* node : all_deps) {
-    node->LocalFinalOutputs(outputs);
+    node->LocalFinalOutputs(lang, outputs);
   }
 }
 
-void Node::InputLinkFlags(set<string>* flags) const {
+void Node::InputLinkFlags(LanguageType lang, set<string>* flags) const {
   vector<Node*> all_deps;
-  CollectAllDependencies(LINK_FLAGS, &all_deps);
+  CollectAllDependencies(LINK_FLAGS, lang, &all_deps);
   for (Node* node : all_deps) {
-    node->LocalLinkFlags(flags);
+    node->LocalLinkFlags(lang, flags);
   }
 }
 
-void Node::InputCompileFlags(bool cxx, set<string>* flags) const {
+void Node::InputCompileFlags(LanguageType lang, set<string>* flags) const {
   vector<Node*> all_deps;
-  CollectAllDependencies(COMPILE_FLAGS, &all_deps);
+  CollectAllDependencies(COMPILE_FLAGS, lang, &all_deps);
   for (Node* node : all_deps) {
-    node->LocalCompileFlags(cxx, flags);
+    node->LocalCompileFlags(lang, flags);
   }
 }
 
-void Node::InputIncludeDirs(set<string>* dirs) const {
+void Node::InputIncludeDirs(LanguageType lang, set<string>* dirs) const {
   vector<Node*> all_deps;
-  CollectAllDependencies(INCLUDE_DIRS, &all_deps);
+  CollectAllDependencies(INCLUDE_DIRS, lang, &all_deps);
   for (Node* node : all_deps) {
-    node->LocalIncludeDirs(dirs);
+    node->LocalIncludeDirs(lang, dirs);
   }
 }
 
-void Node::EnvVariables(map<string, string>* env) const {
-  InputEnvVariables(env);
-  LocalEnvVariables(env);
+void Node::EnvVariables(LanguageType lang, map<string, string>* env) const {
+  InputEnvVariables(lang, env);
+  LocalEnvVariables(lang, env);
 }
 
-void Node::DependencyFiles(ResourceFileSet* files) const {
-  InputDependencyFiles(files);
-  LocalDependencyFiles(files);
+void Node::DependencyFiles(LanguageType lang, ResourceFileSet* files) const {
+  InputDependencyFiles(lang, files);
+  LocalDependencyFiles(lang, files);
 }
 
-void Node::ObjectFiles(ResourceFileSet* files) const {
-  InputObjectFiles(files);
-  LocalObjectFiles(files);
+void Node::ObjectFiles(LanguageType lang, ResourceFileSet* files) const {
+  InputObjectFiles(lang, files);
+  LocalObjectFiles(lang, files);
 }
 
-void Node::FinalOutputs(ResourceFileSet* outputs) const {
-  InputFinalOutputs(outputs);
-  LocalFinalOutputs(outputs);
+void Node::FinalOutputs(LanguageType lang, ResourceFileSet* outputs) const {
+  InputFinalOutputs(lang, outputs);
+  LocalFinalOutputs(lang, outputs);
 }
 
-void Node::LinkFlags(set<string>* flags) const {
-  InputLinkFlags(flags);
-  LocalLinkFlags(flags);
+void Node::LinkFlags(LanguageType lang, set<string>* flags) const {
+  InputLinkFlags(lang, flags);
+  LocalLinkFlags(lang, flags);
 }
 
-void Node::CompileFlags(bool cxx, set<string>* flags) const {
-  InputCompileFlags(cxx, flags);
-  LocalCompileFlags(cxx, flags);
+void Node::CompileFlags(LanguageType lang, set<string>* flags) const {
+  InputCompileFlags(lang, flags);
+  LocalCompileFlags(lang, flags);
 }
 
-void Node::IncludeDirs(set<string>* dirs) const {
-  InputIncludeDirs(dirs);
-  LocalIncludeDirs(dirs);
+void Node::IncludeDirs(LanguageType lang, set<string>* dirs) const {
+  InputIncludeDirs(lang, dirs);
+  LocalIncludeDirs(lang, dirs);
 }
 
 string Node::MakefileEscape(const string& str) const {
@@ -273,15 +278,17 @@ Resource Node::Touchfile(const string& suffix) const {
       "." + target().local_path() + suffix + ".dummy");
 }
 
-void SimpleLibraryNode::LocalDependencyFiles(ResourceFileSet* files) const {
-  Node::LocalDependencyFiles(files);
+void SimpleLibraryNode::LocalDependencyFiles(LanguageType lang,
+                                             ResourceFileSet* files) const {
+  Node::LocalDependencyFiles(lang, files);
   for (int i = 0; i < sources_.size(); ++i) {
     files->Add(sources_[i]);
   }
 }
 
-void SimpleLibraryNode::LocalObjectFiles(ResourceFileSet* files) const {
-  Node::LocalObjectFiles(files);
+void SimpleLibraryNode::LocalObjectFiles(LanguageType lang,
+                                         ResourceFileSet* files) const {
+  Node::LocalObjectFiles(lang, files);
   for (int i = 0; i < sources_.size(); ++i) {
     files->Add(sources_[i]);
   }

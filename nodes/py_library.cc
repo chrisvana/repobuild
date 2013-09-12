@@ -37,13 +37,14 @@ void PyLibraryNode::LocalWriteMakeInternal(bool write_user_target,
   // User target.
   if (write_user_target) {
     ResourceFileSet deps;
-    DependencyFiles(&deps);
+    DependencyFiles(PYTHON, &deps);
     WriteBaseUserTarget(deps, out);
   }
 }
 
-void PyLibraryNode::LocalDependencyFiles(ResourceFileSet* files) const {
-  SimpleLibraryNode::LocalDependencyFiles(files);
+void PyLibraryNode::LocalDependencyFiles(LanguageType lang,
+                                         ResourceFileSet* files) const {
+  SimpleLibraryNode::LocalDependencyFiles(lang, files);
   files->Add(touchfile_);
 }
 

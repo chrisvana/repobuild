@@ -71,7 +71,7 @@ void JavaBinaryNode::WriteJar(const Resource& file, Makefile* out) const {
   // Collect objects, and strip .obj-dir prefix.
   ResourceFileSet objects;
   vector<string> class_paths;
-  ObjectFiles(&objects);
+  ObjectFiles(JAVA, &objects);
   for (const Resource& r : objects.files()) {
     // "jar" runs from the object directory.
     if (!strings::HasPrefix(r.path(), input().object_dir() + "/")) {
@@ -84,7 +84,7 @@ void JavaBinaryNode::WriteJar(const Resource& file, Makefile* out) const {
 
   // Collect flags.
   set<string> flags;
-  LinkFlags(&flags);
+  LinkFlags(JAVA, &flags);
   for (const string& f : input().flags("-J")) {
     flags.insert(f);
   }
@@ -126,8 +126,9 @@ void JavaBinaryNode::LocalWriteMakeClean(Makefile* out) const {
   out->WriteCommand("rm -f " + JarName().path());
 }
 
-void JavaBinaryNode::LocalFinalOutputs(ResourceFileSet* outputs) const {
-  JavaLibraryNode::LocalFinalOutputs(outputs);
+void JavaBinaryNode::LocalFinalOutputs(LanguageType lang,
+                                       ResourceFileSet* outputs) const {
+  JavaLibraryNode::LocalFinalOutputs(lang, outputs);
   outputs->Add(OutBinary());
 }
 

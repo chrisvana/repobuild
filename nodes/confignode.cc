@@ -99,8 +99,8 @@ void ConfigNode::LocalWriteMakeClean(Makefile* out) const {
   out->WriteCommand("rm -rf " + SourceDir(input().genfile_dir()));
 }
 
-void ConfigNode::LocalDependencyFiles(ResourceFileSet* files) const {
-  Node::LocalDependencyFiles(files);
+void ConfigNode::LocalDependencyFiles(LanguageType lang,
+                                      ResourceFileSet* files) const {
   if (!component_src_.empty()) {
     files->Add(source_dummy_file_);
     files->Add(gendir_dummy_file_);

@@ -58,10 +58,10 @@ void GenShNode::LocalWriteMake(Makefile* out) const {
 
   // Inputs
   ResourceFileSet input_files;
-  InputDependencyFiles(&input_files);  // all but our own.
+  InputDependencyFiles(NO_LANG, &input_files);  // all but our own.
 
   ResourceFileSet obj_files;
-  ObjectFiles(&obj_files);
+  ObjectFiles(NO_LANG, &obj_files);
 
   // Make target
   out->StartRule(touchfile.path(), strings::JoinWith(
@@ -81,15 +81,15 @@ void GenShNode::LocalWriteMake(Makefile* out) const {
     string prefix;
     {  // compute prefix.
       set<string> compile_flags;
-      CompileFlags(true, &compile_flags);
+      CompileFlags(CPP, &compile_flags);
       prefix = "DEP_CXXFLAGS=\"" + strings::JoinAll(compile_flags, " ") + "\"";
       compile_flags.clear();
-      CompileFlags(false, &compile_flags);
+      CompileFlags(C_LANG, &compile_flags);
       prefix += " DEP_CFLAGS=\"" + strings::JoinAll(compile_flags, " ") + "\"";
     }
 
     map<string, string> env_vars;
-    EnvVariables(&env_vars);
+    EnvVariables(NO_LANG, &env_vars);
     out->WriteCommand(WriteCommand(env_vars, prefix, build_cmd_, touch_cmd));
   }
   out->FinishRule();
@@ -112,7 +112,7 @@ void GenShNode::LocalWriteMakeClean(Makefile* out) const {
   }
 
   map<string, string> env_vars;
-  EnvVariables(&env_vars);
+  EnvVariables(NO_LANG, &env_vars);
   out->WriteCommandBestEffort(WriteCommand(env_vars, "", clean_cmd_, ""));
 }
 
@@ -195,7 +195,8 @@ string GenShNode::WriteCommand(const map<string, string>& env_vars,
   return out;
 }
 
-void GenShNode::LocalDependencyFiles(ResourceFileSet* files) const {
+void GenShNode::LocalDependencyFiles(LanguageType lang,
+                                     ResourceFileSet* files) const {
   files->Add(Touchfile());
 }
 

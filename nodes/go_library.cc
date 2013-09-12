@@ -46,13 +46,14 @@ void GoLibraryNode::LocalWriteMakeInternal(bool write_user_target,
   // User target.
   if (write_user_target) {
     ResourceFileSet deps;
-    DependencyFiles(&deps);
+    DependencyFiles(GOLANG, &deps);
     WriteBaseUserTarget(deps, out);
   }
 }
 
-void GoLibraryNode::LocalDependencyFiles(ResourceFileSet* files) const {
-  SimpleLibraryNode::LocalDependencyFiles(files);
+void GoLibraryNode::LocalDependencyFiles(LanguageType lang,
+                                         ResourceFileSet* files) const {
+  SimpleLibraryNode::LocalDependencyFiles(lang, files);
   files->Add(touchfile_);
 }
 

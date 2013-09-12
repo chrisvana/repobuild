@@ -23,10 +23,14 @@ class JavaLibraryNode : public Node {
   virtual void LocalWriteMake(Makefile* out) const {
     LocalWriteMakeInternal(true, out);
   }
-  virtual void LocalObjectFiles(ResourceFileSet* files) const;
-  virtual void LocalLinkFlags(std::set<std::string>* flags) const;
-  virtual void LocalCompileFlags(bool cxx, std::set<std::string>* flags) const;
-  virtual void LocalIncludeDirs(std::set<std::string>* dirs) const;
+  virtual void LocalObjectFiles(LanguageType lang,
+                                ResourceFileSet* files) const;
+  virtual void LocalLinkFlags(LanguageType lang,
+                              std::set<std::string>* flags) const;
+  virtual void LocalCompileFlags(LanguageType lang,
+                                 std::set<std::string>* flags) const;
+  virtual void LocalIncludeDirs(LanguageType lang,
+                                std::set<std::string>* dirs) const;
 
   // For direct construction.
   void Set(const std::vector<Resource>& sources);

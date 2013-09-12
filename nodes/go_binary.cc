@@ -27,10 +27,10 @@ void GoBinaryNode::LocalWriteMake(Makefile* out) const {
 
   // Source files.
   ResourceFileSet deps;
-  DependencyFiles(&deps);
+  DependencyFiles(GOLANG, &deps);
 
   ResourceFileSet source_files;
-  ObjectFiles(&source_files);
+  ObjectFiles(GOLANG, &source_files);
 
   // Output binary
   Resource bin = Resource::FromLocalPath(
@@ -65,8 +65,9 @@ void GoBinaryNode::LocalWriteMakeClean(Makefile* out) const {
   out->WriteCommand("rm -f " + OutBinary().path());
 }
 
-void GoBinaryNode::LocalFinalOutputs(ResourceFileSet* outputs) const {
-  Node::LocalFinalOutputs(outputs);
+void GoBinaryNode::LocalFinalOutputs(LanguageType lang,
+                                     ResourceFileSet* outputs) const {
+  Node::LocalFinalOutputs(lang, outputs);
   outputs->Add(OutBinary());
 }
 

@@ -50,10 +50,10 @@ void CCBinaryNode::LocalWriteMake(Makefile* out) const {
 
 void CCBinaryNode::WriteLink(const Resource& file, Makefile* out) const {
   ResourceFileSet objects;
-  ObjectFiles(&objects);
+  ObjectFiles(CPP, &objects);
 
   set<string> flags;
-  LinkFlags(&flags);
+  LinkFlags(CPP, &flags);
 
   // Link rule
   out->StartRule(file.path(), strings::JoinAll(objects.files(), " "));
@@ -81,8 +81,9 @@ void CCBinaryNode::LocalWriteMakeClean(Makefile* out) const {
   out->WriteCommand("rm -f " + OutBinary().path());
 }
 
-void CCBinaryNode::LocalFinalOutputs(ResourceFileSet* outputs) const {
-  CCLibraryNode::LocalFinalOutputs(outputs);
+void CCBinaryNode::LocalFinalOutputs(LanguageType lang,
+                                     ResourceFileSet* outputs) const {
+  CCLibraryNode::LocalFinalOutputs(lang, outputs);
   outputs->Add(OutBinary());
 }
 
