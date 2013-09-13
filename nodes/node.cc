@@ -108,13 +108,13 @@ void Node::CollectAllDependencies(DependencyCollectionType type,
                                   vector<Node*>* all_deps) const {
   // NB: Order matters here. Anything in the vector will have all of its
   // dependencies listed ahead of it.
-  if (IncludeDependencies(type, lang)) {
-    for (Node* node : dependencies_) {
-      if (IncludeChildDependency(type, lang, node) &&
-          all_deps_set->insert(node).second) {
+  for (Node* node : dependencies_) {
+    if (IncludeChildDependency(type, lang, node) &&
+        all_deps_set->insert(node).second) {
+      if (node->IncludeDependencies(type, lang)) {
         node->CollectAllDependencies(type, lang, all_deps_set, all_deps);
-        all_deps->push_back(node);
       }
+      all_deps->push_back(node);
     }
   }
 }
