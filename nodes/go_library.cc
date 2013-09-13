@@ -68,7 +68,7 @@ void GoLibraryNode::LocalWriteMakeInternal(bool write_user_target,
   // User target.
   if (write_user_target) {
     ResourceFileSet deps;
-    DependencyFiles(GOLANG, &deps);
+    DependencyFiles(GO_LANG, &deps);
     WriteBaseUserTarget(deps, out);
   }
 }
@@ -90,14 +90,14 @@ Resource GoLibraryNode::GoFileFor(const Resource& r) const {
   // HACK, go annoys me.
   string path = StripSpecialDirs(r.path());
   if (strings::HasPrefix(path, "src/")) {
-    return Resource::FromLocalPath(input().gofile_dir(), path);
+    return Resource::FromLocalPath(input().pkgfile_dir(), path);
   } else {
-    return Resource::FromLocalPath(input().gofile_dir() + "/src", path);
+    return Resource::FromLocalPath(input().pkgfile_dir() + "/src", path);
   }
 }
 
 string GoLibraryNode::GoBuildPrefix() const {
-  return MakefileEscape("GOPATH=$(pwd)/" + input().gofile_dir() + ":$GOPATH");
+  return MakefileEscape("GOPATH=$(pwd)/" + input().pkgfile_dir() + ":$GOPATH");
 }
 
 }  // namespace repobuild

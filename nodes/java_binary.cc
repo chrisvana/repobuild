@@ -120,6 +120,12 @@ void JavaBinaryNode::LocalWriteMakeClean(Makefile* out) const {
   out->WriteCommand("rm -f " + OutJarName().path());
 }
 
+void JavaBinaryNode::LocalDependencyFiles(LanguageType lang,
+                                          ResourceFileSet* outputs) const {
+  JavaLibraryNode::LocalDependencyFiles(lang, outputs);
+  LocalBinaries(lang, outputs);
+}
+
 void JavaBinaryNode::LocalFinalOutputs(LanguageType lang,
                                        ResourceFileSet* outputs) const {
   JavaLibraryNode::LocalFinalOutputs(lang, outputs);

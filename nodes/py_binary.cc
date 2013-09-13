@@ -155,6 +155,12 @@ void PyBinaryNode::LocalWriteMakeClean(Makefile* out) const {
       target().make_path() + ".egg-info"));
 }
 
+void PyBinaryNode::LocalDependencyFiles(LanguageType lang,
+                                        ResourceFileSet* files) const {
+  PyLibraryNode::LocalDependencyFiles(lang, files);
+  LocalBinaries(lang, files);
+}
+
 void PyBinaryNode::LocalFinalOutputs(LanguageType lang,
                                      ResourceFileSet* outputs) const {
   outputs->Add(OutBinary());

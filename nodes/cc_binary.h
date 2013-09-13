@@ -23,6 +23,8 @@ class CCBinaryNode : public CCLibraryNode {
   virtual void LocalWriteMake(Makefile* out) const;
   virtual void LocalFinalOutputs(LanguageType lang,
                                  ResourceFileSet* outputs) const;
+  virtual void LocalDependencyFiles(LanguageType lang,
+                                    ResourceFileSet* files) const;
   virtual void LocalBinaries(LanguageType lang,
                              ResourceFileSet* outputs) const;
 

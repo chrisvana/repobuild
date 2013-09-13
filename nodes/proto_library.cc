@@ -325,7 +325,7 @@ bool ProtoLibraryNode::IncludeChildDependency(DependencyCollectionType type,
   if (lang == PYTHON) {
     return node == py_node_;
   }
-  if (lang == GOLANG) {
+  if (lang == GO_LANG) {
     return node == go_node_;
   }
   return true;

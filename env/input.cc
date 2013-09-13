@@ -42,7 +42,7 @@ Input::Input() {
   genfile_dir_ = ".gen-files";
   full_genfile_dir_ = strings::JoinPath(current_path_, genfile_dir_);
   source_dir_ = ".gen-src";
-  gofile_dir_ = ".gen-go";
+  pkgfile_dir_ = ".gen-pkg";
 
   // Default flags.
   if (FLAGS_add_default_flags) {

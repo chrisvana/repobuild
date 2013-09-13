@@ -4,6 +4,9 @@
 #include <set>
 #include <string>
 #include <vector>
+#include "common/strings/path.h"
+#include "common/strings/strutil.h"
+#include "repobuild/env/input.h"
 #include "repobuild/nodes/py_library.h"
 #include "repobuild/reader/buildfile.h"
 
@@ -26,14 +29,28 @@ void PyLibraryNode::LocalWriteMakeInternal(bool write_user_target,
                                            Makefile* out) const {
   SimpleLibraryNode::LocalWriteMake(out);
 
+  // Move all go code into a single directory.
+  vector<Resource> symlinked_sources;
+  for (const Resource& source : sources_) {
+    Resource symlink = PyFileFor(source);
+    symlinked_sources.push_back(symlink);
+    string relative_to_symlink =
+        strings::Repeat("../", strings::NumPathComponents(symlink.dirname()));
+    string target = strings::JoinPath(relative_to_symlink, source.path());
+    out->StartRule(symlink.path(), source.path());
+    out->WriteCommand("mkdir -p " + symlink.dirname());
+    out->WriteCommand("ln -s -f " + target + " " + symlink.path());
+    out->FinishRule();
+  }
+
   // Syntax check.
-  string sources = strings::JoinAll(sources_, " ");
+  string sources = strings::JoinAll(symlinked_sources, " ");
   out->StartRule(touchfile_.path(), sources);
-  out->WriteCommand("mkdir -p " + ObjectDir());
   out->WriteCommand("echo \"Compiling: " + target().full_path() +
                     " (python)\"");
-  out->WriteCommand("python -m py_compile " + sources + " && touch " +
-                    Touchfile().path());
+  out->WriteCommand("python -m py_compile " + sources);
+  out->WriteCommand("mkdir -p " + Touchfile().dirname());
+  out->WriteCommand("touch " + Touchfile().path());
   out->FinishRule();
 
   // User target.
@@ -50,6 +67,13 @@ void PyLibraryNode::LocalDependencyFiles(LanguageType lang,
   files->Add(touchfile_);
 }
 
+void PyLibraryNode::LocalObjectFiles(LanguageType lang,
+                                     ResourceFileSet* files) const {
+  for (const Resource& r : sources_) {
+    files->Add(PyFileFor(r));
+  }
+}
+
 void PyLibraryNode::Set(const vector<Resource>& sources) {
   sources_ = sources;
   Init();
@@ -57,6 +81,11 @@ void PyLibraryNode::Set(const vector<Resource>& sources) {
 
 void PyLibraryNode::Init() {
   touchfile_ = Touchfile();
+}
+
+Resource PyLibraryNode::PyFileFor(const Resource& r) const {
+  return Resource::FromLocalPath(input().pkgfile_dir(),
+                                 StripSpecialDirs(r.path()));
 }
 
 }  // namespace repobuild

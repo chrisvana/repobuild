@@ -80,6 +80,12 @@ void CCBinaryNode::LocalWriteMakeClean(Makefile* out) const {
   out->WriteCommand("rm -f " + OutBinary().path());
 }
 
+void CCBinaryNode::LocalDependencyFiles(LanguageType lang,
+                                        ResourceFileSet* files) const {
+  CCLibraryNode::LocalDependencyFiles(lang, files);
+  LocalBinaries(lang, files);
+}
+
 void CCBinaryNode::LocalFinalOutputs(LanguageType lang,
                                      ResourceFileSet* outputs) const {
   CCLibraryNode::LocalFinalOutputs(lang, outputs);

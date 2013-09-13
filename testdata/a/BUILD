@@ -27,7 +27,8 @@
 
  { "go_library": {
      "name" : "bar_go",
-     "go_sources" : [ "bar.go" ]
+     "go_sources" : [ "bar.go" ],
+     "dependencies": [ ":a_proto" ]
    }
  },
 

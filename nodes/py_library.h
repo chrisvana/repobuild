@@ -22,6 +22,8 @@ class PyLibraryNode : public SimpleLibraryNode {
   }
   virtual void LocalDependencyFiles(LanguageType lang,
                                     ResourceFileSet* files) const;
+  virtual void LocalObjectFiles(LanguageType lang,
+                                ResourceFileSet* files) const;
 
   // For manual construction.
   void Set(const std::vector<Resource>& sources);
@@ -30,6 +32,7 @@ class PyLibraryNode : public SimpleLibraryNode {
   void Init();
   void LocalWriteMakeInternal(bool write_user_target,
                               Makefile* out) const;
+  Resource PyFileFor(const Resource& r) const;
 
   Resource touchfile_;
 };

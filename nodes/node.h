@@ -32,7 +32,7 @@ class Node {
     CPP = 1,
     JAVA = 2,
     PYTHON = 3,
-    GOLANG = 4,
+    GO_LANG = 4,
     NO_LANG = 5,
   };
 

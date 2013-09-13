@@ -31,7 +31,7 @@ class Input {
   const std::string& genfile_dir() const { return genfile_dir_; }
   const std::string& full_genfile_dir() const { return full_genfile_dir_; }
   const std::string& source_dir() const { return source_dir_; }
-  const std::string& gofile_dir() const { return gofile_dir_; }
+  const std::string& pkgfile_dir() const { return pkgfile_dir_; }
   const std::vector<TargetInfo>& build_targets() const {
     return build_targets_;
   }
@@ -52,7 +52,7 @@ class Input {
   std::string current_path_;
   std::string object_dir_, full_object_dir_;
   std::string genfile_dir_, full_genfile_dir_;
-  std::string gofile_dir_;
+  std::string pkgfile_dir_;
   std::string source_dir_;
 
   std::vector<TargetInfo> build_targets_;
