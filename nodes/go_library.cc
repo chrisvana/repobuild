@@ -53,7 +53,7 @@ void GoLibraryNode::LocalWriteMakeInternal(bool write_user_target,
   }
 
   // Syntax check.
-  out->StartRule(touchfile_.path(), strings::JoinAll(sources_, " "));
+  out->StartRule(touchfile_.path(), strings::JoinAll(symlinked_sources, " "));
   out->WriteCommand("echo \"Compiling: " + target().full_path() + " (go)\"");
   if (!sources_.empty()) {
     for (const Resource& r : symlinked_sources) {
@@ -88,10 +88,11 @@ void GoLibraryNode::LocalObjectFiles(LanguageType lang,
 
 Resource GoLibraryNode::GoFileFor(const Resource& r) const {
   // HACK, go annoys me.
-  if (strings::HasPrefix(r.path(), "src/")) {
-    return Resource::FromLocalPath(input().gofile_dir(), r.path());
+  string path = StripSpecialDirs(r.path());
+  if (strings::HasPrefix(path, "src/")) {
+    return Resource::FromLocalPath(input().gofile_dir(), path);
   } else {
-    return Resource::FromLocalPath(input().gofile_dir() + "/src", r.path());
+    return Resource::FromLocalPath(input().gofile_dir() + "/src", path);
   }
 }
 

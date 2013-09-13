@@ -25,6 +25,12 @@
    }
  },
 
+ { "go_library": {
+     "name" : "bar_go",
+     "go_sources" : [ "bar.go" ]
+   }
+ },
+
 {  "py_library": {
      "name": "test",
      "py_sources": [ "test.py" ],
