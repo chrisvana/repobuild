@@ -133,6 +133,11 @@ class Graph {
         node->AddDependencyNode(dep);
       }
     }
+
+    // Now run the post-parse for anyone that needs it.
+    for (auto it : nodes_) {
+      it.second->PostParse();
+    }
   }
 
   BuildFile* AddFile(const string& filename) {

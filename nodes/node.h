@@ -41,6 +41,7 @@ class Node {
 
   // Initialization
   virtual void Parse(BuildFile* file, const BuildFileNode& input);
+  virtual void PostParse() {}
 
   // Makefile generation.
   void WriteMake(Makefile* out) const;
@@ -50,6 +51,7 @@ class Node {
   void DependencyFiles(LanguageType lang, ResourceFileSet* files) const;
   void ObjectFiles(LanguageType lang, ResourceFileSet* files) const;
   void FinalOutputs(LanguageType lang, ResourceFileSet* outputs) const;
+  void Binaries(LanguageType lang, ResourceFileSet* outputs) const;
 
   // Flag inheritence
   void LinkFlags(LanguageType lang, std::set<std::string>* flags) const;
@@ -117,6 +119,8 @@ class Node {
                                 ResourceFileSet* files) const {}
   virtual void LocalFinalOutputs(LanguageType lang,
                                  ResourceFileSet* outputs) const {}
+  virtual void LocalBinaries(LanguageType lang,
+                             ResourceFileSet* outputs) const {}
   virtual void LocalLinkFlags(LanguageType lang,
                               std::set<std::string>* flags) const {}
   virtual void LocalCompileFlags(LanguageType lang,
@@ -179,6 +183,7 @@ class Node {
   void InputDependencyFiles(LanguageType lang, ResourceFileSet* files) const;
   void InputObjectFiles(LanguageType lang, ResourceFileSet* files) const;
   void InputFinalOutputs(LanguageType lang, ResourceFileSet* outputs) const;
+  void InputBinaries(LanguageType lang, ResourceFileSet* outputs) const;
   void InputLinkFlags(LanguageType lang, std::set<std::string>* flags) const;
   void InputCompileFlags(LanguageType lang, std::set<std::string>* flags) const;
   void InputIncludeDirs(LanguageType lang, std::set<std::string>* dirs) const;
@@ -189,10 +194,11 @@ class Node {
     DEPENDENCY_FILES = 0,
     OBJECT_FILES = 1,
     FINAL_OUTPUTS = 2,
-    LINK_FLAGS = 3,
-    COMPILE_FLAGS = 4,
-    INCLUDE_DIRS = 5,
-    ENV_VARIABLES = 6
+    BINARIES = 3,
+    LINK_FLAGS = 4,
+    COMPILE_FLAGS = 5,
+    INCLUDE_DIRS = 6,
+    ENV_VARIABLES = 7
   };
   void CollectAllDependencies(DependencyCollectionType type,
                               LanguageType lang,

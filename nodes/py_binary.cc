@@ -73,9 +73,7 @@ void PyBinaryNode::LocalWriteMake(Makefile* out) const {
 
   // Output egg file
   Resource egg_touchfile = Touchfile(".egg");
-  Resource egg_bin = Resource::FromLocalPath(
-      strings::JoinPath(input().object_dir(), target().dir()),
-      target().local_path() + ".egg");
+  Resource egg_bin = EggBinary();
   out->StartRule(egg_touchfile.path(),
                  strings::Join(strings::JoinAll(deps.files(), " "), " ",
                                SetupFile(input())));
@@ -108,10 +106,7 @@ void PyBinaryNode::LocalWriteMake(Makefile* out) const {
   out->FinishRule();
 
   // Script that runs .egg file.
-  Resource bin = Resource::FromLocalPath(
-      strings::JoinPath(input().object_dir(),
-                        target().dir()),
-      target().local_path());
+  Resource bin = BinScript();
   out->StartRule(bin.path(), egg_bin.path());
   string module = py_default_module_.empty() ? "" : " -m " + py_default_module_;
   out->WriteCommand("echo 'python" + module +
@@ -162,9 +157,13 @@ void PyBinaryNode::LocalWriteMakeClean(Makefile* out) const {
 
 void PyBinaryNode::LocalFinalOutputs(LanguageType lang,
                                      ResourceFileSet* outputs) const {
-  PyLibraryNode::LocalFinalOutputs(lang,outputs);
   outputs->Add(OutBinary());
   outputs->Add(OutEgg());
+}
+
+void PyBinaryNode::LocalBinaries(LanguageType lang,
+                                 ResourceFileSet* outputs) const {
+  outputs->Add(EggBinary());
 }
 
 Resource PyBinaryNode::OutBinary() const {
@@ -176,5 +175,19 @@ Resource PyBinaryNode::OutEgg() const {
   return Resource::FromLocalPath(OutBinary().dirname(),
                                  OutBinary().basename() + ".egg");
 }
+
+Resource PyBinaryNode::EggBinary() const {
+  return Resource::FromLocalPath(
+      strings::JoinPath(input().object_dir(), target().dir()),
+      target().local_path() + ".egg");
+}
+
+Resource PyBinaryNode::BinScript() const {
+  return Resource::FromLocalPath(
+      strings::JoinPath(input().object_dir(),
+                        target().dir()),
+      target().local_path());
+}
+
 
 }  // namespace repobuild

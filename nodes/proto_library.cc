@@ -23,6 +23,9 @@ using std::string;
 using std::set;
 
 namespace repobuild {
+namespace {
+const char kProtocVar[] = "PROTOC";
+}
 
 void ProtoLibraryNode::Parse(BuildFile* file, const BuildFileNode& input) {
   Node::Parse(file, input);
@@ -37,44 +40,39 @@ void ProtoLibraryNode::Parse(BuildFile* file, const BuildFileNode& input) {
   vector<Resource> input_prefixes;
   FindProtoPrefixes(input_files, &input_prefixes);
 
-  // Generate the proto files using protoc.
-  GenShNode* gen = new GenShNode(
+  // We will generate the proto files using protoc, using a gen_sh node. E.g:
+  // protoc --cpp_out=.gen-files --java_out=.gen-files --go_out=.gen-files -I.
+  //        -I.gen-files -I.gen-src -I.gen-src/.gen-files testdata/a/a.proto
+  gen_node_ = new GenShNode(
       target().GetParallelTarget(file->NextName(target().local_path())),
       Node::input());
   for (const TargetInfo& dep : dep_targets()) {
-    gen->AddDependencyTarget(dep);
+    gen_node_->AddDependencyTarget(dep);
   }
-  gen->SetCd(false);
-  AddSubNode(gen);
-  gen_node_ = gen;
+  gen_node_->SetCd(false);
+  AddSubNode(gen_node_);
 
-  string build_cmd = "protoc";
+  // Figure out where protoc lives.
+  string protoc_binary = "$" + string(kProtocVar);
 
-  // Find all of the output files.
-  vector<string> outputs;
-
+  // Figure out which languages to generates.
   bool generate_cc = false;
   bool generate_java = false;
   bool generate_python = false;
   bool generate_go = false;
-
   current_reader()->ParseBoolField("generate_cc", &generate_cc);
   current_reader()->ParseBoolField("generate_java", &generate_java);
   current_reader()->ParseBoolField("generate_python", &generate_python);
   current_reader()->ParseBoolField("generate_go", &generate_go);
 
+  // Find all of the output files, and build up our protoc command line.
+  string build_cmd = protoc_binary;
+  vector<string> outputs;
+
   // c++
   if (generate_cc) {
     build_cmd += " --cpp_out=" + Node::input().genfile_dir();
     GenerateCpp(input_prefixes, &outputs, file);
-    cc_node_->AddDependencyTarget(gen->target());
-
-    // Figure out our cc base library dependencies.
-    string dep;
-    if (!current_reader()->ParseStringField("proto_cc_dep", &dep)) {
-      dep = Node::input().default_cc_proto();
-    }
-    cc_node_->AddDependencyTarget(TargetInfo(dep, file->filename()));
   }
 
   // java
@@ -83,42 +81,18 @@ void ProtoLibraryNode::Parse(BuildFile* file, const BuildFileNode& input) {
     vector<string> java_classnames;
     current_reader()->ParseRepeatedString("java_classnames", &java_classnames);
     GenerateJava(file, input, input_prefixes, java_classnames, &outputs);
-    java_node_->AddDependencyTarget(gen->target());
-
-    // Figure out our cc base library dependencies.
-    string dep;
-    if (!current_reader()->ParseStringField("proto_java_dep", &dep)) {
-      dep = Node::input().default_java_proto();
-    }
-    java_node_->AddDependencyTarget(TargetInfo(dep, file->filename()));
   }
 
   // python
   if (generate_python) {
     build_cmd += " --python_out=" + Node::input().genfile_dir();
     GeneratePython(input_prefixes, &outputs, file);
-    py_node_->AddDependencyTarget(gen->target());
-
-    // Figure out our cc base library dependencies.
-    string dep;
-    if (!current_reader()->ParseStringField("proto_py_dep", &dep)) {
-      dep = Node::input().default_py_proto();
-    }
-    py_node_->AddDependencyTarget(TargetInfo(dep, file->filename()));
   }
 
   // go
   if (generate_go) {
     build_cmd += " --go_out=" + Node::input().genfile_dir();
     GenerateGo(input_prefixes, &outputs, file);
-    go_node_->AddDependencyTarget(gen->target());
-
-    // Figure out our cc base library dependencies.
-    string dep;
-    if (!current_reader()->ParseStringField("proto_go_dep", &dep)) {
-      dep = Node::input().default_go_proto();
-    }
-    go_node_->AddDependencyTarget(TargetInfo(dep, file->filename()));
   }
 
   build_cmd += " " + strings::JoinWith(
@@ -130,7 +104,7 @@ void ProtoLibraryNode::Parse(BuildFile* file, const BuildFileNode& input) {
                                Node::input().genfile_dir()));  
   build_cmd += " " + strings::JoinAll(input_files, " ");
 
-  gen->Set(build_cmd, "", input_files, outputs);
+  gen_node_->Set(build_cmd, "", input_files, outputs);
 }
 
 void ProtoLibraryNode::FindProtoPrefixes(const vector<Resource>& input_files,
@@ -158,6 +132,28 @@ void ProtoLibraryNode::FindProtoPrefixes(const vector<Resource>& input_files,
         input_file.dirname(),
         input_file.basename().substr(0, input_file.basename().rfind('.'))));
   }
+}
+
+void ProtoLibraryNode::AdditionalDependencies(
+    BuildFile* file,
+    const string& dep_field,
+    const string& default_dep_value,
+    Node* node) {
+  string dep;
+  if (!current_reader()->ParseStringField(dep_field, &dep)) {
+    dep = default_dep_value;
+  }
+
+  // NB: This is sadly trickier than it should be. The script node that runs
+  // protoc depends on everything (so it can make sure protoc is properly
+  // built for each langauge). However, we don't want everyone who depends
+  // on proto_library to have to depend on every langauge (e.g. cc_library
+  // should only depend on cc_node_, etc). That is all covered by
+  // IncludeChildDependency below.
+  TargetInfo target(dep, file->filename());
+  node->AddDependencyTarget(gen_node_->target());
+  gen_node_->AddDependencyTarget(target);
+  node->AddDependencyTarget(target);
 }
 
 void ProtoLibraryNode::GenerateCpp(const vector<Resource>& input_prefixes,
@@ -192,6 +188,12 @@ void ProtoLibraryNode::GenerateCpp(const vector<Resource>& input_prefixes,
   cc_lib->Set(cc_sources, cc_headers, objects,
               cc_compile_args, header_compile_args);
   cc_node_ = cc_lib;
+
+  // Dependency fixing
+  AdditionalDependencies(file,
+                         "proto_cc_dep",
+                         input().default_cc_proto(),
+                         cc_node_);
 }
 
 void ProtoLibraryNode::GenerateJava(BuildFile* file,
@@ -235,11 +237,17 @@ void ProtoLibraryNode::GenerateJava(BuildFile* file,
   AddSubNode(java_lib);
   java_lib->Set(file, input, java_sources);
   java_node_ = java_lib;
+
+  // Dependency fixing
+  AdditionalDependencies(file,
+                         "proto_java_dep",
+                         Node::input().default_java_proto(),
+                         java_node_);
 }
 
 void ProtoLibraryNode::GeneratePython(const vector<Resource>& input_prefixes,
-                                       vector<string>* outputs,
-                                       BuildFile* file) {
+                                      vector<string>* outputs,
+                                      BuildFile* file) {
   vector<Resource> python_sources;
 
   for (const Resource& prefix : input_prefixes) {
@@ -262,6 +270,12 @@ void ProtoLibraryNode::GeneratePython(const vector<Resource>& input_prefixes,
 
   py_lib->Set(python_sources);
   py_node_ = py_lib;
+
+  // Dependency fixing
+  AdditionalDependencies(file,
+                         "proto_py_dep",
+                         input().default_py_proto(),
+                         py_node_);
 }
 
 void ProtoLibraryNode::GenerateGo(const vector<Resource>& input_prefixes,
@@ -288,13 +302,19 @@ void ProtoLibraryNode::GenerateGo(const vector<Resource>& input_prefixes,
 
   go_lib->Set(go_sources);
   go_node_ = go_lib;
+
+  // Dependency fixing
+  AdditionalDependencies(file,
+                         "proto_go_dep",
+                         input().default_go_proto(),
+                         go_node_);
 }
 
 bool ProtoLibraryNode::IncludeChildDependency(DependencyCollectionType type,
                                               LanguageType lang,
                                               Node* node) const {
   if (node == gen_node_) {
-    return true;
+    return type == DEPENDENCY_FILES;
   }
   if (lang == CPP || lang == C_LANG) {
     return node == cc_node_;
@@ -309,6 +329,24 @@ bool ProtoLibraryNode::IncludeChildDependency(DependencyCollectionType type,
     return node == go_node_;
   }
   return true;
+}
+
+void ProtoLibraryNode::PostParse() {
+  // Figure out where protoc lives.
+  string protoc = "protoc";  // use system binary by default.
+  ResourceFileSet dep_binaries;
+  Binaries(NO_LANG, &dep_binaries);
+  for (const Resource& r : dep_binaries.files()) {
+    if (r.basename() == "protoc") {
+      protoc = "$(ROOT_DIR)/" + r.path();
+      break;
+    }
+  }
+  gen_node_->AddLocalEnvVariable(kProtocVar, protoc);
+}
+
+void ProtoLibraryNode::LocalWriteMake(Makefile* out) const {
+  WriteBaseUserTarget(out);
 }
 
 }  // namespace repobuild

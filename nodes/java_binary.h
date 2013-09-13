@@ -23,10 +23,13 @@ class JavaBinaryNode : public JavaLibraryNode {
   virtual void LocalWriteMake(Makefile* out) const;
   virtual void LocalFinalOutputs(LanguageType lang,
                                  ResourceFileSet* outputs) const;
+  virtual void LocalBinaries(LanguageType lang,
+                             ResourceFileSet* outputs) const;
 
  protected:
   // Helper.
   Resource JarName() const;
+  Resource OutJarName() const;
 
   void WriteJar(const Resource& file, Makefile* out) const;
 

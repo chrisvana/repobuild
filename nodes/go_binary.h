@@ -21,11 +21,15 @@ class GoBinaryNode : public GoLibraryNode {
   virtual void Parse(BuildFile* file, const BuildFileNode& input);
   virtual void LocalWriteMakeClean(Makefile* out) const;
   virtual void LocalWriteMake(Makefile* out) const;
-  virtual void LocalFinalOutputs(LanguageType lang,ResourceFileSet* outputs) const;
+  virtual void LocalFinalOutputs(LanguageType lang,
+                                 ResourceFileSet* outputs) const;
+  virtual void LocalBinaries(LanguageType lang,
+                             ResourceFileSet* outputs) const;
 
  protected:
   // Helper.
   Resource OutBinary() const;
+  Resource Binary() const;
 
   std::vector<std::string> go_build_args_;
 };

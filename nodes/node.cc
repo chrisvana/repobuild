@@ -161,6 +161,14 @@ void Node::InputFinalOutputs(LanguageType lang,
   }
 }
 
+void Node::InputBinaries(LanguageType lang, ResourceFileSet* outputs) const {
+  vector<Node*> all_deps;
+  CollectAllDependencies(BINARIES, lang, &all_deps);
+  for (Node* node : all_deps) {
+    node->LocalBinaries(lang, outputs);
+  }
+}
+
 void Node::InputLinkFlags(LanguageType lang, set<string>* flags) const {
   vector<Node*> all_deps;
   CollectAllDependencies(LINK_FLAGS, lang, &all_deps);
@@ -203,6 +211,11 @@ void Node::ObjectFiles(LanguageType lang, ResourceFileSet* files) const {
 void Node::FinalOutputs(LanguageType lang, ResourceFileSet* outputs) const {
   InputFinalOutputs(lang, outputs);
   LocalFinalOutputs(lang, outputs);
+}
+
+void Node::Binaries(LanguageType lang, ResourceFileSet* outputs) const {
+  InputBinaries(lang, outputs);
+  LocalBinaries(lang, outputs);
 }
 
 void Node::LinkFlags(LanguageType lang, set<string>* flags) const {

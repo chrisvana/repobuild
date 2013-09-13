@@ -28,6 +28,9 @@ class GenShNode : public Node {
            const std::vector<Resource>& input_files,
            const std::vector<std::string>& outputs);
   void SetCd(bool cd) { cd_ = cd; }
+  void AddLocalEnvVariable(const std::string& var, const std::string& val) {
+    local_env_vars_[var] = val;
+  }
 
   // Static preprocessors
   static void WriteMakeHead(const Input& input, Makefile* out);
@@ -56,6 +59,7 @@ class GenShNode : public Node {
   std::string clean_cmd_;
   std::vector<Resource> input_files_;
   std::vector<std::string> outputs_;
+  std::map<std::string, std::string> local_env_vars_;
   bool cd_;
 };
 

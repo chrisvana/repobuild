@@ -74,12 +74,14 @@ void GenShNode::LocalWriteMake(Makefile* out) const {
   if (!build_cmd_.empty()) {
     out->WriteCommand("echo Script: " + target().full_path());
 
+    // The file we touch after the script runs, for 'make' to be happy.
     string touch_cmd = "mkdir -p " +
         strings::JoinPath(input().object_dir(), target().dir()) +
         "; touch " + touchfile.path();
 
+    // Compute the build command prefix.
     string prefix;
-    {  // compute prefix.
+    {
       set<string> compile_flags;
       CompileFlags(CPP, &compile_flags);
       prefix = "DEP_CXXFLAGS=\"" + strings::JoinAll(compile_flags, " ") + "\"";
@@ -88,8 +90,14 @@ void GenShNode::LocalWriteMake(Makefile* out) const {
       prefix += " DEP_CFLAGS=\"" + strings::JoinAll(compile_flags, " ") + "\"";
     }
 
+    // Compute environment variables for shell.
     map<string, string> env_vars;
     EnvVariables(NO_LANG, &env_vars);
+    for (auto it : local_env_vars_) {  // local vars override inherited ones.
+      env_vars[it.first] = it.second;
+    }
+
+    // Now write the actual comment.
     out->WriteCommand(WriteCommand(env_vars, prefix, build_cmd_, touch_cmd));
   }
   out->FinishRule();
@@ -147,7 +155,7 @@ string GenShNode::WriteCommand(const map<string, string>& env_vars,
   out.append(cd_ ? RelativeObjectDir() : ObjectDir());
   out.append(" SRC_DIR=\"");
   out.append(cd_ ? RelativeSourceDir() : SourceDir());
-  out.append(" ROOT_DIR=\"$(" + string(kRootDir) + ")\" ");
+  out.append(" " + string(kRootDir) + "=\"$(" + string(kRootDir) + ")\" ");
 
   AddEnvVar("CXX_GCC", &out);
   AddEnvVar("CC_GCC", &out);

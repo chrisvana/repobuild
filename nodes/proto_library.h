@@ -9,6 +9,7 @@
 #include "repobuild/nodes/node.h"
 
 namespace repobuild {
+class GenShNode;
 
 class ProtoLibraryNode : public Node {
  public:
@@ -23,14 +24,16 @@ class ProtoLibraryNode : public Node {
   }
   virtual ~ProtoLibraryNode() {}
   virtual void Parse(BuildFile* file, const BuildFileNode& input);
-  virtual void LocalWriteMake(Makefile* out) const {
-    WriteBaseUserTarget(out);
-  }
+  virtual void PostParse();
+  virtual void LocalWriteMake(Makefile* out) const;
 
  private:
   void FindProtoPrefixes(const std::vector<Resource>& input_files,
                          std::vector<Resource>* prefixes) const;
-
+  void AdditionalDependencies(BuildFile* file,
+                              const std::string& dep_field,
+                              const std::string& default_dep_value,
+                              Node* node);
   void GenerateGo(const std::vector<Resource>& input_prefixes,
                   std::vector<std::string>* outputs,
                   BuildFile* file);
@@ -49,7 +52,7 @@ class ProtoLibraryNode : public Node {
                                       LanguageType lang,
                                       Node* node) const;
 
-  Node* gen_node_;
+  GenShNode* gen_node_;
   Node* cc_node_;
   Node* java_node_;
   Node* go_node_;

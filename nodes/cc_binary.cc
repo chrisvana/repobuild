@@ -26,8 +26,7 @@ void CCBinaryNode::LocalWriteMake(Makefile* out) const {
   CCLibraryNode::LocalWriteMakeInternal(false, out);
 
   // Output binary
-  Resource bin = Resource::FromLocalPath(input().object_dir(),
-                                         target().make_path());
+  Resource bin = ObjBinary();
   WriteLink(bin, out);
 
   {  // Output user target
@@ -87,8 +86,17 @@ void CCBinaryNode::LocalFinalOutputs(LanguageType lang,
   outputs->Add(OutBinary());
 }
 
+void CCBinaryNode::LocalBinaries(LanguageType lang,
+                                 ResourceFileSet* outputs) const {
+  outputs->Add(ObjBinary());
+}
+
 Resource CCBinaryNode::OutBinary() const {
   return Resource::FromLocalPath(input().root_dir(), target().local_path());
+}
+
+Resource CCBinaryNode::ObjBinary() const {
+  return Resource::FromLocalPath(input().object_dir(), target().make_path());
 }
 
 }  // namespace repobuild

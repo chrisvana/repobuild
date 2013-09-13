@@ -37,9 +37,7 @@ void GoBinaryNode::LocalWriteMake(Makefile* out) const {
   LocalObjectFiles(GOLANG, &inputs);
 
   // Output binary
-  Resource bin = Resource::FromLocalPath(
-      strings::JoinPath(input().object_dir(), target().dir()),
-      target().local_path());
+  Resource bin = Binary();
   out->StartRule(bin.path(), strings::JoinAll(deps.files(), " "));
   out->WriteCommand("echo Go build: " + bin.path());
   out->WriteCommand("mkdir -p " + bin.dirname());
@@ -82,8 +80,19 @@ void GoBinaryNode::LocalFinalOutputs(LanguageType lang,
   outputs->Add(OutBinary());
 }
 
+void GoBinaryNode::LocalBinaries(LanguageType lang,
+                                 ResourceFileSet* outputs) const {
+  outputs->Add(Binary());
+}
+
 Resource GoBinaryNode::OutBinary() const {
   return Resource::FromLocalPath(input().root_dir(), target().local_path());
+}
+
+Resource GoBinaryNode::Binary() const {
+  return Resource::FromLocalPath(
+      strings::JoinPath(input().object_dir(), target().dir()),
+      target().local_path());
 }
 
 }  // namespace repobuild

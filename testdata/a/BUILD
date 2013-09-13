@@ -6,10 +6,8 @@
      "sources" : [ "a.proto" ],
      "generate_cc": true,
      "generate_java": true,
-     "generate_go": true
-
-// TODO:
-//     "generate_python": true
+     "generate_go": true,
+     "generate_python": true
    }
  },
 
@@ -29,7 +27,8 @@
 
 {  "py_library": {
      "name": "test",
-     "py_sources": [ "test.py" ]
+     "py_sources": [ "test.py" ],
+     "dependencies": [ ":a_proto" ]
 } },
 
 {  "java_library": {
