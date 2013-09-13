@@ -5,10 +5,10 @@
      "name" : "a_proto",
      "sources" : [ "a.proto" ],
      "generate_cc": true,
-     "generate_java": true
+     "generate_java": true,
+     "generate_go": true
 
 // TODO:
-//     "generate_go": true,
 //     "generate_python": true
    }
  },

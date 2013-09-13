@@ -35,12 +35,25 @@ void GoLibraryNode::LocalWriteMakeInternal(bool write_user_target,
                                            Makefile* out) const {
   SimpleLibraryNode::LocalWriteMake(out);
 
+  /*
+  string dir = GoDir();
+  string relative = strings::Repeat("../", strings::NumPathComponents(dir));
+  for (const Resource& source : sources_) {
+    Resource symlink = Resource::FromLocalPath(, source.path())
+    string relative_to_symlink
+    
+  }
+  */
+
   // Syntax check.
-  string sources = strings::JoinAll(sources_, " ");
-  out->StartRule(touchfile_.path(), sources);
+  out->StartRule(touchfile_.path(), strings::JoinAll(sources_, " "));
   out->WriteCommand("mkdir -p " + ObjectDir());
   out->WriteCommand("echo \"Compiling: " + target().full_path() + " (go)\"");
-  out->WriteCommand("gofmt -e " + sources + " && touch " + Touchfile().path());
+  if (!sources_.empty()) {
+    string sources = strings::JoinAll(sources_, " ");
+    out->WriteCommand("gofmt " + sources + " > /dev/null && touch " +
+                      Touchfile().path());
+  }
   out->FinishRule();
 
   // User target.

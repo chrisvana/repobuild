@@ -140,6 +140,8 @@ class Node {
   std::string RelativeSourceDir() const { return relative_src_dir_; }
   std::string RelativeRootDir() const { return relative_root_dir_; }
   std::string StripSpecialDirs(const std::string& path) const;
+  std::string GoDir() const { return go_dir_; }
+  std::string RelativeGoDir() const { return relative_go_dir_; }
 
   // Makefile helpers.
   std::string MakefileEscape(const std::string& str) const;
@@ -208,6 +210,11 @@ class Node {
                                    LanguageType lang) const {
     return true;
   }
+  virtual bool IncludeChildDependency(DependencyCollectionType type,
+                                      LanguageType lang,
+                                      Node* node) const {
+    return true;
+  }
 
  private:
   // Input info.
@@ -217,6 +224,7 @@ class Node {
   std::string src_dir_, obj_dir_, gen_dir_;
   std::string relative_root_dir_, relative_src_dir_;
   std::string relative_obj_dir_, relative_gen_dir_;
+  std::string go_dir_, relative_go_dir_;
 
   // Parsing info
   bool strict_file_mode_;

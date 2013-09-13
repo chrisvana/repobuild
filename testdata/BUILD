@@ -45,5 +45,11 @@
      "java_sources" : [ "MainClass.java" ],
      "dependencies": [ "//testdata/a:test_java" ]
    }
- }
+ },
+
+ { "go_binary": {
+    "name": "go_main",
+    "go_sources": [ "main.go" ],
+    "dependencies": [ "//testdata/a:a_proto" ]
+ } }
 ]

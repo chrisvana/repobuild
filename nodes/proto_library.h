@@ -14,7 +14,12 @@ class ProtoLibraryNode : public Node {
  public:
   ProtoLibraryNode(const TargetInfo& t,
                    const Input& i)
-      : Node(t, i) {
+      : Node(t, i),
+        gen_node_(NULL),
+        cc_node_(NULL),
+        java_node_(NULL),
+        go_node_(NULL),
+        py_node_(NULL) {
   }
   virtual ~ProtoLibraryNode() {}
   virtual void Parse(BuildFile* file, const BuildFileNode& input);
@@ -26,24 +31,29 @@ class ProtoLibraryNode : public Node {
   void FindProtoPrefixes(const std::vector<Resource>& input_files,
                          std::vector<Resource>* prefixes) const;
 
-  Node* GenerateGo(const std::vector<Resource>& input_prefixes,
+  void GenerateGo(const std::vector<Resource>& input_prefixes,
+                  std::vector<std::string>* outputs,
+                  BuildFile* file);
+  void GenerateCpp(const std::vector<Resource>& input_prefixes,
                    std::vector<std::string>* outputs,
                    BuildFile* file);
-  Node* GenerateCpp(const std::vector<Resource>& input_prefixes,
-                    std::vector<std::string>* outputs,
-                    BuildFile* file);
-  Node* GeneratePython(const std::vector<Resource>& input_prefixes,
-                       std::vector<std::string>* outputs,
-                       BuildFile* file);
-  Node* GenerateJava(BuildFile* file,
-                     const BuildFileNode& input,
-                     const std::vector<Resource>& input_prefixes,
-                     const std::vector<std::string>& java_classnames,
-                     std::vector<std::string>* outputs);
-  void AddDefaultDependency(BuildFile* file,
-                            const BuildFileNode& input,
-                            const std::string& dep_name,
-                            Node* node);
+  void GeneratePython(const std::vector<Resource>& input_prefixes,
+                      std::vector<std::string>* outputs,
+                      BuildFile* file);
+  void GenerateJava(BuildFile* file,
+                    const BuildFileNode& input,
+                    const std::vector<Resource>& input_prefixes,
+                    const std::vector<std::string>& java_classnames,
+                    std::vector<std::string>* outputs);
+  virtual bool IncludeChildDependency(DependencyCollectionType type,
+                                      LanguageType lang,
+                                      Node* node) const;
+
+  Node* gen_node_;
+  Node* cc_node_;
+  Node* java_node_;
+  Node* go_node_;
+  Node* py_node_;
 };
 
 }  // namespace repobuild

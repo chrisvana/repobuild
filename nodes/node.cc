@@ -43,6 +43,22 @@ Node::Node(const TargetInfo& target, const Input& input)
   relative_obj_dir_ = strings::JoinPath(
       relative_root_dir_,
       strings::JoinPath(input.object_dir(), target.dir()));
+
+  //  TODO: move this to some GetGoFile() function.
+  // START HERE NEXT TIME.
+
+  if (!strings::HasPrefix(target.dir(), "src/")) {
+    // HACK, because go is trying to over optimize life.
+    go_dir_ = strings::JoinPath(input.gofile_dir() + "/src", target.dir());
+    relative_go_dir_ = strings::JoinPath(
+        relative_root_dir_ + "/src",
+        strings::JoinPath(input.gofile_dir(), target.dir()));
+  } else {
+    go_dir_ = strings::JoinPath(input.gofile_dir(), target.dir());
+    relative_go_dir_ = strings::JoinPath(
+        relative_root_dir_,
+        strings::JoinPath(input.gofile_dir(), target.dir()));
+  }
 }
 
 Node::~Node() {
@@ -110,7 +126,8 @@ void Node::CollectAllDependencies(DependencyCollectionType type,
   // dependencies listed ahead of it.
   if (IncludeDependencies(type, lang)) {
     for (Node* node : dependencies_) {
-      if (all_deps_set->insert(node).second) {
+      if (IncludeChildDependency(type, lang, node) &&
+          all_deps_set->insert(node).second) {
         node->CollectAllDependencies(type, lang, all_deps_set, all_deps);
         all_deps->push_back(node);
       }

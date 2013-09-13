@@ -46,6 +46,7 @@ void ProtoLibraryNode::Parse(BuildFile* file, const BuildFileNode& input) {
   }
   gen->SetCd(false);
   AddSubNode(gen);
+  gen_node_ = gen;
 
   string build_cmd = "protoc";
 
@@ -65,15 +66,15 @@ void ProtoLibraryNode::Parse(BuildFile* file, const BuildFileNode& input) {
   // c++
   if (generate_cc) {
     build_cmd += " --cpp_out=" + Node::input().genfile_dir();
-    Node* cpp = GenerateCpp(input_prefixes, &outputs, file);
-    cpp->AddDependencyTarget(gen->target());
+    GenerateCpp(input_prefixes, &outputs, file);
+    cc_node_->AddDependencyTarget(gen->target());
 
     // Figure out our cc base library dependencies.
     string dep;
     if (!current_reader()->ParseStringField("proto_cc_dep", &dep)) {
       dep = Node::input().default_cc_proto();
     }
-    cpp->AddDependencyTarget(TargetInfo(dep, file->filename()));
+    cc_node_->AddDependencyTarget(TargetInfo(dep, file->filename()));
   }
 
   // java
@@ -81,44 +82,43 @@ void ProtoLibraryNode::Parse(BuildFile* file, const BuildFileNode& input) {
     build_cmd += " --java_out=" + Node::input().genfile_dir();
     vector<string> java_classnames;
     current_reader()->ParseRepeatedString("java_classnames", &java_classnames);
-    Node* java = GenerateJava(file, input, input_prefixes,
-                              java_classnames, &outputs);
-    java->AddDependencyTarget(gen->target());
+    GenerateJava(file, input, input_prefixes, java_classnames, &outputs);
+    java_node_->AddDependencyTarget(gen->target());
 
     // Figure out our cc base library dependencies.
     string dep;
     if (!current_reader()->ParseStringField("proto_java_dep", &dep)) {
       dep = Node::input().default_java_proto();
     }
-    java->AddDependencyTarget(TargetInfo(dep, file->filename()));
+    java_node_->AddDependencyTarget(TargetInfo(dep, file->filename()));
   }
 
   // python
   if (generate_python) {
     build_cmd += " --python_out=" + Node::input().genfile_dir();
-    Node* python = GeneratePython(input_prefixes, &outputs, file);
-    python->AddDependencyTarget(gen->target());
+    GeneratePython(input_prefixes, &outputs, file);
+    py_node_->AddDependencyTarget(gen->target());
 
     // Figure out our cc base library dependencies.
     string dep;
     if (!current_reader()->ParseStringField("proto_py_dep", &dep)) {
       dep = Node::input().default_py_proto();
     }
-    python->AddDependencyTarget(TargetInfo(dep, file->filename()));
+    py_node_->AddDependencyTarget(TargetInfo(dep, file->filename()));
   }
 
   // go
   if (generate_go) {
     build_cmd += " --go_out=" + Node::input().genfile_dir();
-    Node* go = GenerateGo(input_prefixes, &outputs, file);
-    go->AddDependencyTarget(gen->target());
+    GenerateGo(input_prefixes, &outputs, file);
+    go_node_->AddDependencyTarget(gen->target());
 
     // Figure out our cc base library dependencies.
     string dep;
     if (!current_reader()->ParseStringField("proto_go_dep", &dep)) {
       dep = Node::input().default_go_proto();
     }
-    go->AddDependencyTarget(TargetInfo(dep, file->filename()));
+    go_node_->AddDependencyTarget(TargetInfo(dep, file->filename()));
   }
 
   build_cmd += " " + strings::JoinWith(
@@ -160,7 +160,7 @@ void ProtoLibraryNode::FindProtoPrefixes(const vector<Resource>& input_files,
   }
 }
 
-Node* ProtoLibraryNode::GenerateCpp(const vector<Resource>& input_prefixes,
+void ProtoLibraryNode::GenerateCpp(const vector<Resource>& input_prefixes,
                                     vector<string>* outputs,
                                     BuildFile* file) {
   vector<Resource> cc_sources, cc_headers;
@@ -191,10 +191,10 @@ Node* ProtoLibraryNode::GenerateCpp(const vector<Resource>& input_prefixes,
 
   cc_lib->Set(cc_sources, cc_headers, objects,
               cc_compile_args, header_compile_args);
-  return cc_lib;
+  cc_node_ = cc_lib;
 }
 
-Node* ProtoLibraryNode::GenerateJava(BuildFile* file,
+void ProtoLibraryNode::GenerateJava(BuildFile* file,
                                      const BuildFileNode& input,
                                      const vector<Resource>& input_prefixes,
                                      const vector<string>& java_classnames,
@@ -234,10 +234,10 @@ Node* ProtoLibraryNode::GenerateJava(BuildFile* file,
       Node::input());
   AddSubNode(java_lib);
   java_lib->Set(file, input, java_sources);
-  return java_lib;
+  java_node_ = java_lib;
 }
 
-Node* ProtoLibraryNode::GeneratePython(const vector<Resource>& input_prefixes,
+void ProtoLibraryNode::GeneratePython(const vector<Resource>& input_prefixes,
                                        vector<string>* outputs,
                                        BuildFile* file) {
   vector<Resource> python_sources;
@@ -261,10 +261,10 @@ Node* ProtoLibraryNode::GeneratePython(const vector<Resource>& input_prefixes,
   AddSubNode(py_lib);
 
   py_lib->Set(python_sources);
-  return py_lib;
+  py_node_ = py_lib;
 }
 
-Node* ProtoLibraryNode::GenerateGo(const vector<Resource>& input_prefixes,
+void ProtoLibraryNode::GenerateGo(const vector<Resource>& input_prefixes,
                                    vector<string>* outputs,
                                    BuildFile* file) {
   vector<Resource> go_sources;
@@ -287,14 +287,28 @@ Node* ProtoLibraryNode::GenerateGo(const vector<Resource>& input_prefixes,
   AddSubNode(go_lib);
 
   go_lib->Set(go_sources);
-  return go_lib;
+  go_node_ = go_lib;
 }
 
-void ProtoLibraryNode::AddDefaultDependency(BuildFile* file,
-                                            const BuildFileNode& input,
-                                            const string& dep_name,
-                                            Node* node) {
-  // Figure out our cc base library dependencies.
+bool ProtoLibraryNode::IncludeChildDependency(DependencyCollectionType type,
+                                              LanguageType lang,
+                                              Node* node) const {
+  if (node == gen_node_) {
+    return true;
+  }
+  if (lang == CPP || lang == C_LANG) {
+    return node == cc_node_;
+  }
+  if (lang == JAVA) {
+    return node == java_node_;
+  }
+  if (lang == PYTHON) {
+    return node == py_node_;
+  }
+  if (lang == GOLANG) {
+    return node == go_node_;
+  }
+  return true;
 }
 
 }  // namespace repobuild

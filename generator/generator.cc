@@ -89,6 +89,7 @@ string Generator::GenerateMakefile(const Input& input) {
   out.WriteCommand("rm -rf " + input.object_dir());
   out.WriteCommand("rm -rf " + input.genfile_dir());
   out.WriteCommand("rm -rf " + input.source_dir());
+  out.WriteCommand("rm -rf " + input.gofile_dir());
   out.FinishRule();
 
   // Write the all rule.
