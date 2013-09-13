@@ -52,7 +52,8 @@
      "name" : "go_library",
      "cc_sources" : [ "go_library.cc" ],
      "cc_headers" : [ "go_library.h" ],
-     "dependencies": [ ":node" ]
+     "dependencies": [ "//common/strings:strutil",
+                       ":node" ]
    }
  },
 

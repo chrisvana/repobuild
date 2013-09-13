@@ -4,6 +4,9 @@
 #include <set>
 #include <string>
 #include <vector>
+#include "common/strings/strutil.h"
+#include "common/strings/path.h"
+#include "repobuild/env/input.h"
 #include "repobuild/nodes/go_library.h"
 #include "repobuild/reader/buildfile.h"
 
@@ -35,25 +38,31 @@ void GoLibraryNode::LocalWriteMakeInternal(bool write_user_target,
                                            Makefile* out) const {
   SimpleLibraryNode::LocalWriteMake(out);
 
-  /*
-  string dir = GoDir();
-  string relative = strings::Repeat("../", strings::NumPathComponents(dir));
+  // Move all go code into a single directory.
+  vector<Resource> symlinked_sources;
   for (const Resource& source : sources_) {
-    Resource symlink = Resource::FromLocalPath(, source.path())
-    string relative_to_symlink
-    
+    Resource symlink = GoFileFor(source);
+    symlinked_sources.push_back(symlink);
+    string relative_to_symlink =
+        strings::Repeat("../", strings::NumPathComponents(symlink.dirname()));
+    string target = strings::JoinPath(relative_to_symlink, source.path());
+    out->StartRule(symlink.path(), source.path());
+    out->WriteCommand("mkdir -p " + symlink.dirname());
+    out->WriteCommand("ln -s -f " + target + " " + symlink.path());
+    out->FinishRule();
   }
-  */
 
   // Syntax check.
   out->StartRule(touchfile_.path(), strings::JoinAll(sources_, " "));
-  out->WriteCommand("mkdir -p " + ObjectDir());
   out->WriteCommand("echo \"Compiling: " + target().full_path() + " (go)\"");
   if (!sources_.empty()) {
-    string sources = strings::JoinAll(sources_, " ");
-    out->WriteCommand("gofmt " + sources + " > /dev/null && touch " +
-                      Touchfile().path());
+    for (const Resource& r : symlinked_sources) {
+      out->WriteCommand(GoBuildPrefix() + " gofmt " +
+                        r.path() + " > /dev/null");
+    }
   }
+  out->WriteCommand("mkdir -p " + Touchfile().dirname());
+  out->WriteCommand("touch " + Touchfile().path());
   out->FinishRule();
 
   // User target.
@@ -68,6 +77,26 @@ void GoLibraryNode::LocalDependencyFiles(LanguageType lang,
                                          ResourceFileSet* files) const {
   SimpleLibraryNode::LocalDependencyFiles(lang, files);
   files->Add(touchfile_);
+}
+
+void GoLibraryNode::LocalObjectFiles(LanguageType lang,
+                                     ResourceFileSet* files) const {
+  for (const Resource& r : sources_) {
+    files->Add(GoFileFor(r));
+  }
+}
+
+Resource GoLibraryNode::GoFileFor(const Resource& r) const {
+  // HACK, go annoys me.
+  if (strings::HasPrefix(r.path(), "src/")) {
+    return Resource::FromLocalPath(input().gofile_dir(), r.path());
+  } else {
+    return Resource::FromLocalPath(input().gofile_dir() + "/src", r.path());
+  }
+}
+
+string GoLibraryNode::GoBuildPrefix() const {
+  return MakefileEscape("GOPATH=$(pwd)/" + input().gofile_dir() + ":$GOPATH");
 }
 
 }  // namespace repobuild

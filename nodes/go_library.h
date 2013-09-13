@@ -23,6 +23,8 @@ class GoLibraryNode : public SimpleLibraryNode {
   }
   virtual void LocalDependencyFiles(LanguageType lang,
                                     ResourceFileSet* files) const;
+  virtual void LocalObjectFiles(LanguageType lang,
+                                ResourceFileSet* files) const;
 
   // Manual construction.
   void Set(const std::vector<Resource>& sources);
@@ -30,6 +32,8 @@ class GoLibraryNode : public SimpleLibraryNode {
  protected:
   void Init();
   void LocalWriteMakeInternal(bool write_user_target, Makefile* out) const;
+  Resource GoFileFor(const Resource& r) const;
+  std::string GoBuildPrefix() const;
 
   Resource touchfile_;
 };

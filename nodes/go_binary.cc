@@ -20,6 +20,10 @@ namespace repobuild {
 void GoBinaryNode::Parse(BuildFile* file, const BuildFileNode& input) {
   GoLibraryNode::Parse(file, input);
   current_reader()->ParseRepeatedString("go_build_args", &go_build_args_);
+  if (sources_.empty()) {
+    LOG(FATAL) << "go_binary requires \"go_sources\" to be non-empty: "
+               << target().full_path();
+  }
 }
 
 void GoBinaryNode::LocalWriteMake(Makefile* out) const {
@@ -29,8 +33,8 @@ void GoBinaryNode::LocalWriteMake(Makefile* out) const {
   ResourceFileSet deps;
   DependencyFiles(GOLANG, &deps);
 
-  ResourceFileSet source_files;
-  ObjectFiles(GOLANG, &source_files);
+  ResourceFileSet inputs;
+  LocalObjectFiles(GOLANG, &inputs);
 
   // Output binary
   Resource bin = Resource::FromLocalPath(
@@ -42,11 +46,18 @@ void GoBinaryNode::LocalWriteMake(Makefile* out) const {
   out->WriteCommand(
       strings::JoinWith(
           " ",
-          "go build -o", bin,
+          GoBuildPrefix(), "go build -o", bin,
           strings::JoinAll(input().flags("-G"), " "),
           strings::JoinAll(go_build_args_, " "),
-          strings::JoinAll(source_files.files(), " ")));
+          strings::JoinAll(inputs.files(), " ")));
   out->FinishRule();
+
+  // User target
+  {
+    ResourceFileSet bins;
+    bins.Add(bin);
+    WriteBaseUserTarget(bins, out);
+  }
 
   // Symlink to root dir.
   Resource out_bin = OutBinary();
