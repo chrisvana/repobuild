@@ -37,8 +37,7 @@ class BuildFileNode {
 class BuildFile {
  public:
   explicit BuildFile(const std::string& filename)
-      : filename_(filename),
-        name_counter_(0) {
+      : filename_(filename) {
   }
   ~BuildFile();
 
@@ -59,7 +58,7 @@ class BuildFile {
   std::string filename_;
   std::vector<BuildFileNode*> nodes_;
   std::set<std::string> base_deps_;
-  int name_counter_;
+  std::map<std::string, int> name_counter_;
 };
 
 // BuildFileNodeReader

@@ -149,7 +149,8 @@ void CCLibraryNode::LocalWriteMakeInternal(bool should_write_target,
                                            Makefile* out) const {
   // Figure out the set of input files.
   ResourceFileSet input_files;
-  DependencyFiles(CPP, &input_files);
+  InputDependencyFiles(CPP, &input_files);  // any object files/headers/etc.
+  CCLibraryNode::LocalDependencyFiles(CPP, &input_files);  // our headers
 
   // Now write phases, one per .cc
   for (int i = 0; i < sources_.size(); ++i) {

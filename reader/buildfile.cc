@@ -66,7 +66,8 @@ void BuildFile::Parse(const string& input) {
 }
 
 string BuildFile::NextName(const string& name_base) {
-  return strings::Join(name_base, ".", name_counter_++);
+  int* counter = &name_counter_[name_base];
+  return strings::Join(name_base, ".", (*counter)++);
 }
 
 void BuildFile::MergeParent(BuildFile* parent) {
