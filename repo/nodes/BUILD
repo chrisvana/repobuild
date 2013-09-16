@@ -14,9 +14,9 @@
                        "//common/file:fileutil",
                        "//common/strings:strutil",
                        "//common/util:stl",
-                       "//reader:buildfile",
-                       "//env:resource",
-                       "//env:target",
+                       "//repobuild/env:resource",
+                       "//repobuild/env:target",
+                       "//repobuild/reader:buildfile",
                        ":makefile"
     ]
    }

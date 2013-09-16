@@ -7,8 +7,8 @@
                        "//common/log:log",
                        "//common/file:fileutil",
                        "//common/strings:strutil",
-                       "//json:json",
-                       "//env:resource"
+                       "//repobuild/env:resource",
+                       "//repobuild/json:json"
      ]
    }
  },
@@ -21,10 +21,10 @@
                        "//common/file:fileutil",
                        "//common/strings:strutil",
                        "//common/util:stl",
-                       "//env:input",
-                       "//env:target",
-                       "//json:json",
-                       "//nodes:allnodes",
+                       "//repobuild/env:input",
+                       "//repobuild/env:target",
+                       "//repobuild/json:json",
+                       "//repobuild/nodes:allnodes",
                        ":buildfile"
      ]
    }

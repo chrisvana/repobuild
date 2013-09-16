@@ -1,7 +1,4 @@
 [
- { "config": {
-    "component": "json"
- } },
  { "cc_library": {
      "name" : "json",
      "cc_sources" : [ "json_reader.cpp",
@@ -16,7 +13,8 @@
                       "reader.h",
                       "value.h",
                       "writer.h"
-     ]
+     ],
+     "include_dirs": [ "../" ]
    }
  }
 ]
