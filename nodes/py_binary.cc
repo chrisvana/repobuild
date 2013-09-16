@@ -1,5 +1,7 @@
 // Copyright 2013
 // Author: Christopher Van Arsdale
+//
+// TODO(cvanarsdale): This overalaps a lot with other *_binary.cc files.
 
 #include <set>
 #include <string>
@@ -32,16 +34,7 @@ string GetPyModule(const string& source) {
   }
   return "";
 }
-void WriteLocalLink(const Resource& original,
-                    const Resource& final,
-                    Makefile* out) {
-  Makefile::Rule* rule = out->StartRule(final.path(), original.path());
-  rule->WriteCommand("pwd > /dev/null");  // hack to work around make issue?
-  rule->WriteCommand(strings::JoinWith(
-      " ", "ln -f -s", original.path(), final.path()));
-  out->FinishRule(rule);
-}
-}
+}  // anonymous namespace
 
 void PyBinaryNode::Parse(BuildFile* file, const BuildFileNode& input) {
   PyLibraryNode::Parse(file, input);
@@ -111,21 +104,21 @@ void PyBinaryNode::LocalWriteMake(Makefile* out) const {
   rule = out->StartRule(bin.path(), egg_bin.path());
   string module = py_default_module_.empty() ? "" : " -m " + py_default_module_;
   rule->WriteCommand("echo 'python" + module +
-                    " $$(pwd)/$$(dirname $$0)/" + egg_bin.basename() +
-                    "' > " + bin.path() +
-                    "; chmod 755 " + bin.path());
+                     " $$(pwd)/$$(dirname $$0)/" + egg_bin.basename() +
+                     "' > " + bin.path() +
+                     "; chmod 755 " + bin.path());
   out->FinishRule(rule);
 
-  // Symlink to that script in the root dir.
-  WriteLocalLink(egg_bin, OutEgg(), out);
+  // Symlink to stuff in the root dir.
+  out->WriteRootSymlink(egg_bin.path(), OutEgg().path());
+  out->WriteRootSymlink(bin.path(), OutBinary().path());
 
-  // User target
-  if (target().make_path() != OutBinary().path()) {
+  // User target, if necessary
+  if (OutBinary().path() != target().make_path()) {
     ResourceFileSet user_deps;
     user_deps.Add(egg_bin);
     WriteBaseUserTarget(user_deps, out);
   }
-  WriteLocalLink(bin, OutBinary(), out);
 }
 
 // static

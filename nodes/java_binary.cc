@@ -1,5 +1,7 @@
 // Copyright 2013
 // Author: Christopher Van Arsdale
+//
+// TODO(cvanarsdale): This overalaps a lot with other *_binary.cc files.
 
 #include <algorithm>
 #include <set>
@@ -48,18 +50,15 @@ void JavaBinaryNode::LocalWriteMake(Makefile* out) const {
   Resource bin = JarName();
   WriteJar(bin, out);
 
-  {  // Output user target
+  // Symlink to root dir.
+  out->WriteRootSymlink(OutJarName().path(), JarName().path());
+
+  // Output user target, if necessary
+  if (OutJarName().path() != target().make_path()) {
     ResourceFileSet deps;
     deps.Add(bin);
     WriteBaseUserTarget(deps, out);
   }
-
-  // Symlink to root dir.
-  Resource out_bin = OutJarName();
-  Makefile::Rule* rule = out->StartRule(out_bin.path(), bin.path());
-  rule->WriteCommand("pwd > /dev/null");  // hack to work around make issue?
-  rule->WriteCommand("ln -f -s " + bin.path() + " " + out_bin.path());
-  out->FinishRule(rule);
 }
 
 void JavaBinaryNode::WriteJar(const Resource& file, Makefile* out) const {

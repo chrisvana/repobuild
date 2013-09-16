@@ -1,5 +1,7 @@
 // Copyright 2013
 // Author: Christopher Van Arsdale
+//
+// TODO(cvanarsdale): This overalaps a lot with go_library.
 
 #include <set>
 #include <string>
@@ -34,13 +36,7 @@ void PyLibraryNode::LocalWriteMakeInternal(bool write_user_target,
   for (const Resource& source : sources_) {
     Resource symlink = PyFileFor(source);
     symlinked_sources.push_back(symlink);
-    string relative_to_symlink =
-        strings::Repeat("../", strings::NumPathComponents(symlink.dirname()));
-    string target = strings::JoinPath(relative_to_symlink, source.path());
-    Makefile::Rule* rule = out->StartRule(symlink.path(), source.path());
-    rule->WriteCommand("mkdir -p " + symlink.dirname());
-    rule->WriteCommand("ln -s -f " + target + " " + symlink.path());
-    out->FinishRule(rule);
+    out->WriteRootSymlink(symlink.path(), source.path());
   }
 
   // Syntax check.

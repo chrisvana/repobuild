@@ -1,5 +1,7 @@
 // Copyright 2013
 // Author: Christopher Van Arsdale
+//
+// TODO(cvanarsdale): This overalaps a lot with other *_binary.cc files.
 
 #include <algorithm>
 #include <set>
@@ -37,14 +39,7 @@ void CCBinaryNode::LocalWriteMake(Makefile* out) const {
 
   // Symlink to root dir.
   Resource out_bin = OutBinary();
-  Makefile::Rule* rule = out->StartRule(out_bin.path(), bin.path());
-  rule->WriteCommand("pwd > /dev/null");  // hack to work around make issue?
-  rule->WriteCommand(
-      strings::Join(
-          "ln -f -s ",
-          strings::JoinPath(input().object_dir(), target().make_path()),
-          " ", out_bin.path()));
-  out->FinishRule(rule);
+  out->WriteRootSymlink(OutBinary().path(), bin.path());
 }
 
 void CCBinaryNode::WriteLink(const Resource& file, Makefile* out) const {

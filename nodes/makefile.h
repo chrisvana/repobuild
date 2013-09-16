@@ -49,11 +49,14 @@ class Makefile {
   std::string* mutable_out() { return &out_; }
   const std::string& out() const { return out_; }
 
-  // Helper to make this easier.
+  // Helpers to make this easier.
   template <typename T>
   void append(const T& t) {
     out_.append(strings::StringPrint(t));
   }
+  // Each file path must have the same root.
+  void WriteRootSymlink(const std::string& symlink_file,
+                        const std::string& source_file);
 
  private:
   bool silent_;

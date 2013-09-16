@@ -1,5 +1,7 @@
 // Copyright 2013
 // Author: Christopher Van Arsdale
+//
+// TODO(cvanarsdale): This overalaps a lot with other *_binary.cc files.
 
 #include <set>
 #include <string>
@@ -51,24 +53,15 @@ void GoBinaryNode::LocalWriteMake(Makefile* out) const {
           strings::JoinAll(inputs.files(), " ")));
   out->FinishRule(rule);
 
-  // User target
-  {
+  // Symlink to root dir.
+  out->WriteRootSymlink(OutBinary().path(), Binary().path());
+
+  // User target, if necessary.
+  if (OutBinary().path() != target().make_path()) {
     ResourceFileSet bins;
     bins.Add(bin);
     WriteBaseUserTarget(bins, out);
   }
-
-  // Symlink to root dir.
-  Resource out_bin = OutBinary();
-  rule = out->StartRule(out_bin.path(), bin.path());
-  rule->WriteCommand("pwd > /dev/null");  // hack to work around make issue?
-  rule->WriteCommand(
-      strings::JoinWith(
-          " ",
-          "ln -f -s",
-          strings::JoinPath(input().object_dir(), target().make_path()),
-          out_bin.path()));
-  out->FinishRule(rule);
 }
 
 void GoBinaryNode::LocalWriteMakeClean(Makefile::Rule* rule) const {
