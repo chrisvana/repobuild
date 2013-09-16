@@ -1,24 +1,32 @@
 repobuild
 ==========
 
-Build tool for my projects
-
---
-
-Declarative style build system, similar to Google's BUILD file system of old. Other examples:<br/>
+Build tool for my projects.<br/>
 <br/>
-Gyp: https://code.google.com/p/gyp/<br/>
-Buck Build: http://facebook.github.io/buck/<br/>
-Selenium build: https://code.google.com/p/selenium/wiki/CrazyFunBuild<br/>
-... and there are others that are similar in spirit, e.g.:<br/>
-Ant: https://ant.apache.org/
+Functional, but work in progress.<br/>
 
 --
 
-What is this?<br/>
-- Build rules allow module code libraries.
-- Rather than procedurally specify make rules, BUILD files auto-generate a make file by expanding dependencies amongst components.
+Declarative style build system, similar to Google's BUILD file system of old.<br/>
+<br/>
+Similar build systems:
+- Gyp: https://code.google.com/p/gyp/<br/>
+- Buck Build: http://facebook.github.io/buck/<br/>
+- Selenium build: https://code.google.com/p/selenium/wiki/CrazyFunBuild<br/>
+- (sort of, in spirit) Ant: https://ant.apache.org/<br/>
+<br/>
+Motivation:<br/>
+- Procedural build tools (e.g. make, and most everything else) tend to devolve into not-particular-modular messy rules, and are hard to read/modify/inherit.
+- Google's BUILD system works pretty well (ask other ex-Googlers)
+- A lot of open source libraries assume pre-installation on a platform. I really did not like that model, so everything now goes into "third_party" with its own BUILD tool (minus a few examples like "-lzlib" floating around).
+- By not-preinstalling everything, we can keep repositories on the web, and pretend they exist in some "readonly" directory (work in progres!). This means you can "git clone" a tiny repository, then modify and compile it even if it depends on a bunch of other stuff (which magically gets pulled out of "readonly"). See TODO below.
+
+--
+
+What should you do now?<br/>
 - Look in testdata/BUILD, or repobuild/BUILD for some examples.<br/>
+- Rather than procedurally specify make rules, BUILD files auto-generate a make file by expanding dependencies amongst components.
+- Look at additional libraries are in "third_party", which you can add submodules/forks to if you like.
 
 --
 TODOs:<br/>
@@ -32,6 +40,8 @@ DOCUMENTATION<br/>
 
 RULES<br>
 - test rules (e.g. cc_test, java_test, py_test, etc).
+- shared library rules (cc_shared_library)
+- install rules (e.g. "make install"-style rule for shared libraries)
 - fileset rules (creates symlinked directory with a set of files in it)
 - embed_data rules (e.g. cc_embed_data, java_embed_data ... takes a set of files and creates string access in linked code)
 
