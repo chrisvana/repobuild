@@ -62,7 +62,8 @@ RULES<br>
 - shared library rules (cc_shared_library)
 - install rules (e.g. "make install"-style rule for shared libraries)
 - fileset rules (creates symlinked directory with a set of files in it)
-- embed_data rules (e.g. cc_embed_data, java_embed_data ... takes a set of files and creates string access in linked code)
+- SWIG
+- embed_data rules (e.g. cc_embed_data, java_embed_data py_embed_data ... takes a set of files and creates string access in linked code)
 
 PLUGINS<br/>
 - Ideally repositories could register a script to modify the BUILD file.
