@@ -42,6 +42,7 @@ void MakeNode::ParseWithOptions(BuildFile* file,
   for (const TargetInfo& dep : dep_targets()) {
     gen->AddDependencyTarget(dep);
   }
+  gen->SetMakeName("Make");
   AddSubNode(gen);
 
   string make_cmd = "$MAKE " + make_target + " DESTDIR=" + dest_dir;
@@ -54,7 +55,8 @@ void MakeNode::ParseWithOptions(BuildFile* file,
   if (!user_postinstall.empty()) {
     make_cmd += " && " + user_postinstall;
   }
-  string clean_cmd = "$MAKE DESTDIR=" + dest_dir + " clean";
+  string clean_cmd = ("$MAKE DESTDIR=" + dest_dir + " clean > /dev/null 2>&1 "
+                      "|| echo -n \"\"");  // always succeed.
 
   vector<Resource> input_files;
   current_reader()->ParseRepeatedFiles("inputs", &input_files);

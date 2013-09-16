@@ -72,7 +72,8 @@ void GenShNode::LocalWriteMake(Makefile* out) const {
 
   // Build command.
   if (!build_cmd_.empty()) {
-    out->WriteCommand("echo Script: " + target().full_path());
+    out->WriteCommand("echo \"" + make_name_ + ": " +
+                      target().full_path() + "\"");
 
     // The file we touch after the script runs, for 'make' to be happy.
     string touch_cmd = "mkdir -p " +

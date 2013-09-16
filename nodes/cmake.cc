@@ -46,6 +46,7 @@ void CmakeNode::Parse(BuildFile* file, const BuildFileNode& input) {
   for (const TargetInfo& dep : dep_targets()) {
     gen->AddDependencyTarget(dep);
   }
+  gen->SetMakeName("Cmake");
   AddSubNode(gen);
 
   // Users are allowed to specify custom env arg overrides.

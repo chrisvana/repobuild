@@ -50,6 +50,7 @@ void ProtoLibraryNode::Parse(BuildFile* file, const BuildFileNode& input) {
     gen_node_->AddDependencyTarget(dep);
   }
   gen_node_->SetCd(false);
+  gen_node_->SetMakeName("Generating protobuf");
   AddSubNode(gen_node_);
 
   // Figure out where protoc lives.

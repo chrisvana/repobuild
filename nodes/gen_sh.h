@@ -16,7 +16,8 @@ class GenShNode : public Node {
   GenShNode(const TargetInfo& t,
             const Input& i)
       : Node(t, i),
-        cd_(true) {
+        cd_(true),
+        make_name_("Script") {
   }
   virtual ~GenShNode() {}
   virtual std::string Name() const { return "gen_sh"; }
@@ -28,6 +29,7 @@ class GenShNode : public Node {
            const std::vector<Resource>& input_files,
            const std::vector<std::string>& outputs);
   void SetCd(bool cd) { cd_ = cd; }
+  void SetMakeName(const std::string& name) { make_name_ = name; }
   void AddLocalEnvVariable(const std::string& var, const std::string& val) {
     local_env_vars_[var] = val;
   }
@@ -61,6 +63,7 @@ class GenShNode : public Node {
   std::vector<std::string> outputs_;
   std::map<std::string, std::string> local_env_vars_;
   bool cd_;
+  std::string make_name_;
 };
 
 }  // namespace repobuild

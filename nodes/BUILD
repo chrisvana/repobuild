@@ -1,5 +1,12 @@
 [
  { "cc_library": {
+     "name" : "makefile",
+     "cc_sources" : [ "makefile.cc" ],
+     "cc_headers" : [ "makefile.h" ],
+     "dependencies": [ "//common/strings:strutil" ]
+ } },
+
+ { "cc_library": {
      "name" : "node",
      "cc_sources" : [ "node.cc" ],
      "cc_headers" : [ "node.h" ],
@@ -9,7 +16,8 @@
                        "//common/util:stl",
                        "//reader:buildfile",
                        "//env:resource",
-                       "//env:target"
+                       "//env:target",
+                       ":makefile"
     ]
    }
  },
