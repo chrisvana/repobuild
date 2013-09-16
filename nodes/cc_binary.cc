@@ -57,7 +57,7 @@ void CCBinaryNode::WriteLink(const Resource& file, Makefile* out) const {
   // Link rule
   Makefile::Rule* rule = out->StartRule(file.path(),
                                         strings::JoinAll(objects.files(), " "));
-  rule->WriteCommand("echo Linking: " + file.path());
+  rule->WriteUserEcho("Linking", file.path());
   string obj_list;
   for (const Resource& r : objects.files()) {
     obj_list += " ";

@@ -46,8 +46,7 @@ void PyLibraryNode::LocalWriteMakeInternal(bool write_user_target,
   // Syntax check.
   string sources = strings::JoinAll(symlinked_sources, " ");
   Makefile::Rule* rule = out->StartRule(touchfile_.path(), sources);
-  rule->WriteCommand("echo \"Compiling: " + target().full_path() +
-                    " (python)\"");
+  rule->WriteUserEcho("Compiling", target().full_path() + " (python)");
   rule->WriteCommand("python -m py_compile " + sources);
   rule->WriteCommand("mkdir -p " + Touchfile().dirname());
   rule->WriteCommand("touch " + Touchfile().path());

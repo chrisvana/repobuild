@@ -25,6 +25,8 @@ class Makefile {
     // Adding commands to our rule.
     void WriteCommand(const std::string& command);
     void WriteCommandBestEffort(const std::string& command);
+    void WriteUserEcho(const std::string& name,
+                       const std::string& value);  // prints "name: value".
 
     // Raw access.
     std::string* mutable_out() { return &out_; }

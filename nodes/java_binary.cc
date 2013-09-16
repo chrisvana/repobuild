@@ -105,7 +105,7 @@ void JavaBinaryNode::WriteJar(const Resource& file, Makefile* out) const {
                  strings::JoinWith(" ",
                                    manifest.path(),
                                    strings::JoinAll(objects.files(), " ")));
-  rule->WriteCommand("echo Jaring: " + file.path());
+  rule->WriteUserEcho("Jaring", file.path());
   rule->WriteCommand(strings::JoinWith(
       " ",
       "cd " + input().object_dir(),

@@ -56,7 +56,7 @@ void GoLibraryNode::LocalWriteMakeInternal(bool write_user_target,
   Makefile::Rule* rule = out->StartRule(
       touchfile_.path(),
       strings::JoinAll(symlinked_sources, " "));
-  rule->WriteCommand("echo \"Compiling: " + target().full_path() + " (go)\"");
+  rule->WriteUserEcho("Compiling", target().full_path() + " (go)");
   if (!sources_.empty()) {
     for (const Resource& r : symlinked_sources) {
       rule->WriteCommand(GoBuildPrefix() + " gofmt " +

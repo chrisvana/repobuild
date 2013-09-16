@@ -40,7 +40,7 @@ void GoBinaryNode::LocalWriteMake(Makefile* out) const {
   Resource bin = Binary();
   Makefile::Rule* rule = out->StartRule(bin.path(),
                                         strings::JoinAll(deps.files(), " "));
-  rule->WriteCommand("echo Go build: " + bin.path());
+  rule->WriteUserEcho("Go build", bin.path());
   rule->WriteCommand("mkdir -p " + bin.dirname());
   rule->WriteCommand(
       strings::JoinWith(

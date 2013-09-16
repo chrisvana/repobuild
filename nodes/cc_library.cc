@@ -211,8 +211,8 @@ void CCLibraryNode::WriteCompile(const Resource& source,
   }
 
   // Actual make command.
-  rule->WriteCommand("echo \"Compiling: " + source.path() +
-                    " (" + (cpp ? "c++" : "c") + ")\"");
+  rule->WriteUserEcho("Compiling",
+                      source.path() + " (" + (cpp ? "c++" : "c") + ")");
   rule->WriteCommand(strings::JoinWith(
       " ",
       compile,

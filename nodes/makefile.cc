@@ -1,6 +1,7 @@
 // Copyright 2013
 // Author: Christopher Van Arsdale
 
+#include "common/strings/strutil.h"
 #include "repobuild/nodes/makefile.h"
 
 using std::string;
@@ -45,6 +46,13 @@ void Makefile::Rule::WriteCommandBestEffort(const string& command) {
   }
   out_.append(command);
   out_.append("\n");
+}
+
+void Makefile::Rule::WriteUserEcho(const std::string& name,
+                                   const std::string& value) {
+  WriteCommand(strings::StringPrintf("echo \"%-11s %s\"",
+                                     (name + ":").c_str(),
+                                     value.c_str()));
 }
 
 }  // namespace repobuild

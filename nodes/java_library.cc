@@ -141,7 +141,7 @@ void JavaLibraryNode::WriteCompile(const ResourceFileSet& input_files,
     compile_args.insert(f);
   }
 
-  rule->WriteCommand("echo \"Compiling: " + target().make_path() + " (java)\"");
+  rule->WriteUserEcho("Compiling", target().make_path() + " (java)");
   rule->WriteCommand(strings::JoinWith(
       " ",
       compile,

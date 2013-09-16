@@ -78,7 +78,7 @@ void PyBinaryNode::LocalWriteMake(Makefile* out) const {
       out->StartRule(egg_touchfile.path(),
                      strings::Join(strings::JoinAll(deps.files(), " "), " ",
                                    SetupFile(input())));
-  rule->WriteCommand("echo python build: " + egg_bin.path());
+  rule->WriteUserEcho("Python build", egg_bin.path());
   rule->WriteCommand("mkdir -p " + egg_touchfile.dirname());
   rule->WriteCommand(
       "cd " + GenDir() + "; " +
