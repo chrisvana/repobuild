@@ -14,7 +14,7 @@
                       "value.h",
                       "writer.h"
      ],
-     "include_dirs": [ "../" ]
+     "cc_include_dirs": [ "../" ]
    }
  }
 ]

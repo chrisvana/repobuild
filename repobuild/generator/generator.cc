@@ -9,9 +9,9 @@
 #include "repobuild/env/input.h"
 #include "repobuild/env/resource.h"
 #include "repobuild/generator/generator.h"
-#include "nodes/node.h"
-#include "repobuild/reader/parser.h"
 #include "repobuild/nodes/allnodes.h"
+#include "repobuild/nodes/node.h"
+#include "repobuild/reader/parser.h"
 
 using std::string;
 using std::vector;
