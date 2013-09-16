@@ -174,13 +174,15 @@ void CCLibraryNode::WriteCompile(const Resource& source,
   Resource obj = ObjForSource(source);
 
   // Rule=> obj: <input header files> source.cc
-  out->StartRule(obj.path(),
-                 strings::JoinWith(" ",
-                                   strings::JoinAll(input_files.files(), " "),
-                                   source.path()));
-
+  Makefile::Rule* rule =
+      out->StartRule(obj.path(),
+                     strings::JoinWith(
+                         " ",
+                         strings::JoinAll(input_files.files(), " "),
+                         source.path()));
+  
   // Mkdir command.
-  out->WriteCommand("mkdir -p " + obj.dirname());
+  rule->WriteCommand("mkdir -p " + obj.dirname());
 
   // Compile command (.e.g $(COMPILE.c) or $(COMPILE.cc)).
   bool cpp = (strings::HasSuffix(source.basename(), ".cc") ||
@@ -209,9 +211,9 @@ void CCLibraryNode::WriteCompile(const Resource& source,
   }
 
   // Actual make command.
-  out->WriteCommand("echo \"Compiling: " + source.path() +
+  rule->WriteCommand("echo \"Compiling: " + source.path() +
                     " (" + (cpp ? "c++" : "c") + ")\"");
-  out->WriteCommand(strings::JoinWith(
+  rule->WriteCommand(strings::JoinWith(
       " ",
       compile,
       include_dirs,
@@ -219,7 +221,7 @@ void CCLibraryNode::WriteCompile(const Resource& source,
       source.path(),
       "-o " + obj.path()));
 
-  out->FinishRule();
+  out->FinishRule(rule);
 }
 
 void CCLibraryNode::LocalDependencyFiles(LanguageType lang,

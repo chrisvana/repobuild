@@ -32,10 +32,12 @@ void AutoconfNode::Parse(BuildFile* file, const BuildFileNode& input) {
   vector<string> configure_args;
   current_reader()->ParseRepeatedString("configure_args", &configure_args);
 
-  string configure_dir;
-  current_reader()->ParseStringField("configure_dir", &configure_dir);
-  string configure = (configure_dir.empty() ? "./configure" :
-                      strings::JoinPath(configure_dir, "configure"));
+  // configure
+  string configure;
+  current_reader()->ParseStringField("configure_cmd", &configure);
+  if (configure.empty()) {
+    configure = "./configure";
+  }
 
   // Generate the output files.
   GenShNode* gen = new GenShNode(

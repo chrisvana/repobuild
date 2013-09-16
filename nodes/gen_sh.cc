@@ -64,7 +64,7 @@ void GenShNode::LocalWriteMake(Makefile* out) const {
   ObjectFiles(NO_LANG, &obj_files);
 
   // Make target
-  out->StartRule(touchfile.path(), strings::JoinWith(
+  Makefile::Rule* rule = out->StartRule(touchfile.path(), strings::JoinWith(
       " ",
       strings::JoinAll(input_files.files(), " "),
       strings::JoinAll(obj_files.files(), " "),
@@ -72,7 +72,7 @@ void GenShNode::LocalWriteMake(Makefile* out) const {
 
   // Build command.
   if (!build_cmd_.empty()) {
-    out->WriteCommand("echo \"" + make_name_ + ": " +
+    rule->WriteCommand("echo \"" + make_name_ + ": " +
                       target().full_path() + "\"");
 
     // The file we touch after the script runs, for 'make' to be happy.
@@ -99,9 +99,9 @@ void GenShNode::LocalWriteMake(Makefile* out) const {
     }
 
     // Now write the actual comment.
-    out->WriteCommand(WriteCommand(env_vars, prefix, build_cmd_, touch_cmd));
+    rule->WriteCommand(WriteCommand(env_vars, prefix, build_cmd_, touch_cmd));
   }
-  out->FinishRule();
+  out->FinishRule(rule);
 
   {  // user target
     ResourceFileSet output_targets;
@@ -115,14 +115,14 @@ void GenShNode::LocalWriteMake(Makefile* out) const {
   }
 }
 
-void GenShNode::LocalWriteMakeClean(Makefile* out) const {
+void GenShNode::LocalWriteMakeClean(Makefile::Rule* rule) const {
   if (clean_cmd_.empty()) {
     return;
   }
 
   map<string, string> env_vars;
   EnvVariables(NO_LANG, &env_vars);
-  out->WriteCommandBestEffort(WriteCommand(env_vars, "", clean_cmd_, ""));
+  rule->WriteCommandBestEffort(WriteCommand(env_vars, "", clean_cmd_, ""));
 }
 
 namespace {

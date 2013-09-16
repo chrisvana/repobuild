@@ -37,21 +37,21 @@ void PyLibraryNode::LocalWriteMakeInternal(bool write_user_target,
     string relative_to_symlink =
         strings::Repeat("../", strings::NumPathComponents(symlink.dirname()));
     string target = strings::JoinPath(relative_to_symlink, source.path());
-    out->StartRule(symlink.path(), source.path());
-    out->WriteCommand("mkdir -p " + symlink.dirname());
-    out->WriteCommand("ln -s -f " + target + " " + symlink.path());
-    out->FinishRule();
+    Makefile::Rule* rule = out->StartRule(symlink.path(), source.path());
+    rule->WriteCommand("mkdir -p " + symlink.dirname());
+    rule->WriteCommand("ln -s -f " + target + " " + symlink.path());
+    out->FinishRule(rule);
   }
 
   // Syntax check.
   string sources = strings::JoinAll(symlinked_sources, " ");
-  out->StartRule(touchfile_.path(), sources);
-  out->WriteCommand("echo \"Compiling: " + target().full_path() +
+  Makefile::Rule* rule = out->StartRule(touchfile_.path(), sources);
+  rule->WriteCommand("echo \"Compiling: " + target().full_path() +
                     " (python)\"");
-  out->WriteCommand("python -m py_compile " + sources);
-  out->WriteCommand("mkdir -p " + Touchfile().dirname());
-  out->WriteCommand("touch " + Touchfile().path());
-  out->FinishRule();
+  rule->WriteCommand("python -m py_compile " + sources);
+  rule->WriteCommand("mkdir -p " + Touchfile().dirname());
+  rule->WriteCommand("touch " + Touchfile().path());
+  out->FinishRule(rule);
 
   // User target.
   if (write_user_target) {

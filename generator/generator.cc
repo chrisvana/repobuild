@@ -82,15 +82,15 @@ string Generator::GenerateMakefile(const Input& input) {
   }
 
   // Write the make clean rule.
-  out.StartRule("clean", "");
+  Makefile::Rule* clean = out.StartRule("clean", "");
   for (const Node* node : process_order) {
-    node->WriteMakeClean(&out);
+    node->WriteMakeClean(clean);
   }
-  out.WriteCommand("rm -rf " + input.object_dir());
-  out.WriteCommand("rm -rf " + input.genfile_dir());
-  out.WriteCommand("rm -rf " + input.source_dir());
-  out.WriteCommand("rm -rf " + input.pkgfile_dir());
-  out.FinishRule();
+  clean->WriteCommand("rm -rf " + input.object_dir());
+  clean->WriteCommand("rm -rf " + input.genfile_dir());
+  clean->WriteCommand("rm -rf " + input.source_dir());
+  clean->WriteCommand("rm -rf " + input.pkgfile_dir());
+  out.FinishRule(clean);
 
   // Write the all rule.
   ResourceFileSet outputs;

@@ -7,19 +7,29 @@ using std::string;
 
 namespace repobuild {
 
-void Makefile::StartRule(const string& rule, const string& dependencies) {
+Makefile::Rule* Makefile::StartRule(const string& rule,
+                                    const string& dependencies) {
+  return new Rule(rule, dependencies, silent_);
+}
+
+void Makefile::FinishRule(Makefile::Rule* rule) {
   out_.append("\n");
+  out_.append(rule->out());  
+  out_.append("\n");
+  delete rule;
+}
+
+Makefile::Rule::Rule(const string& rule,
+                     const string& dependencies,
+                     bool silent)
+    : silent_(silent) {
   out_.append(rule);
   out_.append(": ");
   out_.append(dependencies);
   out_.append("\n");
 }
 
-void Makefile::FinishRule() {
-  out_.append("\n");
-}
-
-void Makefile::WriteCommand(const string& command) {
+void Makefile::Rule::WriteCommand(const string& command) {
   out_.append("\t");
   if (silent_) {
     out_.append("@");
@@ -28,7 +38,7 @@ void Makefile::WriteCommand(const string& command) {
   out_.append("\n");
 }
 
-void Makefile::WriteCommandBestEffort(const string& command) {
+void Makefile::Rule::WriteCommandBestEffort(const string& command) {
   out_.append("\t-");  // - == ignore failures
   if (silent_) {
     out_.append("@");

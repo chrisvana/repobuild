@@ -102,14 +102,15 @@ void JavaLibraryNode::WriteCompile(const ResourceFileSet& input_files,
   }
 
   // Rule=> obj1 obj2 obj3: <input header files> source1.java source.java ...
-  out->StartRule(strings::JoinAll(obj_files, " " ),
-                 strings::JoinWith(" ",
-                                   strings::JoinAll(input_files.files(), " "),
-                                   strings::JoinAll(sources_, " ")));
+  Makefile::Rule* rule = out->StartRule(
+      strings::JoinAll(obj_files, " " ),
+      strings::JoinWith(" ",
+                        strings::JoinAll(input_files.files(), " "),
+                        strings::JoinAll(sources_, " ")));
 
   // Mkdir commands.
   for (const string d : directories) {
-    out->WriteCommand("mkdir -p " + d);
+    rule->WriteCommand("mkdir -p " + d);
   }
 
   // Compile command.
@@ -140,8 +141,8 @@ void JavaLibraryNode::WriteCompile(const ResourceFileSet& input_files,
     compile_args.insert(f);
   }
 
-  out->WriteCommand("echo \"Compiling: " + target().make_path() + " (java)\"");
-  out->WriteCommand(strings::JoinWith(
+  rule->WriteCommand("echo \"Compiling: " + target().make_path() + " (java)\"");
+  rule->WriteCommand(strings::JoinWith(
       " ",
       compile,
       "-d " + java_out_root_,
@@ -153,7 +154,7 @@ void JavaLibraryNode::WriteCompile(const ResourceFileSet& input_files,
   // Make sure we actually generated all of the object files, otherwise the
   // user may have specified the wrong java_out_root.
   for (const Resource& obj : obj_files) {
-    out->WriteCommand("if [ ! -f " + obj.path() + " ]; then " +
+    rule->WriteCommand("if [ ! -f " + obj.path() + " ]; then " +
                       "echo \"Class file not generated: " + obj.path() +
                       ", or it was generated in an unexpected location. Make "
                       "sure java_out_root is specified correctly or the "
@@ -162,7 +163,7 @@ void JavaLibraryNode::WriteCompile(const ResourceFileSet& input_files,
                       "\"; exit 1; fi");
   }
 
-  out->FinishRule();
+  out->FinishRule(rule);
 }
 
 void JavaLibraryNode::LocalLinkFlags(LanguageType lang,

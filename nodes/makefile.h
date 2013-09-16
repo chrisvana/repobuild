@@ -17,23 +17,37 @@ class Makefile {
   // Options
   void SetSilent(bool silent) { silent_ = silent; }
 
+  class Rule {
+   public:
+    Rule(const std::string& rule, const std::string& dependencies, bool silent);
+    ~Rule() {}
+
+    // Adding commands to our rule.
+    void WriteCommand(const std::string& command);
+    void WriteCommandBestEffort(const std::string& command);
+
+    // Raw access.
+    std::string* mutable_out() { return &out_; }
+    const std::string& out() const { return out_; }
+
+   private:
+    bool silent_;
+    std::string out_;
+  };
+
   // Rules
-  // TODO(cvanarsdale): Return a pointer to a MakefileRule.
-  void StartRule(const std::string& rule) { StartRule(rule, ""); }
-  void StartRule(const std::string& rule, const std::string& dependencies);
-  void FinishRule();
+  Rule* StartRule(const std::string& rule) { return StartRule(rule, ""); }
+  Rule* StartRule(const std::string& rule, const std::string& dependencies);
+  void FinishRule(Rule* rule);
   void WriteRule(const std::string& rule, const std::string& deps) {
-    StartRule(rule, deps);
-    FinishRule();
+    FinishRule(StartRule(rule, deps));
   }
 
-  // Commands for rules.
-  void WriteCommand(const std::string& command);
-  void WriteCommandBestEffort(const std::string& command);
-
+  // Full access.
   std::string* mutable_out() { return &out_; }
   const std::string& out() const { return out_; }
 
+  // Helper to make this easier.
   template <typename T>
   void append(const T& t) {
     out_.append(strings::StringPrint(t));

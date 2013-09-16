@@ -19,7 +19,7 @@ class ConfigNode : public Node {
   virtual ~ConfigNode() {}
   virtual std::string Name() const { return "config"; }
   virtual void Parse(BuildFile* file, const BuildFileNode& input);
-  virtual void LocalWriteMakeClean(Makefile* out) const;
+  virtual void LocalWriteMakeClean(Makefile::Rule* out) const;
   virtual void LocalWriteMake(Makefile* out) const;
   virtual void LocalDependencyFiles(LanguageType lang,
                                     ResourceFileSet* files) const;

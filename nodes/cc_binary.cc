@@ -37,14 +37,14 @@ void CCBinaryNode::LocalWriteMake(Makefile* out) const {
 
   // Symlink to root dir.
   Resource out_bin = OutBinary();
-  out->StartRule(out_bin.path(), bin.path());
-  out->WriteCommand("pwd > /dev/null");  // hack to work around make issue?
-  out->WriteCommand(
+  Makefile::Rule* rule = out->StartRule(out_bin.path(), bin.path());
+  rule->WriteCommand("pwd > /dev/null");  // hack to work around make issue?
+  rule->WriteCommand(
       strings::Join(
           "ln -f -s ",
           strings::JoinPath(input().object_dir(), target().make_path()),
           " ", out_bin.path()));
-  out->FinishRule();
+  out->FinishRule(rule);
 }
 
 void CCBinaryNode::WriteLink(const Resource& file, Makefile* out) const {
@@ -55,8 +55,9 @@ void CCBinaryNode::WriteLink(const Resource& file, Makefile* out) const {
   LinkFlags(CPP, &flags);
 
   // Link rule
-  out->StartRule(file.path(), strings::JoinAll(objects.files(), " "));
-  out->WriteCommand("echo Linking: " + file.path());
+  Makefile::Rule* rule = out->StartRule(file.path(),
+                                        strings::JoinAll(objects.files(), " "));
+  rule->WriteCommand("echo Linking: " + file.path());
   string obj_list;
   for (const Resource& r : objects.files()) {
     obj_list += " ";
@@ -69,15 +70,15 @@ void CCBinaryNode::WriteLink(const Resource& file, Makefile* out) const {
       obj_list += " $(LD_FORCE_LINK_END)";
     }
   }
-  out->WriteCommand(strings::JoinWith(
+  rule->WriteCommand(strings::JoinWith(
       " ",
       "$(LINK.cc)", obj_list, "-o", file,
       strings::JoinAll(flags, " ")));
-  out->FinishRule();
+  out->FinishRule(rule);
 }
 
-void CCBinaryNode::LocalWriteMakeClean(Makefile* out) const {
-  out->WriteCommand("rm -f " + OutBinary().path());
+void CCBinaryNode::LocalWriteMakeClean(Makefile::Rule* rule) const {
+  rule->WriteCommand("rm -f " + OutBinary().path());
 }
 
 void CCBinaryNode::LocalDependencyFiles(LanguageType lang,

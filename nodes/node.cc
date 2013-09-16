@@ -74,7 +74,7 @@ void Node::WriteMake(Makefile* out) const {
   LocalWriteMake(out);
 }
 
-void Node::WriteMakeClean(Makefile* out) const {
+void Node::WriteMakeClean(Makefile::Rule* out) const {
   LocalWriteMakeClean(out);
 }
 

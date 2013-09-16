@@ -84,30 +84,30 @@ void ConfigNode::AddSymlink(const string& dir,
       source);
 
   // Write symlink.
-  out->StartRule(dir);
-  out->WriteCommand(strings::Join(
+  Makefile::Rule* rule = out->StartRule(dir);
+  rule->WriteCommand(strings::Join(
       "mkdir -p ", strings::PathDirname(dir), "; ",
       "[ -f ", source, " ] || mkdir -p ", source, "; ",
       "ln -f -s ", link, " ", dir));
-  out->FinishRule();
+  out->FinishRule(rule);
 
   // Dummy file (to avoid directory timestamp causing everything to rebuild).
   // .gen-src/repobuild/.dummy: .gen-src/repobuild
   //   [ -f .gen-src/repobuild/.dummy ] || touch .gen-src/repobuild/.dummy
   string dummy = DummyFile(dir);
-  out->StartRule(dummy, dir);
-  out->WriteCommand(strings::Join("[ -f ", dummy, " ] || touch ", dummy));
-  out->FinishRule();
+  rule = out->StartRule(dummy, dir);
+  rule->WriteCommand(strings::Join("[ -f ", dummy, " ] || touch ", dummy));
+  out->FinishRule(rule);
 }
 
-void ConfigNode::LocalWriteMakeClean(Makefile* out) const {
+void ConfigNode::LocalWriteMakeClean(Makefile::Rule* rule) const {
   if (component_src_.empty()) {
     return;
   }
 
-  out->WriteCommand("rm -rf " + source_dummy_file_.path());
-  out->WriteCommand("rm -rf " + gendir_dummy_file_.path());
-  out->WriteCommand("rm -rf " + pkgfile_dummy_file_.path());
+  rule->WriteCommand("rm -rf " + source_dummy_file_.path());
+  rule->WriteCommand("rm -rf " + gendir_dummy_file_.path());
+  rule->WriteCommand("rm -rf " + pkgfile_dummy_file_.path());
 }
 
 void ConfigNode::LocalDependencyFiles(LanguageType lang,

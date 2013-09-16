@@ -56,10 +56,10 @@ void JavaBinaryNode::LocalWriteMake(Makefile* out) const {
 
   // Symlink to root dir.
   Resource out_bin = OutJarName();
-  out->StartRule(out_bin.path(), bin.path());
-  out->WriteCommand("pwd > /dev/null");  // hack to work around make issue?
-  out->WriteCommand("ln -f -s " + bin.path() + " " + out_bin.path());
-  out->FinishRule();
+  Makefile::Rule* rule = out->StartRule(out_bin.path(), bin.path());
+  rule->WriteCommand("pwd > /dev/null");  // hack to work around make issue?
+  rule->WriteCommand("ln -f -s " + bin.path() + " " + out_bin.path());
+  out->FinishRule(rule);
 }
 
 void JavaBinaryNode::WriteJar(const Resource& file, Makefile* out) const {
@@ -95,17 +95,18 @@ void JavaBinaryNode::WriteJar(const Resource& file, Makefile* out) const {
   }
   man_cmd += "; do echo \"$$line\" >> " + manifest.path() + "; done; ";
   man_cmd += "touch " + manifest.path() + "'";
-  out->StartRule(manifest.path(), strings::JoinAll(objects.files(), " "));
-  out->WriteCommand(man_cmd);
-  out->FinishRule();
+  Makefile::Rule* rule = out->StartRule(manifest.path(),
+                                        strings::JoinAll(objects.files(), " "));
+  rule->WriteCommand(man_cmd);
+  out->FinishRule(rule);
 
   // Jar rule
-  out->StartRule(file.path(),
+  rule = out->StartRule(file.path(),
                  strings::JoinWith(" ",
                                    manifest.path(),
                                    strings::JoinAll(objects.files(), " ")));
-  out->WriteCommand("echo Jaring: " + file.path());
-  out->WriteCommand(strings::JoinWith(
+  rule->WriteCommand("echo Jaring: " + file.path());
+  rule->WriteCommand(strings::JoinWith(
       " ",
       "cd " + input().object_dir(),
       "; jar cfm",
@@ -113,11 +114,11 @@ void JavaBinaryNode::WriteJar(const Resource& file, Makefile* out) const {
       "../" + manifest.path(),
       strings::JoinAll(flags, " "),
       strings::JoinAll(class_paths, " ")));
-  out->FinishRule();
+  out->FinishRule(rule);
 }
 
-void JavaBinaryNode::LocalWriteMakeClean(Makefile* out) const {
-  out->WriteCommand("rm -f " + OutJarName().path());
+void JavaBinaryNode::LocalWriteMakeClean(Makefile::Rule* rule) const {
+  rule->WriteCommand("rm -f " + OutJarName().path());
 }
 
 void JavaBinaryNode::LocalDependencyFiles(LanguageType lang,

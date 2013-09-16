@@ -35,11 +35,11 @@ string GetPyModule(const string& source) {
 void WriteLocalLink(const Resource& original,
                     const Resource& final,
                     Makefile* out) {
-  out->StartRule(final.path(), original.path());
-  out->WriteCommand("pwd > /dev/null");  // hack to work around make issue?
-  out->WriteCommand(strings::JoinWith(
+  Makefile::Rule* rule = out->StartRule(final.path(), original.path());
+  rule->WriteCommand("pwd > /dev/null");  // hack to work around make issue?
+  rule->WriteCommand(strings::JoinWith(
       " ", "ln -f -s", original.path(), final.path()));
-  out->FinishRule();
+  out->FinishRule(rule);
 }
 }
 
@@ -74,12 +74,13 @@ void PyBinaryNode::LocalWriteMake(Makefile* out) const {
   // Output egg file
   Resource egg_touchfile = Touchfile(".egg");
   Resource egg_bin = EggBinary();
-  out->StartRule(egg_touchfile.path(),
-                 strings::Join(strings::JoinAll(deps.files(), " "), " ",
-                               SetupFile(input())));
-  out->WriteCommand("echo python build: " + egg_bin.path());
-  out->WriteCommand("mkdir -p " + egg_touchfile.dirname());
-  out->WriteCommand(
+  Makefile::Rule* rule =
+      out->StartRule(egg_touchfile.path(),
+                     strings::Join(strings::JoinAll(deps.files(), " "), " ",
+                                   SetupFile(input())));
+  rule->WriteCommand("echo python build: " + egg_bin.path());
+  rule->WriteCommand("mkdir -p " + egg_touchfile.dirname());
+  rule->WriteCommand(
       "cd " + GenDir() + "; " +
       strings::JoinWith(
           " ",
@@ -93,26 +94,27 @@ void PyBinaryNode::LocalWriteMake(Makefile* out) const {
           "--dist-dir=" + strings::JoinPath("$(ROOT_DIR)", ObjectDir()),
           "--bdist-dir=" + target().local_path() + ".build",
           strings::JoinAll(py_build_args_, " ")));
-  out->WriteCommand("touch " + egg_touchfile.path());
-  out->FinishRule();
+  rule->WriteCommand("touch " + egg_touchfile.path());
+  out->FinishRule(rule);
 
   // Link asdf-1.0-py2.7.egg to asdf.egg
   // TOOD(cvanarsdale): handle prefix case (e.g. asdf-1.0-bin1.egg, asdf.egg).
-  out->StartRule(egg_bin.path(), egg_touchfile.path());
-  out->WriteCommand(
+  rule = out->StartRule(egg_bin.path(), egg_touchfile.path());
+  rule->WriteCommand(
       " cd " + ObjectDir() +
       "; ln -f -s $$(ls " + target().local_path() + "-*.egg) "
       + egg_bin.basename());
-  out->FinishRule();
+  out->FinishRule(rule);
 
   // Script that runs .egg file.
   Resource bin = BinScript();
-  out->StartRule(bin.path(), egg_bin.path());
+  rule = out->StartRule(bin.path(), egg_bin.path());
   string module = py_default_module_.empty() ? "" : " -m " + py_default_module_;
-  out->WriteCommand("echo 'python" + module +
+  rule->WriteCommand("echo 'python" + module +
                     " $$(pwd)/$$(dirname $$0)/" + egg_bin.basename() +
                     "' > " + bin.path() +
                     "; chmod 755 " + bin.path());
+  out->FinishRule(rule);
 
   // Symlink to that script in the root dir.
   WriteLocalLink(egg_bin, OutEgg(), out);
@@ -142,15 +144,15 @@ void PyBinaryNode::WriteMakeHead(const Input& input, Makefile* out) {
   out->append(kPyScript);
   out->append("\nendef\n");
   out->append("export PythonSetup\n");
-  out->StartRule(SetupFile(input));
-  out->WriteCommand("echo \"$$PythonSetup\" > " + SetupFile(input));
-  out->FinishRule();
+  Makefile::Rule* rule = out->StartRule(SetupFile(input));
+  rule->WriteCommand("echo \"$$PythonSetup\" > " + SetupFile(input));
+  out->FinishRule(rule);
 }
 
-void PyBinaryNode::LocalWriteMakeClean(Makefile* out) const {
-  out->WriteCommand("rm -f " + OutBinary().path());
-  out->WriteCommand("rm -f " + OutEgg().path());
-  out->WriteCommand("rm -rf " + strings::JoinPath(
+void PyBinaryNode::LocalWriteMakeClean(Makefile::Rule* rule) const {
+  rule->WriteCommand("rm -f " + OutBinary().path());
+  rule->WriteCommand("rm -f " + OutEgg().path());
+  rule->WriteCommand("rm -rf " + strings::JoinPath(
       GenDir(),
       target().make_path() + ".egg-info"));
 }

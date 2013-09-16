@@ -45,7 +45,7 @@ class GenShNode : public Node {
                            const std::string& cmd,
                            const std::string& admin_cmd) const;
 
-  virtual void LocalWriteMakeClean(Makefile* out) const;
+  virtual void LocalWriteMakeClean(Makefile::Rule* out) const;
   virtual void LocalWriteMake(Makefile* out) const;
   virtual void LocalDependencyFiles(LanguageType lang,
                                     ResourceFileSet* files) const;

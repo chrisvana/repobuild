@@ -38,17 +38,18 @@ void GoBinaryNode::LocalWriteMake(Makefile* out) const {
 
   // Output binary
   Resource bin = Binary();
-  out->StartRule(bin.path(), strings::JoinAll(deps.files(), " "));
-  out->WriteCommand("echo Go build: " + bin.path());
-  out->WriteCommand("mkdir -p " + bin.dirname());
-  out->WriteCommand(
+  Makefile::Rule* rule = out->StartRule(bin.path(),
+                                        strings::JoinAll(deps.files(), " "));
+  rule->WriteCommand("echo Go build: " + bin.path());
+  rule->WriteCommand("mkdir -p " + bin.dirname());
+  rule->WriteCommand(
       strings::JoinWith(
           " ",
           GoBuildPrefix(), "go build -o", bin,
           strings::JoinAll(input().flags("-G"), " "),
           strings::JoinAll(go_build_args_, " "),
           strings::JoinAll(inputs.files(), " ")));
-  out->FinishRule();
+  out->FinishRule(rule);
 
   // User target
   {
@@ -59,19 +60,19 @@ void GoBinaryNode::LocalWriteMake(Makefile* out) const {
 
   // Symlink to root dir.
   Resource out_bin = OutBinary();
-  out->StartRule(out_bin.path(), bin.path());
-  out->WriteCommand("pwd > /dev/null");  // hack to work around make issue?
-  out->WriteCommand(
+  rule = out->StartRule(out_bin.path(), bin.path());
+  rule->WriteCommand("pwd > /dev/null");  // hack to work around make issue?
+  rule->WriteCommand(
       strings::JoinWith(
           " ",
           "ln -f -s",
           strings::JoinPath(input().object_dir(), target().make_path()),
           out_bin.path()));
-  out->FinishRule();
+  out->FinishRule(rule);
 }
 
-void GoBinaryNode::LocalWriteMakeClean(Makefile* out) const {
-  out->WriteCommand("rm -f " + OutBinary().path());
+void GoBinaryNode::LocalWriteMakeClean(Makefile::Rule* rule) const {
+  rule->WriteCommand("rm -f " + OutBinary().path());
 }
 
 void GoBinaryNode::LocalDependencyFiles(LanguageType lang,
