@@ -46,6 +46,9 @@ What should you do now?<br/>
 - Start playing with your own project.
 - You can add submodules/forks to "third_party" if you like.
 
+Forum:
+- https://groups.google.com/forum/#!forum/repobuild
+
 --
 TODOs:<br/>
 <br/>
