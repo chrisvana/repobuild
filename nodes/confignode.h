@@ -21,8 +21,10 @@ class ConfigNode : public Node {
   virtual void Parse(BuildFile* file, const BuildFileNode& input);
   virtual void LocalWriteMakeClean(Makefile* out) const;
   virtual void LocalWriteMake(Makefile* out) const;
-  virtual void LocalDependencyFiles(LanguageType lang,ResourceFileSet* files) const;
-
+  virtual void LocalDependencyFiles(LanguageType lang,
+                                    ResourceFileSet* files) const;
+  virtual void LocalIncludeDirs(LanguageType lang,
+                                std::set<std::string>* dirs) const;
  protected:
   void AddSymlink(const std::string& dir,
                   const std::string& source,
@@ -32,7 +34,7 @@ class ConfigNode : public Node {
   std::string CurrentDir(const std::string& middle) const;
 
   std::string component_src_, component_root_;
-  Resource source_dummy_file_, gendir_dummy_file_;
+  Resource source_dummy_file_, gendir_dummy_file_, pkgfile_dummy_file_;
 };
 
 }  // namespace repobuild

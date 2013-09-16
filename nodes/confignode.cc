@@ -30,6 +30,8 @@ void ConfigNode::Parse(BuildFile* file, const BuildFileNode& input) {
       Resource::FromRootPath(DummyFile(SourceDir("")));
   gendir_dummy_file_ =
       Resource::FromRootPath(DummyFile(SourceDir(Node::input().genfile_dir())));
+  pkgfile_dummy_file_ =
+      Resource::FromRootPath(DummyFile(SourceDir(Node::input().pkgfile_dir())));
 }
 
 void ConfigNode::LocalWriteMake(Makefile* out) const {
@@ -37,29 +39,39 @@ void ConfigNode::LocalWriteMake(Makefile* out) const {
     return;
   }
 
+  string actual_dir = strings::JoinPath(target().dir(), component_root_);
+
   // 3 Rules:
   // 1) Our .gen-src directory
-  // 2) Our base files (e.g. the .h and .cc files)
-  // 3) Our .gen-files directory
+  // 2) Our .gen-src/.gen-pkg directory (HACK).
+  // 3) .gen-src/.gen-files directory (HACK).
+  // 4) User target that generates all 3 above.
+  ResourceFileSet dirs;
 
-  // (1) .gen-src symlink
-  string dir = SourceDir("");  // directory we create
-  AddSymlink(dir, strings::JoinPath(target().dir(), component_root_), out);
-
-  // (2) Main files
-  {
-    ResourceFileSet targets;
-    targets.Add(Resource::FromRootPath(dir));
-    WriteBaseUserTarget(targets, out);
+  {  // (1) .gen-src symlink
+    Resource dir = Resource::FromRootPath(source_dummy_file_.dirname());
+    dirs.Add(dir);
+    AddSymlink(dir.path(), actual_dir, out);
   }
 
-  // (3) .gen-files symlink
-  dir = SourceDir(input().genfile_dir());  // directory we create
-  AddSymlink(dir,
-             strings::JoinPath(input().genfile_dir(),
-                               strings::JoinPath(target().dir(),
-                                                 component_root_)),
-             out);
+  {  // (2) .gen-src/.gen-pkg symlink
+    Resource dir = Resource::FromRootPath(pkgfile_dummy_file_.dirname());
+    dirs.Add(dir);
+    AddSymlink(dir.path(),
+               strings::JoinPath(input().pkgfile_dir(), actual_dir),
+               out);
+  }
+
+  {  // (3) .gen-src/.gen-files symlink
+    Resource dir = Resource::FromRootPath(gendir_dummy_file_.dirname());
+    dirs.Add(dir);
+    AddSymlink(dir.path(),
+               strings::JoinPath(input().genfile_dir(), actual_dir),
+               out);
+  }
+
+  // (4) User target.
+  WriteBaseUserTarget(dirs, out);
 }
 
 void ConfigNode::AddSymlink(const string& dir,
@@ -94,9 +106,8 @@ void ConfigNode::LocalWriteMakeClean(Makefile* out) const {
   }
 
   out->WriteCommand("rm -rf " + source_dummy_file_.path());
-  out->WriteCommand("rm -rf " + SourceDir(SourceDir("")));
   out->WriteCommand("rm -rf " + gendir_dummy_file_.path());
-  out->WriteCommand("rm -rf " + SourceDir(input().genfile_dir()));
+  out->WriteCommand("rm -rf " + pkgfile_dummy_file_.path());
 }
 
 void ConfigNode::LocalDependencyFiles(LanguageType lang,
@@ -104,6 +115,14 @@ void ConfigNode::LocalDependencyFiles(LanguageType lang,
   if (!component_src_.empty()) {
     files->Add(source_dummy_file_);
     files->Add(gendir_dummy_file_);
+    files->Add(pkgfile_dummy_file_);
+  }
+}
+
+void ConfigNode::LocalIncludeDirs(LanguageType lang, set<string>* dirs) const {
+  if (!component_src_.empty()) {
+    dirs->insert(strings::JoinPath(input().source_dir(),
+                                   input().genfile_dir()));
   }
 }
 

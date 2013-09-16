@@ -31,6 +31,7 @@ Node::Node(const TargetInfo& target, const Input& input)
   gen_dir_ = strings::JoinPath(input.genfile_dir(), target.dir());
   src_dir_ = strings::JoinPath(input.source_dir(), target.dir());
   obj_dir_ = strings::JoinPath(input.object_dir(), target.dir());
+  package_dir_ = strings::JoinPath(input.pkgfile_dir(), target.dir());
 
   relative_root_dir_ =
       strings::Repeat("../", strings::NumPathComponents(target.dir()));
@@ -191,6 +192,9 @@ void Node::InputIncludeDirs(LanguageType lang, set<string>* dirs) const {
   for (Node* node : all_deps) {
     node->LocalIncludeDirs(lang, dirs);
   }
+  dirs->insert(input().root_dir());
+  dirs->insert(input().source_dir());
+  dirs->insert(input().genfile_dir());
 }
 
 void Node::EnvVariables(LanguageType lang, map<string, string>* env) const {

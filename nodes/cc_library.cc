@@ -182,23 +182,22 @@ void CCLibraryNode::WriteCompile(const Resource& source,
   // Mkdir command.
   out->WriteCommand("mkdir -p " + obj.dirname());
 
-  // Compile command.
+  // Compile command (.e.g $(COMPILE.c) or $(COMPILE.cc)).
   bool cpp = (strings::HasSuffix(source.basename(), ".cc") ||
               strings::HasSuffix(source.basename(), ".cpp"));
   string compile = DefaultCompileFlags(cpp);
-  string include_dirs = strings::JoinWith(
-      " ",
-      "-I" + input().root_dir(),
-      "-I" + input().genfile_dir(),
-      "-I" + input().source_dir(),
-      "-I" + strings::JoinPath(input().source_dir(), input().genfile_dir()));
 
-  set<string> more_include_dirs;
-  IncludeDirs(cpp ? CPP : C_LANG, &more_include_dirs);
-  for (const string& str: more_include_dirs) {
-    include_dirs += " -I" + str;
+  // Include directories.
+  string include_dirs;
+  {
+    set<string> include_dir_set;
+    IncludeDirs(cpp ? CPP : C_LANG, &include_dir_set);
+    for (const string& str: include_dir_set) {
+      include_dirs += (include_dirs.empty() ? "-I" : " -I") + str;
+    }
   }
 
+  // Compile args
   string output_compile_args;
   {
     set<string> header_compile_args;
@@ -209,6 +208,7 @@ void CCLibraryNode::WriteCompile(const Resource& source,
         GetVariable(cpp ? kCxxCompileArgs : kCCompileArgs).ref_name());
   }
 
+  // Actual make command.
   out->WriteCommand("echo \"Compiling: " + source.path() +
                     " (" + (cpp ? "c++" : "c") + ")\"");
   out->WriteCommand(strings::JoinWith(

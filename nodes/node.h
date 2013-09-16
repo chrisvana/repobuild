@@ -142,6 +142,7 @@ class Node {
   std::string RelativeObjectDir() const { return relative_obj_dir_; }
   std::string SourceDir() const { return src_dir_; }
   std::string RelativeSourceDir() const { return relative_src_dir_; }
+  std::string PackageDir() const { return package_dir_; }
   std::string RelativeRootDir() const { return relative_root_dir_; }
   std::string StripSpecialDirs(const std::string& path) const;
 
@@ -225,7 +226,7 @@ class Node {
   TargetInfo target_;
   const Input* input_;
   std::vector<TargetInfo> dep_targets_;
-  std::string src_dir_, obj_dir_, gen_dir_;
+  std::string src_dir_, obj_dir_, gen_dir_, package_dir_;
   std::string relative_root_dir_, relative_src_dir_;
   std::string relative_obj_dir_, relative_gen_dir_;
 
