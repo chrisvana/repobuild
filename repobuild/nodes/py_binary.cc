@@ -21,7 +21,7 @@ using std::set;
 namespace repobuild {
 namespace {
 string SetupFile(const Input& input) {
-  return strings::JoinPath(input.genfile_dir(), "base_setup.py");
+  return strings::JoinPath(input.pkgfile_dir(), "base_setup.py");
 }
 string GetPyModule(const string& source) {
   if (strings::HasSuffix(source, ".py")) {

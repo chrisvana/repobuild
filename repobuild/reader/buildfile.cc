@@ -187,6 +187,7 @@ void BuildFileNodeReader::ParseSingleFile(const string& key,
   string tmp;
   if (ParseStringField(key, &tmp)) {
     vector<string> fake;
+    fake.push_back(tmp);
     ParseFilesFromString(fake, strict_file_mode, output);
   }
 }

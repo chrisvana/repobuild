@@ -80,7 +80,8 @@
      "name" : "py_library",
      "cc_sources" : [ "py_library.cc" ],
      "cc_headers" : [ "py_library.h" ],
-     "dependencies": [ "//common/strings:strutil",
+     "dependencies": [ "//common/log:log",
+                       "//common/strings:strutil",
                        ":node" ]
    }
  },

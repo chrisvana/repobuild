@@ -1,16 +1,19 @@
 // Copyright 2013
 // Author: Christopher Van Arsdale
 //
-// TODO(cvanarsdale): This overalaps a lot with go_library.
+// TODO(cvanarsdale): This overalaps a lot with go_library/cc_library.
 
 #include <set>
 #include <string>
 #include <vector>
+#include "common/log/log.h"
 #include "common/strings/path.h"
 #include "common/strings/strutil.h"
 #include "repobuild/env/input.h"
 #include "repobuild/nodes/py_library.h"
 #include "repobuild/reader/buildfile.h"
+
+#include <json/json.h>
 
 using std::vector;
 using std::string;
@@ -23,6 +26,19 @@ void PyLibraryNode::Parse(BuildFile* file, const BuildFileNode& input) {
 
   // py_sources
   current_reader()->ParseRepeatedFiles("py_sources", &sources_);
+
+  // py_base_dir
+  vector<Resource> py_base_dirs;
+  current_reader()->ParseSingleFile("py_base_dir",
+                                    true,
+                                    &py_base_dirs);
+  if (!py_base_dirs.empty()) {
+    if (py_base_dir_.size() > 1) {
+      LOG(FATAL) << "Too many results for py_base_dir, need 1: "
+                 << target().full_path();
+    }
+    py_base_dir_ = py_base_dirs[0].path() + "/";
+  }
 
   Init();
 }
@@ -79,8 +95,11 @@ void PyLibraryNode::Init() {
 }
 
 Resource PyLibraryNode::PyFileFor(const Resource& r) const {
-  return Resource::FromLocalPath(input().pkgfile_dir(),
-                                 StripSpecialDirs(r.path()));
+  string file = StripSpecialDirs(r.path());
+  if (strings::HasPrefix(file, py_base_dir_)) {
+    file = file.substr(py_base_dir_.size());
+  }
+  return Resource::FromLocalPath(input().pkgfile_dir(), file);
 }
 
 }  // namespace repobuild

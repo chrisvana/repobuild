@@ -4,6 +4,8 @@
 #ifndef _REPOBUILD_NODES_PY_LIBRARY_H__
 #define _REPOBUILD_NODES_PY_LIBRARY_H__
 
+#include <string>
+#include <vector>
 #include "repobuild/nodes/node.h"
 #include "repobuild/env/resource.h"
 
@@ -35,6 +37,7 @@ class PyLibraryNode : public SimpleLibraryNode {
   Resource PyFileFor(const Resource& r) const;
 
   Resource touchfile_;
+  std::string py_base_dir_;
 };
 
 }  // namespace repobuild
