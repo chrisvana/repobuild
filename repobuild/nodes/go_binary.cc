@@ -65,7 +65,7 @@ void GoBinaryNode::LocalWriteMake(Makefile* out) const {
 }
 
 void GoBinaryNode::LocalWriteMakeClean(Makefile::Rule* rule) const {
-  rule->WriteCommand("rm -f " + OutBinary().path());
+  rule->MaybeRemoveSymlink(OutBinary().path());
 }
 
 void GoBinaryNode::LocalDependencyFiles(LanguageType lang,

@@ -73,7 +73,7 @@ void CCBinaryNode::WriteLink(const Resource& file, Makefile* out) const {
 }
 
 void CCBinaryNode::LocalWriteMakeClean(Makefile::Rule* rule) const {
-  rule->WriteCommand("rm -f " + OutBinary().path());
+  rule->MaybeRemoveSymlink(OutBinary().path());
 }
 
 void CCBinaryNode::LocalDependencyFiles(LanguageType lang,

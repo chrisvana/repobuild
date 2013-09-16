@@ -27,6 +27,7 @@ class Makefile {
     void WriteCommandBestEffort(const std::string& command);
     void WriteUserEcho(const std::string& name,
                        const std::string& value);  // prints "name: value".
+    void MaybeRemoveSymlink(const std::string& path);
 
     // Raw access.
     std::string* mutable_out() { return &out_; }

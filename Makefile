@@ -689,7 +689,7 @@ clean:
 	@rm -rf .gen-src/repobuild/.dummy
 	@rm -rf .gen-src/.gen-files/repobuild/.dummy
 	@rm -rf .gen-src/.gen-pkg/repobuild/.dummy
-	@rm -f repobuild
+	@[ -L repobuild ] && rm -f repobuild
 	@rm -rf .gen-obj
 	@rm -rf .gen-files
 	@rm -rf .gen-src

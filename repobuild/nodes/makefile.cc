@@ -56,6 +56,10 @@ void Makefile::Rule::WriteUserEcho(const string& name,
                                      value.c_str()));
 }
 
+void Makefile::Rule::MaybeRemoveSymlink(const std::string& path) {
+  WriteCommand("[ -L " + path + " ] && rm -f " + path + " || echo -n ''");
+}
+
 void Makefile::WriteRootSymlink(const string& symlink_file,
                                 const string& source_file) {
   string out_dir = strings::PathDirname(symlink_file);

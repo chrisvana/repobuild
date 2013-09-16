@@ -117,7 +117,7 @@ void JavaBinaryNode::WriteJar(const Resource& file, Makefile* out) const {
 }
 
 void JavaBinaryNode::LocalWriteMakeClean(Makefile::Rule* rule) const {
-  rule->WriteCommand("rm -f " + OutJarName().path());
+  rule->MaybeRemoveSymlink(OutJarName().path());
 }
 
 void JavaBinaryNode::LocalDependencyFiles(LanguageType lang,

@@ -1,4 +1,7 @@
-*** EXCEPT repobuild/json subdir, which uses MIT ***
+*********************************************************************
+***   EXCEPT repobuild/json subdir, which uses public domain/MIT  ***
+***       json will be removed when FUSE readonly work is done    ***
+*********************************************************************
 
 Copyright (c) 2013, Christopher Van Arsdale
 All rights reserved.

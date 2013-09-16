@@ -143,11 +143,8 @@ void PyBinaryNode::WriteMakeHead(const Input& input, Makefile* out) {
 }
 
 void PyBinaryNode::LocalWriteMakeClean(Makefile::Rule* rule) const {
-  rule->WriteCommand("rm -f " + OutBinary().path());
-  rule->WriteCommand("rm -f " + OutEgg().path());
-  rule->WriteCommand("rm -rf " + strings::JoinPath(
-      GenDir(),
-      target().make_path() + ".egg-info"));
+  rule->MaybeRemoveSymlink(OutBinary().path());
+  rule->MaybeRemoveSymlink(OutEgg().path());
 }
 
 void PyBinaryNode::LocalDependencyFiles(LanguageType lang,
