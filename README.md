@@ -14,11 +14,21 @@ Selenium build: https://code.google.com/p/selenium/wiki/CrazyFunBuild<br/>
 Ant: https://ant.apache.org/
 
 --
+
+What is this?<br/>
+- Build rules allow module code libraries.
+- Rather than procedurally specify make rules, BUILD files auto-generate a make file by expanding dependencies amongst components.
+- Look in testdata/BUILD, or repobuild/BUILD for some examples.<br/>
+
+--
 TODOs:<br/>
 <br/>
 LANGUAGES<br/>
 - Ruby
 - Javascript
+
+DOCUMENTATION<br/>
+- Hah. Poor sucker.
 
 RULES<br>
 - test rules (e.g. cc_test, java_test, py_test, etc).
