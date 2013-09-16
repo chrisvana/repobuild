@@ -16,16 +16,35 @@ Ant: https://ant.apache.org/
 --
 TODOs:<br/>
 <br/>
+LANGUAGES<br/>
+- Ruby
+- Javascript
+
+RULES<br>
+- test rules (e.g. cc_test, java_test, py_test, etc).
+- fileset rules (creates symlinked directory with a set of files in it)
+- embed_data rules (e.g. cc_embed_data, java_embed_data ... takes a set of files and creates string access in linked code)
+
 PLUGINS<br/>
 - Ideally repositories could register a script to modify the BUILD file.
 - Script language... go? python?
+- Could look like: "register_module" { "name": "my_func", "location": "path/to/my/module.go" } ... "{ "my_func": { ... } }"
+
 CODE CLEANUP<br/>
 - This is not the prettiest stuff in the world, especially nodes/...
+
+FILE HANDLING<br/>
+- We expand files in repobuild's input step.
+- We currently do not match against dependent rules' "outs".
+- Current hack is to set file as $GEN_DIR/path/to/dep/file, and strict_file_mode_: false.
+- Ideally, "path/tp/dep/file" would look in "outs" as well as source tree.
+
 FUSE<br/>
 - We should not have to explicitly download code not being modified in the current client.
 - Directories can be mapped to git/svn/etc repositories on the web, and seamlessly integrated via a readonly mount.
 - "third_party" is currently very large (includes boost, amongst others), and we should only have to cache files actually used for compilation locally.
 <br/>
+
 DISTRIBUTED BUILD<br/>
 - Currently this whole thing generates a makefile.
 - Limited distributed build works for c++ using ccache and distcc (configured separately)
