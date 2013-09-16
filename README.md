@@ -28,7 +28,7 @@ RULES<br>
 PLUGINS<br/>
 - Ideally repositories could register a script to modify the BUILD file.
 - Script language... go? python?
-
+- Could look like: "register_module" { "name": "my_func", "location": "path/to/my/module.go" } ... "{ "my_func": { ... } }"
 
 CODE CLEANUP<br/>
 - This is not the prettiest stuff in the world, especially nodes/...
