@@ -19,13 +19,19 @@ TODOs:<br/>
 PLUGINS<br/>
 - Ideally repositories could register a script to modify the BUILD file.
 - Script language... go? python?
+
+
 CODE CLEANUP<br/>
 - This is not the prettiest stuff in the world, especially nodes/...
+
+
 FUSE<br/>
 - We should not have to explicitly download code not being modified in the current client.
 - Directories can be mapped to git/svn/etc repositories on the web, and seamlessly integrated via a readonly mount.
 - "third_party" is currently very large (includes boost, amongst others), and we should only have to cache files actually used for compilation locally.
 <br/>
+
+
 DISTRIBUTED BUILD<br/>
 - Currently this whole thing generates a makefile.
 - Limited distributed build works for c++ using ccache and distcc (configured separately)
