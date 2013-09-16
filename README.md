@@ -2,7 +2,7 @@ repobuild
 ==========
 
 Build tool for my projects.<br/>
-(apparently this is what happens when I get bored)
+(apparently this is what happens when I get bored)<br/>
 <br/>
 Functional, but a work in progress.<br/>
 
