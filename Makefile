@@ -671,13 +671,13 @@ repobuild/generator/generator: .gen-obj/repobuild/generator/generator.cc.o commo
 	@echo "Linking:    .gen-obj/repobuild/repobuild"
 	@$(LINK.cc)  .gen-obj/repobuild/repobuild.cc.o .gen-obj/repobuild/generator/generator.cc.o .gen-obj/repobuild/reader/parser.cc.o .gen-obj/repobuild/nodes/allnodes.cc.o .gen-obj/repobuild/nodes/py_binary.cc.o .gen-obj/repobuild/nodes/py_library.cc.o .gen-obj/repobuild/nodes/proto_library.cc.o .gen-obj/repobuild/nodes/make.cc.o .gen-obj/repobuild/nodes/java_binary.cc.o .gen-obj/repobuild/nodes/java_library.cc.o .gen-obj/repobuild/nodes/go_binary.cc.o .gen-obj/repobuild/nodes/go_library.cc.o .gen-obj/repobuild/nodes/confignode.cc.o .gen-obj/repobuild/nodes/cc_binary.cc.o .gen-obj/repobuild/nodes/cc_library.cc.o .gen-obj/repobuild/nodes/cmake.cc.o .gen-obj/repobuild/nodes/autoconf.cc.o .gen-obj/repobuild/nodes/gen_sh.cc.o .gen-obj/repobuild/nodes/node.cc.o .gen-obj/repobuild/nodes/makefile.cc.o .gen-obj/repobuild/reader/buildfile.cc.o .gen-obj/repobuild/json/json_writer.cpp.o .gen-obj/repobuild/json/json_value.cpp.o .gen-obj/repobuild/json/json_reader.cpp.o .gen-obj/repobuild/env/resource.cc.o .gen-obj/repobuild/env/target.cc.o .gen-obj/repobuild/env/input.cc.o .gen-obj/common/strings/varmap.cc.o .gen-obj/common/strings/path.cc.o .gen-obj/common/strings/strutil.cc.o .gen-obj/common/third_party/google/re2/stringprintf.cc.o .gen-obj/common/third_party/google/re2/stringpiece.cc.o .gen-obj/common/file/fileutil.cc.o $(LD_FORCE_LINK_START) .gen-files/common/third_party/google/gperftools/lib/libtcmalloc_and_profiler.a $(LD_FORCE_LINK_END) .gen-obj/common/base/time.cc.o .gen-obj/common/base/init.cc.o .gen-files/common/third_party/google/glog/lib/libglog.a .gen-obj/common/third_party/google/gflags/src/gflags_reporting.cc.o .gen-obj/common/third_party/google/gflags/src/gflags_nc.cc.o .gen-obj/common/third_party/google/gflags/src/gflags_completions.cc.o .gen-obj/common/third_party/google/gflags/src/gflags.cc.o -o .gen-obj/repobuild/repobuild
 
-repobuild/repobuild: .gen-obj/repobuild/repobuild common/base/base common/log/log common/file/fileutil common/strings/stringpiece common/strings/strutil repobuild/env/input repobuild/env/target repobuild/generator/generator repobuild/auto_.0
-
-.PHONY: repobuild/repobuild
-
 
 repobuild: .gen-obj/repobuild/repobuild
 	@ln -f -s .gen-obj/repobuild/repobuild repobuild
+
+repobuild/repobuild: .gen-obj/repobuild/repobuild common/base/base common/log/log common/file/fileutil common/strings/stringpiece common/strings/strutil repobuild/env/input repobuild/env/target repobuild/generator/generator repobuild/auto_.0
+
+.PHONY: repobuild/repobuild
 
 
 clean: 
@@ -689,7 +689,7 @@ clean:
 	@rm -rf .gen-src/repobuild/.dummy
 	@rm -rf .gen-src/.gen-files/repobuild/.dummy
 	@rm -rf .gen-src/.gen-pkg/repobuild/.dummy
-	@[ -L repobuild ] && rm -f repobuild
+	@[ -L repobuild ] && rm -f repobuild || true
 	@rm -rf .gen-obj
 	@rm -rf .gen-files
 	@rm -rf .gen-src

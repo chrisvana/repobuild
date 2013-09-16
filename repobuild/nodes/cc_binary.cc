@@ -31,15 +31,15 @@ void CCBinaryNode::LocalWriteMake(Makefile* out) const {
   Resource bin = ObjBinary();
   WriteLink(bin, out);
 
-  {  // Output user target
+  // Symlink to root dir.
+  out->WriteRootSymlink(OutBinary().path(), bin.path());
+
+  // Output user target if necessary
+  if (OutBinary().path() != target().make_path()) {
     ResourceFileSet deps;
     deps.Add(bin);
     WriteBaseUserTarget(deps, out);
   }
-
-  // Symlink to root dir.
-  Resource out_bin = OutBinary();
-  out->WriteRootSymlink(OutBinary().path(), bin.path());
 }
 
 void CCBinaryNode::WriteLink(const Resource& file, Makefile* out) const {

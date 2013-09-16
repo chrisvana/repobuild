@@ -54,7 +54,8 @@ void PyBinaryNode::LocalWriteMake(Makefile* out) const {
 
   // Source files.
   ResourceFileSet deps;
-  DependencyFiles(PYTHON, &deps);
+  PyLibraryNode::LocalDependencyFiles(PYTHON, &deps);
+  InputDependencyFiles(PYTHON, &deps);
 
   ResourceFileSet sources;
   ObjectFiles(PYTHON, &sources);
@@ -110,8 +111,8 @@ void PyBinaryNode::LocalWriteMake(Makefile* out) const {
   out->FinishRule(rule);
 
   // Symlink to stuff in the root dir.
-  out->WriteRootSymlink(egg_bin.path(), OutEgg().path());
-  out->WriteRootSymlink(bin.path(), OutBinary().path());
+  out->WriteRootSymlink(OutEgg().path(), egg_bin.path());
+  out->WriteRootSymlink(OutBinary().path(), bin.path());
 
   // User target, if necessary
   if (OutBinary().path() != target().make_path()) {

@@ -50,11 +50,13 @@ class GenShNode : public Node {
   virtual void LocalDependencyFiles(LanguageType lang,
                                     ResourceFileSet* files) const;
 
-  // NB: We intentionally do not pass on sub-dependency files, and rely soley
+  // NB: We intentionally do not pass on files, and rely soley
   // on our "touchfile'.
   virtual bool IncludeDependencies(DependencyCollectionType type,
                                    LanguageType lang) const {
-    return (type != DEPENDENCY_FILES);
+    return (type == BINARIES ||
+            type == INCLUDE_DIRS ||
+            type == ENV_VARIABLES);
   }
 
   std::string build_cmd_;

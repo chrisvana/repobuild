@@ -31,8 +31,23 @@
 DEFINE_string(makefile, "Makefile",
               "Name of makefile output.");
 
+namespace {
+const char* kUsage =
+    "\n\n"
+    "  To generate makefile:\n"
+    "     repobuild \"path/to/dir:target\" [--makefile=Makefile]\n"
+    "\n"
+    "  To build:\n"
+    "     make [-j8] [target]\n"
+    "\n"
+    "  To run:\n"
+    "     ./.gen-obj/path/to/target\n"
+    "         or\n"
+    "     ./target";
+}
+
 int main(int argc, char** argv) {
-  InitProgram(&argc, &argv, true);
+  InitProgram(&argc, &argv, kUsage, true);
   repobuild::Input input;
 
   // Parse command line arguments.
