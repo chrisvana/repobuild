@@ -18,8 +18,30 @@ Similar build systems that did not quite do whawt I wanted:
 - Selenium build: https://code.google.com/p/selenium/wiki/CrazyFunBuild<br/>
 - (sort of, in spirit) Ant: https://ant.apache.org/<br/>
 <br/>
+This tool currently works for Linux/Mac. Windows will be a distant thing with sufficient demand.
 
 --
+Building it
+```
+# Build it:
+$ git clone https://github.com/chrisvana/repobuild.git
+$ cd repobuild
+$ git submodule init
+$ git submodule update
+$ make -j8 repobuild
+$ sudo cp ./gen-obj/repobuild/repobuild  #/... somewhere in your path, like /usr/local/bin/repobuild
+$ # Usage:
+$ repobuild --helpshort
+$ ...
+$ # Try it out:
+$ repobuild "testdata:go_main"
+$ make
+$ ./go_main
+$ # TODO install to somewhere in your PATH #
+
+# Play with testdata
+
+```
 
 --
 Motivation
@@ -45,9 +67,7 @@ What should you do now?<br/>
 - Look at additional libraries are in "third_party".
 - Start playing with your own project.
 - You can add submodules/forks to "third_party" if you like.
-
-Forum:
-- https://groups.google.com/forum/#!forum/repobuild
+- Forum: https://groups.google.com/forum/#!forum/repobuild
 
 --
 TODOs:<br/>
