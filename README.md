@@ -16,6 +16,14 @@ Ant: https://ant.apache.org/
 --
 TODOs:<br/>
 <br/>
+LANGUAGES<br/>
+- Ruby
+- Javascript
+
+RULES<br>
+- test rules (e.g. cctest, javatest).
+- 
+
 PLUGINS<br/>
 - Ideally repositories could register a script to modify the BUILD file.
 - Script language... go? python?
