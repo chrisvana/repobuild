@@ -59,10 +59,35 @@ void PyBinaryNode::LocalWriteMake(Makefile* out) const {
 
   ResourceFileSet sources;
   ObjectFiles(PYTHON, &sources);
-  vector<string> relative_sources;
+  vector<string> modules;
   for (const Resource& r : sources.files()) {
-    relative_sources.push_back(
-        strings::JoinPath("$(ROOT_DIR)", r.path()));
+    string path = StripSpecialDirs(r.path());
+    if (strings::HasSuffix(path, ".py")) {
+      path = path.substr(0, path.size() - 3);
+    } else if (strings::HasSuffix(path, ".pyc")) {
+      path = path.substr(0, path.size() - 4);
+    }
+    modules.push_back(strings::ReplaceAll(path, "/", "."));
+  }
+
+  // NB: Python setuptils is .... not the greatest fit in the world. It likes to
+  // drop __init__.py files in directories that don't contain any actual
+  // source files. This is probably just a bug, but we need the __init__.py
+  // files or else we are screwed when later trying to run the .egg file.
+  set<string> init_files;
+  for (const string& module : modules) {
+    vector<StringPiece> pieces = strings::Split(module, ".");
+    while (!pieces.empty()) {
+      pieces.resize(pieces.size() - 1);
+      if (init_files.insert(strings::JoinWith(".",
+                                              strings::JoinAll(pieces, "."),
+                                              "__init__")).second) {
+        break;
+      }
+    }
+  }
+  for (const string& init : init_files) {
+    modules.push_back(init);
   }
 
   // Output egg file
@@ -75,12 +100,12 @@ void PyBinaryNode::LocalWriteMake(Makefile* out) const {
   rule->WriteUserEcho("Python build", egg_bin.path());
   rule->WriteCommand("mkdir -p " + egg_touchfile.dirname());
   rule->WriteCommand(
-      "cd " + GenDir() + "; " +
+      "cd " + input().pkgfile_dir() + "; " +
       strings::JoinWith(
           " ",
           "PY_NAME=\"" + target().local_path() + "\"",
           "PY_VERSION=" + py_version_,
-          "PY_SCRIPTS=\"" + strings::JoinAll(relative_sources, " ") + "\"",
+          "PY_MODULES=\"" + strings::JoinAll(modules, " ") + "\"",
           "python", strings::JoinPath("$(ROOT_DIR)", SetupFile(input())),
           "build",
           "--build-base=" + target().local_path() + ".build",
@@ -104,8 +129,8 @@ void PyBinaryNode::LocalWriteMake(Makefile* out) const {
   Resource bin = BinScript();
   rule = out->StartRule(bin.path(), egg_bin.path());
   string module = py_default_module_.empty() ? "" : " -m " + py_default_module_;
-  rule->WriteCommand("echo 'python" + module +
-                     " $$(pwd)/$$(dirname $$0)/" + egg_bin.basename() +
+  rule->WriteCommand("echo 'PYTHONPATH=$$(pwd)/$$(dirname $$0)/" +
+                     egg_bin.basename() +":$$PYTHONPATH python -m " + module +
                      "' > " + bin.path() +
                      "; chmod 755 " + bin.path());
   out->FinishRule(rule);
@@ -126,13 +151,12 @@ void PyBinaryNode::LocalWriteMake(Makefile* out) const {
 void PyBinaryNode::WriteMakeHead(const Input& input, Makefile* out) {
   const char kPyScript[] =
       "import os\n"
-      "from setuptools import setup, find_packages\n"
+      "from setuptools import setup\n"
       "\n"
       "setup(\n"
       "    name = os.environ['PY_NAME'],\n"
       "    version = os.environ['PY_VERSION'],\n"
-      "    packages = find_packages(),\n"
-      "    scripts = os.environ['PY_SCRIPTS'].split(),\n"
+      "    py_modules = os.environ['PY_MODULES'].split(),\n"
       ")\n";
   out->append("define PythonSetup\n");
   out->append(kPyScript);
