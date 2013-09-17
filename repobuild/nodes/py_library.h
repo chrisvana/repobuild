@@ -4,6 +4,7 @@
 #ifndef _REPOBUILD_NODES_PY_LIBRARY_H__
 #define _REPOBUILD_NODES_PY_LIBRARY_H__
 
+#include <map>
 #include <string>
 #include <vector>
 #include "repobuild/nodes/node.h"
@@ -26,6 +27,13 @@ class PyLibraryNode : public SimpleLibraryNode {
                                     ResourceFileSet* files) const;
   virtual void LocalObjectFiles(LanguageType lang,
                                 ResourceFileSet* files) const;
+  virtual void ExternalDependencyFiles(
+      LanguageType lang,
+      std::map<std::string, std::string>* files) const;
+
+  static void FinishMakeFile(const Input& input,
+                             const std::vector<const Node*>& all_nodes,
+                             Makefile* out);
 
   // For manual construction.
   void Set(const std::vector<Resource>& sources);

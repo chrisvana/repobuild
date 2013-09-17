@@ -81,6 +81,7 @@
      "cc_sources" : [ "py_library.cc" ],
      "cc_headers" : [ "py_library.h" ],
      "dependencies": [ "//common/log:log",
+                       "//common/file:fileutil",
                        "//common/strings:strutil",
                        ":node" ]
    }

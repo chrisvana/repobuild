@@ -40,8 +40,8 @@ setup(
 endef
 export PythonSetup
 
-.gen-files/base_setup.py: 
-	@echo "$$PythonSetup" > .gen-files/base_setup.py
+.gen-pkg/base_setup.py: 
+	@echo "$$PythonSetup" > .gen-pkg/base_setup.py
 
 
 .gen-src/common: 
@@ -603,12 +603,12 @@ repobuild/nodes/proto_library: .gen-obj/repobuild/nodes/proto_library.cc.o commo
 headers.repobuild/nodes/py_library := repobuild/nodes/py_library.h
 
 
-.gen-obj/repobuild/nodes/py_library.cc.o: $(headers.repobuild/nodes/py_library) $(headers.repobuild/nodes/node) $(headers.repobuild/nodes/makefile) $(headers.repobuild/reader/buildfile) $(headers.repobuild/json/json) $(headers.common/base/macros) $(headers.repobuild/env/target) $(headers.repobuild/env/resource) .gen-src/.gen-pkg/repobuild/.dummy .gen-src/.gen-files/repobuild/.dummy .gen-src/repobuild/.dummy $(headers.common/util/stl) $(headers.common/file/fileutil) $(headers.common/log/log) .gen-obj/common/third_party/google/glog/.glog_gen.1.0.dummy .gen-obj/common/third_party/google/glog/.glog_gen.0.dummy $(headers.common/third_party/google/gflags/gflags) $(headers.common/strings/strutil) $(headers.common/third_party/google/re2/re2) .gen-src/.gen-pkg/common/.dummy .gen-src/.gen-files/common/.dummy .gen-src/common/.dummy repobuild/nodes/py_library.cc
+.gen-obj/repobuild/nodes/py_library.cc.o: $(headers.repobuild/nodes/py_library) $(headers.repobuild/nodes/node) $(headers.repobuild/nodes/makefile) $(headers.repobuild/reader/buildfile) $(headers.repobuild/json/json) $(headers.common/base/macros) $(headers.repobuild/env/target) $(headers.repobuild/env/resource) .gen-src/.gen-pkg/repobuild/.dummy .gen-src/.gen-files/repobuild/.dummy .gen-src/repobuild/.dummy $(headers.common/util/stl) $(headers.common/file/fileutil) $(headers.common/strings/strutil) $(headers.common/third_party/google/re2/re2) $(headers.common/log/log) .gen-obj/common/third_party/google/glog/.glog_gen.1.0.dummy .gen-obj/common/third_party/google/glog/.glog_gen.0.dummy $(headers.common/third_party/google/gflags/gflags) .gen-src/.gen-pkg/common/.dummy .gen-src/.gen-files/common/.dummy .gen-src/common/.dummy repobuild/nodes/py_library.cc
 	@mkdir -p .gen-obj/repobuild/nodes
 	@echo "Compiling:  repobuild/nodes/py_library.cc (c++)"
 	@$(COMPILE.cc) -I. -I.gen-files -I.gen-src -I.gen-src/.gen-files -Icommon/third_party/google/glog/src -Irepobuild $(cxx_header_compile_args.common/third_party/google/gflags/gflags) repobuild/nodes/py_library.cc -o .gen-obj/repobuild/nodes/py_library.cc.o
 
-repobuild/nodes/py_library: .gen-obj/repobuild/nodes/py_library.cc.o common/strings/strutil repobuild/nodes/node repobuild/auto_.0
+repobuild/nodes/py_library: .gen-obj/repobuild/nodes/py_library.cc.o common/log/log common/strings/strutil repobuild/nodes/node repobuild/auto_.0
 
 .PHONY: repobuild/nodes/py_library
 

@@ -36,6 +36,9 @@ class NodeBuilderImpl : public NodeBuilder {
     return new T(target, input);
   }
   virtual void WriteMakeHead(const Input& input, Makefile* out) {}
+  virtual void FinishMakeFile(const Input& input,
+                              const vector<const Node*>& all_nodes,
+                              Makefile* out) {}
 
  private:
   std::string name_;
@@ -47,6 +50,17 @@ class NodeBuilderImplHead : public NodeBuilderImpl<T> {
   NodeBuilderImplHead(const std::string& name) : NodeBuilderImpl<T>(name) {}
   virtual void WriteMakeHead(const Input& input, Makefile* out) {
     T::WriteMakeHead(input, out);
+  }
+};
+
+template <typename T>
+class NodeBuilderImplFinish : public NodeBuilderImpl<T> {
+ public:
+  NodeBuilderImplFinish(const std::string& name) : NodeBuilderImpl<T>(name) {}
+  virtual void FinishMakeFile(const Input& input,
+                              const vector<const Node*>& all_nodes,
+                              Makefile* out) {
+    T::FinishMakeFile(input, all_nodes, out);
   }
 };
 }
@@ -67,7 +81,8 @@ void NodeBuilder::GetAll(std::vector<NodeBuilder*>* nodes) {
   nodes->push_back(new NodeBuilderImpl<JavaBinaryNode>("java_binary"));
   nodes->push_back(new NodeBuilderImpl<MakeNode>("make"));
   nodes->push_back(new NodeBuilderImpl<ProtoLibraryNode>("proto_library"));
-  nodes->push_back(new NodeBuilderImpl<PyLibraryNode>("py_library"));
+
+  nodes->push_back(new NodeBuilderImplFinish<PyLibraryNode>("py_library"));
 }
 
 NodeBuilderSet::NodeBuilderSet() {
@@ -106,6 +121,14 @@ Node* NodeBuilderSet::NewNode(const string& name,
 void NodeBuilderSet::WriteMakeHead(const Input& input, Makefile* makefile) {
   for (NodeBuilder* builder : all_nodes_) {
     builder->WriteMakeHead(input, makefile);
+  }
+}
+
+void NodeBuilderSet::FinishMakeFile(const Input& input,
+                                    const vector<const Node*>& nodes,
+                                    Makefile* makefile) {
+  for (NodeBuilder* builder : all_nodes_) {
+    builder->FinishMakeFile(input, nodes, makefile);
   }
 }
 

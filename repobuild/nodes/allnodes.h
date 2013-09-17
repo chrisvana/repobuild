@@ -23,6 +23,9 @@ class NodeBuilder {
   virtual Node* NewNode(const TargetInfo& target,
                         const Input& input) = 0;
   virtual void WriteMakeHead(const Input& input, Makefile* out) = 0;
+  virtual void FinishMakeFile(const Input& input,
+                              const std::vector<const Node*>& all_nodes,
+                              Makefile* out) = 0;
 
   static void GetAll(std::vector<NodeBuilder*>* nodes);
 };
@@ -39,6 +42,9 @@ class NodeBuilderSet {
                 const Input& input) const;
 
   void WriteMakeHead(const Input& input, Makefile* makefile);
+  void FinishMakeFile(const Input& input,
+                      const std::vector<const Node*>& nodes,
+                      Makefile* makefile);
 
  private:
   DISALLOW_COPY_AND_ASSIGN(NodeBuilderSet);

@@ -4,6 +4,7 @@
 #ifndef _REPOBUILD_NODES_MAKEFILE_H__
 #define _REPOBUILD_NODES_MAKEFILE_H__
 
+#include <set>
 #include <string>
 #include "common/strings/strutil.h"
 
@@ -32,9 +33,11 @@ class Makefile {
     // Raw access.
     std::string* mutable_out() { return &out_; }
     const std::string& out() const { return out_; }
+    const std::string& rule() const { return rule_; }
 
    private:
     bool silent_;
+    std::string rule_;
     std::string out_;
   };
 
@@ -44,6 +47,9 @@ class Makefile {
   void FinishRule(Rule* rule);
   void WriteRule(const std::string& rule, const std::string& deps) {
     FinishRule(StartRule(rule, deps));
+  }
+  bool seen_rule(const std::string& rule) const {
+    return registered_rules_.find(rule) != registered_rules_.end();
   }
 
   // Full access.
@@ -57,11 +63,17 @@ class Makefile {
   }
   // Each file path must have the same root.
   void WriteRootSymlink(const std::string& symlink_file,
-                        const std::string& source_file);
+                        const std::string& source_file) {
+    WriteRootSymlinkWithDependency(symlink_file, source_file, "");
+  }
+  void WriteRootSymlinkWithDependency(const std::string& symlink_file,
+                                      const std::string& source_file,
+                                      const std::string& depenencies);
 
  private:
   bool silent_;
   std::string out_;
+  std::set<std::string> registered_rules_;
 };
 
 }  // namespace repobuild

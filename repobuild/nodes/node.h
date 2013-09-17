@@ -51,6 +51,9 @@ class Node {
   void ObjectFiles(LanguageType lang, ResourceFileSet* files) const;
   void FinalOutputs(LanguageType lang, ResourceFileSet* outputs) const;
   void Binaries(LanguageType lang, ResourceFileSet* outputs) const;
+  virtual void ExternalDependencyFiles(
+      LanguageType lang,
+      std::map<std::string, std::string>* files) const {}
 
   // Flag inheritence
   void LinkFlags(LanguageType lang, std::set<std::string>* flags) const;
@@ -143,7 +146,11 @@ class Node {
   std::string RelativeSourceDir() const { return relative_src_dir_; }
   std::string PackageDir() const { return package_dir_; }
   std::string RelativeRootDir() const { return relative_root_dir_; }
-  std::string StripSpecialDirs(const std::string& path) const;
+  std::string StripSpecialDirs(const std::string& path) const {
+    return StripSpecialDirs(input(), path);
+  }
+  static std::string StripSpecialDirs(const Input& input,
+                                      const std::string& path);
 
   // Makefile helpers.
   std::string MakefileEscape(const std::string& str) const;

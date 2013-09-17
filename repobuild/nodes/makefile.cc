@@ -18,13 +18,17 @@ void Makefile::FinishRule(Makefile::Rule* rule) {
   out_.append("\n");
   out_.append(rule->out());  
   out_.append("\n");
+  for (const StringPiece& str : strings::Split(rule->rule(), " ")) {
+    registered_rules_.insert(str.as_string());
+  }
   delete rule;
 }
 
 Makefile::Rule::Rule(const string& rule,
                      const string& dependencies,
                      bool silent)
-    : silent_(silent) {
+    : silent_(silent),
+      rule_(rule) {
   out_.append(rule);
   out_.append(": ");
   out_.append(dependencies);
@@ -60,8 +64,9 @@ void Makefile::Rule::MaybeRemoveSymlink(const std::string& path) {
   WriteCommand("[ -L " + path + " ] && rm -f " + path + " || true");
 }
 
-void Makefile::WriteRootSymlink(const string& symlink_file,
-                                const string& source_file) {
+void Makefile::WriteRootSymlinkWithDependency(const string& symlink_file,
+                                              const string& source_file,
+                                              const string& dependencies) {
   string out_dir = strings::PathDirname(symlink_file);
 
   // Output link target.
@@ -70,7 +75,9 @@ void Makefile::WriteRootSymlink(const string& symlink_file,
       source_file);
 
   // Write symlink.
-  Rule* rule = StartRule(symlink_file, source_file);
+  Rule* rule = StartRule(symlink_file, strings::JoinWith(" ",
+                                                         source_file,
+                                                         dependencies));
   if (out_dir != ".") {
     rule->WriteCommand("mkdir -p " + out_dir);
   }

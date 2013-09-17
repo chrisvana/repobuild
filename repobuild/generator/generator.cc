@@ -81,6 +81,9 @@ string Generator::GenerateMakefile(const Input& input) {
     node->WriteMake(&out);
   }
 
+  // Finish up node make files
+  builder_set.FinishMakeFile(input, process_order, &out);
+
   // Write the make clean rule.
   Makefile::Rule* clean = out.StartRule("clean", "");
   for (const Node* node : process_order) {

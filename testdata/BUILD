@@ -1,7 +1,7 @@
 // Test objects
 [
  { "config": {
-    "component": "testdata"
+     "component": "testdata"
  } },
 
  { "cc_library": {
