@@ -28,17 +28,19 @@ $ cd repobuild
 $ git submodule init
 $ git submodule update
 $ make -j8 repobuild
-$ sudo cp ./gen-obj/repobuild/repobuild  #/... somewhere in your path, like /usr/local/bin/repobuild
-$ # Usage:
+
+# Install somewhere in your path
+$ # Example: sudo cp ./gen-obj/repobuild/repobuild  #/... somewhere in your path, like /usr/bin
+$ sudo cp ./gen-obj/repobuild/repobuild /usr/bin/repobuild
+
+# Usage:
 $ repobuild --helpshort
 $ ...
-$ # Try it out:
+
+# Try it out on the testdata:
 $ repobuild "testdata:go_main"
 $ make
 $ ./go_main
-$ # TODO install to somewhere in your PATH #
-
-# Play with testdata
 
 ```
 
