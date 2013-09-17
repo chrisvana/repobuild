@@ -9,7 +9,7 @@ Mostly functional, but a work in progress.<br/>
 --
 _Summary_
 
-Declarative style build system, similar to Google's BUILD file system of old.<br/>
+Declarative style build system, similar to Google's BUILD file system of old (gconfig + make).<br/>
 <br/>
 Similar build systems that did not quite do what I wanted:
 - Gyp: https://code.google.com/p/gyp/<br/>
