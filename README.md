@@ -11,7 +11,7 @@ Summary
 
 Declarative style build system, similar to Google's BUILD file system of old.<br/>
 <br/>
-Similar build systems that did not quite do whawt I wanted:
+Similar build systems that did not quite do what I wanted:
 - Gyp: https://code.google.com/p/gyp/<br/>
 - Buck Build: http://facebook.github.io/buck/<br/>
 - Selenium build: https://code.google.com/p/selenium/wiki/CrazyFunBuild<br/>
