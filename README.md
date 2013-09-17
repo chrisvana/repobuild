@@ -7,7 +7,7 @@ Mostly functional, but a work in progress.<br/>
 
 
 --
-Summary
+_Summary_
 
 Declarative style build system, similar to Google's BUILD file system of old.<br/>
 <br/>
@@ -20,7 +20,7 @@ Similar build systems that did not quite do what I wanted:
 This tool currently works for Linux/Mac. Windows will be a distant thing with sufficient demand.
 
 --
-Building it
+_Building it_
 ```
 # Build it:
 $ git clone https://github.com/chrisvana/repobuild.git
@@ -45,7 +45,7 @@ $ ./go_main
 ```
 
 --
-Motivation<br/>
+_Motivation_<br/>
 Coming out of Google after most of a decade, I felt like existing open source build systems had a lot of issues.<br/>
 
 Declarative/Modular:
@@ -71,7 +71,7 @@ What should you do now?<br/>
 - Forum: https://groups.google.com/forum/#!forum/repobuild
 
 --
-TODOs:<br/>
+_TODOs:_<br/>
 <br/>
 LANGUAGES<br/>
 - Ruby (gems, tests)
