@@ -45,9 +45,9 @@ $ ./go_main
 ```
 
 --
-Motivation
-Coming out of Google after most of a decade, I felt like existing open source build systems had a lot of issues.
- 
+Motivation<br/>
+Coming out of Google after most of a decade, I felt like existing open source build systems had a lot of issues.<br/>
+
 Declarative/Modular:
 - Procedural build tools (e.g. make, and most everything else) tend to devolve into not-particular-modular messy rules, and are hard to read/modify/inherit.
 - Current open source libraries are not easily interconnected, making the relative project size obtainable rather limited. Which is silly!
