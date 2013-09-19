@@ -90,6 +90,7 @@ string Generator::GenerateMakefile(const Input& input) {
     node->WriteMakeClean(clean);
   }
   clean->WriteCommand("rm -rf " + input.object_dir());
+  clean->WriteCommand("rm -rf " + input.binary_dir());
   clean->WriteCommand("rm -rf " + input.genfile_dir());
   clean->WriteCommand("rm -rf " + input.source_dir());
   clean->WriteCommand("rm -rf " + input.pkgfile_dir());

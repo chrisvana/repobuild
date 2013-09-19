@@ -30,7 +30,11 @@ void GoBinaryNode::Parse(BuildFile* file, const BuildFileNode& input) {
 
 void GoBinaryNode::LocalWriteMake(Makefile* out) const {
   GoLibraryNode::LocalWriteMakeInternal(false, out);
+  WriteGoBinary(Binary(), out);
+  WriteBaseUserTarget(out);
+}
 
+void GoBinaryNode::WriteGoBinary(const Resource& bin, Makefile* out) const {
   // Source files.
   ResourceFileSet deps;
   DependencyFiles(GO_LANG, &deps);
@@ -39,7 +43,6 @@ void GoBinaryNode::LocalWriteMake(Makefile* out) const {
   LocalObjectFiles(GO_LANG, &inputs);
 
   // Output binary
-  Resource bin = Binary();
   Makefile::Rule* rule = out->StartRule(bin.path(),
                                         strings::JoinAll(deps.files(), " "));
   rule->WriteUserEcho("Go build", bin.path());
@@ -52,32 +55,6 @@ void GoBinaryNode::LocalWriteMake(Makefile* out) const {
           strings::JoinAll(go_build_args_, " "),
           strings::JoinAll(inputs.files(), " ")));
   out->FinishRule(rule);
-
-  // Symlink to root dir.
-  out->WriteRootSymlink(OutBinary().path(), Binary().path());
-
-  // User target, if necessary.
-  if (OutBinary().path() != target().make_path()) {
-    ResourceFileSet bins;
-    bins.Add(bin);
-    WriteBaseUserTarget(bins, out);
-  }
-}
-
-void GoBinaryNode::LocalWriteMakeClean(Makefile::Rule* rule) const {
-  rule->MaybeRemoveSymlink(OutBinary().path());
-}
-
-void GoBinaryNode::LocalDependencyFiles(LanguageType lang,
-                                        ResourceFileSet* outputs) const {
-  GoLibraryNode::LocalDependencyFiles(lang, outputs);
-  LocalBinaries(lang, outputs);
-}
-
-void GoBinaryNode::LocalFinalOutputs(LanguageType lang,
-                                     ResourceFileSet* outputs) const {
-  Node::LocalFinalOutputs(lang, outputs);
-  outputs->Add(OutBinary());
 }
 
 void GoBinaryNode::LocalBinaries(LanguageType lang,
@@ -85,14 +62,8 @@ void GoBinaryNode::LocalBinaries(LanguageType lang,
   outputs->Add(Binary());
 }
 
-Resource GoBinaryNode::OutBinary() const {
-  return Resource::FromLocalPath(input().root_dir(), target().local_path());
-}
-
 Resource GoBinaryNode::Binary() const {
-  return Resource::FromLocalPath(
-      strings::JoinPath(input().object_dir(), target().dir()),
-      target().local_path());
+  return Resource::FromLocalPath(input().object_dir(), target().make_path());
 }
 
 }  // namespace repobuild

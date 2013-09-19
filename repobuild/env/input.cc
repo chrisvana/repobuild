@@ -34,15 +34,12 @@ using std::string;
 namespace repobuild {
 
 Input::Input() {
-  current_path_ = strings::CurrentPath();
   root_dir_ = ".";
-  full_root_dir_ = strings::JoinPath(current_path_, root_dir_);
   object_dir_ = ".gen-obj";
-  full_object_dir_ = strings::JoinPath(current_path_, object_dir_);
   genfile_dir_ = ".gen-files";
-  full_genfile_dir_ = strings::JoinPath(current_path_, genfile_dir_);
   source_dir_ = ".gen-src";
   pkgfile_dir_ = ".gen-pkg";
+  binary_dir_ = "bin";
 
   // Default flags.
   if (FLAGS_add_default_flags) {

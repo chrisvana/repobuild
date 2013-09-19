@@ -19,18 +19,12 @@ class GoBinaryNode : public GoLibraryNode {
   }
   virtual ~GoBinaryNode() {}
   virtual void Parse(BuildFile* file, const BuildFileNode& input);
-  virtual void LocalWriteMakeClean(Makefile::Rule* out) const;
   virtual void LocalWriteMake(Makefile* out) const;
-  virtual void LocalDependencyFiles(LanguageType lang,
-                                    ResourceFileSet* files) const;
-  virtual void LocalFinalOutputs(LanguageType lang,
-                                 ResourceFileSet* outputs) const;
   virtual void LocalBinaries(LanguageType lang,
                              ResourceFileSet* outputs) const;
 
  protected:
-  // Helper.
-  Resource OutBinary() const;
+  void WriteGoBinary(const Resource& bin, Makefile* out) const;
   Resource Binary() const;
 
   std::vector<std::string> go_build_args_;

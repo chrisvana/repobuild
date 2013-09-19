@@ -69,6 +69,9 @@ class ResourceFileSet {
     }
   }
 
+  std::list<Resource>::const_iterator begin() const { return files_.begin(); }
+  std::list<Resource>::const_iterator end() const { return files_.end(); }
+
  private:
   std::set<Resource> fileset_;
   std::list<Resource> files_;

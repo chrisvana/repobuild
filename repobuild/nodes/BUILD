@@ -14,10 +14,23 @@
                        "//common/file:fileutil",
                        "//common/strings:strutil",
                        "//common/util:stl",
+                       "//repobuild/env:input",
                        "//repobuild/env:resource",
                        "//repobuild/env:target",
                        "//repobuild/reader:buildfile",
                        ":makefile"
+    ]
+   }
+ },
+
+ { "cc_library": {
+     "name" : "top_symlink",
+     "cc_sources" : [ "top_symlink.cc" ],
+     "cc_headers" : [ "top_symlink.h" ],
+     "dependencies": [ "//repobuild/env:resource",
+                       "//repobuild/env:input",
+                       ":makefile",
+                       ":node"
     ]
    }
  },
@@ -51,7 +64,8 @@
      "cc_headers" : [ "cc_binary.h" ],
      "dependencies": [ "//common/log:log",
                        "//common/strings:strutil",
-                       ":node"
+                       ":node",
+                       ":top_symlink"
       ]
    }
  },
@@ -93,7 +107,8 @@
      "cc_headers" : [ "py_binary.h" ],
      "dependencies": [ "//common/log:log",
                        "//common/strings:strutil",
-                       ":node"
+                       ":node",
+                       ":top_symlink"
       ]
    }
  },
@@ -114,7 +129,8 @@
      "cc_headers" : [ "java_binary.h" ],
      "dependencies": [ "//common/log:log",
                        "//common/strings:strutil",
-                       ":node"
+                       ":node",
+                       ":top_symlink"
       ]
    }
  },

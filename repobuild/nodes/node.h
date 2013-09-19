@@ -260,7 +260,8 @@ class SimpleLibraryNode : public Node {
                                 ResourceFileSet* files) const;
 
   // Alterative to Parse()
-  virtual void LocalSet(LanguageType lang,const std::vector<Resource>& sources) {
+  virtual void LocalSet(LanguageType lang,
+                        const std::vector<Resource>& sources) {
     sources_ = sources;
   }
 

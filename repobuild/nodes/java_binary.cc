@@ -13,6 +13,7 @@
 #include "common/strings/strutil.h"
 #include "repobuild/env/input.h"
 #include "repobuild/nodes/java_binary.h"
+#include "repobuild/nodes/top_symlink.h"
 #include "repobuild/reader/buildfile.h"
 
 using std::string;
@@ -41,24 +42,19 @@ void JavaBinaryNode::Parse(BuildFile* file, const BuildFileNode& input) {
                  << "java_binary.java_manifest[].";
     }
   }
+
+  ResourceFileSet binaries;
+  LocalBinaries(NO_LANG, &binaries);
+  AddSubNode(new TopSymlinkNode(
+      target().GetParallelTarget(file->NextName(target().local_path())),
+      Node::input(),
+      binaries));
 }
 
 void JavaBinaryNode::LocalWriteMake(Makefile* out) const {
   JavaLibraryNode::LocalWriteMakeInternal(false, out);
-
-  // Output binary
-  Resource bin = JarName();
-  WriteJar(bin, out);
-
-  // Symlink to root dir.
-  out->WriteRootSymlink(OutJarName().path(), JarName().path());
-
-  // Output user target, if necessary
-  if (OutJarName().path() != target().make_path()) {
-    ResourceFileSet deps;
-    deps.Add(bin);
-    WriteBaseUserTarget(deps, out);
-  }
+  WriteJar(JarName(), out);
+  WriteBaseUserTarget(out);
 }
 
 void JavaBinaryNode::WriteJar(const Resource& file, Makefile* out) const {
@@ -116,22 +112,6 @@ void JavaBinaryNode::WriteJar(const Resource& file, Makefile* out) const {
   out->FinishRule(rule);
 }
 
-void JavaBinaryNode::LocalWriteMakeClean(Makefile::Rule* rule) const {
-  rule->MaybeRemoveSymlink(OutJarName().path());
-}
-
-void JavaBinaryNode::LocalDependencyFiles(LanguageType lang,
-                                          ResourceFileSet* outputs) const {
-  JavaLibraryNode::LocalDependencyFiles(lang, outputs);
-  LocalBinaries(lang, outputs);
-}
-
-void JavaBinaryNode::LocalFinalOutputs(LanguageType lang,
-                                       ResourceFileSet* outputs) const {
-  JavaLibraryNode::LocalFinalOutputs(lang, outputs);
-  outputs->Add(OutJarName());
-}
-
 void JavaBinaryNode::LocalBinaries(LanguageType lang,
                                    ResourceFileSet* outputs) const {
   outputs->Add(JarName());
@@ -140,11 +120,6 @@ void JavaBinaryNode::LocalBinaries(LanguageType lang,
 Resource JavaBinaryNode::JarName() const {
   return Resource::FromLocalPath(input().object_dir(),
                                  target().make_path() + ".jar");
-}
-
-Resource JavaBinaryNode::OutJarName() const {
-  return Resource::FromLocalPath(input().root_dir(),
-                                 target().local_path() + ".jar");
 }
 
 }  // namespace repobuild

@@ -19,21 +19,19 @@ class PyBinaryNode : public PyLibraryNode {
   }
   virtual ~PyBinaryNode() {}
   virtual void Parse(BuildFile* file, const BuildFileNode& input);
-  virtual void LocalWriteMakeClean(Makefile::Rule* out) const;
   virtual void LocalWriteMake(Makefile* out) const;
-  virtual void LocalDependencyFiles(LanguageType lang,
-                                    ResourceFileSet* files) const;
-  virtual void LocalFinalOutputs(LanguageType lang,
-                                 ResourceFileSet* outputs) const;
   virtual void LocalBinaries(LanguageType lang,
                              ResourceFileSet* outputs) const;
 
   static void WriteMakeHead(const Input& input, Makefile* out);
 
  protected:
-  // Helper.
-  Resource OutBinary() const;
-  Resource OutEgg() const;
+  void GetSources(ResourceFileSet* deps,
+                  std::vector<std::string>* modules) const;
+  void WriteEggFile(const ResourceFileSet& deps,
+                    const std::vector<std::string>& modules,
+                    Makefile* out) const;
+
   Resource EggBinary() const;
   Resource BinScript() const;
 

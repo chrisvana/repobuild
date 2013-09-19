@@ -12,6 +12,7 @@
 #include "common/strings/strutil.h"
 #include "repobuild/env/input.h"
 #include "repobuild/nodes/py_binary.h"
+#include "repobuild/nodes/top_symlink.h"
 #include "repobuild/reader/buildfile.h"
 
 using std::string;
@@ -47,49 +48,28 @@ void PyBinaryNode::Parse(BuildFile* file, const BuildFileNode& input) {
   if (py_default_module_.empty() && sources_.size() == 1) {
     py_default_module_ = GetPyModule(sources_[0].path());
   }
+  ResourceFileSet binaries;
+  LocalBinaries(NO_LANG, &binaries);
+  AddSubNode(new TopSymlinkNode(
+      target().GetParallelTarget(file->NextName(target().local_path())),
+      Node::input(),
+      binaries));
 }
 
 void PyBinaryNode::LocalWriteMake(Makefile* out) const {
   PyLibraryNode::LocalWriteMakeInternal(false, out);
-
-  // Source files.
-  ResourceFileSet deps;
-  PyLibraryNode::LocalDependencyFiles(PYTHON, &deps);
-  InputDependencyFiles(PYTHON, &deps);
-
-  ResourceFileSet sources;
-  ObjectFiles(PYTHON, &sources);
-  vector<string> modules;
-  for (const Resource& r : sources.files()) {
-    string path = StripSpecialDirs(r.path());
-    if (strings::HasSuffix(path, ".py")) {
-      path = path.substr(0, path.size() - 3);
-    } else if (strings::HasSuffix(path, ".pyc")) {
-      path = path.substr(0, path.size() - 4);
-    }
-    modules.push_back(strings::ReplaceAll(path, "/", "."));
+  {  // py_binary
+    ResourceFileSet deps;
+    vector<string> modules;
+    GetSources(&deps, &modules);
+    WriteEggFile(deps, modules, out);
   }
+  WriteBaseUserTarget(out);
+}
 
-  // NB: Python setuptils is .... not the greatest fit in the world. It likes to
-  // drop __init__.py files in directories that don't contain any actual
-  // source files. This is probably just a bug, but we need the __init__.py
-  // files or else we are screwed when later trying to run the .egg file.
-  set<string> init_files;
-  for (const string& module : modules) {
-    vector<StringPiece> pieces = strings::Split(module, ".");
-    while (!pieces.empty()) {
-      pieces.resize(pieces.size() - 1);
-      if (init_files.insert(strings::JoinWith(".",
-                                              strings::JoinAll(pieces, "."),
-                                              "__init__")).second) {
-        break;
-      }
-    }
-  }
-  for (const string& init : init_files) {
-    modules.push_back(init);
-  }
-
+void PyBinaryNode::WriteEggFile(const ResourceFileSet& deps,
+                                const vector<string>& modules,
+                                Makefile* out) const {
   // Output egg file
   Resource egg_touchfile = Touchfile(".egg");
   Resource egg_bin = EggBinary();
@@ -134,16 +114,44 @@ void PyBinaryNode::LocalWriteMake(Makefile* out) const {
                      "' > " + bin.path() +
                      "; chmod 755 " + bin.path());
   out->FinishRule(rule);
+}
 
-  // Symlink to stuff in the root dir.
-  out->WriteRootSymlink(OutEgg().path(), egg_bin.path());
-  out->WriteRootSymlink(OutBinary().path(), bin.path());
+void PyBinaryNode::GetSources(ResourceFileSet* deps,
+                              vector<string>* modules) const {
+  // Source files.
+  PyLibraryNode::LocalDependencyFiles(PYTHON, deps);
+  InputDependencyFiles(PYTHON, deps);
 
-  // User target, if necessary
-  if (OutBinary().path() != target().make_path()) {
-    ResourceFileSet user_deps;
-    user_deps.Add(egg_bin);
-    WriteBaseUserTarget(user_deps, out);
+  ResourceFileSet sources;
+  ObjectFiles(PYTHON, &sources);
+  for (const Resource& r : sources.files()) {
+    string path = StripSpecialDirs(r.path());
+    if (strings::HasSuffix(path, ".py")) {
+      path = path.substr(0, path.size() - 3);
+    } else if (strings::HasSuffix(path, ".pyc")) {
+      path = path.substr(0, path.size() - 4);
+    }
+    modules->push_back(strings::ReplaceAll(path, "/", "."));
+  }
+
+  // NB: Python setuptils is .... not the greatest fit in the world. It likes to
+  // drop __init__.py files in directories that don't contain any actual
+  // source files. This is probably just a bug, but we need the __init__.py
+  // files or else we are screwed when later trying to run the .egg file.
+  set<string> init_files;
+  for (const string& module : *modules) {
+    vector<StringPiece> pieces = strings::Split(module, ".");
+    while (!pieces.empty()) {
+      pieces.resize(pieces.size() - 1);
+      if (init_files.insert(strings::JoinWith(".",
+                                              strings::JoinAll(pieces, "."),
+                                              "__init__")).second) {
+        break;
+      }
+    }
+  }
+  for (const string& init : init_files) {
+    modules->push_back(init);
   }
 }
 
@@ -167,49 +175,19 @@ void PyBinaryNode::WriteMakeHead(const Input& input, Makefile* out) {
   out->FinishRule(rule);
 }
 
-void PyBinaryNode::LocalWriteMakeClean(Makefile::Rule* rule) const {
-  rule->MaybeRemoveSymlink(OutBinary().path());
-  rule->MaybeRemoveSymlink(OutEgg().path());
-}
-
-void PyBinaryNode::LocalDependencyFiles(LanguageType lang,
-                                        ResourceFileSet* files) const {
-  PyLibraryNode::LocalDependencyFiles(lang, files);
-  LocalBinaries(lang, files);
-}
-
-void PyBinaryNode::LocalFinalOutputs(LanguageType lang,
-                                     ResourceFileSet* outputs) const {
-  outputs->Add(OutBinary());
-  outputs->Add(OutEgg());
-}
-
 void PyBinaryNode::LocalBinaries(LanguageType lang,
                                  ResourceFileSet* outputs) const {
   outputs->Add(EggBinary());
-}
-
-Resource PyBinaryNode::OutBinary() const {
-  return Resource::FromLocalPath(input().root_dir(),
-                                 target().local_path());
-}
-
-Resource PyBinaryNode::OutEgg() const {
-  return Resource::FromLocalPath(OutBinary().dirname(),
-                                 OutBinary().basename() + ".egg");
+  outputs->Add(BinScript());
 }
 
 Resource PyBinaryNode::EggBinary() const {
-  return Resource::FromLocalPath(
-      strings::JoinPath(input().object_dir(), target().dir()),
-      target().local_path() + ".egg");
+  return Resource::FromLocalPath(input().object_dir(),
+                                 target().make_path() + ".egg");
 }
 
 Resource PyBinaryNode::BinScript() const {
-  return Resource::FromLocalPath(
-      strings::JoinPath(input().object_dir(),
-                        target().dir()),
-      target().local_path());
+  return Resource::FromLocalPath(input().object_dir(), target().make_path());
 }
 
 

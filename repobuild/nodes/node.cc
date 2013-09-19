@@ -142,6 +142,7 @@ void Node::InputDependencyFiles(LanguageType lang,
   CollectAllDependencies(DEPENDENCY_FILES, lang, &all_deps);
   for (Node* node : all_deps) {
     node->LocalDependencyFiles(lang, files);
+    node->LocalBinaries(lang, files);
   }
 }
 
@@ -243,6 +244,10 @@ string Node::MakefileEscape(const string& str) const {
 
 void Node::WriteBaseUserTarget(const ResourceFileSet& deps,
                                Makefile* out) const {
+  if (out->seen_rule(target().make_path())) {
+    return;
+  }
+
   out->append(target().make_path());
   out->append(":");
   for (const Resource& dep : deps.files()) {

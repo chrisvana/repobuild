@@ -12,6 +12,7 @@
 #include "common/strings/path.h"
 #include "repobuild/env/input.h"
 #include "repobuild/nodes/cc_binary.h"
+#include "repobuild/nodes/top_symlink.h"
 #include "repobuild/reader/buildfile.h"
 
 using std::string;
@@ -22,24 +23,18 @@ namespace repobuild {
 
 void CCBinaryNode::Parse(BuildFile* file, const BuildFileNode& input) {
   CCLibraryNode::Parse(file, input);
+  ResourceFileSet binaries;
+  LocalBinaries(NO_LANG, &binaries);
+  AddSubNode(new TopSymlinkNode(
+      target().GetParallelTarget(file->NextName(target().local_path())),
+      Node::input(),
+      binaries));
 }
 
 void CCBinaryNode::LocalWriteMake(Makefile* out) const {
   CCLibraryNode::LocalWriteMakeInternal(false, out);
-
-  // Output binary
-  Resource bin = ObjBinary();
-  WriteLink(bin, out);
-
-  // Symlink to root dir.
-  out->WriteRootSymlink(OutBinary().path(), bin.path());
-
-  // Output user target if necessary
-  if (OutBinary().path() != target().make_path()) {
-    ResourceFileSet deps;
-    deps.Add(bin);
-    WriteBaseUserTarget(deps, out);
-  }
+  WriteLink(ObjBinary(), out);
+  WriteBaseUserTarget(out);
 }
 
 void CCBinaryNode::WriteLink(const Resource& file, Makefile* out) const {
@@ -72,29 +67,9 @@ void CCBinaryNode::WriteLink(const Resource& file, Makefile* out) const {
   out->FinishRule(rule);
 }
 
-void CCBinaryNode::LocalWriteMakeClean(Makefile::Rule* rule) const {
-  rule->MaybeRemoveSymlink(OutBinary().path());
-}
-
-void CCBinaryNode::LocalDependencyFiles(LanguageType lang,
-                                        ResourceFileSet* files) const {
-  CCLibraryNode::LocalDependencyFiles(lang, files);
-  LocalBinaries(lang, files);
-}
-
-void CCBinaryNode::LocalFinalOutputs(LanguageType lang,
-                                     ResourceFileSet* outputs) const {
-  CCLibraryNode::LocalFinalOutputs(lang, outputs);
-  outputs->Add(OutBinary());
-}
-
 void CCBinaryNode::LocalBinaries(LanguageType lang,
                                  ResourceFileSet* outputs) const {
   outputs->Add(ObjBinary());
-}
-
-Resource CCBinaryNode::OutBinary() const {
-  return Resource::FromLocalPath(input().root_dir(), target().local_path());
 }
 
 Resource CCBinaryNode::ObjBinary() const {

@@ -25,13 +25,11 @@ class Input {
 
   // Accessors
   const std::string& root_dir() const { return root_dir_; }
-  const std::string& full_root_dir() const { return full_root_dir_; }
   const std::string& object_dir() const { return object_dir_; }
-  const std::string& full_object_dir() const { return full_object_dir_; }
   const std::string& genfile_dir() const { return genfile_dir_; }
-  const std::string& full_genfile_dir() const { return full_genfile_dir_; }
   const std::string& source_dir() const { return source_dir_; }
   const std::string& pkgfile_dir() const { return pkgfile_dir_; }
+  const std::string& binary_dir() const { return binary_dir_; }
   const std::vector<TargetInfo>& build_targets() const {
     return build_targets_;
   }
@@ -48,12 +46,12 @@ class Input {
   const std::string& default_py_proto() const { return default_py_proto_; }
 
  private:
-  std::string root_dir_, full_root_dir_;
-  std::string current_path_;
-  std::string object_dir_, full_object_dir_;
-  std::string genfile_dir_, full_genfile_dir_;
+  std::string root_dir_;
+  std::string object_dir_;
+  std::string genfile_dir_;
   std::string pkgfile_dir_;
   std::string source_dir_;
+  std::string binary_dir_;
 
   std::vector<TargetInfo> build_targets_;
   std::set<std::string> build_target_set_;

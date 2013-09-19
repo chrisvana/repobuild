@@ -19,18 +19,12 @@ class CCBinaryNode : public CCLibraryNode {
   }
   virtual ~CCBinaryNode() {}
   virtual void Parse(BuildFile* file, const BuildFileNode& input);
-  virtual void LocalWriteMakeClean(Makefile::Rule* out) const;
   virtual void LocalWriteMake(Makefile* out) const;
-  virtual void LocalFinalOutputs(LanguageType lang,
-                                 ResourceFileSet* outputs) const;
-  virtual void LocalDependencyFiles(LanguageType lang,
-                                    ResourceFileSet* files) const;
   virtual void LocalBinaries(LanguageType lang,
                              ResourceFileSet* outputs) const;
 
  protected:
   // Helper.
-  Resource OutBinary() const;
   Resource ObjBinary() const;
 
   void WriteLink(const Resource& file, Makefile* out) const;
