@@ -7,9 +7,9 @@ Mostly functional, but a work in progress.<br/>
 
 
 --
-Summary
+_Summary_
 
-Declarative style build system, similar to Google's BUILD file system of old.<br/>
+Declarative style build system, similar to Google's BUILD file system of old (gconfig + make).<br/>
 <br/>
 Similar build systems that did not quite do what I wanted:
 - Gyp: https://code.google.com/p/gyp/<br/>
@@ -20,7 +20,7 @@ Similar build systems that did not quite do what I wanted:
 This tool currently works for Linux/Mac. Windows will be a distant thing with sufficient demand.
 
 --
-Building it
+_Building it_
 ```
 # Build it:
 $ git clone https://github.com/chrisvana/repobuild.git
@@ -28,24 +28,26 @@ $ cd repobuild
 $ git submodule init
 $ git submodule update
 $ make -j8 repobuild
-$ sudo cp ./gen-obj/repobuild/repobuild  #/... somewhere in your path, like /usr/local/bin/repobuild
-$ # Usage:
+
+# Install somewhere in your path
+$ # Example: sudo cp ./gen-obj/repobuild/repobuild  #/... somewhere in your path, like /usr/bin
+$ sudo cp ./gen-obj/repobuild/repobuild /usr/bin/repobuild
+
+# Usage:
 $ repobuild --helpshort
 $ ...
-$ # Try it out:
+
+# Try it out on the testdata:
 $ repobuild "testdata:go_main"
 $ make
 $ ./go_main
-$ # TODO install to somewhere in your PATH #
-
-# Play with testdata
 
 ```
 
 --
-Motivation
-Coming out of Google after most of a decade, I felt like existing open source build systems had a lot of issues.
- 
+_Motivation_<br/>
+Coming out of Google after most of a decade, I felt like existing open source build systems had a lot of issues.<br/>
+
 Declarative/Modular:
 - Procedural build tools (e.g. make, and most everything else) tend to devolve into not-particular-modular messy rules, and are hard to read/modify/inherit.
 - Current open source libraries are not easily interconnected, making the relative project size obtainable rather limited. Which is silly!
@@ -69,7 +71,11 @@ What should you do now?<br/>
 - Forum: https://groups.google.com/forum/#!forum/repobuild
 
 --
-TODOs:<br/>
+Why C++?<br/>
+Actually this started in Go, and there is no good reason for C++. However, the first open source code I needed to use it on was in C++, and being able to build the tool using the tool sounded useful. Honestly, sticking with go (or using python/java) would have been a better alternatives.
+
+--
+_TODOs:_<br/>
 <br/>
 LANGUAGES<br/>
 - Ruby (gems, tests)
