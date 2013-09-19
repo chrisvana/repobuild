@@ -30,8 +30,8 @@ $ git submodule update
 $ make -j8 repobuild
 
 # Install somewhere in your path
-$ # Example: sudo cp ./gen-obj/repobuild/repobuild  #/... somewhere in your path, like /usr/bin
-$ sudo cp ./gen-obj/repobuild/repobuild /usr/bin/repobuild
+$ # Example: sudo cp bin/repobuild  #/... somewhere in your path, like /usr/bin
+$ sudo cp bin/repobuild /usr/bin/repobuild
 
 # Usage:
 $ repobuild --helpshort
