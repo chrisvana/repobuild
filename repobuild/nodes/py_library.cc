@@ -25,6 +25,13 @@ using std::vector;
 
 namespace repobuild {
 
+PyLibraryNode::PyLibraryNode(const TargetInfo& t, const Input& i)
+    : Node(t, i) {
+}
+
+PyLibraryNode::~PyLibraryNode() {
+}
+
 void PyLibraryNode::Parse(BuildFile* file, const BuildFileNode& input) {
   Node::Parse(file, input);
 
@@ -32,17 +39,8 @@ void PyLibraryNode::Parse(BuildFile* file, const BuildFileNode& input) {
   current_reader()->ParseRepeatedFiles("py_sources", &sources_);
 
   // py_base_dir
-  vector<Resource> py_base_dirs;
-  current_reader()->ParseSingleFile("py_base_dir",
-                                    true,
-                                    &py_base_dirs);
-  if (!py_base_dirs.empty()) {
-    if (py_base_dir_.size() > 1) {
-      LOG(FATAL) << "Too many results for py_base_dir, need 1: "
-                 << target().full_path();
-    }
-    py_base_dir_ = py_base_dirs[0].path() + "/";
-  }
+  component_.reset(new ComponentHelper(
+      "", current_reader()->ParseSingleDirectory("py_base_dir")));
 
   Init();
 }
@@ -220,10 +218,9 @@ void PyLibraryNode::FinishMakeFile(const Input& input,
 }
 
 Resource PyLibraryNode::PyFileFor(const Resource& r) const {
-  string file = StripSpecialDirs(r.path());
-  if (strings::HasPrefix(file, py_base_dir_)) {
-    file = file.substr(py_base_dir_.size());
-  }
+  const ComponentHelper* helper = GetComponentHelper(component_.get(),
+                                                     r.path());
+  string file = helper->RewriteFile(input(), r.path());
   return Resource::FromLocalPath(input().pkgfile_dir(), file);
 }
 

@@ -22,7 +22,7 @@
 #include "common/strings/strutil.h"
 
 namespace repobuild {
-
+class ComponentHelper;
 class Input;
 
 class Node {
@@ -42,7 +42,7 @@ class Node {
 
   // Initialization
   virtual void Parse(BuildFile* file, const BuildFileNode& input);
-  virtual void PostParse() {}
+  virtual void PostParse();
 
   // Makefile generation.
   void WriteMake(Makefile* out) const;
@@ -116,6 +116,10 @@ class Node {
   virtual void LocalEnvVariables(
       LanguageType lang, 
       std::map<std::string, std::string>* vars) const;
+  virtual bool PathRewrite(std::string* output_path,
+                           std::string* rewrite_root) const {
+    return false;
+  }
 
   // Parsing helpers
   BuildFileNodeReader* NewBuildReader(const BuildFileNode& node) const;
@@ -152,6 +156,10 @@ class Node {
   void InputIncludeDirs(LanguageType lang, std::set<std::string>* dirs) const;
   void InputEnvVariables(LanguageType lang,
                          std::map<std::string, std::string>* vars) const;
+  void InitComponentHelpers();
+  const ComponentHelper* GetComponentHelper(const std::string& path) const;
+  const ComponentHelper* GetComponentHelper(const ComponentHelper* preferred,
+                                            const std::string& path) const;
 
   enum DependencyCollectionType {
     DEPENDENCY_FILES = 0,
@@ -199,6 +207,9 @@ class Node {
   std::vector<Node*> subnodes_, owned_subnodes_;
   std::vector<Node*> dependencies_;  // not owned.
   std::map<std::string, MakeVariable*> make_variables_;
+
+  // File path handling
+  std::vector<ComponentHelper*> component_helpers_;
 };
 
 class Node::MakeVariable {

@@ -310,6 +310,8 @@ bool ProtoLibraryNode::IncludeChildDependency(DependencyCollectionType type,
 }
 
 void ProtoLibraryNode::PostParse() {
+  Node::PostParse();
+
   // Figure out where protoc lives.
   string protoc = "protoc";  // use system binary by default.
   ResourceFileSet dep_binaries;

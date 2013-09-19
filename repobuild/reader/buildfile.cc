@@ -192,6 +192,19 @@ void BuildFileNodeReader::ParseSingleFile(const string& key,
   }
 }
 
+string BuildFileNodeReader::ParseSingleDirectory(const string& key) const {
+  vector<Resource> dirs;
+  ParseSingleFile(key, true, &dirs);
+  if (!dirs.empty()) {
+    if (dirs.size() > 1) {
+      LOG(FATAL) << "Too many results for " << key << ", need 1: "
+                 << error_path_;
+    }
+    return dirs[0].path();
+  }
+  return "";
+}
+
 bool BuildFileNodeReader::ParseBoolField(const string& key,
                                          bool* field) const {
   const Json::Value& json_field = GetValue(input_, key);

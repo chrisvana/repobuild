@@ -102,6 +102,9 @@ class BuildFileNodeReader {
                        bool strict_file_mode,
                        std::vector<Resource>* output) const;
 
+  // Parsing a single directory
+  std::string ParseSingleDirectory(const std::string& key) const;
+
   // Parse bool.
   bool ParseBoolField(const std::string& key,
                       bool* field) const;

@@ -3,6 +3,7 @@
 
 #include <algorithm>
 #include <map>
+#include <memory>
 #include <set>
 #include <string>
 #include <vector>
@@ -22,6 +23,7 @@ using std::map;
 using std::string;
 using std::vector;
 using std::set;
+using std::unique_ptr;
 
 namespace repobuild {
 
@@ -49,6 +51,7 @@ Node::Node(const TargetInfo& target, const Input& input)
 
 Node::~Node() {
   DeleteElements(&owned_subnodes_);
+  DeleteElements(&component_helpers_);
 }
 
 void Node::Parse(BuildFile* file, const BuildFileNode& input) {
@@ -68,6 +71,10 @@ void Node::Parse(BuildFile* file, const BuildFileNode& input) {
 
   // Parse environment variables.
   current_reader()->ParseKeyValueStrings("env", &env_variables_);
+}
+
+void Node::PostParse() {
+  InitComponentHelpers();
 }
 
 void Node::WriteMake(Makefile* out) const {
@@ -100,7 +107,7 @@ TargetInfo Node::GetNextTargetName(BuildFile* file) const {
   return target().GetParallelTarget(file->NextName(target().local_path()));
 }
 
-void Node::ExtractSubnodes(std::vector<Node*>* nodes) {
+void Node::ExtractSubnodes(vector<Node*>* nodes) {
   for (Node* n : subnodes_) {
     nodes->push_back(n);
     n->ExtractSubnodes(nodes);
@@ -133,8 +140,8 @@ BuildFileNodeReader* Node::NewBuildReader(const BuildFileNode& node) const {
 
 void Node::CollectAllDependencies(DependencyCollectionType type,
                                   LanguageType lang,
-                                  std::vector<Node*>* all_deps) const {
-  std::set<Node*> all_deps_set(all_deps->begin(), all_deps->end());
+                                  vector<Node*>* all_deps) const {
+  set<Node*> all_deps_set(all_deps->begin(), all_deps->end());
   CollectAllDependencies(type, lang, &all_deps_set, all_deps);
 }
 
@@ -301,27 +308,27 @@ void Node::WriteBaseUserTarget(const ResourceFileSet& deps,
   out->append("\n\n");
 }
 
-Node::MakeVariable::MakeVariable(const std::string& name)
+Node::MakeVariable::MakeVariable(const string& name)
     : name_(name) {
 }
 
 Node::MakeVariable::~MakeVariable() {
 }
 
-const std::string& Node::MakeVariable::name() const { return name_; }
+const string& Node::MakeVariable::name() const { return name_; }
 
-std::string Node::MakeVariable::ref_name() const {
+string Node::MakeVariable::ref_name() const {
   return name_.empty() ? "" : "$(" + name_ + ")";
 }
 
-void Node::MakeVariable::SetValue(const std::string& value) {
+void Node::MakeVariable::SetValue(const string& value) {
   SetCondition("", value, "");
 }
 
-void Node::MakeVariable::SetCondition(const std::string& condition,
-                                const std::string& if_val,
-                                const std::string& else_val) {
-  conditions_[condition] = std::make_pair(if_val, else_val);
+void Node::MakeVariable::SetCondition(const string& condition,
+                                const string& if_val,
+                                const string& else_val) {
+  conditions_[condition] = make_pair(if_val, else_val);
 }
 
 void Node::MakeVariable::WriteMake(string* out) const {
@@ -363,17 +370,17 @@ Resource Node::Touchfile(const string& suffix) const {
       "." + target().local_path() + suffix + ".dummy");
 }
 
-void Node::WriteVariables(std::string* out) const {
+void Node::WriteVariables(string* out) const {
   for (auto const& it : make_variables_) {
     it.second->WriteMake(out);
   }
 }
 
-bool Node::HasVariable(const std::string& name) const {
+bool Node::HasVariable(const string& name) const {
   return make_variables_.find(name) != make_variables_.end();
 }
 
-const Node::MakeVariable& Node::GetVariable(const std::string& name) const {
+const Node::MakeVariable& Node::GetVariable(const string& name) const {
   static MakeVariable kEmpty("");
   const auto& it = make_variables_.find(name);
   if (it == make_variables_.end()) {
@@ -382,7 +389,7 @@ const Node::MakeVariable& Node::GetVariable(const std::string& name) const {
   return *it->second;
 }
 
-Node::MakeVariable* Node::MutableVariable(const std::string& name) {
+Node::MakeVariable* Node::MutableVariable(const string& name) {
   MakeVariable** var = &(make_variables_[name]);
   if (*var == NULL) {
     *var = new MakeVariable(name + "." + target().make_path());
@@ -392,6 +399,49 @@ Node::MakeVariable* Node::MutableVariable(const std::string& name) {
 
 string Node::StripSpecialDirs(const string& path) const {
   return NodeUtil::StripSpecialDirs(input(), path);
+}
+
+void Node::InitComponentHelpers() {
+  vector<Node*> deps;
+  CollectAllDependencies(INCLUDE_DIRS, NO_LANG, &deps);
+  map<string, ComponentHelper*> helpers;
+  for (Node* n : deps) {
+    string output_dir, base_dir;
+    if (strings::HasPrefix(target().dir(), n->target().dir()) &&
+        n->PathRewrite(&output_dir, &base_dir)) {
+      ComponentHelper** helper = &helpers[n->target().dir()];
+      if (*helper == NULL) {
+        *helper = new ComponentHelper(output_dir, base_dir);
+      }
+    }
+  }
+  if (helpers[""] == NULL) {
+    helpers[""] = new ComponentHelper("", "");
+  }
+  for (auto it : helpers) {
+    component_helpers_.push_back(it.second);
+  }
+  std::reverse(component_helpers_.begin(), component_helpers_.end());
+}
+
+const ComponentHelper* Node::GetComponentHelper(
+    const ComponentHelper* preferred,
+    const std::string& path) const {
+  string rewrite = StripSpecialDirs(path);
+  if (preferred != NULL && preferred->CoversPath(rewrite)) {
+    return preferred;
+  }
+  return GetComponentHelper(rewrite);
+}
+
+const ComponentHelper* Node::GetComponentHelper(const string& path) const {
+  string rewrite = StripSpecialDirs(path);
+  for (const ComponentHelper* helper : component_helpers_) {
+    if (helper->CoversPath(rewrite)) {
+      return helper;
+    }
+  }
+  return NULL;
 }
 
 }  // namespace repobuild

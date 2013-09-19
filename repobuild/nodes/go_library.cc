@@ -11,6 +11,7 @@
 #include "repobuild/env/input.h"
 #include "repobuild/nodes/go_library.h"
 #include "repobuild/nodes/makefile.h"
+#include "repobuild/nodes/util.h"
 #include "repobuild/reader/buildfile.h"
 
 using std::vector;
@@ -19,11 +20,22 @@ using std::set;
 
 namespace repobuild {
 
+GoLibraryNode::GoLibraryNode(const TargetInfo& t, const Input& i)
+    : Node(t, i) {
+}
+
+GoLibraryNode::~GoLibraryNode() {
+}
+
 void GoLibraryNode::Parse(BuildFile* file, const BuildFileNode& input) {
   Node::Parse(file, input);
 
   // go_sources
   current_reader()->ParseRepeatedFiles("go_sources", &sources_);
+
+  // go_base_dir
+  component_.reset(new ComponentHelper(
+      "", current_reader()->ParseSingleDirectory("go_base_dir")));
 
   Init();
 }
@@ -84,8 +96,11 @@ void GoLibraryNode::LocalObjectFiles(LanguageType lang,
 }
 
 Resource GoLibraryNode::GoFileFor(const Resource& r) const {
+  const ComponentHelper* helper = GetComponentHelper(component_.get(),
+                                                     r.path());
+  string path = helper->RewriteFile(input(), r.path());
+
   // HACK, go annoys me.
-  string path = StripSpecialDirs(r.path());
   if (strings::HasPrefix(path, "src/")) {
     return Resource::FromLocalPath(input().pkgfile_dir(), path);
   } else {

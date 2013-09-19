@@ -10,6 +10,7 @@
 #include "repobuild/env/resource.h"
 #include "repobuild/nodes/confignode.h"
 #include "repobuild/nodes/makefile.h"
+#include "repobuild/nodes/util.h"
 #include "repobuild/reader/buildfile.h"
 
 using std::set;
@@ -18,15 +19,29 @@ using std::vector;
 
 namespace repobuild {
 
+ConfigNode::ConfigNode(const TargetInfo& target, const Input& input)
+    : Node(target, input) {
+}
+
+ConfigNode::~ConfigNode() {}
+
 void ConfigNode::Parse(BuildFile* file, const BuildFileNode& input) {
   Node::Parse(file, input);
-  if (!current_reader()->ParseStringField("component", &component_src_)) {
+  file->AddBaseDependency(target().full_path());
+
+  // Initialize ComponentHelper.
+  string component_src;
+  if (!current_reader()->ParseStringField("component", &component_src)) {
     LOG(FATAL) << "Could not parse \"component\" in "
                << target().dir() << " config node.";
   }
+  if (!component_src.empty()) {
+    string component_root;
+    current_reader()->ParseStringField("component_root", &component_root);
+    component_.reset(new ComponentHelper(
+        component_src, strings::JoinPath(target().dir(), component_root)));
+  }
 
-  file->AddBaseDependency(target().full_path());
-  current_reader()->ParseStringField("component_root", &component_root_);
   source_dummy_file_ =
       Resource::FromRootPath(DummyFile(SourceDir("")));
   gendir_dummy_file_ =
@@ -36,11 +51,11 @@ void ConfigNode::Parse(BuildFile* file, const BuildFileNode& input) {
 }
 
 void ConfigNode::LocalWriteMake(Makefile* out) const {
-  if (component_src_.empty()) {
+  if (component_.get() == NULL) {
     return;
   }
 
-  string actual_dir = strings::JoinPath(target().dir(), component_root_);
+  const string& actual_dir = component_->base_dir();
 
   // 3 Rules:
   // 1) Our .gen-src directory
@@ -102,7 +117,7 @@ void ConfigNode::AddSymlink(const string& dir,
 }
 
 void ConfigNode::LocalWriteMakeClean(Makefile::Rule* rule) const {
-  if (component_src_.empty()) {
+  if (component_.get() == NULL) {
     return;
   }
 
@@ -113,40 +128,46 @@ void ConfigNode::LocalWriteMakeClean(Makefile::Rule* rule) const {
 
 void ConfigNode::LocalDependencyFiles(LanguageType lang,
                                       ResourceFileSet* files) const {
-  if (!component_src_.empty()) {
-    files->Add(source_dummy_file_);
-    files->Add(gendir_dummy_file_);
-    files->Add(pkgfile_dummy_file_);
+  if (component_.get() == NULL) {
+    return;
   }
+
+  files->Add(source_dummy_file_);
+  files->Add(gendir_dummy_file_);
+  files->Add(pkgfile_dummy_file_);
 }
 
 void ConfigNode::LocalIncludeDirs(LanguageType lang, set<string>* dirs) const {
-  if (!component_src_.empty()) {
-    dirs->insert(strings::JoinPath(input().source_dir(),
-                                   input().genfile_dir()));
+  if (component_.get() == NULL) {
+    return;
   }
+
+  dirs->insert(strings::JoinPath(input().source_dir(),
+                                 input().genfile_dir()));
+}
+
+bool ConfigNode::PathRewrite(std::string* output_path,
+                             std::string* rewrite_root) const {
+  if (component_.get() == NULL) {
+    return false;
+  }
+
+  *output_path = component_->component();
+  *rewrite_root = component_->base_dir();
+  return true;
 }
 
 string ConfigNode::DummyFile(const string& dir) const {
-  return Makefile::Escape(strings::JoinPath(dir, ".dummy"));
+  return strings::JoinPath(dir, ".dummy");
 }
 
 string ConfigNode::SourceDir(const string& middle) const {
+  const string& component = component_->component();
   if (middle.empty()) {
-    return Makefile::Escape(strings::JoinPath(input().source_dir(),
-                                            component_src_));
+    return strings::JoinPath(input().source_dir(), component);
   }
-  return Makefile::Escape(strings::JoinPath(
-      input().source_dir(),
-      strings::JoinPath(middle, component_src_)));
-}
-
-string ConfigNode::CurrentDir(const string& middle) const {
-  if (middle.empty()) {
-    return strings::JoinPath(target().dir(), component_src_);
-  }
-  return strings::JoinPath(target().dir(),
-                           strings::JoinPath(middle, component_src_));
+  return strings::JoinPath(input().source_dir(),
+                           strings::JoinPath(middle, component));
 }
 
 }  // namespace repobuild

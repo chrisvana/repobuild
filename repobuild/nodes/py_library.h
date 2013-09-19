@@ -5,20 +5,19 @@
 #define _REPOBUILD_NODES_PY_LIBRARY_H__
 
 #include <map>
+#include <memory>
 #include <string>
 #include <vector>
 #include "repobuild/nodes/node.h"
 #include "repobuild/env/resource.h"
 
 namespace repobuild {
+class ComponentHelper;
 
 class PyLibraryNode : public Node {
  public:
-  PyLibraryNode(const TargetInfo& t,
-                const Input& i)
-      : Node(t, i) {
-  }
-  virtual ~PyLibraryNode() {}
+  PyLibraryNode(const TargetInfo& t, const Input& i);
+  virtual ~PyLibraryNode();
   virtual void Parse(BuildFile* file, const BuildFileNode& input);
   virtual void LocalWriteMake(Makefile* out) const {
     LocalWriteMakeInternal(true, out);
@@ -47,6 +46,7 @@ class PyLibraryNode : public Node {
   Resource touchfile_;
   std::string py_base_dir_;
   std::vector<Resource> sources_;
+  std::unique_ptr<ComponentHelper> component_;
 };
 
 }  // namespace repobuild

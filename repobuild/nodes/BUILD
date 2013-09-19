@@ -51,7 +51,8 @@
      "cc_headers" : [ "confignode.h" ],
      "dependencies": [ "//common/log:log",
                        "//common/strings:strutil",
-                       ":node"
+                       ":node",
+                       ":util"
       ]
    }
  },
@@ -85,7 +86,9 @@
      "cc_sources" : [ "go_library.cc" ],
      "cc_headers" : [ "go_library.h" ],
      "dependencies": [ "//common/strings:strutil",
-                       ":node" ]
+                       ":node",
+                       ":util"
+     ]
    }
  },
 

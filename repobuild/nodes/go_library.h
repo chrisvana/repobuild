@@ -4,19 +4,18 @@
 #ifndef _REPOBUILD_NODES_GO_LIBRARY_H__
 #define _REPOBUILD_NODES_GO_LIBRARY_H__
 
+#include <memory>
 #include <vector>
 #include "repobuild/nodes/node.h"
 #include "repobuild/env/resource.h"
 
 namespace repobuild {
+class ComponentHelper;
 
 class GoLibraryNode : public Node {
  public:
-  GoLibraryNode(const TargetInfo& t,
-                const Input& i)
-      : Node(t, i) {
-  }
-  virtual ~GoLibraryNode() {}
+  GoLibraryNode(const TargetInfo& t, const Input& i);
+  virtual ~GoLibraryNode();
   virtual void Parse(BuildFile* file, const BuildFileNode& input);
   virtual void LocalWriteMake(Makefile* out) const {
     LocalWriteMakeInternal(true, out);
@@ -37,6 +36,7 @@ class GoLibraryNode : public Node {
 
   Resource touchfile_;
   std::vector<Resource> sources_;
+  std::unique_ptr<ComponentHelper> component_;
 };
 
 }  // namespace repobuild
