@@ -9,7 +9,11 @@
 #include "repobuild/nodes/node.h"
 
 namespace repobuild {
+class CCLibraryNode;
 class GenShNode;
+class GoLibraryNode;
+class JavaLibraryNode;
+class PyLibraryNode;
 
 class ProtoLibraryNode : public Node {
  public:
@@ -53,10 +57,10 @@ class ProtoLibraryNode : public Node {
                                       Node* node) const;
 
   GenShNode* gen_node_;
-  Node* cc_node_;
-  Node* java_node_;
-  Node* go_node_;
-  Node* py_node_;
+  CCLibraryNode* cc_node_;
+  JavaLibraryNode* java_node_;
+  GoLibraryNode* go_node_;
+  PyLibraryNode* py_node_;
 };
 
 }  // namespace repobuild

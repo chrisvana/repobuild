@@ -48,8 +48,16 @@ void CCBinaryNode::WriteLink(const Resource& file, Makefile* out) const {
   Makefile::Rule* rule = out->StartRule(file.path(),
                                         strings::JoinAll(objects.files(), " "));
   rule->WriteUserEcho("Linking", file.path());
+
+  // HACK(cvanarsdale):
+  // Sadly order matters to the (gcc) linker. It looks in later object
+  // files to find unresolved symbols. We collect the dependencies
+  // bottom up, so we push resources onto the front of the list so
+  // unencumbered resources end up in the back of the list.
   string obj_list;
-  for (const Resource& r : objects.files()) {
+  vector<Resource> copy = objects.files();
+  std::reverse(copy.begin(), copy.end());
+  for (const Resource& r : copy) {
     obj_list += " ";
     bool alwayslink = r.has_tag("alwayslink");
     if (alwayslink) {

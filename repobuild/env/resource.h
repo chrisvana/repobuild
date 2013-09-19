@@ -5,7 +5,7 @@
 #define _REPOBUILD_ENV_RESOURCE_H__
 
 #include <iosfwd>
-#include <list>
+#include <vector>
 #include <set>
 #include <string>
 
@@ -57,24 +57,25 @@ class ResourceFileSet {
   ~ResourceFileSet() {}
 
   // Files.
-  const std::list<Resource>& files() const { return files_; }
+  const std::vector<Resource>& files() const { return files_; }
   void Add(const Resource& resource) {
-    // HACK(cvanarsdale):
-    // Sadly order matters to the (gcc) linker. It looks in later object
-    // files to find unresolved symbols. We collect the dependencies
-    // bottom up, so we push resources onto the front of the list so
-    // unencumbered resources end up in the back of the list.
     if (fileset_.insert(resource).second) {
-      files_.push_front(resource);
+      files_.push_back(resource);
+    }
+  }
+  template <class T>
+  void AddRange(const T& t) {
+    for (const Resource& it : t) {
+      Add(it);
     }
   }
 
-  std::list<Resource>::const_iterator begin() const { return files_.begin(); }
-  std::list<Resource>::const_iterator end() const { return files_.end(); }
+  std::vector<Resource>::const_iterator begin() const { return files_.begin(); }
+  std::vector<Resource>::const_iterator end() const { return files_.end(); }
 
  private:
   std::set<Resource> fileset_;
-  std::list<Resource> files_;
+  std::vector<Resource> files_;
 };
 
 }  // namespace repobuild

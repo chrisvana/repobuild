@@ -12,11 +12,11 @@
 
 namespace repobuild {
 
-class PyLibraryNode : public SimpleLibraryNode {
+class PyLibraryNode : public Node {
  public:
   PyLibraryNode(const TargetInfo& t,
                 const Input& i)
-      : SimpleLibraryNode(t, i) {
+      : Node(t, i) {
   }
   virtual ~PyLibraryNode() {}
   virtual void Parse(BuildFile* file, const BuildFileNode& input);
@@ -46,6 +46,7 @@ class PyLibraryNode : public SimpleLibraryNode {
 
   Resource touchfile_;
   std::string py_base_dir_;
+  std::vector<Resource> sources_;
 };
 
 }  // namespace repobuild

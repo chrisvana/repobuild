@@ -108,9 +108,9 @@ void PyBinaryNode::WriteEggFile(const ResourceFileSet& deps,
   // Script that runs .egg file.
   Resource bin = BinScript();
   rule = out->StartRule(bin.path(), egg_bin.path());
-  string module = py_default_module_.empty() ? "" : " -m " + py_default_module_;
+  string module = py_default_module_.empty() ? "" : "-m " + py_default_module_;
   rule->WriteCommand("echo 'PYTHONPATH=$$(pwd)/$$(dirname $$0)/" +
-                     egg_bin.basename() +":$$PYTHONPATH python -m " + module +
+                     egg_bin.basename() +":$$PYTHONPATH python " + module +
                      "' > " + bin.path() +
                      "; chmod 755 " + bin.path());
   out->FinishRule(rule);

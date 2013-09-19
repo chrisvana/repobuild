@@ -19,7 +19,7 @@ using std::set;
 namespace repobuild {
 
 void GoLibraryNode::Parse(BuildFile* file, const BuildFileNode& input) {
-  SimpleLibraryNode::Parse(file, input);
+  Node::Parse(file, input);
 
   // go_sources
   current_reader()->ParseRepeatedFiles("go_sources", &sources_);
@@ -38,8 +38,6 @@ void GoLibraryNode::Set(const vector<Resource>& sources) {
 
 void GoLibraryNode::LocalWriteMakeInternal(bool write_user_target,
                                            Makefile* out) const {
-  SimpleLibraryNode::LocalWriteMake(out);
-
   // Move all go code into a single directory.
   vector<Resource> symlinked_sources;
   for (const Resource& source : sources_) {
@@ -73,7 +71,7 @@ void GoLibraryNode::LocalWriteMakeInternal(bool write_user_target,
 
 void GoLibraryNode::LocalDependencyFiles(LanguageType lang,
                                          ResourceFileSet* files) const {
-  SimpleLibraryNode::LocalDependencyFiles(lang, files);
+  files->AddRange(sources_);
   files->Add(touchfile_);
 }
 

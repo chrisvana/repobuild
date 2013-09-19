@@ -329,20 +329,4 @@ string Node::StripSpecialDirs(const Input& input, const string& path) {
   return dir;
 }
 
-void SimpleLibraryNode::LocalDependencyFiles(LanguageType lang,
-                                             ResourceFileSet* files) const {
-  Node::LocalDependencyFiles(lang, files);
-  for (int i = 0; i < sources_.size(); ++i) {
-    files->Add(sources_[i]);
-  }
-}
-
-void SimpleLibraryNode::LocalObjectFiles(LanguageType lang,
-                                         ResourceFileSet* files) const {
-  Node::LocalObjectFiles(lang, files);
-  for (int i = 0; i < sources_.size(); ++i) {
-    files->Add(sources_[i]);
-  }
-}
-
 }  // namespace repobuild

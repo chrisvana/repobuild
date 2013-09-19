@@ -43,15 +43,9 @@ void ProtoLibraryNode::Parse(BuildFile* file, const BuildFileNode& input) {
   // We will generate the proto files using protoc, using a gen_sh node. E.g:
   // protoc --cpp_out=.gen-files --java_out=.gen-files --go_out=.gen-files -I.
   //        -I.gen-files -I.gen-src -I.gen-src/.gen-files testdata/a/a.proto
-  gen_node_ = new GenShNode(
-      target().GetParallelTarget(file->NextName(target().local_path())),
-      Node::input());
-  for (const TargetInfo& dep : dep_targets()) {
-    gen_node_->AddDependencyTarget(dep);
-  }
+  gen_node_ = NewSubNodeWithCurrentDeps<GenShNode>(file);
   gen_node_->SetCd(false);
   gen_node_->SetMakeName("Generating protobuf");
-  AddSubNode(gen_node_);
 
   // Figure out where protoc lives.
   string protoc_binary = "$" + string(kProtocVar);
@@ -177,18 +171,13 @@ void ProtoLibraryNode::GenerateCpp(const vector<Resource>& input_prefixes,
                                                  hpp_file));
   }
 
-  CCLibraryNode* cc_lib = new CCLibraryNode(
-      target().GetParallelTarget(file->NextName(target().local_path())),
-      Node::input());
-  AddSubNode(cc_lib);
+  cc_node_ = NewSubNode<CCLibraryNode>(file);
 
   // dummies:
   vector<Resource> objects;
   vector<string> cc_compile_args, header_compile_args;
-
-  cc_lib->Set(cc_sources, cc_headers, objects,
-              cc_compile_args, header_compile_args);
-  cc_node_ = cc_lib;
+  cc_node_->Set(cc_sources, cc_headers, objects,
+                cc_compile_args, header_compile_args);
 
   // Dependency fixing
   AdditionalDependencies(file,
@@ -232,12 +221,8 @@ void ProtoLibraryNode::GenerateJava(BuildFile* file,
             strings::JoinPath(prefix.dirname(), java_basename)));
   }
 
-  JavaLibraryNode* java_lib = new JavaLibraryNode(
-      target().GetParallelTarget(file->NextName(target().local_path())),
-      Node::input());
-  AddSubNode(java_lib);
-  java_lib->Set(file, input, java_sources);
-  java_node_ = java_lib;
+  java_node_ = NewSubNode<JavaLibraryNode>(file);
+  java_node_->Set(file, input, java_sources);
 
   // Dependency fixing
   AdditionalDependencies(file,
@@ -264,13 +249,8 @@ void ProtoLibraryNode::GeneratePython(const vector<Resource>& input_prefixes,
         python_file));
   }
 
-  PyLibraryNode* py_lib = new PyLibraryNode(
-      target().GetParallelTarget(file->NextName(target().local_path())),
-      Node::input());
-  AddSubNode(py_lib);
-
-  py_lib->Set(python_sources);
-  py_node_ = py_lib;
+  py_node_ = NewSubNode<PyLibraryNode>(file);
+  py_node_->Set(python_sources);
 
   // Dependency fixing
   AdditionalDependencies(file,
@@ -296,13 +276,8 @@ void ProtoLibraryNode::GenerateGo(const vector<Resource>& input_prefixes,
         go_file));
   }
 
-  GoLibraryNode* go_lib = new GoLibraryNode(
-      target().GetParallelTarget(file->NextName(target().local_path())),
-      Node::input());
-  AddSubNode(go_lib);
-
-  go_lib->Set(go_sources);
-  go_node_ = go_lib;
+  go_node_ = NewSubNode<GoLibraryNode>(file);
+  go_node_->Set(go_sources);
 
   // Dependency fixing
   AdditionalDependencies(file,
@@ -314,6 +289,8 @@ void ProtoLibraryNode::GenerateGo(const vector<Resource>& input_prefixes,
 bool ProtoLibraryNode::IncludeChildDependency(DependencyCollectionType type,
                                               LanguageType lang,
                                               Node* node) const {
+  // TODO(cvanarsdale): Some sort of "Mux node" or "conditional dependency node"
+  // instead of this.
   if (node == gen_node_) {
     return type == DEPENDENCY_FILES;
   }

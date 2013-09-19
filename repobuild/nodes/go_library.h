@@ -10,11 +10,11 @@
 
 namespace repobuild {
 
-class GoLibraryNode : public SimpleLibraryNode {
+class GoLibraryNode : public Node {
  public:
   GoLibraryNode(const TargetInfo& t,
                 const Input& i)
-      : SimpleLibraryNode(t, i) {
+      : Node(t, i) {
   }
   virtual ~GoLibraryNode() {}
   virtual void Parse(BuildFile* file, const BuildFileNode& input);
@@ -36,6 +36,7 @@ class GoLibraryNode : public SimpleLibraryNode {
   std::string GoBuildPrefix() const;
 
   Resource touchfile_;
+  std::vector<Resource> sources_;
 };
 
 }  // namespace repobuild

@@ -14,13 +14,11 @@
 #include "repobuild/env/resource.h"
 #include "repobuild/env/target.h"
 #include "repobuild/nodes/makefile.h"
+#include "repobuild/reader/buildfile.h"
 #include "common/strings/strutil.h"
 
 namespace repobuild {
 
-class BuildFile;
-class BuildFileNode;
-class BuildFileNodeReader;
 class Input;
 
 class Node {
@@ -87,6 +85,23 @@ class Node {
     AddDependencyTarget(node->target());
     subnodes_.push_back(node);
     owned_subnodes_.push_back(node);
+  }
+  template <class T> T* NewSubNode(BuildFile* file) {
+    T* node = new T(
+        target().GetParallelTarget(file->NextName(target().local_path())),
+        Node::input());
+    AddSubNode(node);
+    return node;
+  }
+  template <class T> T* NewSubNodeWithCurrentDeps(BuildFile* file) {
+    T* node = new T(
+        target().GetParallelTarget(file->NextName(target().local_path())),
+        Node::input());
+    for (const TargetInfo& dep : dep_targets()) {
+      node->AddDependencyTarget(dep);
+    }
+    AddSubNode(node);
+    return node;
   }
 
  protected:
@@ -245,28 +260,6 @@ class Node {
   std::vector<Node*> subnodes_, owned_subnodes_;
   std::vector<Node*> dependencies_;  // not owned.
   std::map<std::string, MakeVariable*> make_variables_;
-};
-
-// SimpleLibraryNode
-//  A library that just collects dependencies.
-class SimpleLibraryNode : public Node {
- public:
-  SimpleLibraryNode(const TargetInfo& t, const Input& i) : Node(t, i) {}
-  virtual ~SimpleLibraryNode() {}
-  virtual void LocalWriteMake(Makefile* out) const {}
-  virtual void LocalDependencyFiles(LanguageType lang,
-                                    ResourceFileSet* files) const;
-  virtual void LocalObjectFiles(LanguageType lang,
-                                ResourceFileSet* files) const;
-
-  // Alterative to Parse()
-  virtual void LocalSet(LanguageType lang,
-                        const std::vector<Resource>& sources) {
-    sources_ = sources;
-  }
-
- protected:
-  std::vector<Resource> sources_;
 };
 
 }  // namespace repobuild

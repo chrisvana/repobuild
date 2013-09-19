@@ -25,7 +25,7 @@ using std::vector;
 namespace repobuild {
 
 void PyLibraryNode::Parse(BuildFile* file, const BuildFileNode& input) {
-  SimpleLibraryNode::Parse(file, input);
+  Node::Parse(file, input);
 
   // py_sources
   current_reader()->ParseRepeatedFiles("py_sources", &sources_);
@@ -48,8 +48,6 @@ void PyLibraryNode::Parse(BuildFile* file, const BuildFileNode& input) {
 
 void PyLibraryNode::LocalWriteMakeInternal(bool write_user_target,
                                            Makefile* out) const {
-  SimpleLibraryNode::LocalWriteMake(out);
-
   // Move all go code into a single directory.
   vector<Resource> symlinked_sources;
   for (const Resource& source : sources_) {
@@ -82,8 +80,8 @@ void PyLibraryNode::LocalWriteMakeInternal(bool write_user_target,
 
 void PyLibraryNode::LocalDependencyFiles(LanguageType lang,
                                          ResourceFileSet* files) const {
-  SimpleLibraryNode::LocalDependencyFiles(lang, files);
   files->Add(touchfile_);
+  files->AddRange(sources_);
 }
 
 void PyLibraryNode::LocalObjectFiles(LanguageType lang,
@@ -154,7 +152,6 @@ void FindExistingFiles(const set<string>& files, set<string>* actual) {
   vector<string> globbed;
   file::Glob(strings::JoinAll(files, " "), &globbed);
   for (const string& str : globbed) {
-    LG << "FOUND: " << str;
     actual->insert(str);
   }
 }
