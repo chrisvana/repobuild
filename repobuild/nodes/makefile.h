@@ -70,6 +70,8 @@ class Makefile {
                                       const std::string& source_file,
                                       const std::string& depenencies);
 
+  static std::string Escape(const std::string& input);
+
  private:
   bool silent_;
   std::string out_;

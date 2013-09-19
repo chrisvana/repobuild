@@ -85,4 +85,9 @@ void Makefile::WriteRootSymlinkWithDependency(const string& symlink_file,
   FinishRule(rule);
 }
 
+// static
+string Makefile::Escape(const string& input) {
+  return strings::ReplaceAll(input, "$", "$$");
+}
+
 }  // namespace repobuild

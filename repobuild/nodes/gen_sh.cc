@@ -11,6 +11,7 @@
 #include "common/strings/strutil.h"
 #include "repobuild/env/input.h"
 #include "repobuild/nodes/gen_sh.h"
+#include "repobuild/nodes/makefile.h"
 #include "repobuild/reader/buildfile.h"
 
 DEFINE_bool(silent_gensh, true,
@@ -181,7 +182,7 @@ string GenShNode::WriteCommand(const map<string, string>& env_vars,
 
   // Execute command
   out.append(" eval '(");
-  out.append(MakefileEscape(cmd));
+  out.append(Makefile::Escape(cmd));
   out.append(")'");
 
   // Logfile, if any

@@ -13,6 +13,7 @@
 #include "common/strings/strutil.h"
 #include "repobuild/env/input.h"
 #include "repobuild/nodes/py_library.h"
+#include "repobuild/nodes/util.h"
 #include "repobuild/reader/buildfile.h"
 
 #include <json/json.h>
@@ -179,7 +180,7 @@ void PyLibraryNode::FinishMakeFile(const Input& input,
   set<string> want;
   for (auto it : dir_to_init) {
     want.insert(it.second);
-    want.insert(StripSpecialDirs(input, it.second));
+    want.insert(NodeUtil::StripSpecialDirs(input, it.second));
   }
   set<string> have;
   FindExistingFiles(want, &have);
@@ -187,7 +188,7 @@ void PyLibraryNode::FinishMakeFile(const Input& input,
   // Fix up rules based on which actually exist, prefering normal source files
   // if they exist.
   for (auto& it : dir_to_init) {
-    string stripped = StripSpecialDirs(input, it.second);
+    string stripped = NodeUtil::StripSpecialDirs(input, it.second);
     if (have.find(stripped) != have.end()) {
       it.second = stripped;
     }

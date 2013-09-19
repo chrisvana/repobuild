@@ -15,6 +15,7 @@
 #include "repobuild/env/input.h"
 #include "repobuild/json/json.h"
 #include "repobuild/nodes/node.h"
+#include "repobuild/nodes/util.h"
 #include "repobuild/reader/buildfile.h"
 
 using std::map;
@@ -78,12 +79,39 @@ void Node::WriteMakeClean(Makefile::Rule* out) const {
   LocalWriteMakeClean(out);
 }
 
+void Node::AddDependencyNode(Node* dependency) {
+  dependencies_.push_back(dependency);
+}
+
 void Node::AddDependencyTarget(const TargetInfo& other) {
   dep_targets_.push_back(other);
 }
 
-void Node::AddDependencyNode(Node* dependency) {
-  dependencies_.push_back(dependency);
+void Node::CopyDepenencies(Node* other) {
+  for (const TargetInfo& t : other->dep_targets()) {
+    dep_targets_.push_back(t);
+  }
+  for (Node* n : other->dependencies()) {
+    dependencies_.push_back(n);
+  }
+}
+
+TargetInfo Node::GetNextTargetName(BuildFile* file) const {
+  return target().GetParallelTarget(file->NextName(target().local_path()));
+}
+
+void Node::ExtractSubnodes(std::vector<Node*>* nodes) {
+  for (Node* n : subnodes_) {
+    nodes->push_back(n);
+    n->ExtractSubnodes(nodes);
+  }
+  owned_subnodes_.clear();
+}
+
+void Node::AddSubNode(Node* node) {
+  AddDependencyTarget(node->target());
+  subnodes_.push_back(node);
+  owned_subnodes_.push_back(node);
 }
 
 BuildFileNodeReader* Node::NewBuildReader(const BuildFileNode& node) const {
@@ -101,6 +129,13 @@ BuildFileNodeReader* Node::NewBuildReader(const BuildFileNode& node) const {
   reader->SetErrorPath(target().full_path());
   reader->SetFilePath(target().dir());
   return reader;
+}
+
+void Node::CollectAllDependencies(DependencyCollectionType type,
+                                  LanguageType lang,
+                                  std::vector<Node*>* all_deps) const {
+  std::set<Node*> all_deps_set(all_deps->begin(), all_deps->end());
+  CollectAllDependencies(type, lang, &all_deps_set, all_deps);
 }
 
 void Node::CollectAllDependencies(DependencyCollectionType type,
@@ -238,8 +273,9 @@ void Node::IncludeDirs(LanguageType lang, set<string>* dirs) const {
   LocalIncludeDirs(lang, dirs);
 }
 
-string Node::MakefileEscape(const string& str) const {
-  return strings::ReplaceAll(str, "$", "$$");
+void Node::WriteBaseUserTarget(Makefile* out) const {
+  ResourceFileSet empty;
+  WriteBaseUserTarget(empty, out);
 }
 
 void Node::WriteBaseUserTarget(const ResourceFileSet& deps,
@@ -263,6 +299,29 @@ void Node::WriteBaseUserTarget(const ResourceFileSet& deps,
   out->append("\n\n.PHONY: ");
   out->append(target().make_path());
   out->append("\n\n");
+}
+
+Node::MakeVariable::MakeVariable(const std::string& name)
+    : name_(name) {
+}
+
+Node::MakeVariable::~MakeVariable() {
+}
+
+const std::string& Node::MakeVariable::name() const { return name_; }
+
+std::string Node::MakeVariable::ref_name() const {
+  return name_.empty() ? "" : "$(" + name_ + ")";
+}
+
+void Node::MakeVariable::SetValue(const std::string& value) {
+  SetCondition("", value, "");
+}
+
+void Node::MakeVariable::SetCondition(const std::string& condition,
+                                const std::string& if_val,
+                                const std::string& else_val) {
+  conditions_[condition] = std::make_pair(if_val, else_val);
 }
 
 void Node::MakeVariable::WriteMake(string* out) const {
@@ -304,29 +363,35 @@ Resource Node::Touchfile(const string& suffix) const {
       "." + target().local_path() + suffix + ".dummy");
 }
 
-// static
-string Node::StripSpecialDirs(const Input& input, const string& path) {
-  string dir = path;
-  while (true) {
-    if (strings::HasPrefix(dir, input.genfile_dir())) {
-      dir = dir.substr(std::min(input.genfile_dir().size() + 1, dir.size()));
-      continue;
-    }
-    if (strings::HasPrefix(dir, input.source_dir())) {
-      dir = dir.substr(std::min(input.source_dir().size() + 1, dir.size()));
-      continue;
-    }
-    if (strings::HasPrefix(dir, input.object_dir())) {
-      dir = dir.substr(std::min(input.object_dir().size() + 1, dir.size()));
-      continue;
-    }
-    if (strings::HasPrefix(dir, input.pkgfile_dir())) {
-      dir = dir.substr(std::min(input.pkgfile_dir().size() + 1, dir.size()));
-      continue;
-    }
-    break;
+void Node::WriteVariables(std::string* out) const {
+  for (auto const& it : make_variables_) {
+    it.second->WriteMake(out);
   }
-  return dir;
+}
+
+bool Node::HasVariable(const std::string& name) const {
+  return make_variables_.find(name) != make_variables_.end();
+}
+
+const Node::MakeVariable& Node::GetVariable(const std::string& name) const {
+  static MakeVariable kEmpty("");
+  const auto& it = make_variables_.find(name);
+  if (it == make_variables_.end()) {
+    return kEmpty;
+  }
+  return *it->second;
+}
+
+Node::MakeVariable* Node::MutableVariable(const std::string& name) {
+  MakeVariable** var = &(make_variables_[name]);
+  if (*var == NULL) {
+    *var = new MakeVariable(name + "." + target().make_path());
+  }
+  return *var;
+}
+
+string Node::StripSpecialDirs(const string& path) const {
+  return NodeUtil::StripSpecialDirs(input(), path);
 }
 
 }  // namespace repobuild

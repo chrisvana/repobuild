@@ -9,6 +9,7 @@
 #include "repobuild/env/input.h"
 #include "repobuild/env/resource.h"
 #include "repobuild/nodes/confignode.h"
+#include "repobuild/nodes/makefile.h"
 #include "repobuild/reader/buildfile.h"
 
 using std::set;
@@ -127,15 +128,15 @@ void ConfigNode::LocalIncludeDirs(LanguageType lang, set<string>* dirs) const {
 }
 
 string ConfigNode::DummyFile(const string& dir) const {
-  return MakefileEscape(strings::JoinPath(dir, ".dummy"));
+  return Makefile::Escape(strings::JoinPath(dir, ".dummy"));
 }
 
 string ConfigNode::SourceDir(const string& middle) const {
   if (middle.empty()) {
-    return MakefileEscape(strings::JoinPath(input().source_dir(),
+    return Makefile::Escape(strings::JoinPath(input().source_dir(),
                                             component_src_));
   }
-  return MakefileEscape(strings::JoinPath(
+  return Makefile::Escape(strings::JoinPath(
       input().source_dir(),
       strings::JoinPath(middle, component_src_)));
 }

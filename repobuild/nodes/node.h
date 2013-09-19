@@ -1,5 +1,9 @@
 // Copyright 2013
 // Author: Christopher Van Arsdale
+//
+// Our BUILD entries are encoded internally as "Nodes" below. This class is
+// the base class for all node types. For example:
+// cc_library -> CCLibraryNode (cc_library.cc), which inherits from Node below.
 
 #ifndef _REPOBUILD_NODES_NODE_H__
 #define _REPOBUILD_NODES_NODE_H__
@@ -54,9 +58,12 @@ class Node {
       std::map<std::string, std::string>* files) const {}
 
   // Flag inheritence
-  void LinkFlags(LanguageType lang, std::set<std::string>* flags) const;
-  void CompileFlags(LanguageType lang, std::set<std::string>* flags) const;
-  void IncludeDirs(LanguageType lang, std::set<std::string>* dirs) const;
+  void LinkFlags(LanguageType lang,
+                 std::set<std::string>* flags) const;
+  void CompileFlags(LanguageType lang,
+                    std::set<std::string>* flags) const;
+  void IncludeDirs(LanguageType lang,
+                   std::set<std::string>* dirs) const;
   void EnvVariables(LanguageType lang,
                     std::map<std::string, std::string>* vars) const;
 
@@ -67,83 +74,45 @@ class Node {
   const std::vector<Node*> dependencies() const { return dependencies_; }
 
   // Mutators
+  void AddDependencyNode(Node* dependency);
   void AddDependencyTarget(const TargetInfo& other);
+  void CopyDepenencies(Node* other);
   void SetStrictFileMode(bool strict) { strict_file_mode_ = strict; }
 
-  // Called from outside:
-  void AddDependencyNode(Node* dependency);
-
   // Subnode handling.
-  void ExtractSubnodes(std::vector<Node*>* nodes) {
-    for (Node* n : subnodes_) {
-      nodes->push_back(n);
-      n->ExtractSubnodes(nodes);
-    }
-    owned_subnodes_.clear();
-  }
-  void AddSubNode(Node* node) {
-    AddDependencyTarget(node->target());
-    subnodes_.push_back(node);
-    owned_subnodes_.push_back(node);
-  }
-  template <class T> T* NewSubNode(BuildFile* file) {
-    T* node = new T(
-        target().GetParallelTarget(file->NextName(target().local_path())),
-        Node::input());
-    AddSubNode(node);
-    return node;
-  }
-  template <class T> T* NewSubNodeWithCurrentDeps(BuildFile* file) {
-    T* node = new T(
-        target().GetParallelTarget(file->NextName(target().local_path())),
-        Node::input());
-    for (const TargetInfo& dep : dep_targets()) {
-      node->AddDependencyTarget(dep);
-    }
-    AddSubNode(node);
-    return node;
-  }
+  TargetInfo GetNextTargetName(BuildFile* file) const;
+  void ExtractSubnodes(std::vector<Node*>* nodes);
+  void AddSubNode(Node* node);
+  template <class T> T* NewSubNode(BuildFile* file);
+  template <class T> T* NewSubNodeWithCurrentDeps(BuildFile* file);
 
  protected:
-  class MakeVariable {
-   public:
-    explicit MakeVariable(const std::string& name) : name_(name) {}
-    ~MakeVariable() {}
-
-    const std::string& name() const { return name_; }
-    std::string ref_name() const {
-      return name_.empty() ? "" : "$(" + name_ + ")";
-    }
-    void SetValue(const std::string& value) { SetCondition("", value, ""); }
-    void SetCondition(const std::string& condition,
-                      const std::string& if_val,
-                      const std::string& else_val) {
-      conditions_[condition] = std::make_pair(if_val, else_val);
-    }
-    void WriteMake(std::string* out) const;
-
-   private:
-    std::string name_;
-    std::map<std::string, std::pair<std::string, std::string> > conditions_;
-  };
+  class MakeVariable;
 
   // The main thing to override.
   virtual void LocalWriteMake(Makefile* out) const = 0;
   virtual void LocalWriteMakeClean(Makefile::Rule* out) const {}
-  virtual void LocalDependencyFiles(LanguageType lang,
-                                    ResourceFileSet* files) const {}
-  virtual void LocalObjectFiles(LanguageType lang,
-                                ResourceFileSet* files) const {}
-  virtual void LocalFinalOutputs(LanguageType lang,
-                                 ResourceFileSet* outputs) const {}
-  virtual void LocalBinaries(LanguageType lang,
-                             ResourceFileSet* outputs) const {}
-  virtual void LocalLinkFlags(LanguageType lang,
-                              std::set<std::string>* flags) const {}
-  virtual void LocalCompileFlags(LanguageType lang,
-                                 std::set<std::string>* flags) const {}
-  virtual void LocalIncludeDirs(LanguageType lang,
-                                std::set<std::string>* dirs) const {}
+  virtual void LocalDependencyFiles(
+      LanguageType lang,
+      ResourceFileSet* files) const {}
+  virtual void LocalObjectFiles(
+      LanguageType lang,
+      ResourceFileSet* files) const {}
+  virtual void LocalFinalOutputs(
+      LanguageType lang,
+      ResourceFileSet* outputs) const {}
+  virtual void LocalBinaries(
+      LanguageType lang,
+      ResourceFileSet* outputs) const {}
+  virtual void LocalLinkFlags(
+      LanguageType lang,
+      std::set<std::string>* flags) const {}
+  virtual void LocalCompileFlags(
+      LanguageType lang,
+      std::set<std::string>* flags) const {}
+  virtual void LocalIncludeDirs(
+      LanguageType lang,
+      std::set<std::string>* dirs) const {}
   virtual void LocalEnvVariables(
       LanguageType lang, 
       std::map<std::string, std::string>* vars) const;
@@ -161,45 +130,17 @@ class Node {
   std::string RelativeSourceDir() const { return relative_src_dir_; }
   std::string PackageDir() const { return package_dir_; }
   std::string RelativeRootDir() const { return relative_root_dir_; }
-  std::string StripSpecialDirs(const std::string& path) const {
-    return StripSpecialDirs(input(), path);
-  }
-  static std::string StripSpecialDirs(const Input& input,
-                                      const std::string& path);
+  std::string StripSpecialDirs(const std::string& path) const;
 
   // Makefile helpers.
-  std::string MakefileEscape(const std::string& str) const;
   Resource Touchfile(const std::string& suffix) const;
   Resource Touchfile() const { return Touchfile(""); }
-  void WriteBaseUserTarget(const ResourceFileSet& deps,
-                           Makefile* out) const;
-  void WriteBaseUserTarget(Makefile* out) const {
-    ResourceFileSet empty;
-    WriteBaseUserTarget(empty, out);
-  }
-  void WriteVariables(std::string* out) const {
-    for (auto const& it : make_variables_) {
-      it.second->WriteMake(out);
-    }
-  }
-  bool HasVariable(const std::string& name) const {
-    return make_variables_.find(name) != make_variables_.end();
-  }
-  const MakeVariable& GetVariable(const std::string& name) const {
-    static MakeVariable kEmpty("");
-    const auto& it = make_variables_.find(name);
-    if (it == make_variables_.end()) {
-      return kEmpty;
-    }
-    return *it->second;
-  }
-  MakeVariable* MutableVariable(const std::string& name) {
-    MakeVariable** var = &(make_variables_[name]);
-    if (*var == NULL) {
-      *var = new MakeVariable(name + "." + target().make_path());
-    }
-    return *var;
-  }
+  void WriteBaseUserTarget(const ResourceFileSet& deps, Makefile* out) const;
+  void WriteBaseUserTarget(Makefile* out) const;
+  void WriteVariables(std::string* out) const;
+  bool HasVariable(const std::string& name) const;
+  const MakeVariable& GetVariable(const std::string& name) const;
+  MakeVariable* MutableVariable(const std::string& name);
 
   // Dependency helpers
   void InputDependencyFiles(LanguageType lang, ResourceFileSet* files) const;
@@ -224,13 +165,6 @@ class Node {
   };
   void CollectAllDependencies(DependencyCollectionType type,
                               LanguageType lang,
-                              std::vector<Node*>* all_deps) const {
-    std::set<Node*> all_deps_set(all_deps->begin(), all_deps->end());
-    CollectAllDependencies(type, lang, &all_deps_set, all_deps);
-  }
-  void CollectAllDependencies(DependencyCollectionType type,
-                              LanguageType lang,
-                              std::set<Node*>* all_deps_set,
                               std::vector<Node*>* all_deps) const;
   virtual bool IncludeDependencies(DependencyCollectionType type,
                                    LanguageType lang) const {
@@ -243,6 +177,11 @@ class Node {
   }
 
  private:
+  void CollectAllDependencies(DependencyCollectionType type,
+                              LanguageType lang,
+                              std::set<Node*>* all_deps_set,
+                              std::vector<Node*>* all_deps) const;
+
   // Input info.
   TargetInfo target_;
   const Input* input_;
@@ -261,6 +200,44 @@ class Node {
   std::vector<Node*> dependencies_;  // not owned.
   std::map<std::string, MakeVariable*> make_variables_;
 };
+
+class Node::MakeVariable {
+ public:
+  explicit MakeVariable(const std::string& name);
+  ~MakeVariable();
+
+  // Accessors.
+  const std::string& name() const;
+  std::string ref_name() const;
+
+  // Mutators
+  void SetValue(const std::string& value);
+  void SetCondition(const std::string& condition,
+                    const std::string& if_val,
+                    const std::string& else_val);
+
+  // Makefile generation.
+  void WriteMake(std::string* out) const;
+
+ private:
+  std::string name_;
+  std::map<std::string, std::pair<std::string, std::string> > conditions_;
+};
+
+template <class T>
+T* Node::NewSubNode(BuildFile* file) {
+  T* node = new T(GetNextTargetName(file), input());
+  AddSubNode(node);
+  return node;
+}
+
+template <class T>
+T* Node::NewSubNodeWithCurrentDeps(BuildFile* file) {
+  T* node = new T(GetNextTargetName(file), input());
+  node->CopyDepenencies(this);
+  AddSubNode(node);
+  return node;
+}
 
 }  // namespace repobuild
 

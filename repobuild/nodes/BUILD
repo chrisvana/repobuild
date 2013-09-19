@@ -7,6 +7,15 @@
  } },
 
  { "cc_library": {
+     "name": "util",
+     "cc_sources": [ "util.cc" ],
+     "cc_headers": [ "util.h" ],
+     "dependencies": [ "//common/strings:strutil",
+                       "//repobuild/env:input"
+     ]
+ } },
+
+ { "cc_library": {
      "name" : "node",
      "cc_sources" : [ "node.cc" ],
      "cc_headers" : [ "node.h" ],
@@ -18,7 +27,8 @@
                        "//repobuild/env:resource",
                        "//repobuild/env:target",
                        "//repobuild/reader:buildfile",
-                       ":makefile"
+                       ":makefile",
+                       ":util"
     ]
    }
  },
@@ -97,7 +107,9 @@
      "dependencies": [ "//common/log:log",
                        "//common/file:fileutil",
                        "//common/strings:strutil",
-                       ":node" ]
+                       ":node",
+                       ":util"
+     ]
    }
  },
 

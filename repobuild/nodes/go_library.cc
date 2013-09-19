@@ -10,6 +10,7 @@
 #include "common/strings/path.h"
 #include "repobuild/env/input.h"
 #include "repobuild/nodes/go_library.h"
+#include "repobuild/nodes/makefile.h"
 #include "repobuild/reader/buildfile.h"
 
 using std::vector;
@@ -93,7 +94,8 @@ Resource GoLibraryNode::GoFileFor(const Resource& r) const {
 }
 
 string GoLibraryNode::GoBuildPrefix() const {
-  return MakefileEscape("GOPATH=$(pwd)/" + input().pkgfile_dir() + ":$GOPATH");
+  return Makefile::Escape(
+      "GOPATH=$(pwd)/" + input().pkgfile_dir() + ":$GOPATH");
 }
 
 }  // namespace repobuild
