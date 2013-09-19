@@ -29,17 +29,39 @@ DEFINE_string(proto_py_library, "//third_party/protobuf:py_proto",
 // TODO(cvanarsdale): A default configuration file ('.repobuild') that contains
 // flags. We can search the path/tree/homedir for it.
 
+DEFINE_string(root_dir, ".",
+              "Location of our source root.");
+
+DEFINE_string(object_dir, ".gen-obj",
+              "Location where we store compiled objects.");
+
+DEFINE_string(genfile_dir, ".gen-files",
+              "Location where we store generated files.");
+
+DEFINE_string(source_dir, ".gen-src",
+              "Location where we do horrible linker munging to make "
+              "component files look like they are on the right path.");
+
+DEFINE_string(package_dir, ".gen-pkg",
+              "Location where we put packaged files (e.g. symlinked into a "
+              "specific directory structure). This could be the merged version "
+              "of .gen-src and .gen-files");
+
+DEFINE_string(binary_dir, "bin",
+              "Location where we put final output binaries (in addition to "
+              "root dir).");
+
 using std::string;
 
 namespace repobuild {
 
 Input::Input() {
-  root_dir_ = ".";
-  object_dir_ = ".gen-obj";
-  genfile_dir_ = ".gen-files";
-  source_dir_ = ".gen-src";
-  pkgfile_dir_ = ".gen-pkg";
-  binary_dir_ = "bin";
+  root_dir_ = FLAGS_root_dir;
+  object_dir_ = FLAGS_object_dir;
+  genfile_dir_ = FLAGS_genfile_dir;
+  source_dir_ = FLAGS_source_dir;
+  pkgfile_dir_ = FLAGS_package_dir;
+  binary_dir_ = FLAGS_binary_dir;
 
   // Default flags.
   if (FLAGS_add_default_flags) {
