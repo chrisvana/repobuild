@@ -404,40 +404,41 @@ string Node::StripSpecialDirs(const string& path) const {
 void Node::InitComponentHelpers() {
   vector<Node*> deps;
   CollectAllDependencies(INCLUDE_DIRS, NO_LANG, &deps);
-  map<string, ComponentHelper*> helpers;
+  vector<ComponentHelper*> helpers(strings::NumPathComponents(target().dir()));
   for (Node* n : deps) {
     string output_dir, base_dir;
     if (strings::HasPrefix(target().dir(), n->target().dir()) &&
         n->PathRewrite(&output_dir, &base_dir)) {
-      ComponentHelper** helper = &helpers[n->target().dir()];
-      if (*helper == NULL) {
-        *helper = new ComponentHelper(output_dir, base_dir);
-      }
+      int pos = helpers.size() - strings::NumPathComponents(n->target().dir());
+      CHECK_GE(pos, 0);
+      CHECK_LE(pos, helpers.size());
+      helpers[pos] = new ComponentHelper(output_dir, base_dir);
     }
   }
-  if (helpers[""] == NULL) {
-    helpers[""] = new ComponentHelper("", "");
+  if (helpers.back() == NULL) {
+    helpers.back() = new ComponentHelper("", "");
   }
-  for (auto it : helpers) {
-    component_helpers_.push_back(it.second);
+
+  // component_helpers_ is ordered by most specific component first.
+  for (ComponentHelper* it : helpers) {
+    if (it != NULL) {
+      component_helpers_.push_back(it);
+    }
   }
-  std::reverse(component_helpers_.begin(), component_helpers_.end());
 }
 
 const ComponentHelper* Node::GetComponentHelper(
     const ComponentHelper* preferred,
     const std::string& path) const {
-  string rewrite = StripSpecialDirs(path);
-  if (preferred != NULL && preferred->CoversPath(rewrite)) {
+  if (preferred != NULL && preferred->CoversPath(input(), path)) {
     return preferred;
   }
-  return GetComponentHelper(rewrite);
+  return GetComponentHelper(path);
 }
 
 const ComponentHelper* Node::GetComponentHelper(const string& path) const {
-  string rewrite = StripSpecialDirs(path);
   for (const ComponentHelper* helper : component_helpers_) {
-    if (helper->CoversPath(rewrite)) {
+    if (helper->CoversPath(input(), path)) {
       return helper;
     }
   }

@@ -1,7 +1,7 @@
 // Copyright 2013
 // Author: Christopher Van Arsdale
 //
-// TODO(cvanarsdale): This overalaps a lot with go_library/cc_library.
+// TODO(cvanarsdale): This overalaps a lot with go_library.
 
 #include <map>
 #include <set>

@@ -55,8 +55,9 @@ string ComponentHelper::RewriteFile(const Input& input,
   return file;
 }
 
-bool ComponentHelper::CoversPath(const string& path) const {
-  return strings::HasPrefix(path, base_dir_);
+bool ComponentHelper::CoversPath(const Input& input, const string& path) const {
+  string file = NodeUtil::StripSpecialDirs(input, path);
+  return strings::HasPrefix(file, base_dir_);
 }
 
 }  // namespace repobuild

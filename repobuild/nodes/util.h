@@ -24,7 +24,7 @@ class ComponentHelper {
   const std::string& component() const { return component_; }
   const std::string& base_dir() const { return base_dir_; }
 
-  bool CoversPath(const std::string& path) const;
+  bool CoversPath(const Input& input, const std::string& path) const;
   std::string RewriteFile(const Input& input, const std::string& path) const;
 
  private:
