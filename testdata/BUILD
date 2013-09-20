@@ -51,5 +51,11 @@
     "name": "go_main",
     "go_sources": [ "main.go" ],
     "dependencies": [ "//testdata/a:bar_go" ]
+ } },
+
+ { "go_test": {
+    "name": "go_main_test",
+    "go_sources": [ "main_test.go" ],
+    "dependencies": [ "//testdata/a:bar_go" ]
  } }
 ]

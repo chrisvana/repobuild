@@ -116,6 +116,17 @@
  },
 
  { "cc_library": {
+     "name" : "go_test",
+     "cc_sources" : [ "go_test.cc" ],
+     "cc_headers" : [ "go_test.h" ],
+     "dependencies": [ "//common/log:log",
+                       "//common/strings:strutil",
+                       ":node"
+      ]
+   }
+ },
+
+ { "cc_library": {
      "name" : "py_library",
      "cc_sources" : [ "py_library.cc" ],
      "cc_headers" : [ "py_library.h" ],
@@ -234,6 +245,7 @@
                        ":execute_test",
                        ":go_library",
                        ":go_binary",
+                       ":go_test",
                        ":gen_sh",
                        ":java_library",
                        ":java_binary",

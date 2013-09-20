@@ -14,6 +14,7 @@
 #include "repobuild/nodes/execute_test.h"
 #include "repobuild/nodes/go_library.h"
 #include "repobuild/nodes/go_binary.h"
+#include "repobuild/nodes/go_test.h"
 #include "repobuild/nodes/gen_sh.h"
 #include "repobuild/nodes/java_library.h"
 #include "repobuild/nodes/java_binary.h"
@@ -92,6 +93,7 @@ void NodeBuilder::GetAll(std::vector<NodeBuilder*>* nodes) {
       "py_test"));
   nodes->push_back(new NodeBuilderImpl<ExecuteTestNodeImpl<JavaBinaryNode> >(
       "java_test"));
+  nodes->push_back(new NodeBuilderImpl<GoTestNode>("go_test"));
 }
 
 NodeBuilderSet::NodeBuilderSet() {

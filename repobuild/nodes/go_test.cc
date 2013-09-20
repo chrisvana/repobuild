@@ -1,5 +1,7 @@
 // Copyright 2013
 // Author: Christopher Van Arsdale
+//
+// TODO(cvanarsdale): This overalaps a lot with go_binary.cc.
 
 #include <set>
 #include <string>
@@ -8,7 +10,7 @@
 #include "common/log/log.h"
 #include "common/strings/path.h"
 #include "repobuild/env/input.h"
-#include "repobuild/nodes/go_binary.h"
+#include "repobuild/nodes/go_test.h"
 #include "repobuild/reader/buildfile.h"
 
 using std::string;
@@ -17,22 +19,29 @@ using std::set;
 
 namespace repobuild {
 
-void GoBinaryNode::Parse(BuildFile* file, const BuildFileNode& input) {
+void GoTestNode::Parse(BuildFile* file, const BuildFileNode& input) {
   GoLibraryNode::Parse(file, input);
   current_reader()->ParseRepeatedString("go_build_args", &go_build_args_);
   if (sources_.empty()) {
-    LOG(FATAL) << "go_binary requires \"go_sources\" to be non-empty: "
+    LOG(FATAL) << "go_test requires \"go_sources\" to be non-empty: "
                << target().full_path();
   }
 }
 
-void GoBinaryNode::LocalWriteMake(Makefile* out) const {
+void GoTestNode::LocalWriteMake(Makefile* out) const {
   GoLibraryNode::LocalWriteMakeInternal(false, out);
-  WriteGoBinary(Binary(), out);
-  WriteBaseUserTarget(out);
+  WriteGoTest(out);
+  ResourceFileSet files;
+  files.Add(Touchfile("test"));
+  WriteBaseUserTarget(files, out);
 }
 
-void GoBinaryNode::WriteGoBinary(const Resource& bin, Makefile* out) const {
+void GoTestNode::LocalTests(LanguageType lang,
+                            set<string>* targets) const {
+  targets->insert(target().make_path());
+}
+
+void GoTestNode::WriteGoTest(Makefile* out) const {
   // Source files.
   ResourceFileSet deps;
   DependencyFiles(GO_LANG, &deps);
@@ -40,28 +49,21 @@ void GoBinaryNode::WriteGoBinary(const Resource& bin, Makefile* out) const {
   ResourceFileSet inputs;
   LocalObjectFiles(GO_LANG, &inputs);
 
-  // Output binary
-  Makefile::Rule* rule = out->StartRule(bin.path(),
+  // Output test
+  Resource touchfile = Touchfile("test");
+  Makefile::Rule* rule = out->StartRule(touchfile.path(),
                                         strings::JoinAll(deps.files(), " "));
-  rule->WriteUserEcho("Go build", bin.path());
-  rule->WriteCommand("mkdir -p " + bin.dirname());
+  rule->WriteUserEcho("Testing", target().make_path());
   rule->WriteCommand(
       strings::JoinWith(
           " ",
-          GoBuildPrefix(), "go build -o", bin,
+          GoBuildPrefix(), "go test",
           strings::JoinAll(input().flags("-G"), " "),
           strings::JoinAll(go_build_args_, " "),
           strings::JoinAll(inputs.files(), " ")));
+  rule->WriteCommand("mkdir -p " + touchfile.dirname());
+  rule->WriteCommand("touch " + touchfile.path());
   out->FinishRule(rule);
-}
-
-void GoBinaryNode::LocalBinaries(LanguageType lang,
-                                 ResourceFileSet* outputs) const {
-  outputs->Add(Binary());
-}
-
-Resource GoBinaryNode::Binary() const {
-  return Resource::FromLocalPath(input().object_dir(), target().make_path());
 }
 
 }  // namespace repobuild
