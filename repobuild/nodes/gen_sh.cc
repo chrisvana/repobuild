@@ -30,8 +30,9 @@ const char kRootDir[] = "ROOT_DIR";
 
 void GenShNode::Parse(BuildFile* file, const BuildFileNode& input) {
   Node::Parse(file, input);
-  if (!current_reader()->ParseStringField("build_cmd", &build_cmd_)) {
-    LOG(FATAL) << "Could not parse build_cmd.";
+  if (!current_reader()->ParseStringField("build_cmd", &build_cmd_) &&
+      !current_reader()->ParseStringField("cmd", &build_cmd_)) {
+    LOG(FATAL) << "Could not parse build_cmd/cmd.";
   }
   current_reader()->ParseStringField("clean", &clean_cmd_);
   current_reader()->ParseRepeatedFiles("input_files", &input_files_);
@@ -73,7 +74,7 @@ void GenShNode::LocalWriteMake(Makefile* out) const {
 
   // Build command.
   if (!build_cmd_.empty()) {
-    rule->WriteUserEcho(make_name_, target().full_path());
+    rule->WriteUserEcho(make_name_, make_target_);
 
     // The file we touch after the script runs, for 'make' to be happy.
     string touch_cmd = "mkdir -p " +

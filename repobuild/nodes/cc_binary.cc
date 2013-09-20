@@ -26,7 +26,7 @@ void CCBinaryNode::Parse(BuildFile* file, const BuildFileNode& input) {
   ResourceFileSet binaries;
   LocalBinaries(NO_LANG, &binaries);
   AddSubNode(new TopSymlinkNode(
-      target().GetParallelTarget(file->NextName(target().local_path())),
+      GetNextTargetName(file),
       Node::input(),
       binaries));
 }

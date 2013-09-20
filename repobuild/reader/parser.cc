@@ -56,6 +56,20 @@ Node* ParseNode(const NodeBuilderSet* builder_set,
   return node;
 }
 
+bool UserInputHasTarget(const Input& input, const Node& node) {
+  if (input.contains_target(node.target().full_path())) {
+    return true;
+  }
+
+  // We'll accept required parents of input nodes:
+  for (const Node* child : node.dependencies()) {
+    if (ContainsValue(child->required_parents(), node.target())) {
+      return UserInputHasTarget(input, *child);
+    }
+  }
+  return false;
+}
+
 // Graph
 //  This does the heavy lifting of parsing a set of dependent build files.
 class Graph {
@@ -114,15 +128,6 @@ class Graph {
     DeleteValues(&nodes_);
     swap(nodes_, copy);
 
-    // Figure out which ones came from our input, and save them specially.
-    for (auto it : nodes_) {
-      Node* node = it.second;
-      const TargetInfo& target = node->target();
-      if (input_.contains_target(target.full_path())) {
-        inputs_.push_back(node);
-      }
-    }
-
     // Now make sure all nodes point to their subnodes.
     for (auto it : nodes_) {
       Node* node = it.second;
@@ -131,6 +136,14 @@ class Graph {
         CHECK(dep) << "Cannot find: " << info.full_path()
                    << ", which is dependency of " << node->target().full_path();
         node->AddDependencyNode(dep);
+      }
+    }
+
+    // Figure out which ones came from our input, and save them specially.
+    for (auto it : nodes_) {
+      Node* node = it.second;
+      if (UserInputHasTarget(input_, *node)) {
+        inputs_.push_back(node);
       }
     }
 
@@ -196,6 +209,14 @@ class Graph {
         to_process_.push(dep.full_path());
       }
     }
+    for (const TargetInfo& dep : node->required_parents()) {
+      if (already_queued_.insert(dep.full_path()).second) {
+        VLOG(1) << "Saw parent request: "
+                << node->target().full_path()
+                << " -> " << dep.full_path();
+        to_process_.push(dep.full_path());
+      }
+    }
   }
 
   // ProcessTarget
@@ -216,7 +237,8 @@ class Graph {
     ExpandTarget(target);
   }
 
-  void SaveNode(Node* node,  vector<Node*>* all) {
+  void SaveNode(Node* node, vector<Node*>* all) {
+    VLOG(1) << "Saving node: " << node->target().full_path();
     // Gather all subnodes + this parent node.
     vector<Node*> nodes;
     node->ExtractSubnodes(&nodes);

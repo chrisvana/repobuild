@@ -46,6 +46,18 @@
  },
 
  { "cc_library": {
+     "name" : "execute_test",
+     "cc_sources" : [ "execute_test.cc" ],
+     "cc_headers" : [ "execute_test.h" ],
+     "dependencies": [ "//repobuild/env:resource",
+                       "//repobuild/env:input",
+                       ":gen_sh",
+                       ":node"
+    ]
+   }
+ },
+
+ { "cc_library": {
      "name" : "confignode",
      "cc_sources" : [ "confignode.cc" ],
      "cc_headers" : [ "confignode.h" ],
@@ -219,6 +231,7 @@
                        ":cc_library",
                        ":cc_binary",
                        ":confignode",
+                       ":execute_test",
                        ":go_library",
                        ":go_binary",
                        ":gen_sh",

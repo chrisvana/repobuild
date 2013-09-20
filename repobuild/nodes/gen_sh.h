@@ -7,6 +7,7 @@
 #include <map>
 #include <string>
 #include <vector>
+#include "repobuild/env/target.h"
 #include "repobuild/nodes/node.h"
 
 namespace repobuild {
@@ -17,7 +18,8 @@ class GenShNode : public Node {
             const Input& i)
       : Node(t, i),
         cd_(true),
-        make_name_("Script") {
+        make_name_("Script"),
+        make_target_(t.full_path()) {
   }
   virtual ~GenShNode() {}
   virtual std::string Name() const { return "gen_sh"; }
@@ -30,6 +32,7 @@ class GenShNode : public Node {
            const std::vector<std::string>& outputs);
   void SetCd(bool cd) { cd_ = cd; }
   void SetMakeName(const std::string& name) { make_name_ = name; }
+  void SetMakeTarget(const std::string& name) { make_target_ = name; }
   void AddLocalEnvVariable(const std::string& var, const std::string& val) {
     local_env_vars_[var] = val;
   }
@@ -65,7 +68,7 @@ class GenShNode : public Node {
   std::vector<std::string> outputs_;
   std::map<std::string, std::string> local_env_vars_;
   bool cd_;
-  std::string make_name_;
+  std::string make_name_, make_target_;
 };
 
 }  // namespace repobuild

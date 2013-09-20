@@ -94,6 +94,10 @@ void Node::AddDependencyTarget(const TargetInfo& other) {
   dep_targets_.push_back(other);
 }
 
+void Node::AddRequiredParent(const TargetInfo& parent) {
+  required_parents_.push_back(parent);
+}
+
 void Node::CopyDepenencies(Node* other) {
   for (const TargetInfo& t : other->dep_targets()) {
     dep_targets_.push_back(t);
@@ -119,6 +123,7 @@ void Node::AddSubNode(Node* node) {
   AddDependencyTarget(node->target());
   subnodes_.push_back(node);
   owned_subnodes_.push_back(node);
+  node->AddRequiredParent(target());
 }
 
 BuildFileNodeReader* Node::NewBuildReader(const BuildFileNode& node) const {
@@ -213,6 +218,14 @@ void Node::InputBinaries(LanguageType lang, ResourceFileSet* outputs) const {
   }
 }
 
+void Node::InputTests(LanguageType lang, set<string>* targets) const {
+  vector<Node*> all_deps;
+  CollectAllDependencies(TESTS, lang, &all_deps);
+  for (Node* node : all_deps) {
+    node->LocalTests(lang, targets);
+  }
+}
+
 void Node::InputLinkFlags(LanguageType lang, set<string>* flags) const {
   vector<Node*> all_deps;
   CollectAllDependencies(LINK_FLAGS, lang, &all_deps);
@@ -260,9 +273,18 @@ void Node::FinalOutputs(LanguageType lang, ResourceFileSet* outputs) const {
   LocalFinalOutputs(lang, outputs);
 }
 
+void Node::FinalTests(LanguageType lang, set<string>* targets) const {
+  InputTests(lang, targets);
+  LocalTests(lang, targets);
+}
+
 void Node::Binaries(LanguageType lang, ResourceFileSet* outputs) const {
   InputBinaries(lang, outputs);
   LocalBinaries(lang, outputs);
+}
+
+void Node::TopTestBinaries(LanguageType lang, ResourceFileSet* outputs) const {
+  LocalBinaries(lang, outputs);  // no input binaries, just top level.
 }
 
 void Node::LinkFlags(LanguageType lang, set<string>* flags) const {

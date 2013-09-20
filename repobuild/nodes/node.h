@@ -52,10 +52,14 @@ class Node {
   void DependencyFiles(LanguageType lang, ResourceFileSet* files) const;
   void ObjectFiles(LanguageType lang, ResourceFileSet* files) const;
   void FinalOutputs(LanguageType lang, ResourceFileSet* outputs) const;
+  void FinalTests(LanguageType lang, std::set<std::string>* targets) const;
   void Binaries(LanguageType lang, ResourceFileSet* outputs) const;
+  void TopTestBinaries(LanguageType lang, ResourceFileSet* outputs) const;
   virtual void ExternalDependencyFiles(
       LanguageType lang,
       std::map<std::string, std::string>* files) const {}
+  virtual bool IncludeInAll() const { return true; }
+  virtual bool IncludeInTests() const { return false; }
 
   // Flag inheritence
   void LinkFlags(LanguageType lang,
@@ -71,11 +75,15 @@ class Node {
   const Input& input() const { return *input_; }
   const TargetInfo& target() const { return target_; }
   const std::vector<TargetInfo> dep_targets() const { return dep_targets_; }
+  const std::vector<TargetInfo> required_parents() const {
+    return required_parents_;
+  }
   const std::vector<Node*> dependencies() const { return dependencies_; }
 
   // Mutators
   void AddDependencyNode(Node* dependency);
   void AddDependencyTarget(const TargetInfo& other);
+  void AddRequiredParent(const TargetInfo& parent);
   void CopyDepenencies(Node* other);
   void SetStrictFileMode(bool strict) { strict_file_mode_ = strict; }
 
@@ -101,6 +109,9 @@ class Node {
   virtual void LocalFinalOutputs(
       LanguageType lang,
       ResourceFileSet* outputs) const {}
+  virtual void LocalTests(
+      LanguageType lang,
+      std::set<std::string>* targets) const {}
   virtual void LocalBinaries(
       LanguageType lang,
       ResourceFileSet* outputs) const {}
@@ -150,6 +161,7 @@ class Node {
   void InputDependencyFiles(LanguageType lang, ResourceFileSet* files) const;
   void InputObjectFiles(LanguageType lang, ResourceFileSet* files) const;
   void InputFinalOutputs(LanguageType lang, ResourceFileSet* outputs) const;
+  void InputTests(LanguageType lang, std::set<std::string>* targets) const;
   void InputBinaries(LanguageType lang, ResourceFileSet* outputs) const;
   void InputLinkFlags(LanguageType lang, std::set<std::string>* flags) const;
   void InputCompileFlags(LanguageType lang, std::set<std::string>* flags) const;
@@ -166,10 +178,11 @@ class Node {
     OBJECT_FILES = 1,
     FINAL_OUTPUTS = 2,
     BINARIES = 3,
-    LINK_FLAGS = 4,
-    COMPILE_FLAGS = 5,
-    INCLUDE_DIRS = 6,
-    ENV_VARIABLES = 7
+    TESTS = 4,
+    LINK_FLAGS = 5,
+    COMPILE_FLAGS = 6,
+    INCLUDE_DIRS = 7,
+    ENV_VARIABLES = 8
   };
   void CollectAllDependencies(DependencyCollectionType type,
                               LanguageType lang,
@@ -193,7 +206,7 @@ class Node {
   // Input info.
   TargetInfo target_;
   const Input* input_;
-  std::vector<TargetInfo> dep_targets_;
+  std::vector<TargetInfo> dep_targets_, required_parents_;
   std::string src_dir_, obj_dir_, gen_dir_, package_dir_;
   std::string relative_root_dir_, relative_src_dir_;
   std::string relative_obj_dir_, relative_gen_dir_;

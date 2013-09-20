@@ -22,6 +22,10 @@ class TargetInfo {
   const std::string& local_path() const { return local_path_; }
   const std::string& make_path() const { return make_path_; }
 
+  bool operator==(const TargetInfo& other) const {
+    return full_path_ == other.full_path_;
+  }
+
   // Helpers
   TargetInfo GetParallelTarget(const std::string& name) const;
   static TargetInfo FromUserPath(const std::string& user_path);

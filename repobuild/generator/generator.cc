@@ -6,6 +6,7 @@
 #include <vector>
 #include <string>
 #include "common/log/log.h"
+#include "common/util/stl.h"
 #include "repobuild/env/input.h"
 #include "repobuild/env/resource.h"
 #include "repobuild/generator/generator.h"
@@ -78,6 +79,7 @@ string Generator::GenerateMakefile(const Input& input) {
 
   // Generate the makefile.
   for (const Node* node : process_order) {
+    VLOG(1) << "Writing make: " << node->target().full_path();
     node->WriteMake(&out);
   }
 
@@ -98,16 +100,25 @@ string Generator::GenerateMakefile(const Input& input) {
 
   // Write the all rule.
   ResourceFileSet outputs;
-  for (const Node* node : parser.all_nodes()) {
-    if (input.contains_target(node->target().full_path())) {
+  for (const Node* node : parser.input_nodes()) {
+    if (node->IncludeInAll()) {
       node->FinalOutputs(Node::NO_LANG, &outputs);
       outputs.Add(Resource::FromRootPath(node->target().make_path()));
     }
   }
   out.WriteRule("all", strings::JoinAll(outputs.files(), " "));
 
+  // Write the test rule.
+  set<string> tests;
+  for (const Node* node : parser.input_nodes()) {
+    if (node->IncludeInTests()) {
+      node->FinalTests(Node::NO_LANG, &tests);
+    }
+  }
+  out.WriteRule("tests", strings::JoinAll(tests, " "));
+
   // Not real files:
-  out.WriteRule(".PHONY", "clean all");
+  out.WriteRule(".PHONY", "clean all tests");
 
   // Default build everything.
   out.append(".DEFAULT_GOAL=all\n\n");
