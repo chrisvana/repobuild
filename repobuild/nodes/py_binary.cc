@@ -136,8 +136,9 @@ void PyBinaryNode::GetSources(ResourceFileSet* deps,
 
   // NB: Python setuptils is .... not the greatest fit in the world. It likes to
   // drop __init__.py files in directories that don't contain any actual
-  // source files. This is probably just a bug, but we need the __init__.py
-  // files or else we are screwed when later trying to run the .egg file.
+  // source files. This is either a bug or a quirk in how the developers
+  // expected the packages to get installed. Either way, we need the __init__.py
+  // files or it breaks later when the .egg file is run.
   set<string> init_files;
   for (const string& module : *modules) {
     vector<StringPiece> pieces = strings::Split(module, ".");
@@ -166,13 +167,7 @@ void PyBinaryNode::WriteMakeHead(const Input& input, Makefile* out) {
       "    version = os.environ['PY_VERSION'],\n"
       "    py_modules = os.environ['PY_MODULES'].split(),\n"
       ")\n";
-  out->append("define PythonSetup\n");
-  out->append(kPyScript);
-  out->append("\nendef\n");
-  out->append("export PythonSetup\n");
-  Makefile::Rule* rule = out->StartRule(SetupFile(input));
-  rule->WriteCommand("echo \"$$PythonSetup\" > " + SetupFile(input));
-  out->FinishRule(rule);
+  out->GenerateFile("PythonSetup", kPyScript, SetupFile(input));
 }
 
 void PyBinaryNode::LocalBinaries(LanguageType lang,

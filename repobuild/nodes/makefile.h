@@ -55,12 +55,11 @@ class Makefile {
   // Full access.
   std::string* mutable_out() { return &out_; }
   const std::string& out() const { return out_; }
-
-  // Helpers to make this easier.
-  template <typename T>
-  void append(const T& t) {
+  template <typename T> void append(const T& t) {
     out_.append(strings::StringPrint(t));
   }
+
+  // Symlink shortcuts.
   // Each file path must have the same root.
   void WriteRootSymlink(const std::string& symlink_file,
                         const std::string& source_file) {
@@ -69,6 +68,11 @@ class Makefile {
   void WriteRootSymlinkWithDependency(const std::string& symlink_file,
                                       const std::string& source_file,
                                       const std::string& depenencies);
+
+  // Generated files.
+  void GenerateFile(const std::string& name,
+                    const std::string& value,
+                    const std::string& file_path);
 
   static std::string Escape(const std::string& input);
 
