@@ -125,7 +125,7 @@ void FillParentInitPy(map<string, string>* dir_to_init) {
            (dir_to_init->find(parent) == dir_to_init->end() ||
             IsBetterInitPy((*dir_to_init)[parent], parent_init_py))) {
       (*dir_to_init)[parent] = parent_init_py;
-      parent = strings::PathDirname(strings::JoinPath(parent, "../"));
+      parent = strings::JoinPath(parent, "../");
       parent_init_py = strings::JoinPath(parent, "__init__.py");
     }
   }
@@ -148,10 +148,10 @@ void InitialInitPyMapping(const map<string, string>& deps,
 }
 
 void FindExistingFiles(const set<string>& files, set<string>* actual) {
-  vector<string> globbed;
-  file::Glob(strings::JoinAll(files, " "), &globbed);
-  for (const string& str : globbed) {
-    actual->insert(str);
+  for (const string& str : files) {
+    vector<string> globbed;
+    file::Glob(str, &globbed);
+    actual->insert(globbed.begin(), globbed.end());
   }
 }
 
