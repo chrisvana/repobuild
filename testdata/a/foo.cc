@@ -8,7 +8,7 @@
 namespace a {
 
 void RunFooA() {
-  test::FooProto proto;
+  ::testdata::a::FooProto proto;
   std::cout << "FooA" << proto.DebugString() << std::endl;
 }
 

@@ -85,15 +85,16 @@ void Makefile::WriteRootSymlinkWithDependency(const string& symlink_file,
   FinishRule(rule);
 }
 
-void Makefile::GenerateFile(const std::string& name,
-                            const std::string& value,
-                            const std::string& file_path) {
+void Makefile::GenerateExecFile(const std::string& name,
+                                const std::string& file_path,
+                                const std::string& value) {
   append("define " + name + "\n");
   append(value);
   append("\nendef\n");
   append("export " + name + "\n");
   Makefile::Rule* rule = StartRule(file_path);
   rule->WriteCommand("echo \"$$" + name + "\" > " + file_path);
+  rule->WriteCommand("chmod 0755 " + file_path);
   FinishRule(rule);
 }
 

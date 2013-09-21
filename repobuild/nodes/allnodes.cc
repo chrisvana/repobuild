@@ -10,6 +10,7 @@
 #include "repobuild/nodes/node.h"
 #include "repobuild/nodes/cc_library.h"
 #include "repobuild/nodes/cc_binary.h"
+#include "repobuild/nodes/cc_embed_data.h"
 #include "repobuild/nodes/confignode.h"
 #include "repobuild/nodes/execute_test.h"
 #include "repobuild/nodes/go_library.h"
@@ -72,6 +73,7 @@ void NodeBuilder::GetAll(std::vector<NodeBuilder*>* nodes) {
   nodes->push_back(new NodeBuilderImplHead<GenShNode>("gen_sh"));
   nodes->push_back(new NodeBuilderImplHead<CCLibraryNode>("cc_library"));
   nodes->push_back(new NodeBuilderImplHead<PyBinaryNode>("py_binary"));
+  nodes->push_back(new NodeBuilderImplHead<CCEmbedDataNode>("cc_embed_data"));
 
   nodes->push_back(new NodeBuilderImpl<AutoconfNode>("autoconf"));
   nodes->push_back(new NodeBuilderImpl<CCBinaryNode>("cc_binary"));

@@ -102,6 +102,16 @@ void CCLibraryNode::Set(const vector<Resource>& sources,
   Init();
 }
 
+void CCLibraryNode::PreInitSources(const ResourceFileSet& sources,
+                                   const ResourceFileSet& headers) {
+  for (const Resource& r : sources) {
+    sources_.push_back(r);
+  }
+  for (const Resource& r : headers) {
+    headers_.push_back(r);
+  }
+}
+
 void CCLibraryNode::Init() {
   if (!headers_.empty()) {
     MutableVariable(kHeaderVariable)->SetValue(strings::JoinAll(headers_, " "));

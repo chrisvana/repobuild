@@ -38,6 +38,10 @@ class CCLibraryNode : public Node {
            const std::vector<std::string>& cc_compile_args,
            const std::vector<std::string>& header_compile_args);
 
+  // You can call this *before* Parse to initialize source list
+  void PreInitSources(const ResourceFileSet& sources,
+                      const ResourceFileSet& headers);
+
   // Static preprocessors
   static void WriteMakeHead(const Input& input, Makefile* out);
 

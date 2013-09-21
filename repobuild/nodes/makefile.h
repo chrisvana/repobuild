@@ -70,9 +70,9 @@ class Makefile {
                                       const std::string& depenencies);
 
   // Generated files.
-  void GenerateFile(const std::string& name,
-                    const std::string& value,
-                    const std::string& file_path);
+  void GenerateExecFile(const std::string& name,
+                        const std::string& file_path,
+                        const std::string& value);
 
   static std::string Escape(const std::string& input);
 

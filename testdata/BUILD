@@ -16,11 +16,18 @@
    }
  },
 
+ { "cc_embed_data": {
+     "name": "bar_data",
+     "files": [ "bar_data.txt" ]
+ } },
+
  { "cc_library": {
      "name" : "bar",
      "cc_sources" : [ "ba*.cc" ],
      "cc_headers" : [ "bar.h" ],
-     "dependencies": [ "//testdata/b:bar_pred_b" ],
+     "dependencies": [ "//testdata/b:bar_pred_b",
+                       ":bar_data"
+     ],
      "cc_compile_args": [ "-O3" ]
    }
  },

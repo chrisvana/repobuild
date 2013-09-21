@@ -167,7 +167,7 @@ void PyBinaryNode::WriteMakeHead(const Input& input, Makefile* out) {
       "    version = os.environ['PY_VERSION'],\n"
       "    py_modules = os.environ['PY_MODULES'].split(),\n"
       ")\n";
-  out->GenerateFile("PythonSetup", kPyScript, SetupFile(input));
+  out->GenerateExecFile("PythonSetup", SetupFile(input), kPyScript);
 }
 
 void PyBinaryNode::LocalBinaries(LanguageType lang,

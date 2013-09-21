@@ -82,6 +82,16 @@
  },
 
  { "cc_library": {
+     "name" : "cc_embed_data",
+     "cc_sources" : [ "cc_embed_data.cc" ],
+     "cc_headers" : [ "cc_embed_data.h" ],
+     "dependencies": [ "//common/strings:strutil",
+                       ":node"
+      ]
+   }
+ },
+
+ { "cc_library": {
      "name" : "cc_binary",
      "cc_sources" : [ "cc_binary.cc" ],
      "cc_headers" : [ "cc_binary.h" ],
@@ -241,6 +251,7 @@
                        ":cmake",
                        ":cc_library",
                        ":cc_binary",
+                       ":cc_embed_data",
                        ":confignode",
                        ":execute_test",
                        ":go_library",
