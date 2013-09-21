@@ -72,7 +72,7 @@ What should you do now?<br/>
 
 --
 Why C++?<br/>
-Actually this started in Go, and there is no good reason for C++. However, the first open source code I needed to use it on was in C++, and being able to build the tool using the tool sounded useful. Honestly, sticking with go (or using python/java) would have been a better alternatives.
+Actually this started in Go, and there is no good reason for C++. However, the first open source code I needed to use it on was in C++, and being able to build the tool using the tool sounded useful. Honestly, sticking with go (or using python/java) would have been a better alternative.
 
 --
 _TODOs:_<br/>
