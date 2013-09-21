@@ -18,7 +18,8 @@
 
  { "cc_embed_data": {
      "name": "bar_data",
-     "files": [ "bar_data.txt" ]
+     "files": [ "bar_data.txt", "bar_data2.txt" ],
+     "namespace": [ "testdata", "bar_data" ]
  } },
 
  { "cc_library": {
