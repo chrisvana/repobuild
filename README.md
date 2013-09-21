@@ -86,10 +86,10 @@ DOCUMENTATION<br/>
 - Hah. Poor fools.
 
 RULES<br>
-- embed_data rules (e.g. cc_embed_data, java_embed_data py_embed_data ... takes a set of files and creates string access in linked code)
 - shared library rules (cc_shared_library)
 - install rules (e.g. "make install"-style rule for shared libraries)
 - fileset rules (creates symlinked directory with a set of files in it)
+- non-cc embed_data rules (e.g. java_embed_data py_embed_data ... similar to cc_embed_data)
 - SWIG
 - sh_test
 
