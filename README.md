@@ -48,9 +48,9 @@ _Motivation_<br/>
 Coming out of Google after most of a decade, I felt like existing open source build systems had a lot of issues.<br/>
 
 Declarative/Modular:
-- Procedural build tools (e.g. make, and most everything else) tend to devolve into not-particular-modular messy rules, and are hard to read/modify/inherit.
+- Procedural build tools (e.g. make, and most everything else) tend to devolve into not-particularly-modular messy rules, and are hard to read/modify/inherit.
 - Rather than procedurally specify make rules, BUILD files auto-generate a make file by expanding dependencies amongst components.
-- Current open source libraries are not easily interconnected, making the relative project size obtainable rather limited. Which is silly!
+- Current open source libraries are not easily interconnected, making the relative project size obtainable rather limited without significant effort. Which is silly!
 - By the way, being able to easily build on top of thousands of components is also why Google's libraries are rarely open source: They depened on too many other components that are also not open sourced (even the most simple libraries can often depend on, say, 1M lines of code in 100 different other projects).
 - Google's BUILD system works pretty well for large modular development (ask other ex-Googlers), and I did not want to re-invent the wheel.
 
@@ -117,5 +117,5 @@ DISTRIBUTED BUILD<br/>
 - Eventually it will require cloud compilers/script runners with VMs (if a service) and a host of crosstools.
 
 PLATFORMS<br/>
-- Visual studio output files (windows)
-- Xcode output files (mac)
+- Xcode project files (mac)
+- Visual studio project files (windows)
