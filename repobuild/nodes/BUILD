@@ -10,7 +10,8 @@
      "name": "util",
      "cc_sources": [ "util.cc" ],
      "cc_headers": [ "util.h" ],
-     "dependencies": [ "//common/strings:strutil",
+     "dependencies": [ "//common/log:log",
+                       "//common/strings:strutil",
                        "//repobuild/env:input"
      ]
  } },

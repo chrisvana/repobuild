@@ -486,12 +486,12 @@ repobuild/nodes/makefile: .gen-obj/repobuild/nodes/makefile.cc.o common/strings/
 headers.repobuild/nodes/util := repobuild/nodes/util.h
 
 
-.gen-obj/repobuild/nodes/util.cc.o: .gen-src/common/.dummy .gen-src/.gen-files/common/.dummy .gen-src/.gen-pkg/common/.dummy $(headers.common/third_party/google/re2/re2) $(headers.common/strings/strutil) $(headers.common/third_party/google/gflags/gflags) $(headers.common/base/flags) .gen-src/repobuild/.dummy .gen-src/.gen-files/repobuild/.dummy .gen-src/.gen-pkg/repobuild/.dummy $(headers.repobuild/env/input) $(headers.repobuild/nodes/util) repobuild/nodes/util.cc
+.gen-obj/repobuild/nodes/util.cc.o: .gen-src/common/.dummy .gen-src/.gen-files/common/.dummy .gen-src/.gen-pkg/common/.dummy $(headers.common/third_party/google/gflags/gflags) .gen-obj/common/third_party/google/glog/.glog_gen.0.dummy .gen-obj/common/third_party/google/glog/.glog_gen.1.0.dummy $(headers.common/log/log) $(headers.common/third_party/google/re2/re2) $(headers.common/strings/strutil) $(headers.common/base/flags) .gen-src/repobuild/.dummy .gen-src/.gen-files/repobuild/.dummy .gen-src/.gen-pkg/repobuild/.dummy $(headers.repobuild/env/input) $(headers.repobuild/nodes/util) repobuild/nodes/util.cc
 	@mkdir -p .gen-obj/repobuild/nodes
 	@echo "Compiling:  repobuild/nodes/util.cc (c++)"
-	@$(COMPILE.cc) -I. -I.gen-files -I.gen-src -I.gen-src/.gen-files $(cxx_header_compile_args.common/third_party/google/gflags/gflags) repobuild/nodes/util.cc -o .gen-obj/repobuild/nodes/util.cc.o
+	@$(COMPILE.cc) -I. -I.gen-files -I.gen-src -I.gen-src/.gen-files -Icommon/third_party/google/glog/src $(cxx_header_compile_args.common/third_party/google/gflags/gflags) repobuild/nodes/util.cc -o .gen-obj/repobuild/nodes/util.cc.o
 
-repobuild/nodes/util: .gen-obj/repobuild/nodes/util.cc.o common/strings/strutil repobuild/env/input repobuild/auto_.0
+repobuild/nodes/util: .gen-obj/repobuild/nodes/util.cc.o common/log/log common/strings/strutil repobuild/env/input repobuild/auto_.0
 
 .PHONY: repobuild/nodes/util
 
