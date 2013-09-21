@@ -45,30 +45,35 @@ export PythonSetup
 
 define CCEmbed
 #!/bin/bash
-SOURCE="$$1"
-HEADER="$$2"
-CPP="$$3"
-VARIABLE="$$4"
-GUARD="$$5"
-echo "// Auto generated from $$SOURCE" > $$HEADER
-echo "#ifndef $$GUARD" >> $$HEADER
+HEADER="$$1"
+CPP="$$2"
+GUARD="$$3"
+NAMESPACE_START="$$4"
+NAMESPACE_END="$$5"
+echo "#ifndef $$GUARD" > $$HEADER
 echo "#define $$GUARD" >> $$HEADER
 echo "#include <cstring>  // size_t" >> $$HEADER
-echo "extern const char* "$$VARIABLE"_data();" >> $$HEADER
-echo "extern size_t "$$VARIABLE"_size();" >> $$HEADER
+echo "$$NAMESPACE_START" >> $$HEADER
+echo "#include \"$$(basename $$HEADER)\"" > $$CPP
+echo "$$NAMESPACE_START" >> $$CPP
+while read SOURCE VARIABLE; do  echo "// Auto generated from $$SOURCE" >> $$HEADER
+  echo "extern const char* "$$VARIABLE"_data();" >> $$HEADER
+  echo "extern size_t "$$VARIABLE"_size();" >> $$HEADER
+  echo "" >> $$HEADER
+  echo "const char* "$$VARIABLE"_data() {" >> $$CPP
+  printf "  return \"" >> $$CPP
+  cat $$SOURCE     | perl -pe 's|\\\\|\\\\\\\\|g'     | perl -pe 's|\\"|\\\"|g'     | perl -pe 's|\\n|\\\\n|g' >> $$CPP
+  echo "\";" >> $$CPP
+  echo "}" >> $$CPP
+  echo "size_t "$$VARIABLE"_size()" { >> $$CPP
+  printf "  return " >> $$CPP
+  printf $$(cat $$SOURCE | wc -c) >> $$CPP
+  echo ";" >> $$CPP
+  echo "}" >> $$CPP
+done
+echo "$$NAMESPACE_END" >> $$HEADER
 echo "#endif  // $$GUARD" >> $$HEADER
-echo "// Auto generated from $$SOURCE" > $$CPP
-echo "#include \"$$(basename $$HEADER)\"" >> $$CPP
-echo "const char* "$$VARIABLE"_data() {" >> $$CPP
-printf "  return \"" >> $$CPP
-cat $$SOURCE | sed 's|\\\\|\\\\\\\\|g' | sed 's|\\"|\\\"|g' >> $$CPP
-echo "\";" >> $$CPP
-echo "}" >> $$CPP
-echo "size_t "$$VARIABLE"_size()" { >> $$CPP
-printf "  return " >> $$CPP
-printf $$(cat $$SOURCE | wc -c) >> $$CPP
-echo ";" >> $$CPP
-echo "}" >> $$CPP
+echo "$$NAMESPACE_END" >> $$CPP
 
 endef
 export CCEmbed
