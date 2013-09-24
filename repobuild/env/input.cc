@@ -11,6 +11,9 @@
 DEFINE_bool(add_default_flags, true,
             "If false, we disable the default flags.");
 
+DEFINE_bool(enable_flto_object_files, true,
+            "If true, we enable -flto in the default flags.");
+
 DEFINE_bool(silent_make, true,
             "If false, make prints out commands before execution.");
 
@@ -77,7 +80,9 @@ Input::Input() {
     AddFlag("-C", "gcc=-Wno-unused-local-typedefs");
     AddFlag("-C", "gcc=-Wno-error=unused-local-typedefs");
     AddFlag("-C", "-O3");
-    AddFlag("-C", "-flto");
+    if (FLAGS_enable_flto_object_files) {
+      AddFlag("-C", "-flto");
+    }
     AddFlag("-C", "clang=-Qunused-arguments");
     AddFlag("-C", "clang=-fcolor-diagnostics");
 
@@ -86,7 +91,9 @@ Input::Input() {
     AddFlag("-L", "-lpthread");
     AddFlag("-L", "-g");
     AddFlag("-L", "-O3");
-    AddFlag("-L", "-flto");
+    if (FLAGS_enable_flto_object_files) {
+      AddFlag("-L", "-flto");
+    }
     AddFlag("-L", "-L/usr/local/lib");
     AddFlag("-L", "-L/opt/local/lib");
 
