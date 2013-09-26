@@ -54,10 +54,12 @@ void PyLibraryNode::LocalWriteMakeInternal(bool write_user_target,
     symlinked_sources.push_back(symlink);
 
     // Write main symlink for this file.
-    out->WriteRootSymlinkWithDependency(
-        symlink.path(),
-        source.path(),
-        strings::JoinPath(symlink.dirname(), "__init__.py"));
+    if (source.basename() != "__init__.py") {
+      out->WriteRootSymlinkWithDependency(
+          symlink.path(),
+          source.path(),
+          strings::JoinPath(symlink.dirname(), "__init__.py"));
+    }
   }
 
   // Syntax check.
@@ -210,10 +212,12 @@ void PyLibraryNode::FinishMakeFile(const Input& input,
     }
 
     // Our symlink.
-    out->WriteRootSymlinkWithDependency(
-        pkg_init_py.path(),
-        init_py,
-        parent);
+    if (!out->seen_rule(pkg_init_py.path())) {
+      out->WriteRootSymlinkWithDependency(
+          pkg_init_py.path(),
+          init_py,
+          parent);
+    }
   }
 }
 
