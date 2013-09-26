@@ -144,9 +144,9 @@ void PyBinaryNode::GetSources(ResourceFileSet* deps,
     vector<StringPiece> pieces = strings::Split(module, ".");
     while (!pieces.empty()) {
       pieces.resize(pieces.size() - 1);
-      if (init_files.insert(strings::JoinWith(".",
-                                              strings::JoinAll(pieces, "."),
-                                              "__init__")).second) {
+      if (!init_files.insert(strings::JoinWith(".",
+                                               strings::JoinAll(pieces, "."),
+                                               "__init__")).second) {
         break;
       }
     }
