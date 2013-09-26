@@ -84,9 +84,7 @@ void CCEmbedDataNodeRaw::ParseWithPath(BuildFile* file,
 
 void CCEmbedDataNodeRaw::LocalWriteMake(Makefile* out) const {
   Makefile::Rule* rule = out->StartRule(
-      strings::JoinWith(" ",
-                        header_file_,
-                        source_file_),
+      header_file_.path(),
       strings::JoinWith(" ", EmbedScript(input()),
                         strings::JoinAll(sources_, " ")));
   rule->WriteUserEcho("Embed", target().make_path());
@@ -119,6 +117,11 @@ void CCEmbedDataNodeRaw::LocalWriteMake(Makefile* out) const {
                          NamespaceStart(),
                          NamespaceEnd()));
   out->FinishRule(rule);
+
+  // cc file depends on header file. Originally this was part of StartRule
+  // above, but it tickled a bug in make that executed the script twice
+  // (and overwrote the file with bad data).
+  out->WriteRule(source_file_.path(), header_file_.path());
 
   ResourceFileSet files;
   files.Add(source_file_);
