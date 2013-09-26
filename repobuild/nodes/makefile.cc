@@ -89,11 +89,12 @@ void Makefile::GenerateExecFile(const std::string& name,
                                 const std::string& file_path,
                                 const std::string& value) {
   append("define " + name + "\n");
-  append(value);
+  append(strings::Base64Encode(value));
   append("\nendef\n");
   append("export " + name + "\n");
   Makefile::Rule* rule = StartRule(file_path);
-  rule->WriteCommand("echo \"$$" + name + "\" > " + file_path);
+  rule->WriteCommand("echo \"$$" + name + "\" | base64 --decode > "
+                     + file_path);
   rule->WriteCommand("chmod 0755 " + file_path);
   FinishRule(rule);
 }

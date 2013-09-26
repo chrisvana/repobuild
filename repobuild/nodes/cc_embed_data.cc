@@ -191,9 +191,9 @@ void CCEmbedDataNode::WriteMakeHead(const Input& input, Makefile* out) {
       "  echo \"const char* \"$VARIABLE\"_data() {\" >> $CPP\n"
       "  printf \"  return \\\"\" >> $CPP\n"
       "  cat $SOURCE "
-      "    | perl -pe 's|\\\\\\\\|\\\\\\\\\\\\\\\\|g' "
-      "    | perl -pe 's|\\\\\"|\\\\\\\"|g' "
-      "    | perl -pe 's|\\\\n|\\\\\\\\n|g' >> $CPP\n"
+      "    | perl -pe 's|\\\\|\\\\\\\\|g' "
+      "    | perl -pe 's|\\\"|\\\\\"|g' "
+      "    | perl -pe 's|\\n|\\\\n|g' >> $CPP\n"
       "  echo \"\\\";\" >> $CPP\n"
       "  echo \"}\" >> $CPP\n"
       "  echo \"size_t \"$VARIABLE\"_size()\" { >> $CPP\n"
@@ -209,8 +209,9 @@ void CCEmbedDataNode::WriteMakeHead(const Input& input, Makefile* out) {
 
       // Cpp - end
       "echo \"$NAMESPACE_END\" >> $CPP\n";
-  out->GenerateExecFile("CCEmbed", EmbedScript(input),
-                        Makefile::Escape(kShellScript));
+  out->GenerateExecFile("CCEmbed",
+                        EmbedScript(input),
+                        kShellScript);
 }
 
 }  // namespace repobuild
