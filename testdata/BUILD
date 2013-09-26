@@ -44,7 +44,8 @@
  { "py_binary": {
      "name" : "py_main",
      "py_sources" : [ "test.py" ],
-     "dependencies": [ "//testdata/a:test" ]
+     "dependencies": [ "//common/base:py_flags",
+                       "//testdata/a:test" ]
    }
  },
 
