@@ -101,9 +101,11 @@ void JavaLibraryNode::WriteCompile(const ResourceFileSet& input_files,
     directories.insert(obj_files.back().dirname());
   }
 
-  // Rule=> obj1 obj2 obj3: <input header files> source1.java source.java ...
+  // NB: Make has a bug with multiple output files and parallel execution.
+  // Thus, we use a touchfile and generate a separate rule for each output file.
+  Resource touchfile = Touchfile("compile");
   Makefile::Rule* rule = out->StartRule(
-      strings::JoinAll(obj_files, " " ),
+      touchfile.path(),
       strings::JoinWith(" ",
                         strings::JoinAll(input_files.files(), " "),
                         strings::JoinAll(sources_, " ")));
@@ -150,20 +152,26 @@ void JavaLibraryNode::WriteCompile(const ResourceFileSet& input_files,
       strings::JoinAll(compile_args, " "),
       include_dirs,
       strings::JoinAll(sources_, " ")));
-
-  // Make sure we actually generated all of the object files, otherwise the
-  // user may have specified the wrong java_out_root.
-  for (const Resource& obj : obj_files) {
-    rule->WriteCommand("if [ ! -f " + obj.path() + " ]; then " +
-                      "echo \"Class file not generated: " + obj.path() +
-                      ", or it was generated in an unexpected location. Make "
-                      "sure java_out_root is specified correctly or the "
-                      "package name for the object is: " +
-                      strings::Replace(obj.dirname(), "/", ".") +
-                      "\"; exit 1; fi");
-  }
-
   out->FinishRule(rule);
+
+  // Secondary rules depend on touchfile and make sure each classfile is in
+  // place.
+  for (int i = 0; i < obj_files.size(); ++i) {
+    const Resource& object_file = obj_files[i];
+    Makefile::Rule* rule = out->StartRule(object_file.path(),
+                                          touchfile.path());
+    // Make sure we actually generated all of the object files, otherwise the
+    // user may have specified the wrong java_out_root.
+    rule->WriteCommand("if [ ! -f " + object_file.path() + " ]; then " +
+                       "echo \"Class file not generated: "
+                       + object_file.path() +
+                       ", or it was generated in an unexpected location. Make "
+                       "sure java_out_root is specified correctly or the "
+                       "package name for the object is: " +
+                       strings::Replace(object_file.dirname(), "/", ".") +
+                       "\"; exit 1; fi");
+    out->FinishRule(rule);
+  }
 }
 
 void JavaLibraryNode::LocalLinkFlags(LanguageType lang,
