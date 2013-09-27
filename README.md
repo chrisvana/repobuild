@@ -44,8 +44,8 @@ $ ./go_main
 ```
 
 ###### What should you do now?
-- Look in testdata/BUILD, or repobuild/BUILD for some examples.<br/>
-- Look at additional libraries are in "third_party".
+- Look in [testdata/BUILD](https://github.com/chrisvana/repobuild/blob/master/testdata/BUILD), or [repobuild/repobuild/BUILD](https://github.com/chrisvana/repobuild/blob/master/repobuild/BUILD) for some examples.<br/>
+- Look at additional libraries in [third_party](https://github.com/chrisvana/third_party).
 - Start playing with your own project.
 - You can add submodules/forks to "third_party" if you like.
 - Forum: https://groups.google.com/forum/#!forum/repobuild
