@@ -61,14 +61,16 @@ void PyBinaryNode::LocalWriteMake(Makefile* out) const {
   {  // py_binary
     ResourceFileSet deps;
     vector<string> modules;
-    GetSources(&deps, &modules);
-    WriteEggFile(deps, modules, out);
+    set<string> sys_deps;
+    GetSources(&deps, &modules, &sys_deps);
+    WriteEggFile(deps, modules, sys_deps, out);
   }
   WriteBaseUserTarget(out);
 }
 
 void PyBinaryNode::WriteEggFile(const ResourceFileSet& deps,
                                 const vector<string>& modules,
+                                const set<string>& sys_deps,
                                 Makefile* out) const {
   // Output egg file
   Resource egg_touchfile = Touchfile(".egg");
@@ -86,6 +88,7 @@ void PyBinaryNode::WriteEggFile(const ResourceFileSet& deps,
           "PY_NAME=\"" + target().local_path() + "\"",
           "PY_VERSION=" + py_version_,
           "PY_MODULES=\"" + strings::JoinAll(modules, " ") + "\"",
+          "PY_SYS_DEPS=\"" + strings::JoinAll(sys_deps, " ") + "\"",
           "python", strings::JoinPath("$(ROOT_DIR)", SetupFile(input())),
           "build",
           "--build-base=" + target().local_path() + ".build",
@@ -117,8 +120,9 @@ void PyBinaryNode::WriteEggFile(const ResourceFileSet& deps,
 }
 
 void PyBinaryNode::GetSources(ResourceFileSet* deps,
-                              vector<string>* modules) const {
-  // Source files.
+                              vector<string>* modules,
+                              set<string>* sys_deps) const {
+  // Source files -> modules.
   PyLibraryNode::LocalDependencyFiles(PYTHON, deps);
   InputDependencyFiles(PYTHON, deps);
 
@@ -133,6 +137,9 @@ void PyBinaryNode::GetSources(ResourceFileSet* deps,
     }
     modules->push_back(strings::ReplaceAll(path, "/", "."));
   }
+
+  // Sys deps.
+  SystemDependencies(PYTHON, sys_deps);
 
   // NB: Python setuptils is .... not the greatest fit in the world. It likes to
   // drop __init__.py files in directories that don't contain any actual
@@ -166,6 +173,7 @@ void PyBinaryNode::WriteMakeHead(const Input& input, Makefile* out) {
       "    name = os.environ['PY_NAME'],\n"
       "    version = os.environ['PY_VERSION'],\n"
       "    py_modules = os.environ['PY_MODULES'].split(),\n"
+      "    install_requires = os.environ['PY_SYS_DEPS'].split(),\n"
       ")\n";
   out->GenerateExecFile("PythonSetup", SetupFile(input), kPyScript);
 }

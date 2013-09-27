@@ -26,6 +26,8 @@ class PyLibraryNode : public Node {
                                     ResourceFileSet* files) const;
   virtual void LocalObjectFiles(LanguageType lang,
                                 ResourceFileSet* files) const;
+  virtual void LocalSystemDependencies(LanguageType lang,
+                                       std::set<std::string>* deps) const;
   virtual void ExternalDependencyFiles(
       LanguageType lang,
       std::map<std::string, std::string>* files) const;
@@ -46,6 +48,7 @@ class PyLibraryNode : public Node {
   Resource touchfile_;
   std::string py_base_dir_;
   std::vector<Resource> sources_;
+  std::vector<std::string> sys_deps_;
   std::unique_ptr<ComponentHelper> component_;
 };
 

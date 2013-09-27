@@ -27,9 +27,11 @@ class PyBinaryNode : public PyLibraryNode {
 
  protected:
   void GetSources(ResourceFileSet* deps,
-                  std::vector<std::string>* modules) const;
+                  std::vector<std::string>* modules,
+                  std::set<std::string>* sys_deps) const;
   void WriteEggFile(const ResourceFileSet& deps,
                     const std::vector<std::string>& modules,
+                    const std::set<std::string>& sys_deps,
                     Makefile* out) const;
 
   Resource EggBinary() const;

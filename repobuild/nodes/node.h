@@ -55,6 +55,7 @@ class Node {
   void FinalTests(LanguageType lang, std::set<std::string>* targets) const;
   void Binaries(LanguageType lang, ResourceFileSet* outputs) const;
   void TopTestBinaries(LanguageType lang, ResourceFileSet* outputs) const;
+  void SystemDependencies(LanguageType lang, std::set<std::string>* deps) const;
   virtual void ExternalDependencyFiles(
       LanguageType lang,
       std::map<std::string, std::string>* files) const {}
@@ -106,6 +107,9 @@ class Node {
   virtual void LocalObjectFiles(
       LanguageType lang,
       ResourceFileSet* files) const {}
+  virtual void LocalSystemDependencies(
+      LanguageType lang,
+      std::set<std::string>* deps) const {}
   virtual void LocalFinalOutputs(
       LanguageType lang,
       ResourceFileSet* outputs) const {}
@@ -160,6 +164,8 @@ class Node {
   // Dependency helpers
   void InputDependencyFiles(LanguageType lang, ResourceFileSet* files) const;
   void InputObjectFiles(LanguageType lang, ResourceFileSet* files) const;
+  void InputSystemDependencies(LanguageType lang,
+                               std::set<std::string>* deps) const;
   void InputFinalOutputs(LanguageType lang, ResourceFileSet* outputs) const;
   void InputTests(LanguageType lang, std::set<std::string>* targets) const;
   void InputBinaries(LanguageType lang, ResourceFileSet* outputs) const;
@@ -174,15 +180,16 @@ class Node {
                                             const std::string& path) const;
 
   enum DependencyCollectionType {
-    DEPENDENCY_FILES = 0,
-    OBJECT_FILES = 1,
-    FINAL_OUTPUTS = 2,
-    BINARIES = 3,
-    TESTS = 4,
-    LINK_FLAGS = 5,
-    COMPILE_FLAGS = 6,
-    INCLUDE_DIRS = 7,
-    ENV_VARIABLES = 8
+    DEPENDENCY_FILES,
+    OBJECT_FILES,
+    SYSTEM_DEPENDENCIES,
+    FINAL_OUTPUTS,
+    BINARIES,
+    TESTS,
+    LINK_FLAGS,
+    COMPILE_FLAGS,
+    INCLUDE_DIRS,
+    ENV_VARIABLES
   };
   void CollectAllDependencies(DependencyCollectionType type,
                               LanguageType lang,

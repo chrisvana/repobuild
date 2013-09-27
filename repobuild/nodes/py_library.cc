@@ -38,6 +38,9 @@ void PyLibraryNode::Parse(BuildFile* file, const BuildFileNode& input) {
   // py_sources
   current_reader()->ParseRepeatedFiles("py_sources", &sources_);
 
+  // system_dependencies
+  current_reader()->ParseRepeatedString("system_dependencies", &sys_deps_);
+
   // py_base_dir
   component_.reset(new ComponentHelper(
       "", current_reader()->ParseSingleDirectory("py_base_dir")));
@@ -90,6 +93,11 @@ void PyLibraryNode::LocalObjectFiles(LanguageType lang,
   for (const Resource& r : sources_) {
     files->Add(PyFileFor(r));
   }
+}
+
+void PyLibraryNode::LocalSystemDependencies(LanguageType lang,
+                                            set<string>* deps) const {
+  deps->insert(sys_deps_.begin(), sys_deps_.end());
 }
 
 void PyLibraryNode::ExternalDependencyFiles(
