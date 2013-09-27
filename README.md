@@ -18,6 +18,9 @@ Mostly functional, but a work in progress (still in "beta" until [this](https://
 - Go
 - _TODO:_ Ruby
 
+###### Current rules:
+- See [rules](https://github.com/chrisvana/repobuild/wiki/Rules)
+
 --
 ###### Building the tool
 ```
