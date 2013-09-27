@@ -9,22 +9,15 @@ Mostly functional, but a work in progress.<br/>
 _Summary_
 
 Declarative style build system, similar to Google's BUILD file system of old (gconfig + make).<br/>
-<br/>
-Similar build systems that did not quite do what I wanted:
-- Gyp: https://code.google.com/p/gyp/<br/>
-- Buck Build: http://facebook.github.io/buck/<br/>
-- Selenium build: https://code.google.com/p/selenium/wiki/CrazyFunBuild<br/>
-- (sort of, in spirit) Ant: https://ant.apache.org/<br/>
-<br/>
-This tool currently works for Linux/Mac.
 
-Languages:<br/>
+Similar build systems:
+https://github.com/chrisvana/repobuild/wiki/Similar-Build-Systems
+
+Current Languages:<br/>
 - C++
 - Python
 - Java
 - Go
-- TODO: Ruby
-- TODO: Javascript compiler/minimizer
 
 --
 _Building the tool_
