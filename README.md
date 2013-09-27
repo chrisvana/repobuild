@@ -16,6 +16,7 @@ Mostly functional, but a work in progress (still in "beta" until [this](https://
 - Python
 - Java
 - Go
+- TODO: Ruby
 
 --
 ###### Building the tool
