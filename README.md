@@ -1,17 +1,17 @@
 repobuild
 ==========
 
-_Summary_<br/>
+###### Summary
 Repobuild is a declarative style build system, similar to Google's BUILD file system of old (gconfig + make).<br/>
 
-_Status_<br/>
+###### Status
 Mostly functional, but a work in progress (still in "beta" until [this](https://github.com/chrisvana/repobuild/wiki/Distributed-Source) is implemented).<br/>
 
-_Further Reading:_
-- [Motivation](https://github.com/chrisvana/repobuild/wiki/Motivation) (my rants)
-- [Similar build systems](https://github.com/chrisvana/repobuild/wiki/Similar-Build-Systems) (others like repobuild)
+###### Background:
+- [Motivation](https://github.com/chrisvana/repobuild/wiki/Motivation) behind Repobuild
+- [Similar build systems](https://github.com/chrisvana/repobuild/wiki/Similar-Build-Systems) to Repobuild
 
-_Current Languages:_
+###### Current Languages:
 - C++
 - Python
 - Java
