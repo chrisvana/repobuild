@@ -27,7 +27,7 @@ Languages:<br/>
 - TODO: Javascript compiler/minimizer
 
 --
-_Building it_
+_Building the tool_
 ```
 # Build it:
 $ git clone https://github.com/chrisvana/repobuild.git
