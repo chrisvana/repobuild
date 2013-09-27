@@ -18,7 +18,7 @@ Mostly functional, but a work in progress (still in "beta" until [this](https://
 - Go
 
 --
-_Building the tool_
+###### Building the tool
 ```
 # Build it:
 $ git clone https://github.com/chrisvana/repobuild.git
@@ -42,7 +42,7 @@ $ ./go_main
 
 ```
 
-What should you do now?<br/>
+###### What should you do now?
 - Look in testdata/BUILD, or repobuild/BUILD for some examples.<br/>
 - Look at additional libraries are in "third_party".
 - Start playing with your own project.
