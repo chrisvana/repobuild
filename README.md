@@ -55,3 +55,6 @@ Actually this started in Go, and there is no good reason for C++. The first open
 
 ###### TODOs
 https://github.com/chrisvana/repobuild/wiki/TODOs
+
+###### Tips
+https://github.com/chrisvana/repobuild/wiki/Tips
