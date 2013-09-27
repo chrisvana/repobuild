@@ -45,25 +45,6 @@ $ ./go_main
 
 ```
 
---
-_Motivation_<br/>
-Coming out of Google after most of a decade, I felt like existing open source build systems had a lot of issues.<br/>
-
-Declarative/Modular:
-- Procedural build tools (e.g. make, and most everything else) tend to devolve into not-particularly-modular messy rules, and are hard to read/modify/inherit.
-- Rather than procedurally specify make rules, BUILD files auto-generate a make file by expanding dependencies amongst components.
-- Current open source libraries are not easily interconnected, making the relative project size obtainable rather limited without significant effort. Which is silly!
-- By the way, being able to easily build on top of thousands of components is also why Google's libraries are rarely open source: They depened on too many other components that are also not open sourced (even the most simple libraries can often depend on, say, 1M lines of code in 100 different other projects).
-- Google's BUILD system works pretty well for large modular development (ask other ex-Googlers), and I did not want to re-invent the wheel.
-
-No pre-installation:
-- A lot of open source libraries assume pre-installation on a platform. I found this to be a huge pain.
-- Everything now goes into "third_party" with its own BUILD tool (minus a few linker flags like "-lz" floating around, for stuff not yet in third_party).
-- By not-preinstalling everything, we can keep repositories on the web, and pretend they exist in some "readonly" directory (work in progres, see TODO below!).
-- "Readonly" means you can "git clone" a tiny repository, then modify and compile it even if it depends on a 100 other components (which magically get pulled out of "readonly" as needed). This makes development a lot easier and encourages more modularity.
-
---
-
 What should you do now?<br/>
 - Look in testdata/BUILD, or repobuild/BUILD for some examples.<br/>
 - Look at additional libraries are in "third_party".
