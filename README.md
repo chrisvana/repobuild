@@ -16,7 +16,15 @@ Similar build systems that did not quite do what I wanted:
 - Selenium build: https://code.google.com/p/selenium/wiki/CrazyFunBuild<br/>
 - (sort of, in spirit) Ant: https://ant.apache.org/<br/>
 <br/>
-This tool currently works for Linux/Mac. Windows will be a distant thing with sufficient demand.
+This tool currently works for Linux/Mac.
+
+Languages:<br/>
+- C++
+- Python
+- Java
+- Go
+- TODO: Ruby
+- TODO: Javascript compiler/minimizer
 
 --
 _Building it_
@@ -70,8 +78,8 @@ What should you do now?<br/>
 - Forum: https://groups.google.com/forum/#!forum/repobuild
 
 --
-Why C++?<br/>
-Actually this started in Go, and there is no good reason for C++. However, the first open source code I needed to use it on was in C++, and being able to build the tool using the tool sounded useful. Honestly, sticking with go (or using python/java) would have been a better alternative.
+Why is this built using C++?<br/>
+Actually this started in Go, and there is no good reason for C++. The first open source code I needed to use it on was in C++, and being able to build the tool using the tool sounded useful.
 
 --
 _TODOs:_<br/>
