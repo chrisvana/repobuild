@@ -8,10 +8,9 @@ Mostly functional, but a work in progress.<br/>
 --
 _Summary_
 
-Declarative style build system, similar to Google's BUILD file system of old (gconfig + make).<br/>
+Repobuild is a declarative style build system, similar to Google's BUILD file system of old (gconfig + make).<br/>
 
-Similar build systems:
-https://github.com/chrisvana/repobuild/wiki/Similar-Build-Systems
+[Similar build systems](https://github.com/chrisvana/repobuild/wiki/Similar-Build-Systems)
 
 Current Languages:<br/>
 - C++
