@@ -44,8 +44,8 @@ $ ./go_main
 ```
 
 ###### What should you do now?
-- Look in [testdata/BUILD](https://github.com/chrisvana/repobuild/blob/master/testdata/BUILD), or [repobuild/repobuild/BUILD](https://github.com/chrisvana/repobuild/blob/master/repobuild/BUILD) for some examples.<br/>
-- Look at additional libraries in [third_party](https://github.com/chrisvana/third_party).
+- Try a [tuturial](https://github.com/chrisvana/repobuild/wiki/Repobuild-Cpp-Tutorial)
+- Look at some [examples](https://github.com/chrisvana/repobuild/wiki/Examples)
 - Start playing with your own project.
 - You can add submodules/forks to "third_party" if you like.
 - Forum: https://groups.google.com/forum/#!forum/repobuild
