@@ -6,42 +6,80 @@ ROOT_DIR := $(shell pwd)
 CXX_GCC := $(shell echo $$($(CXX) --version | egrep '(gcc|g\+\+)' | head -n 1 | wc -l))
 CC_GCC := $(shell echo $$($(CC) --version | egrep '(gcc|g\+\+|^cc)' | head -n 1 | wc -l))
 ifeq ($(CC_GCC),1)
-	CFLAGS= -pthread -g -Wall -Werror -Wno-sign-compare -Wno-unused-local-typedefs -Wno-error=unused-local-typedefs -O3
+	CFLAGS= -pthread -g -Wall -Werror -Wno-sign-compare -Wno-unused-local-typedefs -Wno-error=unused-local-typedefs -O3 -flto
 	BASIC_CFLAGS= -pthread
 else
-	CFLAGS= -stdlib=libc++ -pthread -g -Wall -Werror -Wno-sign-compare -O3 -Qunused-arguments -fcolor-diagnostics
-	BASIC_CFLAGS= -stdlib=libc++ -pthread -Qunused-arguments
+	CFLAGS= -stdlib=libc++ -pthread -g -Wall -Werror -Wno-sign-compare -O3 -flto -Qunused-arguments -fcolor-diagnostics
+	BASIC_CFLAGS= -stdlib=libc++ -pthread
 endif
 ifeq ($(CXX_GCC),1)
 	LD_FORCE_LINK_START := -Wl,--whole-archive
 	LD_FORCE_LINK_END := -Wl,--no-whole-archive
-	LDFLAGS= -lpthread -g -O3 -L/usr/local/lib -L/opt/local/lib
-	CXXFLAGS= -pthread -g -Wall -Werror -Wno-sign-compare -Wno-unused-local-typedefs -Wno-error=unused-local-typedefs -O3 -std=c++11 -DUSE_CXX0X
+	LDFLAGS= -lpthread -g -O3 -flto -L/usr/local/lib -L/opt/local/lib
+	CXXFLAGS= -pthread -g -Wall -Werror -Wno-sign-compare -Wno-unused-local-typedefs -Wno-error=unused-local-typedefs -O3 -flto -std=c++11 -DUSE_CXX0X
 	BASIC_CXXFLAGS= -pthread -std=c++11
 else
 	LD_FORCE_LINK_START := -Wl,-force_load
 	LD_FORCE_LINK_END := 
-	LDFLAGS= -stdlib=libc++ -lpthread -g -O3 -L/usr/local/lib -L/opt/local/lib
-	CXXFLAGS= -stdlib=libc++ -pthread -g -Wall -Werror -Wno-sign-compare -O3 -Qunused-arguments -fcolor-diagnostics -std=c++11 -DUSE_CXX0X
-	BASIC_CXXFLAGS= -stdlib=libc++ -pthread -Qunused-arguments -std=c++11
+	LDFLAGS= -stdlib=libc++ -lpthread -g -O3 -flto -L/usr/local/lib -L/opt/local/lib
+	CXXFLAGS= -stdlib=libc++ -pthread -g -Wall -Werror -Wno-sign-compare -O3 -flto -Qunused-arguments -fcolor-diagnostics -std=c++11 -DUSE_CXX0X
+	BASIC_CXXFLAGS= -stdlib=libc++ -pthread -std=c++11
 endif
 
 define PythonSetup
-aW1wb3J0IG9zCmZyb20gc2V0dXB0b29scyBpbXBvcnQgc2V0dXAKCnNldHVwKAogICAgbmFtZSA9IG9zLmVudmlyb25bJ1BZX05BTUUnXSwKICAgIHZlcnNpb24gPSBvcy5lbnZpcm9uWydQWV9WRVJTSU9OJ10sCiAgICBweV9tb2R1bGVzID0gb3MuZW52aXJvblsnUFlfTU9EVUxFUyddLnNwbGl0KCksCikK
+import os
+from setuptools import setup
+
+setup(
+    name = os.environ['PY_NAME'],
+    version = os.environ['PY_VERSION'],
+    py_modules = os.environ['PY_MODULES'].split(),
+)
+
 endef
 export PythonSetup
 
 .gen-pkg/base_setup.py: 
-	@echo "$$PythonSetup" | base64 --decode > .gen-pkg/base_setup.py
+	@echo "$$PythonSetup" > .gen-pkg/base_setup.py
 	@chmod 0755 .gen-pkg/base_setup.py
 
 define CCEmbed
-IyEvYmluL2Jhc2gKSEVBREVSPSIkMSIKQ1BQPSIkMiIKR1VBUkQ9IiQzIgpOQU1FU1BBQ0VfU1RBUlQ9IiQ0IgpOQU1FU1BBQ0VfRU5EPSIkNSIKZWNobyAiI2lmbmRlZiAkR1VBUkQiID4gJEhFQURFUgplY2hvICIjZGVmaW5lICRHVUFSRCIgPj4gJEhFQURFUgplY2hvICIjaW5jbHVkZSA8Y3N0cmluZz4gIC8vIHNpemVfdCIgPj4gJEhFQURFUgplY2hvICIkTkFNRVNQQUNFX1NUQVJUIiA+PiAkSEVBREVSCmVjaG8gIiNpbmNsdWRlIFwiJChiYXNlbmFtZSAkSEVBREVSKVwiIiA+ICRDUFAKZWNobyAiJE5BTUVTUEFDRV9TVEFSVCIgPj4gJENQUAp3aGlsZSByZWFkIFNPVVJDRSBWQVJJQUJMRTsgZG8gIGVjaG8gIi8vIEF1dG8gZ2VuZXJhdGVkIGZyb20gJFNPVVJDRSIgPj4gJEhFQURFUgogIGVjaG8gImV4dGVybiBjb25zdCBjaGFyKiAiJFZBUklBQkxFIl9kYXRhKCk7IiA+PiAkSEVBREVSCiAgZWNobyAiZXh0ZXJuIHNpemVfdCAiJFZBUklBQkxFIl9zaXplKCk7IiA+PiAkSEVBREVSCiAgZWNobyAiIiA+PiAkSEVBREVSCiAgZWNobyAiY29uc3QgY2hhciogIiRWQVJJQUJMRSJfZGF0YSgpIHsiID4+ICRDUFAKICBwcmludGYgIiAgcmV0dXJuIFwiIiA+PiAkQ1BQCiAgY2F0ICRTT1VSQ0UgICAgIHwgcGVybCAtcGUgJ3N8XFx8XFxcXHxnJyAgICAgfCBwZXJsIC1wZSAnc3xcInxcXCJ8ZycgICAgIHwgcGVybCAtcGUgJ3N8XG58XFxufGcnID4+ICRDUFAKICBlY2hvICJcIjsiID4+ICRDUFAKICBlY2hvICJ9IiA+PiAkQ1BQCiAgZWNobyAic2l6ZV90ICIkVkFSSUFCTEUiX3NpemUoKSIgeyA+PiAkQ1BQCiAgcHJpbnRmICIgIHJldHVybiAiID4+ICRDUFAKICBwcmludGYgJChjYXQgJFNPVVJDRSB8IHdjIC1jKSA+PiAkQ1BQCiAgZWNobyAiOyIgPj4gJENQUAogIGVjaG8gIn0iID4+ICRDUFAKZG9uZQplY2hvICIkTkFNRVNQQUNFX0VORCIgPj4gJEhFQURFUgplY2hvICIjZW5kaWYgIC8vICRHVUFSRCIgPj4gJEhFQURFUgplY2hvICIkTkFNRVNQQUNFX0VORCIgPj4gJENQUAo=
+#!/bin/bash
+HEADER="$$1"
+CPP="$$2"
+GUARD="$$3"
+NAMESPACE_START="$$4"
+NAMESPACE_END="$$5"
+echo "#ifndef $$GUARD" > $$HEADER
+echo "#define $$GUARD" >> $$HEADER
+echo "#include <cstring>  // size_t" >> $$HEADER
+echo "$$NAMESPACE_START" >> $$HEADER
+echo "#include \"$$(basename $$HEADER)\"" > $$CPP
+echo "$$NAMESPACE_START" >> $$CPP
+while read SOURCE VARIABLE; do  echo "// Auto generated from $$SOURCE" >> $$HEADER
+  echo "extern const char* "$$VARIABLE"_data();" >> $$HEADER
+  echo "extern size_t "$$VARIABLE"_size();" >> $$HEADER
+  echo "" >> $$HEADER
+  echo "const char* "$$VARIABLE"_data() {" >> $$CPP
+  printf "  return \"" >> $$CPP
+  cat $$SOURCE     | perl -pe 's|\\\\|\\\\\\\\|g'     | perl -pe 's|\\"|\\\"|g'     | perl -pe 's|\\n|\\\\n|g' >> $$CPP
+  echo "\";" >> $$CPP
+  echo "}" >> $$CPP
+  echo "size_t "$$VARIABLE"_size()" { >> $$CPP
+  printf "  return " >> $$CPP
+  printf $$(cat $$SOURCE | wc -c) >> $$CPP
+  echo ";" >> $$CPP
+  echo "}" >> $$CPP
+done
+echo "$$NAMESPACE_END" >> $$HEADER
+echo "#endif  // $$GUARD" >> $$HEADER
+echo "$$NAMESPACE_END" >> $$CPP
+
 endef
 export CCEmbed
 
 .gen-files/cc_embed.sh: 
-	@echo "$$CCEmbed" | base64 --decode > .gen-files/cc_embed.sh
+	@echo "$$CCEmbed" > .gen-files/cc_embed.sh
 	@chmod 0755 .gen-files/cc_embed.sh
 
 
@@ -172,6 +210,18 @@ common/base/atomicops: common/third_party/google/gperftools/atomicops common/aut
 
 .PHONY: common/base/atomicops
 
+headers.common/base/macros := common/base/macros.h
+
+common/base/macros: common/auto_.0
+
+.PHONY: common/base/macros
+
+headers.common/base/callback := common/base/callback.h
+
+common/base/callback: common/base/macros common/auto_.0
+
+.PHONY: common/base/callback
+
 headers.common/base/flags := common/base/flags.h
 
 common/base/flags: common/third_party/google/gflags/gflags common/auto_.0
@@ -235,12 +285,6 @@ common/base/init: .gen-obj/common/base/init.cc.o common/log/log common/third_par
 
 .PHONY: common/base/init
 
-headers.common/base/macros := common/base/macros.h
-
-common/base/macros: common/auto_.0
-
-.PHONY: common/base/macros
-
 headers.common/base/mutex := common/base/mutex.h
 
 common/base/mutex: common/auto_.0
@@ -265,7 +309,7 @@ common/base/types: common/auto_.0
 
 .PHONY: common/base/types
 
-common/base/base_nomalloc: common/base/atomicops common/base/flags common/base/init common/base/macros common/base/mutex common/base/time common/base/types common/auto_.0
+common/base/base_nomalloc: common/base/atomicops common/base/callback common/base/flags common/base/init common/base/macros common/base/mutex common/base/time common/base/types common/auto_.0
 
 .PHONY: common/base/base_nomalloc
 
@@ -318,7 +362,7 @@ common/strings/stringpiece: common/third_party/google/re2/re2 common/auto_.0
 
 .gen-obj/common/third_party/stringencoders/.stringencoders_conf.0.dummy: .gen-src/common/.dummy .gen-src/.gen-files/common/.dummy .gen-src/.gen-pkg/common/.dummy
 	@echo "Autoconf:   //common/third_party/stringencoders:stringencoders_conf.0"
-	@(mkdir -p .gen-files/common/third_party/stringencoders; cd common/third_party/stringencoders; GEN_DIR="../../../.gen-files/common/third_party/stringencoders" OBJ_DIR="../../../.gen-obj/common/third_party/stringencoders SRC_DIR="../../../.gen-src/common/third_party/stringencoders ROOT_DIR="$(ROOT_DIR)"  CXX_GCC="$(CXX_GCC)" CC_GCC="$(CC_GCC)" CC="$(CC)" CXX="$(CXX)" CXXFLAGS="$(CXXFLAGS)" BASIC_CXXFLAGS="$(BASIC_CXXFLAGS)" CFLAGS="$(CFLAGS)" BASIC_CFLAGS="$(BASIC_CFLAGS)" LDFLAGS="$(LDFLAGS)" MAKE="$(MAKE)" DEP_CXXFLAGS="" DEP_CFLAGS="" eval '(mkdir -p $$OBJ_DIR; DEST_DIR=$$(pwd)/$$GEN_DIR; CXXFLAGS="$$BASIC_CXXFLAGS $$DEP_FLAGS $$USER_CXXFLAGS" CFLAGS="$$BASIC_CFLAGS $$DEP_FLAGS $$USER_CFLAGS" LDFLAGS="$$LDFLAGS $$USER_LDFLAGS" CC="$$CC" CXX="$$CXX" ./configure --prefix=/ --cache-file=$$GEN_DIR/config.cache )' > ../../../.gen-files/common/third_party/stringencoders/.stringencoders_conf.0.logfile 2>&1 || (cat ../../../.gen-files/common/third_party/stringencoders/.stringencoders_conf.0.logfile; exit 1) ) && (mkdir -p .gen-obj/common/third_party/stringencoders; touch .gen-obj/common/third_party/stringencoders/.stringencoders_conf.0.dummy)
+	@(mkdir -p .gen-files/common/third_party/stringencoders; cd common/third_party/stringencoders; GEN_DIR="../../../.gen-files/common/third_party/stringencoders" OBJ_DIR="../../../.gen-obj/common/third_party/stringencoders SRC_DIR="../../../.gen-src/common/third_party/stringencoders ROOT_DIR="$(ROOT_DIR)"  CXX_GCC="$(CXX_GCC)" CC_GCC="$(CC_GCC)" CC="$(CC)" CXX="$(CXX)" CXXFLAGS="$(CXXFLAGS)" BASIC_CXXFLAGS="$(BASIC_CXXFLAGS)" CFLAGS="$(CFLAGS)" BASIC_CFLAGS="$(BASIC_CFLAGS)" LDFLAGS="$(LDFLAGS)" MAKE="$(MAKE)" DEP_CXXFLAGS="" DEP_CFLAGS="" eval '(mkdir -p $$OBJ_DIR; DEST_DIR=$$(pwd)/$$GEN_DIR; USER_CFLAGS=-Wno-error=unused-but-set-variable; CXXFLAGS="$$BASIC_CXXFLAGS $$DEP_FLAGS $$USER_CXXFLAGS" CFLAGS="$$BASIC_CFLAGS $$DEP_FLAGS $$USER_CFLAGS" LDFLAGS="$$LDFLAGS $$USER_LDFLAGS" CC="$$CC" CXX="$$CXX" ./configure --prefix=/ --cache-file=$$GEN_DIR/config.cache )' > ../../../.gen-files/common/third_party/stringencoders/.stringencoders_conf.0.logfile 2>&1 || (cat ../../../.gen-files/common/third_party/stringencoders/.stringencoders_conf.0.logfile; exit 1) ) && (mkdir -p .gen-obj/common/third_party/stringencoders; touch .gen-obj/common/third_party/stringencoders/.stringencoders_conf.0.dummy)
 
 common/third_party/stringencoders/stringencoders_conf.0: .gen-obj/common/third_party/stringencoders/.stringencoders_conf.0.dummy common/auto_.0
 
@@ -782,7 +826,7 @@ repobuild/repobuild.0: repobuild/auto_.0
 .PHONY: repobuild/repobuild.0
 
 
-.gen-obj/repobuild/repobuild.cc.o: .gen-src/common/.dummy .gen-src/.gen-files/common/.dummy .gen-src/.gen-pkg/common/.dummy $(headers.common/third_party/google/gflags/gflags) .gen-obj/common/third_party/google/gperftools/.perf_gen.0.dummy .gen-obj/common/third_party/google/gperftools/.perf_gen.1.0.dummy $(headers.common/third_party/google/gperftools/atomicops) $(headers.common/base/atomicops) $(headers.common/base/flags) .gen-obj/common/third_party/google/glog/.glog_gen.0.dummy .gen-obj/common/third_party/google/glog/.glog_gen.1.0.dummy $(headers.common/log/log) $(headers.common/third_party/google/init/init) $(headers.common/base/init) $(headers.common/base/macros) $(headers.common/base/mutex) $(headers.common/base/time) $(headers.common/base/types) $(headers.common/file/fileutil) $(headers.common/third_party/google/re2/re2) .gen-obj/common/third_party/stringencoders/.stringencoders_conf.0.dummy .gen-obj/common/third_party/stringencoders/.stringencoders_conf.1.0.dummy $(headers.common/third_party/stringencoders/stringencoders) $(headers.common/strings/strutil) .gen-src/repobuild/.dummy .gen-src/.gen-files/repobuild/.dummy .gen-src/.gen-pkg/repobuild/.dummy $(headers.repobuild/env/input) $(headers.repobuild/env/target) $(headers.repobuild/env/resource) $(headers.common/util/stl) $(headers.repobuild/json/json) $(headers.repobuild/reader/buildfile) $(headers.repobuild/nodes/makefile) $(headers.repobuild/nodes/util) $(headers.repobuild/nodes/node) $(headers.repobuild/nodes/gen_sh) $(headers.repobuild/nodes/autoconf) $(headers.repobuild/nodes/cmake) $(headers.repobuild/nodes/cc_library) $(headers.repobuild/nodes/top_symlink) $(headers.repobuild/nodes/cc_binary) $(headers.repobuild/nodes/cc_embed_data) $(headers.repobuild/nodes/confignode) $(headers.repobuild/nodes/execute_test) $(headers.repobuild/nodes/go_library) $(headers.repobuild/nodes/go_binary) $(headers.repobuild/nodes/go_test) $(headers.repobuild/nodes/java_library) $(headers.repobuild/nodes/java_binary) $(headers.repobuild/nodes/make) $(headers.repobuild/nodes/proto_library) $(headers.repobuild/nodes/py_library) $(headers.repobuild/nodes/py_binary) $(headers.repobuild/nodes/allnodes) $(headers.repobuild/reader/parser) $(headers.repobuild/generator/generator) repobuild/repobuild.cc
+.gen-obj/repobuild/repobuild.cc.o: .gen-src/common/.dummy .gen-src/.gen-files/common/.dummy .gen-src/.gen-pkg/common/.dummy $(headers.common/third_party/google/gflags/gflags) .gen-obj/common/third_party/google/gperftools/.perf_gen.0.dummy .gen-obj/common/third_party/google/gperftools/.perf_gen.1.0.dummy $(headers.common/third_party/google/gperftools/atomicops) $(headers.common/base/atomicops) $(headers.common/base/macros) $(headers.common/base/callback) $(headers.common/base/flags) .gen-obj/common/third_party/google/glog/.glog_gen.0.dummy .gen-obj/common/third_party/google/glog/.glog_gen.1.0.dummy $(headers.common/log/log) $(headers.common/third_party/google/init/init) $(headers.common/base/init) $(headers.common/base/mutex) $(headers.common/base/time) $(headers.common/base/types) $(headers.common/file/fileutil) $(headers.common/third_party/google/re2/re2) .gen-obj/common/third_party/stringencoders/.stringencoders_conf.0.dummy .gen-obj/common/third_party/stringencoders/.stringencoders_conf.1.0.dummy $(headers.common/third_party/stringencoders/stringencoders) $(headers.common/strings/strutil) .gen-src/repobuild/.dummy .gen-src/.gen-files/repobuild/.dummy .gen-src/.gen-pkg/repobuild/.dummy $(headers.repobuild/env/input) $(headers.repobuild/env/target) $(headers.repobuild/env/resource) $(headers.common/util/stl) $(headers.repobuild/json/json) $(headers.repobuild/reader/buildfile) $(headers.repobuild/nodes/makefile) $(headers.repobuild/nodes/util) $(headers.repobuild/nodes/node) $(headers.repobuild/nodes/gen_sh) $(headers.repobuild/nodes/autoconf) $(headers.repobuild/nodes/cmake) $(headers.repobuild/nodes/cc_library) $(headers.repobuild/nodes/top_symlink) $(headers.repobuild/nodes/cc_binary) $(headers.repobuild/nodes/cc_embed_data) $(headers.repobuild/nodes/confignode) $(headers.repobuild/nodes/execute_test) $(headers.repobuild/nodes/go_library) $(headers.repobuild/nodes/go_binary) $(headers.repobuild/nodes/go_test) $(headers.repobuild/nodes/java_library) $(headers.repobuild/nodes/java_binary) $(headers.repobuild/nodes/make) $(headers.repobuild/nodes/proto_library) $(headers.repobuild/nodes/py_library) $(headers.repobuild/nodes/py_binary) $(headers.repobuild/nodes/allnodes) $(headers.repobuild/reader/parser) $(headers.repobuild/generator/generator) repobuild/repobuild.cc
 	@mkdir -p .gen-obj/repobuild
 	@echo "Compiling:  repobuild/repobuild.cc (c++)"
 	@$(COMPILE.cc) -I. -I.gen-files -I.gen-src -I.gen-src/.gen-files -Icommon/third_party/google/glog/src -Icommon/third_party/google/gperftools/src -Irepobuild $(cxx_header_compile_args.common/third_party/google/gflags/gflags) repobuild/repobuild.cc -o .gen-obj/repobuild/repobuild.cc.o
