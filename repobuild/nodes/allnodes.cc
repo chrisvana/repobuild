@@ -18,11 +18,13 @@
 #include "repobuild/nodes/go_test.h"
 #include "repobuild/nodes/gen_sh.h"
 #include "repobuild/nodes/java_library.h"
+#include "repobuild/nodes/java_jar.h"
 #include "repobuild/nodes/java_binary.h"
 #include "repobuild/nodes/make.h"
 #include "repobuild/nodes/proto_library.h"
-#include "repobuild/nodes/py_library.h"
 #include "repobuild/nodes/py_binary.h"
+#include "repobuild/nodes/py_egg.h"
+#include "repobuild/nodes/py_library.h"
 
 using std::string;
 using std::vector;
@@ -72,7 +74,7 @@ class NodeBuilderImplFinish : public NodeBuilderImpl<T> {
 void NodeBuilder::GetAll(std::vector<NodeBuilder*>* nodes) {
   nodes->push_back(new NodeBuilderImplHead<GenShNode>("gen_sh"));
   nodes->push_back(new NodeBuilderImplHead<CCLibraryNode>("cc_library"));
-  nodes->push_back(new NodeBuilderImplHead<PyBinaryNode>("py_binary"));
+  nodes->push_back(new NodeBuilderImplHead<PyBinaryNode>("py_egg"));
   nodes->push_back(new NodeBuilderImplHead<CCEmbedDataNode>("cc_embed_data"));
 
   nodes->push_back(new NodeBuilderImpl<AutoconfNode>("autoconf"));
@@ -82,9 +84,11 @@ void NodeBuilder::GetAll(std::vector<NodeBuilder*>* nodes) {
   nodes->push_back(new NodeBuilderImpl<GoLibraryNode>("go_library"));
   nodes->push_back(new NodeBuilderImpl<GoBinaryNode>("go_binary"));
   nodes->push_back(new NodeBuilderImpl<JavaLibraryNode>("java_library"));
+  nodes->push_back(new NodeBuilderImpl<JavaJarNode>("java_jar"));
   nodes->push_back(new NodeBuilderImpl<JavaBinaryNode>("java_binary"));
   nodes->push_back(new NodeBuilderImpl<MakeNode>("make"));
   nodes->push_back(new NodeBuilderImpl<ProtoLibraryNode>("proto_library"));
+  nodes->push_back(new NodeBuilderImpl<PyBinaryNode>("py_binary"));
 
   nodes->push_back(new NodeBuilderImplFinish<PyLibraryNode>("py_library"));
 

@@ -7,30 +7,20 @@
 #include <string>
 #include <vector>
 #include "repobuild/nodes/node.h"
-#include "repobuild/nodes/java_library.h"
+#include "repobuild/nodes/java_jar.h"
 
 namespace repobuild {
 
-class JavaBinaryNode : public JavaLibraryNode {
+class JavaBinaryNode : public JavaJarNode {
  public:
   JavaBinaryNode(const TargetInfo& t,
                  const Input& i)
-      : JavaLibraryNode(t, i) {
+      : JavaJarNode(t, i) {
   }
   virtual ~JavaBinaryNode() {}
   virtual void Parse(BuildFile* file, const BuildFileNode& input);
-  virtual void LocalWriteMake(Makefile* out) const;
   virtual void LocalBinaries(LanguageType lang,
                              ResourceFileSet* outputs) const;
-
- protected:
-  // Helper.
-  Resource JarName() const;
-  Resource OutJarName() const;
-
-  void WriteJar(const Resource& file, Makefile* out) const;
-
-  std::vector<std::string> java_manifest_;
 };
 
 }  // namespace repobuild

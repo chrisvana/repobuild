@@ -151,12 +151,24 @@
  },
 
  { "cc_library": {
+     "name" : "py_egg",
+     "cc_sources" : [ "py_egg.cc" ],
+     "cc_headers" : [ "py_egg.h" ],
+     "dependencies": [ "//common/log:log",
+                       "//common/strings:strutil",
+                       ":py_library",
+                       ":top_symlink"
+      ]
+   }
+ },
+
+ { "cc_library": {
      "name" : "py_binary",
      "cc_sources" : [ "py_binary.cc" ],
      "cc_headers" : [ "py_binary.h" ],
      "dependencies": [ "//common/log:log",
                        "//common/strings:strutil",
-                       ":node",
+                       ":py_egg",
                        ":top_symlink"
       ]
    }
@@ -173,12 +185,25 @@
  },
 
  { "cc_library": {
+     "name" : "java_jar",
+     "cc_sources" : [ "java_jar.cc" ],
+     "cc_headers" : [ "java_jar.h" ],
+     "dependencies": [ "//common/log:log",
+                       "//common/strings:strutil",
+                       ":java_library",
+                       ":node",
+                       ":top_symlink"
+      ]
+   }
+ },
+
+ { "cc_library": {
      "name" : "java_binary",
      "cc_sources" : [ "java_binary.cc" ],
      "cc_headers" : [ "java_binary.h" ],
      "dependencies": [ "//common/log:log",
                        "//common/strings:strutil",
-                       ":node",
+                       ":java_jar",
                        ":top_symlink"
       ]
    }
@@ -259,13 +284,15 @@
                        ":go_binary",
                        ":go_test",
                        ":gen_sh",
-                       ":java_library",
                        ":java_binary",
+                       ":java_library",
+                       ":java_jar",
                        ":make",
                        ":node",
                        ":proto_library",
-                       ":py_library",
-                       ":py_binary"
+                       ":py_egg",
+                       ":py_binary",
+                       ":py_library"
      ]
    }
  }
