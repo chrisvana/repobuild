@@ -20,17 +20,31 @@ using std::vector;
 using std::string;
 
 namespace repobuild {
+namespace {  // TODO(cvanarsdale): Shared location with cc_library.cc.
+const char kConfigureArgs[] = "CONFIGURE_ARGS";
+const char kConfigureEnv[] = "CONFIGURE_ENV";
+const char kCGcc[] = "CC_GCC";
+const char kCxxGcc[] = "CXX_GCC";
+}
 
 void AutoconfNode::Parse(BuildFile* file, const BuildFileNode& input) {
   Node::Parse(file, input);
 
   // configure_env
-  vector<string> configure_envs;
-  current_reader()->ParseRepeatedString("configure_env", &configure_envs);
+  vector<string> configure_env, gcc_configure_env, clang_configure_env;
+  current_reader()->ParseRepeatedString("configure_env", &configure_env);
+  current_reader()->ParseRepeatedString("gcc.configure_env",
+                                        &gcc_configure_env);
+  current_reader()->ParseRepeatedString("clang.configure_env",
+                                        &clang_configure_env);
 
   // configure_args
-  vector<string> configure_args;
+  vector<string> configure_args, gcc_configure_args, clang_configure_args;
   current_reader()->ParseRepeatedString("configure_args", &configure_args);
+  current_reader()->ParseRepeatedString("gcc.configure_args",
+                                        &gcc_configure_args);
+  current_reader()->ParseRepeatedString("clang.configure_args",
+                                        &clang_configure_args);
 
   // configure
   string configure;
@@ -49,32 +63,52 @@ void AutoconfNode::Parse(BuildFile* file, const BuildFileNode& input) {
   gen->SetMakeName("Autoconf");
   AddSubNode(gen);
 
-  // Users are allowed to specify custom env arg overrides.
-  string user_env;
-  if (!configure_envs.empty()) {
-    user_env = strings::JoinAll(configure_envs, " ") + "; ";
-  }
+  // Env
+  AddConditionalVariable(
+      kConfigureEnv, kCxxGcc,
+      strings::JoinWith(
+          " ",
+          strings::JoinAll(configure_env, " "),
+          strings::JoinAll(gcc_configure_env, " ")),
+      strings::JoinWith(
+          " ",
+          strings::JoinAll(configure_env, " "),
+          strings::JoinAll(clang_configure_env, " ")));
+
+  // Args
+  AddConditionalVariable(
+      kConfigureArgs, kCxxGcc,
+      strings::JoinWith(
+          " ",
+          strings::JoinAll(configure_args, " "),
+          strings::JoinAll(gcc_configure_args, " ")),
+      strings::JoinWith(
+          " ",
+          strings::JoinAll(configure_args, " "),
+          strings::JoinAll(clang_configure_args, " ")));
 
   // Actual configure command output ------
-  string build_setup =
+  string build_setup = Makefile::Escape(
       "mkdir -p $OBJ_DIR; "
-      "DEST_DIR=$(pwd)/$GEN_DIR";
-  string build_env =
-      user_env +
-      "CXXFLAGS=\"$BASIC_CXXFLAGS $DEP_FLAGS $USER_CXXFLAGS\" "
-      "CFLAGS=\"$BASIC_CFLAGS $DEP_FLAGS $USER_CFLAGS\" "
-      "LDFLAGS=\"$LDFLAGS $USER_LDFLAGS\" "
-      "CC=\"$CC\" "
-      "CXX=\"$CXX\"";
-  string configure_cmd = (configure +
-                          " --prefix=/ --cache-file=$GEN_DIR/config.cache " +
-                          strings::JoinAll(configure_args, " "));
+      "DEST_DIR=$(pwd)/$GEN_DIR");
+  string build_env = GetVariable(kConfigureEnv).ref_name() +
+      Makefile::Escape(
+          " CXXFLAGS=\"$BASIC_CXXFLAGS $DEP_FLAGS $USER_CXXFLAGS\" "
+          "CFLAGS=\"$BASIC_CFLAGS $DEP_FLAGS $USER_CFLAGS\" "
+          "LDFLAGS=\"$LDFLAGS $USER_LDFLAGS\" "
+          "CC=\"$CC\" "
+          "CXX=\"$CXX\"");
+  string configure_cmd =
+      Makefile::Escape(configure +
+                       " --prefix=/ --cache-file=$GEN_DIR/config.cache ") +
+      GetVariable(kConfigureArgs).ref_name();
   vector<Resource> input_files;
   vector<string> output_files;
   gen->Set(build_setup + "; " + build_env + " " + configure_cmd,
            "",  // clean
            input_files,
            output_files);
+  gen->SetMakefileEscape(false);  // we do it ourselves
 
   // Make output --------------------------
   MakeNode* make = new MakeNode(

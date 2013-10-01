@@ -10,7 +10,7 @@ ifeq ($(CC_GCC),1)
 	BASIC_CFLAGS= -pthread
 else
 	CFLAGS= -stdlib=libc++ -pthread -g -Wall -Werror -Wno-sign-compare -O3 -flto -Qunused-arguments -fcolor-diagnostics
-	BASIC_CFLAGS= -stdlib=libc++ -pthread
+	BASIC_CFLAGS= -stdlib=libc++ -pthread -Qunused-arguments
 endif
 ifeq ($(CXX_GCC),1)
 	LD_FORCE_LINK_START := -Wl,--whole-archive
@@ -23,63 +23,25 @@ else
 	LD_FORCE_LINK_END := 
 	LDFLAGS= -stdlib=libc++ -lpthread -g -O3 -flto -L/usr/local/lib -L/opt/local/lib
 	CXXFLAGS= -stdlib=libc++ -pthread -g -Wall -Werror -Wno-sign-compare -O3 -flto -Qunused-arguments -fcolor-diagnostics -std=c++11 -DUSE_CXX0X
-	BASIC_CXXFLAGS= -stdlib=libc++ -pthread -std=c++11
+	BASIC_CXXFLAGS= -stdlib=libc++ -pthread -Qunused-arguments -std=c++11
 endif
 
 define PythonSetup
-import os
-from setuptools import setup
-
-setup(
-    name = os.environ['PY_NAME'],
-    version = os.environ['PY_VERSION'],
-    py_modules = os.environ['PY_MODULES'].split(),
-)
-
+aW1wb3J0IG9zCmZyb20gc2V0dXB0b29scyBpbXBvcnQgc2V0dXAKCnNldHVwKAogICAgbmFtZSA9IG9zLmVudmlyb25bJ1BZX05BTUUnXSwKICAgIHZlcnNpb24gPSBvcy5lbnZpcm9uWydQWV9WRVJTSU9OJ10sCiAgICBweV9tb2R1bGVzID0gb3MuZW52aXJvblsnUFlfTU9EVUxFUyddLnNwbGl0KCksCiAgICBpbnN0YWxsX3JlcXVpcmVzID0gb3MuZW52aXJvblsnUFlfU1lTX0RFUFMnXS5zcGxpdCgpLAopCg==
 endef
 export PythonSetup
 
 .gen-pkg/base_setup.py: 
-	@echo "$$PythonSetup" > .gen-pkg/base_setup.py
+	@echo "$$PythonSetup" | base64 --decode > .gen-pkg/base_setup.py
 	@chmod 0755 .gen-pkg/base_setup.py
 
 define CCEmbed
-#!/bin/bash
-HEADER="$$1"
-CPP="$$2"
-GUARD="$$3"
-NAMESPACE_START="$$4"
-NAMESPACE_END="$$5"
-echo "#ifndef $$GUARD" > $$HEADER
-echo "#define $$GUARD" >> $$HEADER
-echo "#include <cstring>  // size_t" >> $$HEADER
-echo "$$NAMESPACE_START" >> $$HEADER
-echo "#include \"$$(basename $$HEADER)\"" > $$CPP
-echo "$$NAMESPACE_START" >> $$CPP
-while read SOURCE VARIABLE; do  echo "// Auto generated from $$SOURCE" >> $$HEADER
-  echo "extern const char* "$$VARIABLE"_data();" >> $$HEADER
-  echo "extern size_t "$$VARIABLE"_size();" >> $$HEADER
-  echo "" >> $$HEADER
-  echo "const char* "$$VARIABLE"_data() {" >> $$CPP
-  printf "  return \"" >> $$CPP
-  cat $$SOURCE     | perl -pe 's|\\\\|\\\\\\\\|g'     | perl -pe 's|\\"|\\\"|g'     | perl -pe 's|\\n|\\\\n|g' >> $$CPP
-  echo "\";" >> $$CPP
-  echo "}" >> $$CPP
-  echo "size_t "$$VARIABLE"_size()" { >> $$CPP
-  printf "  return " >> $$CPP
-  printf $$(cat $$SOURCE | wc -c) >> $$CPP
-  echo ";" >> $$CPP
-  echo "}" >> $$CPP
-done
-echo "$$NAMESPACE_END" >> $$HEADER
-echo "#endif  // $$GUARD" >> $$HEADER
-echo "$$NAMESPACE_END" >> $$CPP
-
+IyEvYmluL2Jhc2gKSEVBREVSPSIkMSIKQ1BQPSIkMiIKR1VBUkQ9IiQzIgpOQU1FU1BBQ0VfU1RBUlQ9IiQ0IgpOQU1FU1BBQ0VfRU5EPSIkNSIKZWNobyAiI2lmbmRlZiAkR1VBUkQiID4gJEhFQURFUgplY2hvICIjZGVmaW5lICRHVUFSRCIgPj4gJEhFQURFUgplY2hvICIjaW5jbHVkZSA8Y3N0cmluZz4gIC8vIHNpemVfdCIgPj4gJEhFQURFUgplY2hvICIkTkFNRVNQQUNFX1NUQVJUIiA+PiAkSEVBREVSCmVjaG8gIiNpbmNsdWRlIFwiJChiYXNlbmFtZSAkSEVBREVSKVwiIiA+ICRDUFAKZWNobyAiJE5BTUVTUEFDRV9TVEFSVCIgPj4gJENQUAp3aGlsZSByZWFkIFNPVVJDRSBWQVJJQUJMRTsgZG8gIGVjaG8gIi8vIEF1dG8gZ2VuZXJhdGVkIGZyb20gJFNPVVJDRSIgPj4gJEhFQURFUgogIGVjaG8gImV4dGVybiBjb25zdCBjaGFyKiAiJFZBUklBQkxFIl9kYXRhKCk7IiA+PiAkSEVBREVSCiAgZWNobyAiZXh0ZXJuIHNpemVfdCAiJFZBUklBQkxFIl9zaXplKCk7IiA+PiAkSEVBREVSCiAgZWNobyAiIiA+PiAkSEVBREVSCiAgZWNobyAiY29uc3QgY2hhciogIiRWQVJJQUJMRSJfZGF0YSgpIHsiID4+ICRDUFAKICBwcmludGYgIiAgcmV0dXJuIFwiIiA+PiAkQ1BQCiAgY2F0ICRTT1VSQ0UgICAgIHwgcGVybCAtcGUgJ3N8XFx8XFxcXHxnJyAgICAgfCBwZXJsIC1wZSAnc3xcInxcXCJ8ZycgICAgIHwgcGVybCAtcGUgJ3N8XG58XFxufGcnID4+ICRDUFAKICBlY2hvICJcIjsiID4+ICRDUFAKICBlY2hvICJ9IiA+PiAkQ1BQCiAgZWNobyAic2l6ZV90ICIkVkFSSUFCTEUiX3NpemUoKSIgeyA+PiAkQ1BQCiAgcHJpbnRmICIgIHJldHVybiAiID4+ICRDUFAKICBwcmludGYgJChjYXQgJFNPVVJDRSB8IHdjIC1jKSA+PiAkQ1BQCiAgZWNobyAiOyIgPj4gJENQUAogIGVjaG8gIn0iID4+ICRDUFAKZG9uZQplY2hvICIkTkFNRVNQQUNFX0VORCIgPj4gJEhFQURFUgplY2hvICIjZW5kaWYgIC8vICRHVUFSRCIgPj4gJEhFQURFUgplY2hvICIkTkFNRVNQQUNFX0VORCIgPj4gJENQUAo=
 endef
 export CCEmbed
 
 .gen-files/cc_embed.sh: 
-	@echo "$$CCEmbed" > .gen-files/cc_embed.sh
+	@echo "$$CCEmbed" | base64 --decode > .gen-files/cc_embed.sh
 	@chmod 0755 .gen-files/cc_embed.sh
 
 
@@ -157,7 +119,7 @@ common/third_party/google/gflags/gflags: .gen-obj/common/third_party/google/gfla
 
 .gen-obj/common/third_party/google/gperftools/.perf_gen.0.dummy: .gen-src/common/.dummy .gen-src/.gen-files/common/.dummy .gen-src/.gen-pkg/common/.dummy $(headers.common/third_party/google/gflags/gflags) .gen-obj/common/third_party/google/gflags/src/gflags.cc.o .gen-obj/common/third_party/google/gflags/src/gflags_completions.cc.o .gen-obj/common/third_party/google/gflags/src/gflags_nc.cc.o .gen-obj/common/third_party/google/gflags/src/gflags_reporting.cc.o
 	@echo "Autoconf:   //common/third_party/google/gperftools:perf_gen.0"
-	@(mkdir -p .gen-files/common/third_party/google/gperftools; cd common/third_party/google/gperftools; GEN_DIR="../../../../.gen-files/common/third_party/google/gperftools" OBJ_DIR="../../../../.gen-obj/common/third_party/google/gperftools SRC_DIR="../../../../.gen-src/common/third_party/google/gperftools ROOT_DIR="$(ROOT_DIR)"  CXX_GCC="$(CXX_GCC)" CC_GCC="$(CC_GCC)" CC="$(CC)" CXX="$(CXX)" CXXFLAGS="$(CXXFLAGS)" BASIC_CXXFLAGS="$(BASIC_CXXFLAGS)" CFLAGS="$(CFLAGS)" BASIC_CFLAGS="$(BASIC_CFLAGS)" LDFLAGS="$(LDFLAGS)" MAKE="$(MAKE)" GFLAGS_OBJS=".gen-obj/common/third_party/google/gflags/src/*.o" GFLAGS_SRC_ROOT="common/third_party/google/gflags/src" DEP_CXXFLAGS="$(cxx_header_compile_args.common/third_party/google/gflags/gflags)" DEP_CFLAGS="$(c_header_compile_args.common/third_party/google/gflags/gflags)" eval '(mkdir -p $$OBJ_DIR; DEST_DIR=$$(pwd)/$$GEN_DIR; USER_CXXFLAGS=-msse4; CXXFLAGS="$$BASIC_CXXFLAGS $$DEP_FLAGS $$USER_CXXFLAGS" CFLAGS="$$BASIC_CFLAGS $$DEP_FLAGS $$USER_CFLAGS" LDFLAGS="$$LDFLAGS $$USER_LDFLAGS" CC="$$CC" CXX="$$CXX" ./configure --prefix=/ --cache-file=$$GEN_DIR/config.cache --with-gflagssrc="$$ROOT_DIR/$$GFLAGS_SRC_ROOT" --with-gflagslib="$$ROOT_DIR/$$GFLAGS_OBJS")' > ../../../../.gen-files/common/third_party/google/gperftools/.perf_gen.0.logfile 2>&1 || (cat ../../../../.gen-files/common/third_party/google/gperftools/.perf_gen.0.logfile; exit 1) ) && (mkdir -p .gen-obj/common/third_party/google/gperftools; touch .gen-obj/common/third_party/google/gperftools/.perf_gen.0.dummy)
+	@(mkdir -p .gen-files/common/third_party/google/gperftools; cd common/third_party/google/gperftools; GEN_DIR="../../../../.gen-files/common/third_party/google/gperftools" OBJ_DIR="../../../../.gen-obj/common/third_party/google/gperftools SRC_DIR="../../../../.gen-src/common/third_party/google/gperftools ROOT_DIR="$(ROOT_DIR)"  CXX_GCC="$(CXX_GCC)" CC_GCC="$(CC_GCC)" CC="$(CC)" CXX="$(CXX)" CXXFLAGS="$(CXXFLAGS)" BASIC_CXXFLAGS="$(BASIC_CXXFLAGS)" CFLAGS="$(CFLAGS)" BASIC_CFLAGS="$(BASIC_CFLAGS)" LDFLAGS="$(LDFLAGS)" MAKE="$(MAKE)" GFLAGS_OBJS=".gen-obj/common/third_party/google/gflags/src/*.o" GFLAGS_SRC_ROOT="common/third_party/google/gflags/src" DEP_CXXFLAGS="$(cxx_header_compile_args.common/third_party/google/gflags/gflags)" DEP_CFLAGS="$(c_header_compile_args.common/third_party/google/gflags/gflags)" eval '(mkdir -p $$OBJ_DIR; DEST_DIR=$$(pwd)/$$GEN_DIR; $(CONFIGURE_ENV.common/third_party/google/gperftools/perf_gen) CXXFLAGS="$$BASIC_CXXFLAGS $$DEP_FLAGS $$USER_CXXFLAGS" CFLAGS="$$BASIC_CFLAGS $$DEP_FLAGS $$USER_CFLAGS" LDFLAGS="$$LDFLAGS $$USER_LDFLAGS" CC="$$CC" CXX="$$CXX" ./configure --prefix=/ --cache-file=$$GEN_DIR/config.cache $(CONFIGURE_ARGS.common/third_party/google/gperftools/perf_gen))' > ../../../../.gen-files/common/third_party/google/gperftools/.perf_gen.0.logfile 2>&1 || (cat ../../../../.gen-files/common/third_party/google/gperftools/.perf_gen.0.logfile; exit 1) ) && (mkdir -p .gen-obj/common/third_party/google/gperftools; touch .gen-obj/common/third_party/google/gperftools/.perf_gen.0.dummy)
 
 common/third_party/google/gperftools/perf_gen.0: .gen-obj/common/third_party/google/gperftools/.perf_gen.0.dummy common/third_party/google/gflags/gflags common/auto_.0
 
@@ -193,6 +155,10 @@ common/third_party/google/gperftools/perf_gen.1.0: .gen-obj/common/third_party/g
 common/third_party/google/gperftools/perf_gen.1: common/third_party/google/gperftools/perf_gen.0 common/third_party/google/gflags/gflags common/third_party/google/gperftools/perf_gen.1.0 common/auto_.0
 
 .PHONY: common/third_party/google/gperftools/perf_gen.1
+
+CONFIGURE_ARGS.common/third_party/google/gperftools/perf_gen := --with-gflagssrc="$$ROOT_DIR/$$GFLAGS_SRC_ROOT" --with-gflagslib="$$ROOT_DIR/$$GFLAGS_OBJS"
+
+CONFIGURE_ENV.common/third_party/google/gperftools/perf_gen := USER_CXXFLAGS=-msse4
 
 common/third_party/google/gperftools/perf_gen: common/third_party/google/gflags/gflags common/third_party/google/gperftools/perf_gen.0 common/third_party/google/gperftools/perf_gen.1 common/auto_.0
 
@@ -231,7 +197,7 @@ common/base/flags: common/third_party/google/gflags/gflags common/auto_.0
 
 .gen-obj/common/third_party/google/glog/.glog_gen.0.dummy: .gen-src/common/.dummy .gen-src/.gen-files/common/.dummy .gen-src/.gen-pkg/common/.dummy $(headers.common/third_party/google/gflags/gflags) .gen-obj/common/third_party/google/gflags/src/gflags.cc.o .gen-obj/common/third_party/google/gflags/src/gflags_completions.cc.o .gen-obj/common/third_party/google/gflags/src/gflags_nc.cc.o .gen-obj/common/third_party/google/gflags/src/gflags_reporting.cc.o
 	@echo "Autoconf:   //common/third_party/google/glog:glog_gen.0"
-	@(mkdir -p .gen-files/common/third_party/google/glog; cd common/third_party/google/glog; GEN_DIR="../../../../.gen-files/common/third_party/google/glog" OBJ_DIR="../../../../.gen-obj/common/third_party/google/glog SRC_DIR="../../../../.gen-src/common/third_party/google/glog ROOT_DIR="$(ROOT_DIR)"  CXX_GCC="$(CXX_GCC)" CC_GCC="$(CC_GCC)" CC="$(CC)" CXX="$(CXX)" CXXFLAGS="$(CXXFLAGS)" BASIC_CXXFLAGS="$(BASIC_CXXFLAGS)" CFLAGS="$(CFLAGS)" BASIC_CFLAGS="$(BASIC_CFLAGS)" LDFLAGS="$(LDFLAGS)" MAKE="$(MAKE)" GFLAGS_OBJS=".gen-obj/common/third_party/google/gflags/src/*.o" GFLAGS_SRC_ROOT="common/third_party/google/gflags/src" DEP_CXXFLAGS="$(cxx_header_compile_args.common/third_party/google/gflags/gflags)" DEP_CFLAGS="$(c_header_compile_args.common/third_party/google/gflags/gflags)" eval '(mkdir -p $$OBJ_DIR; DEST_DIR=$$(pwd)/$$GEN_DIR; CXXFLAGS="$$BASIC_CXXFLAGS $$DEP_FLAGS $$USER_CXXFLAGS" CFLAGS="$$BASIC_CFLAGS $$DEP_FLAGS $$USER_CFLAGS" LDFLAGS="$$LDFLAGS $$USER_LDFLAGS" CC="$$CC" CXX="$$CXX" ./configure --prefix=/ --cache-file=$$GEN_DIR/config.cache --with-gflagssrc="$$ROOT_DIR/$$GFLAGS_SRC_ROOT" --with-gflagslib="$$ROOT_DIR/$$GFLAGS_OBJS")' > ../../../../.gen-files/common/third_party/google/glog/.glog_gen.0.logfile 2>&1 || (cat ../../../../.gen-files/common/third_party/google/glog/.glog_gen.0.logfile; exit 1) ) && (mkdir -p .gen-obj/common/third_party/google/glog; touch .gen-obj/common/third_party/google/glog/.glog_gen.0.dummy)
+	@(mkdir -p .gen-files/common/third_party/google/glog; cd common/third_party/google/glog; GEN_DIR="../../../../.gen-files/common/third_party/google/glog" OBJ_DIR="../../../../.gen-obj/common/third_party/google/glog SRC_DIR="../../../../.gen-src/common/third_party/google/glog ROOT_DIR="$(ROOT_DIR)"  CXX_GCC="$(CXX_GCC)" CC_GCC="$(CC_GCC)" CC="$(CC)" CXX="$(CXX)" CXXFLAGS="$(CXXFLAGS)" BASIC_CXXFLAGS="$(BASIC_CXXFLAGS)" CFLAGS="$(CFLAGS)" BASIC_CFLAGS="$(BASIC_CFLAGS)" LDFLAGS="$(LDFLAGS)" MAKE="$(MAKE)" GFLAGS_OBJS=".gen-obj/common/third_party/google/gflags/src/*.o" GFLAGS_SRC_ROOT="common/third_party/google/gflags/src" DEP_CXXFLAGS="$(cxx_header_compile_args.common/third_party/google/gflags/gflags)" DEP_CFLAGS="$(c_header_compile_args.common/third_party/google/gflags/gflags)" eval '(mkdir -p $$OBJ_DIR; DEST_DIR=$$(pwd)/$$GEN_DIR;  CXXFLAGS="$$BASIC_CXXFLAGS $$DEP_FLAGS $$USER_CXXFLAGS" CFLAGS="$$BASIC_CFLAGS $$DEP_FLAGS $$USER_CFLAGS" LDFLAGS="$$LDFLAGS $$USER_LDFLAGS" CC="$$CC" CXX="$$CXX" ./configure --prefix=/ --cache-file=$$GEN_DIR/config.cache $(CONFIGURE_ARGS.common/third_party/google/glog/glog_gen))' > ../../../../.gen-files/common/third_party/google/glog/.glog_gen.0.logfile 2>&1 || (cat ../../../../.gen-files/common/third_party/google/glog/.glog_gen.0.logfile; exit 1) ) && (mkdir -p .gen-obj/common/third_party/google/glog; touch .gen-obj/common/third_party/google/glog/.glog_gen.0.dummy)
 
 common/third_party/google/glog/glog_gen.0: .gen-obj/common/third_party/google/glog/.glog_gen.0.dummy common/third_party/google/gflags/gflags common/auto_.0
 
@@ -252,6 +218,8 @@ common/third_party/google/glog/glog_gen.1.0: .gen-obj/common/third_party/google/
 common/third_party/google/glog/glog_gen.1: common/third_party/google/glog/glog_gen.0 common/third_party/google/gflags/gflags common/third_party/google/glog/glog_gen.1.0 common/auto_.0
 
 .PHONY: common/third_party/google/glog/glog_gen.1
+
+CONFIGURE_ARGS.common/third_party/google/glog/glog_gen := --with-gflagssrc="$$ROOT_DIR/$$GFLAGS_SRC_ROOT" --with-gflagslib="$$ROOT_DIR/$$GFLAGS_OBJS"
 
 common/third_party/google/glog/glog_gen: common/third_party/google/gflags/gflags common/third_party/google/glog/glog_gen.0 common/third_party/google/glog/glog_gen.1 common/auto_.0
 
@@ -362,7 +330,7 @@ common/strings/stringpiece: common/third_party/google/re2/re2 common/auto_.0
 
 .gen-obj/common/third_party/stringencoders/.stringencoders_conf.0.dummy: .gen-src/common/.dummy .gen-src/.gen-files/common/.dummy .gen-src/.gen-pkg/common/.dummy
 	@echo "Autoconf:   //common/third_party/stringencoders:stringencoders_conf.0"
-	@(mkdir -p .gen-files/common/third_party/stringencoders; cd common/third_party/stringencoders; GEN_DIR="../../../.gen-files/common/third_party/stringencoders" OBJ_DIR="../../../.gen-obj/common/third_party/stringencoders SRC_DIR="../../../.gen-src/common/third_party/stringencoders ROOT_DIR="$(ROOT_DIR)"  CXX_GCC="$(CXX_GCC)" CC_GCC="$(CC_GCC)" CC="$(CC)" CXX="$(CXX)" CXXFLAGS="$(CXXFLAGS)" BASIC_CXXFLAGS="$(BASIC_CXXFLAGS)" CFLAGS="$(CFLAGS)" BASIC_CFLAGS="$(BASIC_CFLAGS)" LDFLAGS="$(LDFLAGS)" MAKE="$(MAKE)" DEP_CXXFLAGS="" DEP_CFLAGS="" eval '(mkdir -p $$OBJ_DIR; DEST_DIR=$$(pwd)/$$GEN_DIR; USER_CFLAGS=-Wno-error=unused-but-set-variable; CXXFLAGS="$$BASIC_CXXFLAGS $$DEP_FLAGS $$USER_CXXFLAGS" CFLAGS="$$BASIC_CFLAGS $$DEP_FLAGS $$USER_CFLAGS" LDFLAGS="$$LDFLAGS $$USER_LDFLAGS" CC="$$CC" CXX="$$CXX" ./configure --prefix=/ --cache-file=$$GEN_DIR/config.cache )' > ../../../.gen-files/common/third_party/stringencoders/.stringencoders_conf.0.logfile 2>&1 || (cat ../../../.gen-files/common/third_party/stringencoders/.stringencoders_conf.0.logfile; exit 1) ) && (mkdir -p .gen-obj/common/third_party/stringencoders; touch .gen-obj/common/third_party/stringencoders/.stringencoders_conf.0.dummy)
+	@(mkdir -p .gen-files/common/third_party/stringencoders; cd common/third_party/stringencoders; GEN_DIR="../../../.gen-files/common/third_party/stringencoders" OBJ_DIR="../../../.gen-obj/common/third_party/stringencoders SRC_DIR="../../../.gen-src/common/third_party/stringencoders ROOT_DIR="$(ROOT_DIR)"  CXX_GCC="$(CXX_GCC)" CC_GCC="$(CC_GCC)" CC="$(CC)" CXX="$(CXX)" CXXFLAGS="$(CXXFLAGS)" BASIC_CXXFLAGS="$(BASIC_CXXFLAGS)" CFLAGS="$(CFLAGS)" BASIC_CFLAGS="$(BASIC_CFLAGS)" LDFLAGS="$(LDFLAGS)" MAKE="$(MAKE)" DEP_CXXFLAGS="" DEP_CFLAGS="" eval '(mkdir -p $$OBJ_DIR; DEST_DIR=$$(pwd)/$$GEN_DIR; $(CONFIGURE_ENV.common/third_party/stringencoders/stringencoders_conf) CXXFLAGS="$$BASIC_CXXFLAGS $$DEP_FLAGS $$USER_CXXFLAGS" CFLAGS="$$BASIC_CFLAGS $$DEP_FLAGS $$USER_CFLAGS" LDFLAGS="$$LDFLAGS $$USER_LDFLAGS" CC="$$CC" CXX="$$CXX" ./configure --prefix=/ --cache-file=$$GEN_DIR/config.cache )' > ../../../.gen-files/common/third_party/stringencoders/.stringencoders_conf.0.logfile 2>&1 || (cat ../../../.gen-files/common/third_party/stringencoders/.stringencoders_conf.0.logfile; exit 1) ) && (mkdir -p .gen-obj/common/third_party/stringencoders; touch .gen-obj/common/third_party/stringencoders/.stringencoders_conf.0.dummy)
 
 common/third_party/stringencoders/stringencoders_conf.0: .gen-obj/common/third_party/stringencoders/.stringencoders_conf.0.dummy common/auto_.0
 
@@ -383,6 +351,11 @@ common/third_party/stringencoders/stringencoders_conf.1.0: .gen-obj/common/third
 common/third_party/stringencoders/stringencoders_conf.1: common/third_party/stringencoders/stringencoders_conf.0 common/third_party/stringencoders/stringencoders_conf.1.0 common/auto_.0
 
 .PHONY: common/third_party/stringencoders/stringencoders_conf.1
+
+CONFIGURE_ENV.common/third_party/stringencoders/stringencoders_conf := 
+ifeq ($(CXX_GCC),1)
+	CONFIGURE_ENV.common/third_party/stringencoders/stringencoders_conf := USER_CFLAGS=-Wno-error=unused-but-set-variable
+endif
 
 common/third_party/stringencoders/stringencoders_conf: common/third_party/stringencoders/stringencoders_conf.0 common/third_party/stringencoders/stringencoders_conf.1 common/auto_.0
 

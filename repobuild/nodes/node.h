@@ -160,6 +160,10 @@ class Node {
   bool HasVariable(const std::string& name) const;
   const MakeVariable& GetVariable(const std::string& name) const;
   MakeVariable* MutableVariable(const std::string& name);
+  void AddConditionalVariable(const std::string& var_name,
+                              const std::string& condition_name,
+                              const std::string& true_value,
+                              const std::string& false_value);
 
   // Dependency helpers
   void InputDependencyFiles(LanguageType lang, ResourceFileSet* files) const;

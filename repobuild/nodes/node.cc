@@ -433,6 +433,22 @@ Node::MakeVariable* Node::MutableVariable(const string& name) {
   return *var;
 }
 
+void Node::AddConditionalVariable(const std::string& var_name,
+                                  const std::string& condition_name,
+                                  const std::string& true_value,
+                                  const std::string& false_value) {
+  if (true_value == false_value) {
+    if (!true_value.empty()) {
+      MutableVariable(var_name)->SetValue(Makefile::Escape(true_value));
+    }
+  } else {
+    MutableVariable(var_name)->SetCondition(
+        condition_name,
+        Makefile::Escape(true_value),
+        Makefile::Escape(false_value));
+  }
+}
+
 string Node::StripSpecialDirs(const string& path) const {
   return NodeUtil::StripSpecialDirs(input(), path);
 }

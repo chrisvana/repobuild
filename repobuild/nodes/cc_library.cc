@@ -398,17 +398,8 @@ void CCLibraryNode::AddVariable(const string& cpp_name,
                                 const string& c_name,
                                 const string& gcc_value,
                                 const string& clang_value) {
-  if (gcc_value == clang_value) {
-    if (!gcc_value.empty()) {
-      MutableVariable(c_name)->SetValue(gcc_value);
-      MutableVariable(cpp_name)->SetValue(gcc_value);
-    }
-  } else {
-    MutableVariable(c_name)->SetCondition(
-        kCGcc, gcc_value, clang_value);
-    MutableVariable(cpp_name)->SetCondition(
-        kCxxGcc, gcc_value, clang_value);
-  }
+  AddConditionalVariable(cpp_name, kCxxGcc, gcc_value, clang_value);
+  AddConditionalVariable(c_name, kCGcc, gcc_value, clang_value);
 }
 
 

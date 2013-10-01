@@ -19,7 +19,8 @@ class GenShNode : public Node {
       : Node(t, i),
         cd_(true),
         make_name_("Script"),
-        make_target_(t.full_path()) {
+        make_target_(t.full_path()),
+        escape_command_(true) {
   }
   virtual ~GenShNode() {}
   virtual std::string Name() const { return "gen_sh"; }
@@ -36,6 +37,7 @@ class GenShNode : public Node {
   void AddLocalEnvVariable(const std::string& var, const std::string& val) {
     local_env_vars_[var] = val;
   }
+  void SetMakefileEscape(bool escape) { escape_command_ = escape; }
 
   // Static preprocessors
   static void WriteMakeHead(const Input& input, Makefile* out);
@@ -69,6 +71,7 @@ class GenShNode : public Node {
   std::map<std::string, std::string> local_env_vars_;
   bool cd_;
   std::string make_name_, make_target_;
+  bool escape_command_;
 };
 
 }  // namespace repobuild

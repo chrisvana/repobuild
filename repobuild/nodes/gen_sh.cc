@@ -183,7 +183,11 @@ string GenShNode::WriteCommand(const map<string, string>& env_vars,
 
   // Execute command
   out.append(" eval '(");
-  out.append(Makefile::Escape(cmd));
+  if (escape_command_) {
+    out.append(Makefile::Escape(cmd));
+  } else {
+    out.append(cmd);
+  }
   out.append(")'");
 
   // Logfile, if any
