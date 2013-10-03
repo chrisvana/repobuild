@@ -12,11 +12,11 @@
 #include "common/strings/path.h"
 #include "common/util/stl.h"
 #include "repobuild/env/input.h"
-#include "repobuild/json/json.h"
 #include "repobuild/nodes/node.h"
 #include "repobuild/nodes/allnodes.h"
 #include "repobuild/reader/buildfile.h"
 #include "repobuild/reader/parser.h"
+#include "repobuild/third_party/json/json.h"
 
 using std::map;
 using std::set;

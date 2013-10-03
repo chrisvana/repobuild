@@ -8,7 +8,7 @@
                        "//common/file:fileutil",
                        "//common/strings:strutil",
                        "//repobuild/env:resource",
-                       "//repobuild/json:json"
+                       "//repobuild/third_party/json:json"
      ]
    }
  },
@@ -23,8 +23,8 @@
                        "//common/util:stl",
                        "//repobuild/env:input",
                        "//repobuild/env:target",
-                       "//repobuild/json:json",
                        "//repobuild/nodes:allnodes",
+                       "//repobuild/third_party/json:json",
                        ":buildfile"
      ]
    }

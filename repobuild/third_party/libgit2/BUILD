@@ -10,7 +10,7 @@
    "name": "libgit2",
    "strict_file_mode": false,
    "cc_objects": [ "$GEN_DIR/build/libgit2.a" ],
-   "cc_headers": [ "include/git.h",
+   "cc_headers": [ "include/git2.h",
                    "include/*/*.h",
                    "include/*/*/*.h" ],
    "include_dirs": [ "include" ],

@@ -28,6 +28,7 @@
                        "//repobuild/env:resource",
                        "//repobuild/env:target",
                        "//repobuild/reader:buildfile",
+                       "//repobuild/third_party/json:json",
                        ":makefile",
                        ":util"
     ]

@@ -14,10 +14,10 @@
 #include "common/strings/varmap.h"
 #include "common/util/stl.h"
 #include "repobuild/env/input.h"
-#include "repobuild/json/json.h"
 #include "repobuild/nodes/node.h"
 #include "repobuild/nodes/util.h"
 #include "repobuild/reader/buildfile.h"
+#include "repobuild/third_party/json/json.h"
 
 using std::map;
 using std::string;

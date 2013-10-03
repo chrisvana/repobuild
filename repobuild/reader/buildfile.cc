@@ -12,7 +12,7 @@
 #include "common/strings/varmap.h"
 #include "repobuild/env/resource.h"
 #include "repobuild/reader/buildfile.h"
-#include "repobuild/json/json.h"
+#include "repobuild/third_party/json/json.h"
 
 using std::set;
 using std::string;
