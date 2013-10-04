@@ -16,7 +16,7 @@ Mostly functional, but a work in progress (still in "beta" until [this](https://
 - Python
 - Java
 - Go
-- _TODO:_ Ruby
+- _TODO:_ Ruby, Javascript (compiler/minimizer), Scala (?), etc.
 
 ###### Current rules:
 - See [rules](https://github.com/chrisvana/repobuild/wiki/Rules)
