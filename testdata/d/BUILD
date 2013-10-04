@@ -2,7 +2,7 @@
 [
  { "gen_sh": {
      "name": "foo_gen",
-     "build_cmd": "./foo_gen.sh",
+     "build_cmd": "GEN_DIR=$GEN_DIR ./foo_gen.sh",
      "input_files": [ "foo_tmp.cc", "foo_tmp.h", "foo_gen.sh" ],
      "outs": [ "foo.cc", "foo.h" ]
  } },

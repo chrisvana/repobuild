@@ -140,13 +140,6 @@ static int hello_read(const char *path, char *buf, size_t size, off_t offset,
   return size;
 }
 
-static struct fuse_operations hello_filesystem_operations = {
-    .getattr = hello_getattr, /* To provide size, permissions, etc. */
-    .open    = hello_open,    /* To enforce read-only access.       */
-    .read    = hello_read,    /* To provide file content.           */
-    .readdir = hello_readdir, /* To provide directory listing.      */
-};
-
 int main(int argc, char** argv) {
   InitProgram(&argc, &argv);
   vector<char*> args;
@@ -158,6 +151,12 @@ int main(int argc, char** argv) {
     args.push_back(&str[0]);
   }
 
+  static struct fuse_operations hello_oper;
+  hello_oper.getattr = hello_getattr;
+  hello_oper.readdir = hello_readdir;
+  hello_oper.open = hello_open;
+  hello_oper.read = hello_read;
+
   std::cout << "Starting fuse mount." << std::endl;
-  return fuse_main(args.size(), &args[0], &hello_filesystem_operations, NULL);
+  return fuse_main(args.size(), &args[0], &hello_oper, NULL);
 }
