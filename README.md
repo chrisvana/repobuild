@@ -2,10 +2,14 @@ repobuild
 ==========
 
 ###### Summary
-Repobuild is a declarative style build system, similar to Google's BUILD file system of old (gconfig + make).<br/>
+- Repobuild is a declarative style build system, similar to Google's BUILD file system of old (gconfig + make).<br/>
+
+###### Why?
+- See Google annecdotes in [Motivation](https://github.com/chrisvana/repobuild/wiki/Motivation).
 
 ###### Status
-Mostly functional, but a work in progress (still in "beta" until [this](https://github.com/chrisvana/repobuild/wiki/Distributed-Source) is implemented).<br/>
+- Functional for Mac and Linux, but a work in progress.
+- Still in "beta" until [distributed source](https://github.com/chrisvana/repobuild/wiki/Distributed-Source) is implemented.
 
 ###### Background:
 - [Motivation](https://github.com/chrisvana/repobuild/wiki/Motivation) behind Repobuild
@@ -16,7 +20,7 @@ Mostly functional, but a work in progress (still in "beta" until [this](https://
 - Python
 - Java
 - Go
-- _TODO:_ Ruby
+- _TODO:_ Ruby, Javascript (compiler/minimizer), Scala (?), etc.
 
 ###### Current rules:
 - See [rules](https://github.com/chrisvana/repobuild/wiki/Rules)
@@ -54,7 +58,7 @@ $ ./go_main
 - Forum: https://groups.google.com/forum/#!forum/repobuild
 
 ###### Why is this built using C++?<br/>
-Actually this started in Go, and there is no good reason for C++. The first open source code I needed to use it on was in C++, and being able to build the tool using the tool sounded useful.
+Actually this started in Go, and there is no good reason for C++. The first open source code I needed to use it on was in C++, and being able to build the tool using the tool appealed to the geek in me.
 
 ###### TODOs
 https://github.com/chrisvana/repobuild/wiki/TODOs
