@@ -4,14 +4,11 @@ repobuild
 ###### Summary
 - Repobuild is a declarative style build system, similar to Google's BUILD file system of old (gconfig + make).<br/>
 
-###### Why?
-- See Google annecdotes in [Motivation](https://github.com/chrisvana/repobuild/wiki/Motivation).
-
 ###### Status
 - Functional for Mac and Linux, but a work in progress.
 - Still in "beta" until [distributed source](https://github.com/chrisvana/repobuild/wiki/Distributed-Source) is implemented.
 
-###### Background:
+###### Why?
 - [Motivation](https://github.com/chrisvana/repobuild/wiki/Motivation) behind Repobuild
 - [Similar build systems](https://github.com/chrisvana/repobuild/wiki/Similar-Build-Systems) to Repobuild
 
