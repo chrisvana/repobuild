@@ -56,7 +56,7 @@ $ ./go_main
 - Try a [tuturial](https://github.com/chrisvana/repobuild/wiki/Repobuild-Cpp-Tutorial)
 - Look at some [examples](https://github.com/chrisvana/repobuild/wiki/Examples)
 - Start playing with your own project.
-- You can add submodules/forks to "third_party" if you like.
+- You can add submodules to "third_party" if you like.
 - Forum: https://groups.google.com/forum/#!forum/repobuild
 
 ###### Why is this built using C++?<br/>
