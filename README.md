@@ -23,6 +23,11 @@ repobuild
 - See [rules](https://github.com/chrisvana/repobuild/wiki/Rules)
 
 --
+###### Dependencies
+- git
+- gcc or clang that supports c++11
+- make
+
 ###### Building the tool
 ```
 # Build it:
