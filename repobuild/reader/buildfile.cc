@@ -10,6 +10,7 @@
 #include "common/strings/path.h"
 #include "common/strings/strutil.h"
 #include "common/strings/varmap.h"
+#include "repobuild/distsource/dist_source.h"
 #include "repobuild/env/resource.h"
 #include "repobuild/reader/buildfile.h"
 #include "repobuild/third_party/json/json.h"
@@ -53,8 +54,9 @@ void BuildFile::Parse(const string& input) {
   if (!ok) {
     LOG(FATAL) << "Reader error for "
                << filename()
-               << ": "
-               << reader.getFormattedErrorMessages();
+               << ":\n "
+               << reader.getFormattedErrorMessages()
+               << "\n\n (check for spurious commas).\n\n";
   }
   CHECK(root.isArray()) << root;
 
@@ -76,8 +78,10 @@ void BuildFile::MergeParent(BuildFile* parent) {
   }
 }
 
-BuildFileNodeReader::BuildFileNodeReader(const BuildFileNode& node)
+BuildFileNodeReader::BuildFileNodeReader(const BuildFileNode& node,
+                                         DistSource* source)
     : input_(node),
+      dist_source_(source),
       var_map_true_(new strings::VarMap),
       var_map_false_(new strings::VarMap),
       strict_file_mode_(true) {
@@ -161,6 +165,11 @@ void BuildFileNodeReader::ParseFilesFromString(const vector<string>& input,
         glob = file;
         break;
       }
+    }
+
+    // Make sure we actually have this directory loaded in our system.
+    if (dist_source_ != NULL) {
+      dist_source_->InitializeForFile(glob);
     }
 
     vector<string> tmp;

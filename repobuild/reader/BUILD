@@ -7,6 +7,7 @@
                        "//common/log:log",
                        "//common/file:fileutil",
                        "//common/strings:strutil",
+                       "//repobuild/distsource:dist_source",
                        "//repobuild/env:resource",
                        "//repobuild/third_party/json:json"
      ]
@@ -21,6 +22,7 @@
                        "//common/file:fileutil",
                        "//common/strings:strutil",
                        "//common/util:stl",
+                       "//repobuild/distsource:dist_source",
                        "//repobuild/env:input",
                        "//repobuild/env:target",
                        "//repobuild/nodes:allnodes",

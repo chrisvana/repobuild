@@ -4,23 +4,23 @@
 #ifndef _REPOBUILD_GENERATOR_GENERATOR_H__
 #define _REPOBUILD_GENERATOR_GENERATOR_H__
 
-#include <memory>
 #include <string>
 
 namespace repobuild {
 
+class DistSource;
 class Input;
 class Parser;
 
 class Generator {
  public:
-  Generator();
+  explicit Generator(DistSource* source);
   ~Generator();
 
   std::string GenerateMakefile(const Input& input);
 
  private:
-  std::unique_ptr<Parser> parser_;
+  DistSource* source_;  // not owned
 };
 
 }  // namespace repobuild

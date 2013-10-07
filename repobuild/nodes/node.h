@@ -23,6 +23,7 @@
 
 namespace repobuild {
 class ComponentHelper;
+class DistSource;
 class Input;
 
 class Node {
@@ -41,6 +42,7 @@ class Node {
   virtual ~Node();
 
   // Initialization
+  virtual void InitializeSource(DistSource* source) { dist_source_ = source; }
   virtual void Parse(BuildFile* file, const BuildFileNode& input);
   virtual void PostParse();
 
@@ -217,6 +219,7 @@ class Node {
   // Input info.
   TargetInfo target_;
   const Input* input_;
+  DistSource* dist_source_;
   std::vector<TargetInfo> dep_targets_, required_parents_;
   std::string src_dir_, obj_dir_, gen_dir_, package_dir_;
   std::string relative_root_dir_, relative_src_dir_;

@@ -60,6 +60,7 @@ namespace repobuild {
 
 Input::Input() {
   root_dir_ = FLAGS_root_dir;
+  full_root_dir_ = strings::JoinPath(strings::CurrentPath(), root_dir_);
   object_dir_ = FLAGS_object_dir;
   genfile_dir_ = FLAGS_genfile_dir;
   source_dir_ = FLAGS_source_dir;

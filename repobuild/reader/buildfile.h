@@ -19,7 +19,7 @@ class VarMap;
 }
 
 namespace repobuild {
-
+class DistSource;
 class Resource;
 
 class BuildFileNode {
@@ -65,7 +65,8 @@ class BuildFile {
 //  Helper that makes it easier to parse a BuildFileNode.
 class BuildFileNodeReader {
  public:
-  explicit BuildFileNodeReader(const BuildFileNode& node);
+  BuildFileNodeReader(const BuildFileNode& node,
+                      DistSource* dist_source);
   ~BuildFileNodeReader();
 
   // Mutators
@@ -119,6 +120,7 @@ class BuildFileNodeReader {
   std::string RewriteSingleString(bool mode, const std::string& str) const;
 
   const BuildFileNode& input_;
+  DistSource* dist_source_;
   std::unique_ptr<strings::VarMap> var_map_true_;
   std::unique_ptr<strings::VarMap> var_map_false_;
   std::set<std::string> abs_prefix_;

@@ -1,7 +1,10 @@
 [
 { "cmake": {
    "name": "libgit2_cmake",
-   "cmake_args": [ "-DBUILD_SHARED_LIBS=OFF" ],
+   "cmake_args": [ "-DBUILD_SHARED_LIBS=OFF",
+                   "-DENABLE_SYSTEM_SSL=OFF",
+                   "-DENABLE_SYSTEM_ZLIB=OFF"
+   ],
    "outs": [
      "build/libgit2.a"
    ]

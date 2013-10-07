@@ -12,6 +12,7 @@
                      "//common/file:fileutil",
                      "//common/strings:stringpiece",
                      "//common/strings:strutil",
+                     "//repobuild/distsource:dist_source_impl",
                      "//repobuild/env:input",
                      "//repobuild/env:target",
                      "//repobuild/generator:generator"

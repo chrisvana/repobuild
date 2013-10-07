@@ -25,6 +25,7 @@
 #include "common/strings/path.h"
 #include "common/strings/strutil.h"
 #include "common/strings/stringpiece.h"
+#include "repobuild/distsource/dist_source_impl.h"
 #include "repobuild/env/input.h"
 #include "repobuild/env/target.h"
 #include "repobuild/generator/generator.h"
@@ -99,9 +100,13 @@ int main(int argc, char** argv) {
     ParseArg(true, args[i], &input);
   }
 
+  // Set up our distributed source tree.
+  repobuild::DistSourceImpl source(input.full_root_dir());
+
   // Generate the output Makefile.
-  repobuild::Generator generator;
+  repobuild::Generator generator(&source);
   file::WriteFileOrDie(strings::JoinPath(input.root_dir(), FLAGS_makefile),
                        generator.GenerateMakefile(input));
+
   return 0;
 }

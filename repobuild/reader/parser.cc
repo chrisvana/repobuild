@@ -11,6 +11,7 @@
 #include "common/file/fileutil.h"
 #include "common/strings/path.h"
 #include "common/util/stl.h"
+#include "repobuild/distsource/dist_source.h"
 #include "repobuild/env/input.h"
 #include "repobuild/nodes/node.h"
 #include "repobuild/nodes/allnodes.h"
@@ -32,6 +33,7 @@ namespace {
 Node* ParseNode(const NodeBuilderSet* builder_set,
                 BuildFile* file,
                 BuildFileNode* file_node,
+                DistSource* dist_source,
                 const Input& input,
                 const string& key) {
   const Json::Value& value = file_node->object()[key];
@@ -52,6 +54,7 @@ Node* ParseNode(const NodeBuilderSet* builder_set,
   TargetInfo target(":" + node_name, file->filename());
   Node* node = builder_set->NewNode(key, target, input);
   LOG_IF(FATAL, node == NULL) << "Uknown build rule: " << key;
+  node->InitializeSource(dist_source);
   node->Parse(file, BuildFileNode(value));
   return node;
 }
@@ -74,8 +77,11 @@ bool UserInputHasTarget(const Input& input, const Node& node) {
 //  This does the heavy lifting of parsing a set of dependent build files.
 class Graph {
  public:
-  Graph(const Input& input, const NodeBuilderSet* builder_set)
+  Graph(const Input& input,
+        const NodeBuilderSet* builder_set,
+        DistSource* dist_source)
       : input_(input),
+        dist_source_(dist_source),
         builder_set_(builder_set) {
     Parse();
   }
@@ -160,6 +166,7 @@ class Graph {
     }
 
     // Initialize our parents (recursive, it calls back into AddFile).
+    dist_source_->InitializeForFile(filename);
     BuildFile* file =  new BuildFile(filename);
     build_files_[filename] = file;
     ProcessParent(file);  // inherit anything we need to from parents.
@@ -175,7 +182,9 @@ class Graph {
           << "Expected json object (file = " << file->filename() << "): "
           << node->object();
       for (const string& key : node->object().getMemberNames()) {
-        SaveNode(ParseNode(builder_set_, file, node, input_, key), &nodes);
+        SaveNode(ParseNode(builder_set_, file, node,
+                           dist_source_, input_, key),
+                 &nodes);
       }
     }
 
@@ -274,6 +283,7 @@ class Graph {
 
   // Our inputs
   const Input& input_;
+  DistSource* dist_source_;
 
   // The generated data.
   const NodeBuilderSet* builder_set_;
@@ -287,8 +297,9 @@ class Graph {
 };
 }
 
-Parser::Parser(const NodeBuilderSet* builder_set)
-    : builder_set_(builder_set) {
+Parser::Parser(const NodeBuilderSet* builder_set, DistSource* source)
+    : builder_set_(builder_set),
+      dist_source_(source) {
 }
 
 Parser::~Parser() {
@@ -298,7 +309,7 @@ Parser::~Parser() {
 void Parser::Parse(const Input& input) {
   Reset();
 
-  Graph graph(input, builder_set_);
+  Graph graph(input, builder_set_, dist_source_);
   graph.Extract(&input_nodes_, &all_nodes_, &builds_);
   for (auto it : all_nodes_) {
     all_node_vec_.push_back(it.second);

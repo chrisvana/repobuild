@@ -7,6 +7,7 @@
 #include <string>
 #include "common/log/log.h"
 #include "common/util/stl.h"
+#include "repobuild/distsource/dist_source.h"
 #include "repobuild/env/input.h"
 #include "repobuild/env/resource.h"
 #include "repobuild/generator/generator.h"
@@ -48,7 +49,8 @@ void ExpandNode(const Parser& parser,
 
 }  // anonymous namespace
 
-Generator::Generator() {
+Generator::Generator(DistSource* source)
+    : source_(source) {
 }
 
 Generator::~Generator() {
@@ -65,7 +67,7 @@ string Generator::GenerateMakefile(const Input& input) {
   builder_set.WriteMakeHead(input, &out);
 
   // Get our input tree of nodes.
-  repobuild::Parser parser(&builder_set);
+  repobuild::Parser parser(&builder_set, source_);
   parser.Parse(input);
 
   // Figure out the order we want to write in our Makefile.

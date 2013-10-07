@@ -30,6 +30,7 @@ namespace repobuild {
 Node::Node(const TargetInfo& target, const Input& input)
     : target_(target),
       input_(&input),
+      dist_source_(NULL),
       strict_file_mode_(true) {
   gen_dir_ = strings::JoinPath(input.genfile_dir(), target.dir());
   src_dir_ = strings::JoinPath(input.source_dir(), target.dir());
@@ -127,7 +128,7 @@ void Node::AddSubNode(Node* node) {
 }
 
 BuildFileNodeReader* Node::NewBuildReader(const BuildFileNode& node) const {
-  BuildFileNodeReader* reader = new BuildFileNodeReader(node);
+  BuildFileNodeReader* reader = new BuildFileNodeReader(node, dist_source_);
   reader->SetReplaceVariable(false, "GEN_DIR", GenDir());
   reader->SetReplaceVariable(true, "GEN_DIR", RelativeGenDir());
   reader->SetReplaceVariable(false, "OBJ_DIR", ObjectDir());
