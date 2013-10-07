@@ -51,7 +51,7 @@ $ ./go_main
 ```
 
 ###### What should you do now?
-- Try a [tuturial](https://github.com/chrisvana/repobuild/wiki/Repobuild-Cpp-Tutorial)
+- Try a [tutorial](https://github.com/chrisvana/repobuild/wiki/Repobuild-Cpp-Tutorial)
 - Look at some [examples](https://github.com/chrisvana/repobuild/wiki/Examples)
 - Start playing with your own project.
 - You can add submodules to "third_party" if you like.
