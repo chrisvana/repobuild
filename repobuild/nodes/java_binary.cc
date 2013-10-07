@@ -56,7 +56,7 @@ void JavaBinaryNode::LocalWriteMake(Makefile* out) const {
   // "Binary"
   Resource bin = BinScript();
   Resource jar = JarName();
-  Makefile::Rule* rule = out->StartRule(bin.path(), jar.basename());
+  Makefile::Rule* rule = out->StartRule(bin.path(), jar.path());
   rule->WriteCommand("echo 'java -jar $$(pwd)/$$(dirname $$0)/" +
                      jar.basename() + "' > " + bin.path() +
                      "; chmod 755 " + bin.path());
