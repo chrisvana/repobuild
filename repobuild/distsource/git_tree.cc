@@ -13,11 +13,13 @@
 #include "common/strings/strutil.h"
 #include "common/util/stl.h"
 #include "repobuild/distsource/git_tree.h"
+#include "repobuild/nodes/makefile.h"
 extern "C" {
 #include "repobuild/third_party/libgit2/include/git2.h"
 }
 
 using std::map;
+using std::set;
 using std::string;
 using std::unique_ptr;
 
@@ -122,10 +124,25 @@ void GitTree::ExpandChild(const string& path) {
       if (!tree->Initialized()) {
         InitializeSubmodule(submodule, tree);
       }
+      used_submodules_.insert(submodule);
       tree->ExpandChild(path.substr(submodule.size() + 1));
+      break;
     }
   }
   VLOG_IF(1, !found_anything) << "Path not found in submodules: " << path;
+}
+
+void GitTree::RecordFile(const string& path) {
+  for (auto it : children_) {
+    const string& submodule = it.first;
+    GitTree* tree = it.second;
+    if (strings::HasPrefix(path, submodule)) {
+      used_submodules_.insert(submodule);
+      tree->RecordFile(path.substr(submodule.size() + 1));
+      return;
+    }
+  }
+  seen_files_.insert(path);
 }
 
 void GitTree::InitializeSubmodule(const string& submodule, GitTree* sub_tree) {
@@ -141,6 +158,65 @@ void GitTree::InitializeSubmodule(const string& submodule, GitTree* sub_tree) {
                << ". Possible git error.";
   }
   sub_tree->Reset();
+}
+
+void GitTree::WriteMakeFile(Makefile* out) const {
+  WriteMakeFile(out, "", "");
+}
+
+void GitTree::WriteMakeFile(Makefile* out,
+                            const string& full_dir,
+                            const string& parent) const {
+  string current_dir = strings::JoinPath(out->root_dir(), full_dir);
+  string current_scratch_dir = strings::JoinPath(out->scratch_dir(),
+                                                 full_dir);
+  string current_git_file = strings::JoinPath(current_dir, ".git");
+
+  for (const string& submodule : used_submodules_) {
+    GitTree* tree = FindPtrOrNull(children_, submodule);
+    CHECK(tree);
+
+    // Dest directory info.
+    string dest_dir = strings::JoinPath(current_dir, submodule);
+    string dest_scratch_dir = strings::JoinPath(current_scratch_dir, submodule);
+
+    // Git file
+    string dest_git_file = strings::JoinPath(dest_dir, ".git");
+
+    string touchfile = strings::JoinPath(dest_scratch_dir, ".git_tree.dummy");
+
+    Makefile::Rule* rule = out->StartPrereqRule(touchfile, parent);
+
+    // Target dir exists, target .git doesn't, and current .git does.
+    rule->WriteUserEcho("Sourcing",
+                        "//" + strings::JoinPath(full_dir, submodule) +
+                        " (git submodule)");
+    rule->WriteCommand("[ -d " + dest_dir + " -a " +
+                       "! -f " + dest_git_file + " -a " +
+                       " -e " + current_git_file + " ] && "
+                       "(cd " + current_dir + "; "
+                       "git submodule update --init " + submodule +
+                       " || exit 1); true");
+    rule->WriteCommand("mkdir -p " + dest_scratch_dir);
+    rule->WriteCommand("touch " + touchfile);
+    out->FinishRule(rule);
+
+    tree->WriteMakeFile(out, dest_dir, touchfile);
+  }
+
+  // Now point all files at our rule.
+  if (!parent.empty()) {
+    for (const string& file : seen_files_) {
+      string path = strings::JoinPath(current_dir, file);
+      if (!out->seen_rule(path)) {
+        out->FinishRule(out->StartPrereqRule(path, parent));
+      }
+    }
+  }
+}
+
+void GitTree::WriteMakeClean(Makefile::Rule* out) const {
+  // Placeholder.
 }
 
 }  // namespace repobuild

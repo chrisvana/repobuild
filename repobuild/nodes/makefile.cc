@@ -1,17 +1,35 @@
 // Copyright 2013
 // Author: Christopher Van Arsdale
 
+#include <string>
+#include <set>
 #include "common/strings/path.h"
 #include "common/strings/strutil.h"
 #include "repobuild/nodes/makefile.h"
 
+using std::set;
 using std::string;
 
 namespace repobuild {
+namespace {
+const char kPrereqRuleFile[] = ".dummy.prereqs";
+}  // anonymous namespace
+
+Makefile::Rule* Makefile::StartRawRule(const string& rule,
+                                       const string& dependencies) {
+  return new Rule(rule, dependencies, silent_);
+}
+
+Makefile::Rule* Makefile::StartPrereqRule(const string& rule,
+                                          const string& dependencies) {
+  prereq_rules_.insert(rule);
+  return StartRawRule(rule, dependencies);
+}
 
 Makefile::Rule* Makefile::StartRule(const string& rule,
                                     const string& dependencies) {
-  return new Rule(rule, dependencies, silent_);
+  return StartRawRule(rule, strings::JoinWith(" ", dependencies,
+                                              GetPrereqFile()));
 }
 
 void Makefile::FinishRule(Makefile::Rule* rule) {
@@ -60,7 +78,7 @@ void Makefile::Rule::WriteUserEcho(const string& name,
                                      value.c_str()));
 }
 
-void Makefile::Rule::MaybeRemoveSymlink(const std::string& path) {
+void Makefile::Rule::MaybeRemoveSymlink(const string& path) {
   WriteCommand("[ -L " + path + " ] && rm -f " + path + " || true");
 }
 
@@ -85,9 +103,9 @@ void Makefile::WriteRootSymlinkWithDependency(const string& symlink_file,
   FinishRule(rule);
 }
 
-void Makefile::GenerateExecFile(const std::string& name,
-                                const std::string& file_path,
-                                const std::string& value) {
+void Makefile::GenerateExecFile(const string& name,
+                                const string& file_path,
+                                const string& value) {
   append("define " + name + "\n");
   append(strings::Base64Encode(value));
   append("\nendef\n");
@@ -97,6 +115,18 @@ void Makefile::GenerateExecFile(const std::string& name,
                      + file_path);
   rule->WriteCommand("chmod 0755 " + file_path);
   FinishRule(rule);
+}
+
+void Makefile::FinishMakefile() {
+  Rule* rule = StartRawRule(GetPrereqFile(),
+                            strings::JoinAll(prereq_rules_, " "));
+  rule->WriteCommand("mkdir -p " + scratch_dir_);
+  rule->WriteCommand("touch " + GetPrereqFile());
+  FinishRule(rule);
+}
+
+string Makefile::GetPrereqFile() const {
+  return scratch_dir_ + "/" + kPrereqRuleFile;
 }
 
 // static

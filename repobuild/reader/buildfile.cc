@@ -52,11 +52,11 @@ void BuildFile::Parse(const string& input) {
   Json::Reader reader;
   bool ok = reader.parse(input, root);
   if (!ok) {
-    LOG(FATAL) << "Reader error for "
+    LOG(FATAL) << "BUILD file reader error\n\nIn "
                << filename()
                << ":\n "
                << reader.getFormattedErrorMessages()
-               << "\n\n (check for spurious commas).\n\n";
+               << "\n\n(check for missing/spurious commas).\n\n";
   }
   CHECK(root.isArray()) << root;
 
@@ -168,13 +168,8 @@ void BuildFileNodeReader::ParseFilesFromString(const vector<string>& input,
     }
 
     // Make sure we actually have this directory loaded in our system.
-    if (dist_source_ != NULL) {
-      dist_source_->InitializeForFile(glob);
-    }
-
     vector<string> tmp;
-    CHECK(file::Glob(glob, &tmp))
-        << "Could not run glob(" << glob << "), bad filesystem permissions?";
+    dist_source_->InitializeForFile(glob, &tmp);
     if (tmp.empty()) {
       if (strict_file_mode) {
         LOG(FATAL) << "No matched files: " << file

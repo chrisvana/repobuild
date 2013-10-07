@@ -166,7 +166,7 @@ class Graph {
     }
 
     // Initialize our parents (recursive, it calls back into AddFile).
-    dist_source_->InitializeForFile(filename);
+    dist_source_->InitializeForFile(filename, NULL /* ignored */);
     BuildFile* file =  new BuildFile(filename);
     build_files_[filename] = file;
     ProcessParent(file);  // inherit anything we need to from parents.

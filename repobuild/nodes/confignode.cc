@@ -103,7 +103,7 @@ void ConfigNode::AddSymlink(const string& dir,
   Makefile::Rule* rule = out->StartRule(dir);
   rule->WriteCommand(strings::Join(
       "mkdir -p ", strings::PathDirname(dir), "; ",
-      "[ -f ", source, " ] || mkdir -p ", source, "; ",
+      "[ -d ", source, " ] || mkdir -p ", source, "; ",
       "ln -f -s ", link, " ", dir));
   out->FinishRule(rule);
 

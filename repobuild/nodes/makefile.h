@@ -12,10 +12,17 @@ namespace repobuild {
 
 class Makefile {
  public:
-  Makefile() :silent_(true) {}
+  explicit Makefile(const std::string& root_dir,
+                    const std::string& scratch_dir) 
+      : silent_(true),
+        root_dir_(root_dir),
+        scratch_dir_(scratch_dir) {
+  }
   ~Makefile() {}
 
   // Options
+  const std::string& root_dir() const { return root_dir_; }
+  const std::string& scratch_dir() const { return scratch_dir_; }
   void SetSilent(bool silent) { silent_ = silent; }
 
   class Rule {
@@ -48,9 +55,14 @@ class Makefile {
   void WriteRule(const std::string& rule, const std::string& deps) {
     FinishRule(StartRule(rule, deps));
   }
+  Rule* StartPrereqRule(const std::string& rule,
+                        const std::string& dependencies);
+
   bool seen_rule(const std::string& rule) const {
     return registered_rules_.find(rule) != registered_rules_.end();
   }
+
+  void FinishMakefile();
 
   // Full access.
   std::string* mutable_out() { return &out_; }
@@ -77,9 +89,16 @@ class Makefile {
   static std::string Escape(const std::string& input);
 
  private:
+  Rule* StartRawRule(const std::string& rule,
+                     const std::string& dependencies);
+
+  std::string GetPrereqFile() const;
+
   bool silent_;
+  std::string root_dir_, scratch_dir_;
   std::string out_;
   std::set<std::string> registered_rules_;
+  std::set<std::string> prereq_rules_;
 };
 
 }  // namespace repobuild

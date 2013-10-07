@@ -6,6 +6,8 @@
 
 #include <memory>
 #include <string>
+#include <vector>
+#include "common/base/macros.h"
 #include "repobuild/distsource/dist_source.h"
 
 namespace repobuild {
@@ -16,9 +18,14 @@ class DistSourceImpl : public DistSource {
   explicit DistSourceImpl(const std::string& root_dir);
   virtual ~DistSourceImpl();
 
-  virtual void InitializeForFile(const std::string& file);
+  virtual void InitializeForFile(const std::string& glob,
+                                 std::vector<std::string>* files);
+  virtual void WriteMakeFile(Makefile* out);
+  virtual void WriteMakeClean(Makefile::Rule* out);
 
  private:
+  DISALLOW_COPY_AND_ASSIGN(DistSourceImpl);
+
   std::unique_ptr<GitTree> git_tree_;
 };
 
