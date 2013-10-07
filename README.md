@@ -6,7 +6,7 @@ repobuild
 
 ###### Status
 - Functional for Mac and Linux, but a work in progress.
-- Still in "beta" until [distributed source](https://github.com/chrisvana/repobuild/wiki/Distributed-Source) is implemented.
+- In beta, some rules may change.
 
 ###### Why?
 - [Motivation](https://github.com/chrisvana/repobuild/wiki/Motivation) behind Repobuild
@@ -17,7 +17,7 @@ repobuild
 - Python
 - Java
 - Go
-- _TODO:_ Ruby, Javascript (compiler/minimizer), Scala (?), etc.
+- _TODO:_ Ruby, Javascript (compiler/minimizer), Scala, etc.
 
 ###### Current rules:
 - See [rules](https://github.com/chrisvana/repobuild/wiki/Rules)
@@ -33,8 +33,6 @@ repobuild
 # Build it:
 $ git clone https://github.com/chrisvana/repobuild.git
 $ cd repobuild
-$ git submodule init
-$ git submodule update
 $ make -j8 repobuild
 
 # Install somewhere in your path
@@ -53,7 +51,7 @@ $ ./go_main
 ```
 
 ###### What should you do now?
-- Try a [tuturial](https://github.com/chrisvana/repobuild/wiki/Repobuild-Cpp-Tutorial)
+- Try a [tutorial](https://github.com/chrisvana/repobuild/wiki/Repobuild-Cpp-Tutorial)
 - Look at some [examples](https://github.com/chrisvana/repobuild/wiki/Examples)
 - Start playing with your own project.
 - You can add submodules to "third_party" if you like.
