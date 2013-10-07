@@ -14,8 +14,9 @@ namespace repobuild {
 class CCLibraryNode : public Node {
  public:
   CCLibraryNode(const TargetInfo& t,
-                const Input& i)
-      : Node(t, i) {
+                const Input& i,
+                DistSource* source)
+      : Node(t, i, source) {
   }
   virtual ~CCLibraryNode() {}
   virtual void Parse(BuildFile* file, const BuildFileNode& input);

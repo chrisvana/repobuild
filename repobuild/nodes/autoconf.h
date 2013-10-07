@@ -12,8 +12,9 @@ namespace repobuild {
 class AutoconfNode : public Node {
  public:
   AutoconfNode(const TargetInfo& t,
-                   const Input& i)
-      : Node(t, i) {
+               const Input& i,
+               DistSource* s)
+      : Node(t, i, s) {
   }
   virtual ~AutoconfNode() {}
   virtual void Parse(BuildFile* file, const BuildFileNode& input);

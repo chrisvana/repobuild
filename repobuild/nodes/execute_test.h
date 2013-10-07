@@ -15,7 +15,9 @@ namespace repobuild {
 
 class ExecuteTestNode : public Node {
  public:
-  ExecuteTestNode(const TargetInfo& target, const Input& input);
+  ExecuteTestNode(const TargetInfo& target,
+                  const Input& input,
+                  DistSource* source);
   virtual ~ExecuteTestNode();
 
   virtual bool IncludeInAll() const { return false; }
@@ -33,14 +35,16 @@ class ExecuteTestNode : public Node {
 template <class T>
 class ExecuteTestNodeImpl : public ExecuteTestNode {
  public:
-  ExecuteTestNodeImpl(const TargetInfo& target, const Input& input)
-      : ExecuteTestNode(target, input) {
+  ExecuteTestNodeImpl(const TargetInfo& target,
+                      const Input& input,
+                      DistSource* source)
+      : ExecuteTestNode(target, input, source) {
   }
   virtual ~ExecuteTestNodeImpl() {}
 
   virtual void Parse(BuildFile* file, const BuildFileNode& input) {
     // binary node
-    Node* subnode = new T(orig_target_, Node::input());
+    Node* subnode = new T(orig_target_, Node::input(), Node::dist_source());
     subnode->Parse(file, input);
     AddSubNode(subnode);
 

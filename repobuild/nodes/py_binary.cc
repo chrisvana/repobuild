@@ -24,6 +24,7 @@ void PyBinaryNode::Parse(BuildFile* file, const BuildFileNode& input) {
   AddSubNode(new TopSymlinkNode(
       target().GetParallelTarget(file->NextName(target().local_path())),
       Node::input(),
+      Node::dist_source(),
       binaries));
 }
 

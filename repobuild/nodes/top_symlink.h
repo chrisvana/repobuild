@@ -14,6 +14,7 @@ class TopSymlinkNode : public Node {
  public:
   TopSymlinkNode(const TargetInfo& target,
                  const Input& input,
+                 DistSource* source,
                  const ResourceFileSet& input_binaries);
   virtual ~TopSymlinkNode();
   virtual void LocalWriteMakeClean(Makefile::Rule* out) const;

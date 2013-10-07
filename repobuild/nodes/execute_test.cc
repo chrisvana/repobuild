@@ -15,8 +15,12 @@ using std::vector;
 
 namespace repobuild {
   
-ExecuteTestNode::ExecuteTestNode(const TargetInfo& target, const Input& input)
-    : Node(target.GetParallelTarget(target.local_path() + ".test"), input),
+ExecuteTestNode::ExecuteTestNode(const TargetInfo& target,
+                                 const Input& input,
+                                 DistSource* source)
+    : Node(target.GetParallelTarget(target.local_path() + ".test"),
+           input,
+           source),
       orig_target_(target) {
 }
 

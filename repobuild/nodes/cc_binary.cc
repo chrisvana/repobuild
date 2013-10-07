@@ -28,6 +28,7 @@ void CCBinaryNode::Parse(BuildFile* file, const BuildFileNode& input) {
   AddSubNode(new TopSymlinkNode(
       GetNextTargetName(file),
       Node::input(),
+      Node::dist_source(),
       binaries));
 }
 

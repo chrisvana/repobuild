@@ -198,7 +198,8 @@ void GitTree::WriteMakeFile(Makefile* out,
                        "git submodule update --init " + submodule +
                        " || exit 1); true");
     rule->WriteCommand("mkdir -p " + dest_scratch_dir);
-    rule->WriteCommand("touch " + touchfile);
+    rule->WriteCommand("[ -f " + touchfile + " ] || "
+                       "touch -t 197101010000 " + touchfile);
     out->FinishRule(rule);
 
     tree->WriteMakeFile(out, dest_dir, touchfile);
@@ -209,7 +210,7 @@ void GitTree::WriteMakeFile(Makefile* out,
     for (const string& file : seen_files_) {
       string path = strings::JoinPath(current_dir, file);
       if (!out->seen_rule(path)) {
-        out->FinishRule(out->StartPrereqRule(path, parent));
+        out->FinishRule(out->StartRawRule(path, parent));
       }
     }
   }

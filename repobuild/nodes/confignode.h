@@ -14,7 +14,7 @@ class ComponentHelper;
 
 class ConfigNode : public Node {
  public:
-  ConfigNode(const TargetInfo& t, const Input& i);
+  ConfigNode(const TargetInfo& t, const Input& i, DistSource* source);
   virtual ~ConfigNode();
   virtual std::string Name() const { return "config"; }
   virtual void Parse(BuildFile* file, const BuildFileNode& input);

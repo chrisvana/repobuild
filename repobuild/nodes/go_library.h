@@ -14,7 +14,7 @@ class ComponentHelper;
 
 class GoLibraryNode : public Node {
  public:
-  GoLibraryNode(const TargetInfo& t, const Input& i);
+  GoLibraryNode(const TargetInfo& t, const Input& i, DistSource* s);
   virtual ~GoLibraryNode();
   virtual void Parse(BuildFile* file, const BuildFileNode& input);
   virtual void LocalWriteMake(Makefile* out) const {

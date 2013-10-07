@@ -12,8 +12,9 @@ namespace repobuild {
 class MakeNode : public Node {
  public:
   MakeNode(const TargetInfo& t,
-                   const Input& i)
-      : Node(t, i) {
+           const Input& i,
+           DistSource* s)
+      : Node(t, i, s) {
   }
   virtual ~MakeNode() {}
   virtual void Parse(BuildFile* file, const BuildFileNode& input) {

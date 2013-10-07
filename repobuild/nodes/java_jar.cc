@@ -29,6 +29,10 @@ void JavaJarNode::Parse(BuildFile* file, const BuildFileNode& input) {
 }
 
 void JavaJarNode::LocalWriteMake(Makefile* out) const {
+  LocalWriteMakeInternal(true, out);
+}
+
+void JavaJarNode::LocalWriteMakeInternal(bool write_base, Makefile* out) const {
   JavaLibraryNode::LocalWriteMakeInternal(false, out);
   WriteJar(JarName(), out);
   WriteBaseUserTarget(out);

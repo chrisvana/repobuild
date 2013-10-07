@@ -52,9 +52,8 @@ Node* ParseNode(const NodeBuilderSet* builder_set,
 
   // Generate the node.
   TargetInfo target(":" + node_name, file->filename());
-  Node* node = builder_set->NewNode(key, target, input);
+  Node* node = builder_set->NewNode(key, target, input, dist_source);
   LOG_IF(FATAL, node == NULL) << "Uknown build rule: " << key;
-  node->InitializeSource(dist_source);
   node->Parse(file, BuildFileNode(value));
   return node;
 }

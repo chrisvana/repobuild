@@ -37,8 +37,9 @@ class NodeBuilderImpl : public NodeBuilder {
   NodeBuilderImpl(const std::string& name) : name_(name) {}
   virtual std::string Name() const { return name_; }
   virtual Node* NewNode(const TargetInfo& target,
-                        const Input& input) {
-    return new T(target, input);
+                        const Input& input,
+                        DistSource* source) {
+    return new T(target, input, source);
   }
   virtual void WriteMakeHead(const Input& input, Makefile* out) {}
   virtual void FinishMakeFile(const Input& input,
@@ -127,12 +128,13 @@ void NodeBuilderSet::Init(const vector<NodeBuilder*>& nodes) {
 
 Node* NodeBuilderSet::NewNode(const string& name,
                               const TargetInfo& target,
-                              const Input& input) const {
+                              const Input& input,
+                              DistSource* source) const {
   auto it = nodes_.find(name);
   if (it == nodes_.end()) {
     return NULL;
   }
-  return it->second->NewNode(target, input);
+  return it->second->NewNode(target, input, source);
 }
 
 void NodeBuilderSet::WriteMakeHead(const Input& input, Makefile* makefile) {

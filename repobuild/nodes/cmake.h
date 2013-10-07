@@ -12,8 +12,9 @@ namespace repobuild {
 class CmakeNode : public Node {
  public:
   CmakeNode(const TargetInfo& t,
-                   const Input& i)
-      : Node(t, i) {
+            const Input& i,
+            DistSource* s)
+      : Node(t, i, s) {
   }
   virtual ~CmakeNode() {}
   virtual void Parse(BuildFile* file, const BuildFileNode& input);

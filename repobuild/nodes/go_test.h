@@ -13,8 +13,8 @@ namespace repobuild {
 
 class GoTestNode : public GoLibraryNode {
  public:
-  GoTestNode(const TargetInfo& t, const Input& i) 
-      : GoLibraryNode(t, i) {
+  GoTestNode(const TargetInfo& t, const Input& i, DistSource* s) 
+      : GoLibraryNode(t, i, s) {
   }
   virtual ~GoTestNode() {}
   virtual bool IncludeInAll() const { return false; }

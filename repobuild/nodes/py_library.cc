@@ -25,8 +25,10 @@ using std::vector;
 
 namespace repobuild {
 
-PyLibraryNode::PyLibraryNode(const TargetInfo& t, const Input& i)
-    : Node(t, i) {
+PyLibraryNode::PyLibraryNode(const TargetInfo& t,
+                             const Input& i,
+                             DistSource* s)
+    : Node(t, i, s) {
 }
 
 PyLibraryNode::~PyLibraryNode() {

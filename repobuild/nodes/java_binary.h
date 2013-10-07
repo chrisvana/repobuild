@@ -14,13 +14,18 @@ namespace repobuild {
 class JavaBinaryNode : public JavaJarNode {
  public:
   JavaBinaryNode(const TargetInfo& t,
-                 const Input& i)
-      : JavaJarNode(t, i) {
+                 const Input& i,
+                 DistSource* s)
+    : JavaJarNode(t, i, s) {
   }
   virtual ~JavaBinaryNode() {}
   virtual void Parse(BuildFile* file, const BuildFileNode& input);
+  virtual void LocalWriteMake(Makefile* out) const;
   virtual void LocalBinaries(LanguageType lang,
                              ResourceFileSet* outputs) const;
+
+ protected:
+  Resource BinScript() const;
 };
 
 }  // namespace repobuild

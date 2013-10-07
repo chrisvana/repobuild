@@ -12,6 +12,7 @@
 
 namespace repobuild {
 
+class DistSource;
 class Input;
 class Makefile;
 class TargetInfo;
@@ -21,7 +22,8 @@ class NodeBuilder {
   virtual ~NodeBuilder() {}
   virtual std::string Name() const = 0;
   virtual Node* NewNode(const TargetInfo& target,
-                        const Input& input) = 0;
+                        const Input& input,
+                        DistSource* source) = 0;
   virtual void WriteMakeHead(const Input& input, Makefile* out) = 0;
   virtual void FinishMakeFile(const Input& input,
                               const std::vector<const Node*>& all_nodes,
@@ -39,7 +41,8 @@ class NodeBuilderSet {
   // Node generator:
   Node* NewNode(const std::string& name,
                 const TargetInfo& target,
-                const Input& input) const;
+                const Input& input,
+                DistSource* source) const;
 
   void WriteMakeHead(const Input& input, Makefile* makefile);
   void FinishMakeFile(const Input& input,

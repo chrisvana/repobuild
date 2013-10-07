@@ -46,12 +46,32 @@ void JavaBinaryNode::Parse(BuildFile* file, const BuildFileNode& input) {
   AddSubNode(new TopSymlinkNode(
       target().GetParallelTarget(file->NextName(target().local_path())),
       Node::input(),
+      Node::dist_source(),
       binaries));
+}
+
+void JavaBinaryNode::LocalWriteMake(Makefile* out) const {
+  JavaJarNode::LocalWriteMakeInternal(false, out);
+
+  // "Binary"
+  Resource bin = BinScript();
+  Resource jar = JarName();
+  Makefile::Rule* rule = out->StartRule(bin.path(), jar.basename());
+  rule->WriteCommand("echo 'java -jar $$(pwd)/$$(dirname $$0)/" +
+                     jar.basename() + "' > " + bin.path() +
+                     "; chmod 755 " + bin.path());
+  out->FinishRule(rule);
+
+  WriteBaseUserTarget(out);
 }
 
 void JavaBinaryNode::LocalBinaries(LanguageType lang,
                                    ResourceFileSet* outputs) const {
-  outputs->Add(JarName());
+  outputs->Add(BinScript());
+}
+
+Resource JavaBinaryNode::BinScript() const {
+  return Resource::FromLocalPath(input().object_dir(), target().make_path());
 }
 
 }  // namespace repobuild

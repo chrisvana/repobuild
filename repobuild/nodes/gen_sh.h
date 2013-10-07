@@ -15,8 +15,9 @@ namespace repobuild {
 class GenShNode : public Node {
  public:
   GenShNode(const TargetInfo& t,
-            const Input& i)
-      : Node(t, i),
+            const Input& i,
+            DistSource* s)
+      : Node(t, i, s),
         cd_(true),
         make_name_("Script"),
         make_target_(t.full_path()),

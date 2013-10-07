@@ -12,7 +12,9 @@ namespace repobuild {
 
 class CCEmbedDataNode : public Node {
  public:
-  CCEmbedDataNode(const TargetInfo& target, const Input& input);
+  CCEmbedDataNode(const TargetInfo& target,
+                  const Input& input,
+                  DistSource* source);
   virtual ~CCEmbedDataNode() {}
   virtual void Parse(BuildFile* file, const BuildFileNode& input);
   virtual void LocalWriteMake(Makefile* out) const {

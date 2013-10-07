@@ -18,8 +18,9 @@ class PyLibraryNode;
 class ProtoLibraryNode : public Node {
  public:
   ProtoLibraryNode(const TargetInfo& t,
-                   const Input& i)
-      : Node(t, i),
+                   const Input& i,
+                   DistSource* s)
+      : Node(t, i, s),
         gen_node_(NULL),
         cc_node_(NULL),
         java_node_(NULL),

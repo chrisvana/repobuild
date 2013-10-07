@@ -39,8 +39,9 @@ string VariableName(const Resource& source) {
 class CCEmbedDataNodeRaw : public Node {
  public:
   CCEmbedDataNodeRaw(const TargetInfo& t,
-                     const Input& i)
-      : Node(t, i) {
+                     const Input& i,
+                     DistSource* source)
+      : Node(t, i, source) {
   }
   virtual ~CCEmbedDataNodeRaw() {}
   virtual void ParseWithPath(BuildFile* file,
@@ -142,8 +143,9 @@ void CCEmbedDataNodeRaw::GetOutputs(ResourceFileSet* sources,
 }
 
 CCEmbedDataNode::CCEmbedDataNode(const TargetInfo& target,
-                                 const Input& input)
-    : Node(target, input) {
+                                 const Input& input,
+                                 DistSource* source)
+    : Node(target, input, source) {
 }
 
 void CCEmbedDataNode::Parse(BuildFile* file, const BuildFileNode& input) {

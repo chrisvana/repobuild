@@ -54,15 +54,9 @@ void AutoconfNode::Parse(BuildFile* file, const BuildFileNode& input) {
   }
 
   // Generate the output files.
-  GenShNode* gen = new GenShNode(
-      target().GetParallelTarget(file->NextName(target().local_path())),
-      Node::input());
-  for (const TargetInfo& dep : dep_targets()) {
-    gen->AddDependencyTarget(dep);
-  }
+  GenShNode* gen = NewSubNodeWithCurrentDeps<GenShNode>(file);
   gen->SetMakeName("Autoconf");
-  AddSubNode(gen);
-
+  
   // Env
   AddConditionalVariable(
       kConfigureEnv, kCxxGcc,
@@ -111,10 +105,7 @@ void AutoconfNode::Parse(BuildFile* file, const BuildFileNode& input) {
   gen->SetMakefileEscape(false);  // we do it ourselves
 
   // Make output --------------------------
-  MakeNode* make = new MakeNode(
-      target().GetParallelTarget(file->NextName(target().local_path())),
-      Node::input());
-  AddSubNode(make);
+  MakeNode* make = NewSubNode<MakeNode>(file);
   make->AddDependencyTarget(gen->target());
   make->Parse(file, input);
 }

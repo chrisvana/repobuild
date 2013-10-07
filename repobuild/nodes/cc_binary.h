@@ -14,8 +14,9 @@ namespace repobuild {
 class CCBinaryNode : public CCLibraryNode {
  public:
   CCBinaryNode(const TargetInfo& t,
-               const Input& i)
-      : CCLibraryNode(t, i) {
+               const Input& i,
+               DistSource* s)
+      : CCLibraryNode(t, i, s) {
   }
   virtual ~CCBinaryNode() {}
   virtual void Parse(BuildFile* file, const BuildFileNode& input);

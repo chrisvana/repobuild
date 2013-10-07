@@ -9,8 +9,9 @@ namespace repobuild {
 
 TopSymlinkNode::TopSymlinkNode(const TargetInfo& target,
                                const Input& input,
+                               DistSource* source,
                                const ResourceFileSet& input_binaries)
-    : Node(target, input),
+    : Node(target, input, source),
       input_binaries_(input_binaries) {
 }
 

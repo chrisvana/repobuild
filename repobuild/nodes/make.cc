@@ -36,14 +36,8 @@ void MakeNode::ParseWithOptions(BuildFile* file,
   }
 
   // Generate the output files.
-  GenShNode* gen = new GenShNode(
-      target().GetParallelTarget(file->NextName(target().local_path())),
-      Node::input());
-  for (const TargetInfo& dep : dep_targets()) {
-    gen->AddDependencyTarget(dep);
-  }
+  GenShNode* gen = NewSubNodeWithCurrentDeps<GenShNode>(file);
   gen->SetMakeName("Make");
-  AddSubNode(gen);
 
   string make_cmd = "$MAKE " + make_target + " DESTDIR=" + dest_dir;
   if (!preinstall.empty()) {

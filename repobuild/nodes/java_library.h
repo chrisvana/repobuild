@@ -15,8 +15,9 @@ namespace repobuild {
 class JavaLibraryNode : public Node {
  public:
   JavaLibraryNode(const TargetInfo& t,
-                  const Input& i)
-      : Node(t, i) {
+                  const Input& i,
+                  DistSource* s)
+      : Node(t, i, s) {
   }
   virtual ~JavaLibraryNode() {}
   virtual void Parse(BuildFile* file, const BuildFileNode& input);

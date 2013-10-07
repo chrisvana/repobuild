@@ -16,7 +16,7 @@ class ComponentHelper;
 
 class PyLibraryNode : public Node {
  public:
-  PyLibraryNode(const TargetInfo& t, const Input& i);
+  PyLibraryNode(const TargetInfo& t, const Input& i, DistSource* s);
   virtual ~PyLibraryNode();
   virtual void Parse(BuildFile* file, const BuildFileNode& input);
   virtual void LocalWriteMake(Makefile* out) const {

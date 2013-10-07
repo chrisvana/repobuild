@@ -20,8 +20,10 @@ using std::set;
 
 namespace repobuild {
 
-GoLibraryNode::GoLibraryNode(const TargetInfo& t, const Input& i)
-    : Node(t, i) {
+GoLibraryNode::GoLibraryNode(const TargetInfo& t,
+                             const Input& i,
+                             DistSource* s)
+    : Node(t, i, s) {
 }
 
 GoLibraryNode::~GoLibraryNode() {

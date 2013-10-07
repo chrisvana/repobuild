@@ -19,8 +19,10 @@ using std::vector;
 
 namespace repobuild {
 
-ConfigNode::ConfigNode(const TargetInfo& target, const Input& input)
-    : Node(target, input) {
+ConfigNode::ConfigNode(const TargetInfo& target,
+                       const Input& input,
+                       DistSource* source)
+    : Node(target, input, source) {
 }
 
 ConfigNode::~ConfigNode() {}

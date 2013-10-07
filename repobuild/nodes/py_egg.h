@@ -14,8 +14,9 @@ namespace repobuild {
 class PyEggNode : public PyLibraryNode {
  public:
   PyEggNode(const TargetInfo& t,
-               const Input& i)
-      : PyLibraryNode(t, i) {
+            const Input& i,
+            DistSource* s)
+      : PyLibraryNode(t, i, s) {
   }
   virtual ~PyEggNode() {}
   virtual void Parse(BuildFile* file, const BuildFileNode& input);

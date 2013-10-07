@@ -907,7 +907,7 @@ repobuild/repobuild: common/base/base common/log/log common/file/fileutil common
 	@echo "Sourcing:   //common (git submodule)"
 	@[ -d common -a ! -f common/.git -a  -e .git ] && (cd .; git submodule update --init common || exit 1); true
 	@mkdir -p .gen-files/common
-	@touch .gen-files/common/.git_tree.dummy
+	@[ -f .gen-files/common/.git_tree.dummy ] || touch -t 197101010000 .gen-files/common/.git_tree.dummy
 
 
 common/BUILD: .gen-files/common/.git_tree.dummy
@@ -1129,7 +1129,7 @@ tests: .gen-files/.dummy.prereqs
 .DEFAULT_GOAL=all
 
 
-.gen-files/.dummy.prereqs: .gen-files/common/.git_tree.dummy common/BUILD common/base/BUILD common/base/atomicops.h common/base/callback.h common/base/flags.h common/base/flags.py common/base/init.cc common/base/init.h common/base/macros.h common/base/mutex.h common/base/rdtsc.h common/base/time.cc common/base/time.h common/base/types.h common/file/BUILD common/file/fileutil.cc common/file/fileutil.h common/file/linereader.cc common/file/linereader.h common/log/BUILD common/log/log.h common/strings/BUILD common/strings/path.cc common/strings/path.h common/strings/strutil.cc common/strings/strutil.h common/strings/varmap.cc common/strings/varmap.h common/third_party/BUILD common/third_party/google/BUILD common/third_party/google/gflags/BUILD common/third_party/google/gflags/src/gflags.cc common/third_party/google/gflags/src/gflags_completions.cc common/third_party/google/gflags/src/gflags_nc.cc common/third_party/google/gflags/src/gflags_reporting.cc common/third_party/google/gflags/src/google/gflags.h common/third_party/google/gflags/src/google/gflags_completions.h common/third_party/google/gflags/src/util.h common/third_party/google/glog/BUILD common/third_party/google/glog/src common/third_party/google/gperftools/BUILD common/third_party/google/gperftools/src common/third_party/google/gperftools/src/base/atomicops.h common/third_party/google/init/BUILD common/third_party/google/init/googleinit.h common/third_party/google/re2/BUILD common/third_party/google/re2/stringpiece.cc common/third_party/google/re2/stringpiece.h common/third_party/google/re2/stringprintf.cc common/third_party/stringencoders/BUILD common/third_party/stringencoders/src/arraytoc.h common/third_party/stringencoders/src/modp_ascii.h common/third_party/stringencoders/src/modp_b16.h common/third_party/stringencoders/src/modp_b2.h common/third_party/stringencoders/src/modp_b64.h common/third_party/stringencoders/src/modp_b64w.h common/third_party/stringencoders/src/modp_b85.h common/third_party/stringencoders/src/modp_bjavascript.h common/third_party/stringencoders/src/modp_burl.h common/third_party/stringencoders/src/modp_mainpage.h common/third_party/stringencoders/src/modp_numtoa.h common/util/BUILD common/util/stl.h
+.gen-files/.dummy.prereqs: .gen-files/common/.git_tree.dummy
 	@mkdir -p .gen-files
 	@touch .gen-files/.dummy.prereqs
 

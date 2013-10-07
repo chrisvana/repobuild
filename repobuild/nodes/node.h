@@ -38,11 +38,10 @@ class Node {
     NO_LANG = 5,
   };
 
-  Node(const TargetInfo& target, const Input& input);
+  Node(const TargetInfo& target, const Input& input, DistSource* source);
   virtual ~Node();
 
   // Initialization
-  virtual void InitializeSource(DistSource* source) { dist_source_ = source; }
   virtual void Parse(BuildFile* file, const BuildFileNode& input);
   virtual void PostParse();
 
@@ -82,6 +81,7 @@ class Node {
     return required_parents_;
   }
   const std::vector<Node*> dependencies() const { return dependencies_; }
+  DistSource* dist_source() const { return dist_source_; }
 
   // Mutators
   void AddDependencyNode(Node* dependency);
@@ -264,14 +264,14 @@ class Node::MakeVariable {
 
 template <class T>
 T* Node::NewSubNode(BuildFile* file) {
-  T* node = new T(GetNextTargetName(file), input());
+  T* node = new T(GetNextTargetName(file), input(), dist_source_);
   AddSubNode(node);
   return node;
 }
 
 template <class T>
 T* Node::NewSubNodeWithCurrentDeps(BuildFile* file) {
-  T* node = new T(GetNextTargetName(file), input());
+  T* node = new T(GetNextTargetName(file), input(), dist_source_);
   node->CopyDepenencies(this);
   AddSubNode(node);
   return node;

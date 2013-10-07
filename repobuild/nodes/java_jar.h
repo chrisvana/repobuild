@@ -14,8 +14,9 @@ namespace repobuild {
 class JavaJarNode : public JavaLibraryNode {
  public:
   JavaJarNode(const TargetInfo& t,
-                 const Input& i)
-      : JavaLibraryNode(t, i) {
+              const Input& i,
+              DistSource* s)
+      : JavaLibraryNode(t, i, s) {
   }
   virtual ~JavaJarNode() {}
   virtual void Parse(BuildFile* file, const BuildFileNode& input);
@@ -24,7 +25,7 @@ class JavaJarNode : public JavaLibraryNode {
  protected:
   // Helper.
   Resource JarName() const;
-
+  void LocalWriteMakeInternal(bool write_base, Makefile* out) const;
   void WriteJar(const Resource& file, Makefile* out) const;
 
   std::vector<std::string> java_manifest_;

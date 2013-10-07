@@ -169,6 +169,7 @@ void BuildFileNodeReader::ParseFilesFromString(const vector<string>& input,
 
     // Make sure we actually have this directory loaded in our system.
     vector<string> tmp;
+    CHECK(dist_source_);
     dist_source_->InitializeForFile(glob, &tmp);
     if (tmp.empty()) {
       if (strict_file_mode) {

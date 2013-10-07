@@ -27,10 +27,12 @@ using std::unique_ptr;
 
 namespace repobuild {
 
-Node::Node(const TargetInfo& target, const Input& input)
+Node::Node(const TargetInfo& target,
+           const Input& input,
+           DistSource* source)
     : target_(target),
       input_(&input),
-      dist_source_(NULL),
+      dist_source_(source),
       strict_file_mode_(true) {
   gen_dir_ = strings::JoinPath(input.genfile_dir(), target.dir());
   src_dir_ = strings::JoinPath(input.source_dir(), target.dir());

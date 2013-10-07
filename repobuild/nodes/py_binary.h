@@ -14,8 +14,9 @@ namespace repobuild {
 class PyBinaryNode : public PyEggNode {
  public:
   PyBinaryNode(const TargetInfo& t,
-               const Input& i)
-      : PyEggNode(t, i) {
+               const Input& i,
+               DistSource* s)
+      : PyEggNode(t, i, s) {
   }
   virtual ~PyBinaryNode() {}
   virtual void Parse(BuildFile* file, const BuildFileNode& input);

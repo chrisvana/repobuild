@@ -14,8 +14,9 @@ namespace repobuild {
 class GoBinaryNode : public GoLibraryNode {
  public:
   GoBinaryNode(const TargetInfo& t,
-               const Input& i)
-      : GoLibraryNode(t, i) {
+               const Input& i,
+               DistSource* s)
+      : GoLibraryNode(t, i, s) {
   }
   virtual ~GoBinaryNode() {}
   virtual void Parse(BuildFile* file, const BuildFileNode& input);

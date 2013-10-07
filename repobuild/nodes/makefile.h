@@ -57,6 +57,8 @@ class Makefile {
   }
   Rule* StartPrereqRule(const std::string& rule,
                         const std::string& dependencies);
+  Rule* StartRawRule(const std::string& rule,
+                     const std::string& dependencies);
 
   bool seen_rule(const std::string& rule) const {
     return registered_rules_.find(rule) != registered_rules_.end();
@@ -89,9 +91,6 @@ class Makefile {
   static std::string Escape(const std::string& input);
 
  private:
-  Rule* StartRawRule(const std::string& rule,
-                     const std::string& dependencies);
-
   std::string GetPrereqFile() const;
 
   bool silent_;
