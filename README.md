@@ -6,7 +6,7 @@ repobuild
 
 ###### Status
 - Functional for Mac and Linux, but a work in progress.
-- Still in "beta" until [distributed source](https://github.com/chrisvana/repobuild/wiki/Distributed-Source) is implemented.
+- In beta, some rules may change.
 
 ###### Why?
 - [Motivation](https://github.com/chrisvana/repobuild/wiki/Motivation) behind Repobuild
@@ -17,7 +17,7 @@ repobuild
 - Python
 - Java
 - Go
-- _TODO:_ Ruby, Javascript (compiler/minimizer), Scala (?), etc.
+- _TODO:_ Ruby, Javascript (compiler/minimizer), Scala, etc.
 
 ###### Current rules:
 - See [rules](https://github.com/chrisvana/repobuild/wiki/Rules)
