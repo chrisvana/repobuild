@@ -44,9 +44,9 @@ $ repobuild --helpshort
 $ ...
 
 # Try it out on the testdata:
-$ repobuild "testdata:go_main"
-$ make
-$ ./go_main
+$ repobuild "testdata:java_main"
+$ make -j8
+$ ./java_main
 
 ```
 
