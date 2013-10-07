@@ -33,8 +33,6 @@ repobuild
 # Build it:
 $ git clone https://github.com/chrisvana/repobuild.git
 $ cd repobuild
-$ git submodule init
-$ git submodule update
 $ make -j8 repobuild
 
 # Install somewhere in your path
