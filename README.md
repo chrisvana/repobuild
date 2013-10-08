@@ -43,7 +43,7 @@ $ sudo cp bin/repobuild /usr/bin/repobuild
 $ repobuild --helpshort
 $ ...
 
-# Try it out on the testdata:
+# Try it out on the testdata (builds in protocol buffers and other fun stuff):
 $ repobuild "testdata:java_main"
 $ make -j8
 $ ./java_main
