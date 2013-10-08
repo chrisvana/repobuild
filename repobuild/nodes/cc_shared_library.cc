@@ -135,7 +135,8 @@ void CCSharedLibraryNode::WriteLink(Makefile* out) const {
       " ",
       "$(LINK.cc)", obj_list, exported_symbols, shared_obj,
       strings::JoinAll(flags, " ")));
-  rule->WriteCommand("ln -f -s " + link_path + " " + file.path());
+  rule->WriteCommand("[ \"" + link_path + "\" == \"" + file.path() + "\" ] || "
+                     "ln -f -s " + link_path + " " + file.path());
   out->FinishRule(rule);
 }
 
