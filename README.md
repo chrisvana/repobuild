@@ -2,7 +2,9 @@ repobuild
 ==========
 
 ###### Summary
-- Repobuild is a declarative style build system, similar to Google's BUILD file system of old (gconfig + make).<br/>
+- Repobuild is a declarative style build system
+- Similar to Google's BUILD file system of old (gconfig + make)
+- Repobulid is a pre-processor that generates a Makefile and fetches missing files via git.
 
 ###### Status
 - Functional for Mac and Linux, but a work in progress.
@@ -25,8 +27,9 @@ repobuild
 --
 ###### Dependencies
 - git
-- gcc or clang that supports c++11
+- gcc or clang (requires c++11)
 - make
+- some rule types require cmake, python, go, java
 
 ###### Building the tool
 ```
