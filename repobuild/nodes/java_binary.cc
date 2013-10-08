@@ -58,7 +58,7 @@ void JavaBinaryNode::LocalWriteMake(Makefile* out) const {
   Resource jar = JarName();
   Makefile::Rule* rule = out->StartRule(bin.path(), jar.path());
   rule->WriteCommand("echo 'java -jar $$(pwd)/$$(dirname $$0)/" +
-                     jar.basename() + "' > " + bin.path() +
+                     jar.path() + "' > " + bin.path() +
                      "; chmod 755 " + bin.path());
   out->FinishRule(rule);
 
@@ -68,6 +68,7 @@ void JavaBinaryNode::LocalWriteMake(Makefile* out) const {
 void JavaBinaryNode::LocalBinaries(LanguageType lang,
                                    ResourceFileSet* outputs) const {
   outputs->Add(BinScript());
+  outputs->Add(JarName());
 }
 
 Resource JavaBinaryNode::BinScript() const {

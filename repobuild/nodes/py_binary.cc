@@ -48,6 +48,7 @@ void PyBinaryNode::LocalWriteMake(Makefile* out) const {
 void PyBinaryNode::LocalBinaries(LanguageType lang,
                                  ResourceFileSet* outputs) const {
   outputs->Add(BinScript());
+  outputs->Add(OutEgg());
 }
 
 Resource PyBinaryNode::BinScript() const {

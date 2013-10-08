@@ -170,6 +170,7 @@ void JavaLibraryNode::WriteCompile(const ResourceFileSet& input_files,
                        "package name for the object is: " +
                        strings::Replace(object_file.dirname(), "/", ".") +
                        "\"; exit 1; fi");
+    rule->WriteCommand("touch " + touchfile.path());
     out->FinishRule(rule);
   }
 }
