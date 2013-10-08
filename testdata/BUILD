@@ -33,6 +33,16 @@
    }
  },
 
+ { "cc_shared_library": {
+     "name" : "bar_shared",
+     "cc_headers" : [ "bar.h" ],
+     "dependencies": [ ":bar" ],
+     "major_version": "3",
+     "minor_version": "1",
+     "release_version": "0"
+   }
+ },
+
  { "cc_binary": {
      "name" : "main",
      "cc_sources" : [ "main.cc" ],

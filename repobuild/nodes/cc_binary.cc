@@ -1,7 +1,7 @@
 // Copyright 2013
 // Author: Christopher Van Arsdale
 //
-// TODO(cvanarsdale): This overalaps a lot with other *_binary.cc files.
+// TODO(cvanarsdale): This overalaps with cc_shared_library.
 
 #include <algorithm>
 #include <set>

@@ -115,6 +115,10 @@ class BuildFileNodeReader {
                           bool strict_file_mode,
                           std::vector<Resource>* output) const;
   void ParseSingleFile(const std::string& key,
+                       std::vector<Resource>* output) const {
+    ParseSingleFile(key, strict_file_mode_, output);
+  }
+  void ParseSingleFile(const std::string& key,
                        bool strict_file_mode,
                        std::vector<Resource>* output) const;
 

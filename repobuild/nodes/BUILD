@@ -107,6 +107,17 @@
  },
 
  { "cc_library": {
+     "name" : "cc_shared_library",
+     "cc_sources" : [ "cc_shared_library.cc" ],
+     "cc_headers" : [ "cc_shared_library.h" ],
+     "dependencies": [ "//common/log:log",
+                       "//common/strings:strutil",
+                       ":node",
+                       ":top_symlink"
+      ]
+   }
+ },
+ { "cc_library": {
      "name" : "go_library",
      "cc_sources" : [ "go_library.cc" ],
      "cc_headers" : [ "go_library.h" ],
@@ -277,9 +288,10 @@
                        "//common/util:stl",
                        ":autoconf",
                        ":cmake",
-                       ":cc_library",
                        ":cc_binary",
                        ":cc_embed_data",
+                       ":cc_library",
+                       ":cc_shared_library",
                        ":confignode",
                        ":execute_test",
                        ":go_library",

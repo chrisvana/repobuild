@@ -11,6 +11,7 @@
 #include "repobuild/nodes/cc_library.h"
 #include "repobuild/nodes/cc_binary.h"
 #include "repobuild/nodes/cc_embed_data.h"
+#include "repobuild/nodes/cc_shared_library.h"
 #include "repobuild/nodes/confignode.h"
 #include "repobuild/nodes/execute_test.h"
 #include "repobuild/nodes/go_library.h"
@@ -75,6 +76,8 @@ class NodeBuilderImplFinish : public NodeBuilderImpl<T> {
 void NodeBuilder::GetAll(std::vector<NodeBuilder*>* nodes) {
   nodes->push_back(new NodeBuilderImplHead<GenShNode>("gen_sh"));
   nodes->push_back(new NodeBuilderImplHead<CCLibraryNode>("cc_library"));
+  nodes->push_back(new NodeBuilderImplHead<CCSharedLibraryNode>(
+      "cc_shared_library"));
   nodes->push_back(new NodeBuilderImplHead<PyBinaryNode>("py_egg"));
   nodes->push_back(new NodeBuilderImplHead<CCEmbedDataNode>("cc_embed_data"));
 
