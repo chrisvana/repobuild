@@ -186,7 +186,7 @@ void CCSharedLibraryNode::WriteMakeHead(const Input& input, Makefile* out) {
   // SHARED_LIB_ARGS
   out->append("\tSHARED_LIB_ARGS_R:=awk '{print \"-shared -Wl,-soname,lib\"$$2"
               "\".so.\"$$3\" -o \"$$1\"/lib\"$$2\".so.\"$$3\".\"$$4\".\"$$5"
-              "\"}'\n");
+              "}'\n");
   out->append("\tSHARED_LIB_ARGS_MA:=awk '{print \"-shared -Wl,-soname,lib\"$$2"
               "\".so.\"$$3\" -o \"$$1\"/lib\"$$2\".so.\"$$3\".\"$$4}'\n");
   out->append("\tSHARED_LIB_ARGS_MI:=awk '{print \"-shared -Wl,-soname,lib\"$$2"
