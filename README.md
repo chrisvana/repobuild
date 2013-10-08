@@ -2,9 +2,10 @@ repobuild
 ==========
 
 ###### Summary
-- Repobuild is a declarative style build system
+Repobuild is a declarative style build system.
 - Similar to Google's BUILD file system of old (gconfig + make)
-- Repobulid is a pre-processor that generates a Makefile and fetches missing files via git.
+- Generates a Makefile for portability
+- Fetches missing files from git automatically
 
 ###### Status
 - Functional for Mac and Linux, but a work in progress.
