@@ -18,6 +18,15 @@ extern "C" {
 #include "repobuild/third_party/libgit2/include/git2.h"
 }
 
+DEFINE_bool(enable_repobuild_git, true,
+            "If false, we do not fetch submodules during repobuild execution. "
+            "If some submodules are missing, this can generate a bad "
+            "makefile.");
+
+DEFINE_bool(enable_makefile_git, true,
+            "If false, we do not write make rules for fetching git "
+            "submodules.");
+
 using std::map;
 using std::set;
 using std::string;
@@ -121,7 +130,8 @@ void GitTree::ExpandChild(const string& path) {
     // "submodule".
     if (strings::HasPrefix(path, submodule)) {
       found_anything = true;
-      if (!tree->Initialized()) {
+      if (!tree->Initialized() &&
+          FLAGS_enable_repobuild_git) {
         InitializeSubmodule(submodule, tree);
       }
       used_submodules_.insert(submodule);
@@ -167,6 +177,10 @@ void GitTree::WriteMakeFile(Makefile* out) const {
 void GitTree::WriteMakeFile(Makefile* out,
                             const string& full_dir,
                             const string& parent) const {
+  if (!FLAGS_enable_makefile_git) {
+    return;
+  }
+
   string current_dir = strings::JoinPath(out->root_dir(), full_dir);
   string current_scratch_dir = strings::JoinPath(out->scratch_dir(),
                                                  full_dir);
