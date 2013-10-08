@@ -30,7 +30,8 @@ Repobuild is a declarative style build system.
 - git
 - gcc or clang (requires c++11)
 - make
-- some rule types require cmake, python, go, java
+- cmake
+- some rule types require python, go, java
 
 ###### Building the tool
 ```
