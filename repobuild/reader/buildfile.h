@@ -10,6 +10,7 @@
 #include <string>
 #include <vector>
 #include "common/base/macros.h"
+#include "repobuild/env/target.h"
 
 namespace Json {
 class Value;
@@ -46,6 +47,18 @@ class BuildFile {
   void MergeParent(BuildFile* parent);
   void AddBaseDependency(const std::string& dep) { base_deps_.insert(dep); }
 
+  // Dependency rewriting.
+  class BuildDependencyRewriter {
+   public:
+    BuildDependencyRewriter() {}
+    virtual ~BuildDependencyRewriter() {}
+    virtual bool RewriteDependency(TargetInfo* target) = 0;
+  };
+  void AddDependencyRewriter(BuildDependencyRewriter* rewriter) {
+    owned_rewriters_.push_back(rewriter);
+    rewriters_.push_back(rewriter);
+  }
+
   // Accessors.
   const std::string& filename() const { return filename_; }
   const std::vector<BuildFileNode*>& nodes() const { return nodes_; }
@@ -53,12 +66,14 @@ class BuildFile {
 
   // Helpers.
   std::string NextName(const std::string& name_base);  // auto generated name.
+  TargetInfo ComputeTargetInfo(const std::string& dependency) const;
 
  private:
   std::string filename_;
   std::vector<BuildFileNode*> nodes_;
   std::set<std::string> base_deps_;
   std::map<std::string, int> name_counter_;
+  std::vector<BuildDependencyRewriter*> owned_rewriters_, rewriters_;
 };
 
 // BuildFileNodeReader

@@ -7,8 +7,10 @@
                        "//common/log:log",
                        "//common/file:fileutil",
                        "//common/strings:strutil",
+                       "//common/util:stl",
                        "//repobuild/distsource:dist_source",
                        "//repobuild/env:resource",
+                       "//repobuild/env:target",
                        "//repobuild/third_party/json:json"
      ]
    }

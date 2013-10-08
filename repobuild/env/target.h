@@ -21,6 +21,7 @@ class TargetInfo {
   const std::string& dir() const { return dir_; }
   const std::string& local_path() const { return local_path_; }
   const std::string& make_path() const { return make_path_; }
+  const std::string& top_component() const { return top_component_; }
 
   bool operator==(const TargetInfo& other) const {
     return full_path_ == other.full_path_;
@@ -31,7 +32,8 @@ class TargetInfo {
   static TargetInfo FromUserPath(const std::string& user_path);
 
  private:
-  std::string full_path_, build_file_, dir_, local_path_, make_path_;
+  std::string full_path_, build_file_, dir_;
+  std::string local_path_, make_path_, top_component_;
 };
 
 }  // namespace repobuild

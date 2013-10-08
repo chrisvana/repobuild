@@ -6,6 +6,7 @@
 #include "common/strings/path.h"
 #include "common/strings/strutil.h"
 #include "repobuild/env/input.h"
+#include "repobuild/env/target.h"
 #include "repobuild/nodes/util.h"
 
 using std::string;
@@ -53,6 +54,17 @@ string ComponentHelper::RewriteFile(const Input& input,
     }
   }
   return file;
+}
+
+bool ComponentHelper::RewriteDependency(TargetInfo* target) const {
+  if (target->top_component() == component_) {
+    string new_dir = strings::JoinPath(
+        base_dir_,
+        target->dir().substr(component_.size() + 1));
+    *target = TargetInfo("//" + new_dir + ":" + target->local_path());
+    return true;
+  }
+  return false;
 }
 
 bool ComponentHelper::CoversPath(const Input& input, const string& path) const {

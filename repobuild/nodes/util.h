@@ -8,6 +8,7 @@
 
 namespace repobuild {
 class Input;
+class TargetInfo;
 
 class NodeUtil {
  public: 
@@ -26,6 +27,11 @@ class ComponentHelper {
 
   bool CoversPath(const Input& input, const std::string& path) const;
   std::string RewriteFile(const Input& input, const std::string& path) const;
+  bool RewriteDependency(TargetInfo* target) const;
+
+  ComponentHelper* Clone() const {
+    return new ComponentHelper(component_, base_dir_);
+  }
 
  private:
   std::string component_, base_dir_;

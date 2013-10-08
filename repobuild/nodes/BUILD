@@ -12,7 +12,8 @@
      "cc_headers": [ "util.h" ],
      "dependencies": [ "//common/log:log",
                        "//common/strings:strutil",
-                       "//repobuild/env:input"
+                       "//repobuild/env:input",
+                       "//repobuild/env:target"
      ]
  } },
 

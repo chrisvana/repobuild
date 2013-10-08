@@ -1,6 +1,7 @@
 // Copyright 2013
 // Author: Christopher Van Arsdale
 
+#include <memory>
 #include <set>
 #include <string>
 #include <vector>
@@ -18,6 +19,21 @@ using std::string;
 using std::vector;
 
 namespace repobuild {
+namespace {
+class ConfigRewriter : public BuildFile::BuildDependencyRewriter {
+ public:
+  explicit ConfigRewriter(ComponentHelper* helper)
+      : helper_(helper) {
+  }
+  virtual ~ConfigRewriter() {}
+  virtual bool RewriteDependency(TargetInfo* target) {
+    return helper_->RewriteDependency(target);
+  }
+
+ private:
+  std::unique_ptr<ComponentHelper> helper_;
+};
+}
 
 ConfigNode::ConfigNode(const TargetInfo& target,
                        const Input& input,
@@ -50,6 +66,10 @@ void ConfigNode::Parse(BuildFile* file, const BuildFileNode& input) {
       Resource::FromRootPath(DummyFile(SourceDir(Node::input().genfile_dir())));
   pkgfile_dummy_file_ =
       Resource::FromRootPath(DummyFile(SourceDir(Node::input().pkgfile_dir())));
+
+  if (component_.get() != NULL) {
+    file->AddDependencyRewriter(new ConfigRewriter(component_->Clone()));
+  }
 }
 
 void ConfigNode::LocalWriteMake(Makefile* out) const {

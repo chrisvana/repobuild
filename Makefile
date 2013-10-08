@@ -565,24 +565,24 @@ repobuild/third_party/json/json: .gen-obj/repobuild/third_party/json/json_reader
 headers.repobuild/reader/buildfile := repobuild/reader/buildfile.h
 
 
-.gen-obj/repobuild/reader/buildfile.cc.o: .gen-src/common/.dummy .gen-src/.gen-files/common/.dummy .gen-src/.gen-pkg/common/.dummy $(headers.common/base/macros) $(headers.common/third_party/google/gflags/gflags) .gen-obj/common/third_party/google/glog/.glog_gen.0.dummy .gen-obj/common/third_party/google/glog/.glog_gen.1.0.dummy $(headers.common/log/log) $(headers.common/file/fileutil) .gen-obj/common/third_party/stringencoders/.stringencoders_conf.0.dummy .gen-obj/common/third_party/stringencoders/.stringencoders_conf.1.0.dummy $(headers.common/third_party/stringencoders/stringencoders) $(headers.common/third_party/google/re2/re2) $(headers.common/strings/strutil) .gen-src/repobuild/.dummy .gen-src/.gen-files/repobuild/.dummy .gen-src/.gen-pkg/repobuild/.dummy $(headers.repobuild/nodes/makefile) $(headers.repobuild/distsource/dist_source) $(headers.repobuild/env/resource) $(headers.repobuild/third_party/json/json) $(headers.repobuild/reader/buildfile) repobuild/reader/buildfile.cc .gen-files/.dummy.prereqs
+.gen-obj/repobuild/reader/buildfile.cc.o: .gen-src/common/.dummy .gen-src/.gen-files/common/.dummy .gen-src/.gen-pkg/common/.dummy $(headers.common/base/macros) $(headers.common/third_party/google/gflags/gflags) .gen-obj/common/third_party/google/glog/.glog_gen.0.dummy .gen-obj/common/third_party/google/glog/.glog_gen.1.0.dummy $(headers.common/log/log) $(headers.common/file/fileutil) .gen-obj/common/third_party/stringencoders/.stringencoders_conf.0.dummy .gen-obj/common/third_party/stringencoders/.stringencoders_conf.1.0.dummy $(headers.common/third_party/stringencoders/stringencoders) $(headers.common/third_party/google/re2/re2) $(headers.common/strings/strutil) $(headers.common/util/stl) .gen-src/repobuild/.dummy .gen-src/.gen-files/repobuild/.dummy .gen-src/.gen-pkg/repobuild/.dummy $(headers.repobuild/nodes/makefile) $(headers.repobuild/distsource/dist_source) $(headers.repobuild/env/resource) $(headers.repobuild/env/target) $(headers.repobuild/third_party/json/json) $(headers.repobuild/reader/buildfile) repobuild/reader/buildfile.cc .gen-files/.dummy.prereqs
 	@mkdir -p .gen-obj/repobuild/reader
 	@echo "Compiling:  repobuild/reader/buildfile.cc (c++)"
 	@$(COMPILE.cc) -I. -I.gen-files -I.gen-src -I.gen-src/.gen-files -Icommon/third_party/google/glog/src -Irepobuild/third_party $(cxx_header_compile_args.common/third_party/google/gflags/gflags) repobuild/reader/buildfile.cc -o .gen-obj/repobuild/reader/buildfile.cc.o
 
-repobuild/reader/buildfile: .gen-obj/repobuild/reader/buildfile.cc.o common/base/macros common/log/log common/file/fileutil common/strings/strutil repobuild/distsource/dist_source repobuild/env/resource repobuild/third_party/json/json repobuild/auto_.0
+repobuild/reader/buildfile: .gen-obj/repobuild/reader/buildfile.cc.o common/base/macros common/log/log common/file/fileutil common/strings/strutil common/util/stl repobuild/distsource/dist_source repobuild/env/resource repobuild/env/target repobuild/third_party/json/json repobuild/auto_.0
 
 .PHONY: repobuild/reader/buildfile
 
 headers.repobuild/nodes/util := repobuild/nodes/util.h
 
 
-.gen-obj/repobuild/nodes/util.cc.o: .gen-src/common/.dummy .gen-src/.gen-files/common/.dummy .gen-src/.gen-pkg/common/.dummy $(headers.common/third_party/google/gflags/gflags) .gen-obj/common/third_party/google/glog/.glog_gen.0.dummy .gen-obj/common/third_party/google/glog/.glog_gen.1.0.dummy $(headers.common/log/log) .gen-obj/common/third_party/stringencoders/.stringencoders_conf.0.dummy .gen-obj/common/third_party/stringencoders/.stringencoders_conf.1.0.dummy $(headers.common/third_party/stringencoders/stringencoders) $(headers.common/third_party/google/re2/re2) $(headers.common/strings/strutil) $(headers.common/base/flags) .gen-src/repobuild/.dummy .gen-src/.gen-files/repobuild/.dummy .gen-src/.gen-pkg/repobuild/.dummy $(headers.repobuild/env/input) $(headers.repobuild/nodes/util) repobuild/nodes/util.cc .gen-files/.dummy.prereqs
+.gen-obj/repobuild/nodes/util.cc.o: .gen-src/common/.dummy .gen-src/.gen-files/common/.dummy .gen-src/.gen-pkg/common/.dummy $(headers.common/third_party/google/gflags/gflags) .gen-obj/common/third_party/google/glog/.glog_gen.0.dummy .gen-obj/common/third_party/google/glog/.glog_gen.1.0.dummy $(headers.common/log/log) .gen-obj/common/third_party/stringencoders/.stringencoders_conf.0.dummy .gen-obj/common/third_party/stringencoders/.stringencoders_conf.1.0.dummy $(headers.common/third_party/stringencoders/stringencoders) $(headers.common/third_party/google/re2/re2) $(headers.common/strings/strutil) $(headers.common/base/flags) .gen-src/repobuild/.dummy .gen-src/.gen-files/repobuild/.dummy .gen-src/.gen-pkg/repobuild/.dummy $(headers.repobuild/env/input) $(headers.repobuild/env/target) $(headers.repobuild/nodes/util) repobuild/nodes/util.cc .gen-files/.dummy.prereqs
 	@mkdir -p .gen-obj/repobuild/nodes
 	@echo "Compiling:  repobuild/nodes/util.cc (c++)"
 	@$(COMPILE.cc) -I. -I.gen-files -I.gen-src -I.gen-src/.gen-files -Icommon/third_party/google/glog/src $(cxx_header_compile_args.common/third_party/google/gflags/gflags) repobuild/nodes/util.cc -o .gen-obj/repobuild/nodes/util.cc.o
 
-repobuild/nodes/util: .gen-obj/repobuild/nodes/util.cc.o common/log/log common/strings/strutil repobuild/env/input repobuild/auto_.0
+repobuild/nodes/util: .gen-obj/repobuild/nodes/util.cc.o common/log/log common/strings/strutil repobuild/env/input repobuild/env/target repobuild/auto_.0
 
 .PHONY: repobuild/nodes/util
 

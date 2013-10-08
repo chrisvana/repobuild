@@ -69,7 +69,7 @@ void Node::Parse(BuildFile* file, const BuildFileNode& input) {
   vector<string> deps;
   current_reader()->ParseRepeatedString("dependencies", &deps);
   for (int i = 0; i < deps.size(); ++i) {
-    dep_targets_.push_back(TargetInfo(deps[i], file->filename()));
+    dep_targets_.push_back(file->ComputeTargetInfo(deps[i]));
   }
 
   // Parse environment variables.

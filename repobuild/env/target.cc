@@ -9,33 +9,36 @@
 #include "common/strings/stringpiece.h"
 #include "repobuild/env/target.h"
 
+using std::string;
+using std::vector;
+
 namespace repobuild {
 namespace {
-bool IsValidPath(const std::string& path) {
+bool IsValidPath(const string& path) {
   if (!strings::HasPrefix(path, "//")) {
     return false;
   }
-  std::vector<StringPiece> pieces = strings::Split(path, ":");
+  vector<StringPiece> pieces = strings::Split(path, ":");
   return pieces.size() == 2;
 }
 
-void CheckPath(const std::string& path) {
+void CheckPath(const string& path) {
   if (!IsValidPath(path)) {
     LOG(FATAL) << "Invalid path: " << path;
   }
 }
 
-std::string BuildDir(const std::string& target) {
+string BuildDir(const string& target) {
   // already validated.
-  std::vector<StringPiece> pieces =
+  vector<StringPiece> pieces =
       strings::SplitAllowEmpty(StringPiece(target).substr(2), ":");
   CHECK_EQ(2, pieces.size());
   return pieces[0].as_string();
 }
 
-std::string CleanFullPath(const std::string& path) {
+string CleanFullPath(const string& path) {
   CheckPath(path);
-  std::string str = "/" + strings::CleanPath(path.substr(1));
+  string str = "/" + strings::CleanPath(path.substr(1));
 
   // Fix //a/:b -> //a:b
   size_t pos = str.rfind('/');
@@ -46,17 +49,25 @@ std::string CleanFullPath(const std::string& path) {
   return str;
 }
 
-std::string LocalPath(const std::string& path) {
+string LocalPath(const string& path) {
   // already validated.
-  std::vector<StringPiece> pieces =
+  vector<StringPiece> pieces =
       strings::SplitAllowEmpty(StringPiece(path).substr(2), ":");
   CHECK_EQ(2, pieces.size());
   return pieces[1].as_string();
 }
 
+string TopComponent(const string& dir) {
+  size_t pos = dir.find('/');
+  if (pos == string::npos) {
+    return dir;
+  }
+  return dir.substr(0, pos);
 }
 
-TargetInfo::TargetInfo(const std::string& full_path)
+}  // anonymous namespace
+
+TargetInfo::TargetInfo(const string& full_path)
     : full_path_(full_path) {
   CheckPath(full_path_);
   full_path_ = "/" + strings::CleanPath(full_path_.substr(1));
@@ -65,10 +76,11 @@ TargetInfo::TargetInfo(const std::string& full_path)
   build_file_ = strings::JoinPath(dir_, "BUILD");
   local_path_ = LocalPath(full_path_);
   make_path_ = strings::JoinPath(dir_, local_path_);
+  top_component_ = TopComponent(dir_);
 }
 
-TargetInfo::TargetInfo(const std::string& relative_path,
-                       const std::string& build_file) {
+TargetInfo::TargetInfo(const string& relative_path,
+                       const string& build_file) {
   if (strings::HasPrefix(relative_path, "//")) {
     full_path_ = CleanFullPath(relative_path);
   } else {
@@ -83,26 +95,27 @@ TargetInfo::TargetInfo(const std::string& relative_path,
   build_file_ = strings::JoinPath(dir_, "BUILD");
   local_path_ = LocalPath(full_path_);
   make_path_ = strings::JoinPath(dir_, local_path_);
+  top_component_ = TopComponent(dir_);
 }
 
-TargetInfo TargetInfo::GetParallelTarget(const std::string& name) const {
+TargetInfo TargetInfo::GetParallelTarget(const string& name) const {
   return TargetInfo(":" + name, build_file());
 }
 
 // static
-TargetInfo TargetInfo::FromUserPath(const std::string& user_path) {
+TargetInfo TargetInfo::FromUserPath(const string& user_path) {
   if (IsValidPath(user_path)) {
     return TargetInfo(user_path);
   }
 
   // Prepend "//" if necessary.
-  std::string copy = user_path;
+  string copy = user_path;
   if (!strings::HasPrefix(user_path, "//")) {
     copy = "//" + user_path;
   }
 
   // Append :suffix if necessary.
-  std::vector<StringPiece> pieces = strings::Split(copy, ":");
+  vector<StringPiece> pieces = strings::Split(copy, ":");
   if (pieces.size() == 1) {
     copy += ":" + strings::PathBasename(pieces[0]);
   }

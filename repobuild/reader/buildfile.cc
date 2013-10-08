@@ -7,6 +7,7 @@
 #include <vector>
 #include "common/log/log.h"
 #include "common/file/fileutil.h"
+#include "common/util/stl.h"
 #include "common/strings/path.h"
 #include "common/strings/strutil.h"
 #include "common/strings/varmap.h"
@@ -42,9 +43,8 @@ BuildFileNode::~BuildFileNode() {
 }
 
 BuildFile::~BuildFile() {
-  for (auto it : nodes_) {
-    delete it;
-  }
+  DeleteElements(&nodes_);
+  DeleteElements(&owned_rewriters_);
 }
 
 void BuildFile::Parse(const string& input) {
@@ -72,9 +72,22 @@ string BuildFile::NextName(const string& name_base) {
   return strings::Join(name_base, ".", (*counter)++);
 }
 
+TargetInfo BuildFile::ComputeTargetInfo(const std::string& dependency) const {
+  TargetInfo base(dependency, filename());
+  for (int i = rewriters_.size() - 1; i >= 0; --i) {
+    if (rewriters_[i]->RewriteDependency(&base)) {
+      break;
+    }
+  }
+  return base;
+}
+
 void BuildFile::MergeParent(BuildFile* parent) {
   for (const string& dep : parent->base_dependencies()) {
     base_deps_.insert(dep);
+  }
+  for (BuildDependencyRewriter* rewriter : parent->rewriters_) {
+    rewriters_.push_back(rewriter);
   }
 }
 
