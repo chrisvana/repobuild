@@ -59,7 +59,7 @@ $ ./java_main
 - Try a [tutorial](https://github.com/chrisvana/repobuild/wiki/Repobuild-Cpp-Tutorial)
 - Look at some [examples](https://github.com/chrisvana/repobuild/wiki/Examples)
 - Start playing with your own project.
-- Add submodules to "third_party".
+- Add submodules to ["third_party"](https://github.com/chrisvana/third_party).
 - Forum: https://groups.google.com/forum/#!forum/repobuild
 
 ###### Why is this built using C++?<br/>
