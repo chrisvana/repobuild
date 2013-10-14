@@ -1169,3 +1169,8 @@ tests: .gen-files/.dummy.prereqs
 	@mkdir -p .gen-files
 	@touch .gen-files/.dummy.prereqs
 
+
+prereqs: .gen-files/.dummy.prereqs
+
+.PHONY: prereqs
+

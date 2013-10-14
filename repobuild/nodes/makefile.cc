@@ -126,6 +126,9 @@ void Makefile::FinishMakefile() {
   rule->WriteCommand("mkdir -p " + scratch_dir_);
   rule->WriteCommand("touch " + GetPrereqFile());
   FinishRule(rule);
+
+  FinishRule(StartRawRule("prereqs", GetPrereqFile()));
+  append(".PHONY: prereqs\n\n");
 }
 
 string Makefile::GetPrereqFile() const {
