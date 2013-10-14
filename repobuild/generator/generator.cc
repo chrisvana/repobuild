@@ -104,6 +104,24 @@ string Generator::GenerateMakefile(const Input& input) {
   clean->WriteCommand("rm -rf " + input.pkgfile_dir());
   out.FinishRule(clean);
 
+  // Write the install rules.
+  const char kInstallBoilerplate[] =
+      "# http://www.gnu.org/prep/standards/standards.html\n"
+      "prefix=\n"
+      "exec_prefix=$(prefix)\n"
+      "bindir=$(exec_prefix)/bin\n"
+      "includedir=$(prefix)/include\n"
+      "libdir=$(exec_prefix)/lib\n"
+      "INSTALL=install\n"
+      "INSTALL_PROGRAM=$(INSTALL)\n"
+      "INSTALL_DATA=$(INSTALL) -m 644\n\n";
+  out.append(kInstallBoilerplate);
+  Makefile::Rule* install = out.StartRule("install", "");
+  for (const Node* node : parser.input_nodes()) {
+    node->WriteMakeInstall(&out, install);
+  }
+  out.FinishRule(install);
+
   // Write the all rule.
   ResourceFileSet outputs;
   for (const Node* node : parser.input_nodes()) {
@@ -124,7 +142,7 @@ string Generator::GenerateMakefile(const Input& input) {
   out.WriteRule("tests", strings::JoinAll(tests, " "));
 
   // Not real files:
-  out.append(".PHONY: clean all tests\n\n");
+  out.append(".PHONY: clean all tests install\n\n");
 
   // Default build everything.
   out.append(".DEFAULT_GOAL=all\n\n");

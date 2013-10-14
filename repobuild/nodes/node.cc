@@ -89,6 +89,10 @@ void Node::WriteMakeClean(Makefile::Rule* out) const {
   LocalWriteMakeClean(out);
 }
 
+void Node::WriteMakeInstall(Makefile* base, Makefile::Rule* out) const {
+  LocalWriteMakeInstall(base, out);
+}
+
 void Node::AddDependencyNode(Node* dependency) {
   dependencies_.push_back(dependency);
 }

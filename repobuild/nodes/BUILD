@@ -113,7 +113,8 @@
      "dependencies": [ "//common/log:log",
                        "//common/strings:strutil",
                        ":node",
-                       ":top_symlink"
+                       ":top_symlink",
+                       ":util"
       ]
    }
  },

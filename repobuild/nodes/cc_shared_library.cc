@@ -14,6 +14,7 @@
 #include "repobuild/env/resource.h"
 #include "repobuild/nodes/cc_shared_library.h"
 #include "repobuild/nodes/top_symlink.h"
+#include "repobuild/nodes/util.h"
 #include "repobuild/reader/buildfile.h"
 
 using std::string;
@@ -46,12 +47,57 @@ void CCSharedLibraryNode::Parse(BuildFile* file, const BuildFileNode& input) {
   current_reader()->ParseStringField("release_version", &release_version_);
   current_reader()->ParseStringField("minor_version", &minor_version_);
   current_reader()->ParseStringField("major_version", &major_version_);
+  current_reader()->ParseStringField("install_strip_prefix",
+                                     &install_strip_prefix_);
+  if (install_strip_prefix_.empty()) {
+    install_strip_prefix_ = target().dir();
+  }
   if (!release_version_.empty() && minor_version_.empty()) {
     minor_version_ = "0";
   }
   if (major_version_.empty() && !minor_version_.empty()) {
     major_version_ = "0";
   }
+
+  // Ugly:
+  // We let the makefile figure out the output shared object name.
+  // TODO(cvanarsdale): Use if/else in awk for simplicity, and drop the
+  // variable_suffix junk.
+  string variable_suffix;
+  if (!major_version_.empty()) {
+    CreateBasename("basename_ma", "_MA");
+    variable_suffix = "_MA";
+  }
+  if (!minor_version_.empty()) {
+    CreateBasename("basename_mi", "_MI");
+    variable_suffix = "_MI";
+  }
+  if (!release_version_.empty()) {
+    variable_suffix = "_R";
+  }
+  CreateBasename("basename_bare", "");
+  CreateBasename("basename", variable_suffix);
+  MutableVariable("path")->SetValue(
+      ObjectDir() + "/" + GetVariable("basename").ref_name());
+
+  MutableVariable("link_args")->SetValue(strings::StringPrintf(
+      "$$(printf '%s %s %s %s' | $(SHARED_LIB_ARGS%s))",
+      target().local_path().c_str(),
+      major_version_.c_str(),
+      minor_version_.c_str(),
+      release_version_.c_str(),
+      variable_suffix.c_str()));
+}
+
+void CCSharedLibraryNode::CreateBasename(const string& variable_name,
+                                         const string& variable_suffix) {
+  MutableVariable(variable_name)->SetValue(strings::StringPrintf(
+      "$$(printf '%s %s %s %s' | $(SHARED_LIB_NAME%s))",
+      target().local_path().c_str(),
+      major_version_.c_str(),
+      minor_version_.c_str(),
+      release_version_.c_str(),
+      variable_suffix.c_str()));
 }
 
 void CCSharedLibraryNode::LocalWriteMake(Makefile* out) const {
@@ -83,47 +129,6 @@ void CCSharedLibraryNode::WriteLink(Makefile* out) const {
   vector<Resource> copy = objects.files();
   std::reverse(copy.begin(), copy.end());
   string obj_list = strings::JoinAll(copy, " ");
-
-  // Ugly:
-  // We let the makefile figure out the output shared object name.
-  string shared_obj, link_path;
-  if (release_version_ != "") {
-    shared_obj = strings::StringPrintf(
-        "$$(printf '%s %s %s %s %s' | $(SHARED_LIB_ARGS_R))",
-        file.dirname().c_str(), target().local_path().c_str(),
-        major_version_.c_str(), minor_version_.c_str(),
-        release_version_.c_str());
-    link_path = strings::StringPrintf(
-        "$$(printf '%s %s %s %s' | $(SHARED_LIB_NAME_R))",
-        target().local_path().c_str(),
-        major_version_.c_str(), minor_version_.c_str(),
-        release_version_.c_str());
-  } else if (minor_version_ != "") {
-    shared_obj = strings::StringPrintf(
-        "$$(printf '%s %s %s %s' | $(SHARED_LIB_ARGS_MI))",
-        file.dirname().c_str(), target().local_path().c_str(),
-        major_version_.c_str(), minor_version_.c_str());
-    link_path = strings::StringPrintf(
-        "$$(printf '%s %s %s' | $(SHARED_LIB_NAME_MI))",
-        target().local_path().c_str(),
-        major_version_.c_str(), minor_version_.c_str());
-  } else if (major_version_ != "") {
-    shared_obj = strings::StringPrintf(
-        "$$(printf '%s %s %s' | $(SHARED_LIB_ARGS_MA))",
-        file.dirname().c_str(), target().local_path().c_str(),
-        major_version_.c_str());
-    link_path = strings::StringPrintf(
-        "$$(printf '%s %s' | $(SHARED_LIB_NAME_MA))",
-        target().local_path().c_str(), major_version_.c_str());
-  } else {
-    shared_obj = strings::StringPrintf(
-        "$$(printf '%s %s' | $(SHARED_LIB_ARGS))",
-        file.dirname().c_str(), target().local_path().c_str());
-    link_path = strings::StringPrintf(
-        "$$(printf '%s' | $(SHARED_LIB_NAME))",
-        target().local_path().c_str());
-  }
-
   string exported_symbols;
   if (!exported_symbols_.path().empty()) {
     exported_symbols = strings::StringPrintf(
@@ -133,14 +138,56 @@ void CCSharedLibraryNode::WriteLink(Makefile* out) const {
   rule->WriteCommand("mkdir -p " + file.dirname());
   rule->WriteCommand(strings::JoinWith(
       " ",
-      "$(LINK.cc)", obj_list, exported_symbols, shared_obj,
+      "$(LINK.cc)", obj_list, exported_symbols,
+      GetVariable("link_args").ref_name(),
+      "-o", GetVariable("path").ref_name(),
       strings::JoinAll(flags, " ")));
-  rule->WriteCommand("NAME=" + link_path + "; "
-                     "INPUT=" + file.dirname() + "/$$NAME; "
-                     "OUTPUT=" + file.path() + "; " +
-                     "[ \"$$INPUT\" = \"$$OUTPUT\" ] || "
-                     "ln -f -s " + link_path + " " + file.path());
+  rule->WriteCommand("[ \"" + GetVariable("path").ref_name() + "\" = "
+                     "\"" + file.path() + "\" ] || "
+                     "ln -f -s " + GetVariable("basename").ref_name() + " " +
+                     file.path());
   out->FinishRule(rule);
+}
+
+void CCSharedLibraryNode::LocalWriteMakeInstall(Makefile* base,
+                                                Makefile::Rule* rule) const {
+  set<string> dest_dirs;
+  for (const Resource& header : headers_) {
+    dest_dirs.insert("$(DESTDIR)$(includedir)" + DestInstallDir(header));
+  }
+  dest_dirs.insert("$(DESTDIR)$(libdir)");
+
+  rule->AddDependency(target().make_path());
+  rule->WriteCommand("mkdir -p " + strings::JoinAll(dest_dirs, " "));
+  for (const Resource& header : headers_) {
+    rule->WriteCommand("$(INSTALL_DATA) " + header.path() + " " +
+                       "$(DESTDIR)$(includedir)" + DestInstallDir(header));
+  }
+  rule->WriteCommand("$(INSTALL) " + GetVariable("path").ref_name() + " "
+                     "$(DESTDIR)$(libdir)/" +
+                     GetVariable("basename").ref_name());
+  if (HasVariable("basename_mi")) {
+    rule->WriteCommand("ln -s -f " + GetVariable("basename").ref_name() + " "
+                       "$(DESTDIR)$(libdir)/" +
+                       GetVariable("basename_ma").ref_name());
+  }
+  if (HasVariable("basename_ma")) {
+    rule->WriteCommand("ln -s -f " + GetVariable("basename").ref_name() + " "
+                       "$(DESTDIR)$(libdir)/" +
+                       GetVariable("basename_bare").ref_name());
+  }
+}
+
+string CCSharedLibraryNode::DestInstallDir(const Resource& source) const {
+  string path = NodeUtil::StripSpecialDirs(input(), source.path());
+  if (strings::HasPrefix(path, install_strip_prefix_)) {
+    path = path.substr(install_strip_prefix_.size());
+  }
+  path = strings::PathDirname(path);
+  if (strings::HasSuffix(path, "/")) {
+    path = path.substr(0, path.size() - 1);
+  }
+  return path;
 }
 
 // static
@@ -166,14 +213,11 @@ void CCSharedLibraryNode::WriteMakeHead(const Input& input, Makefile* out) {
   // Darwin and Clang.
   // SHARED_LIB_ARGS
   out->append("\tSHARED_LIB_ARGS_R:=awk '{print \"-dynamiclib -current_version"
-              " \"$$4\" -compatibility_version \"$$5\" -o \"$$1\"/lib\"$$2\"."
-              "\"$$3\".\"$$4\".\"$$5\".dylib\"}'\n");
+              " \"$$3\" -compatibility_version \"$$4}'\n");
   out->append("\tSHARED_LIB_ARGS_MI:=awk '{print \"-dynamiclib -current_version"
-              " \"$$4\" -o \"$$1\"/lib\"$$2\".\"$$3\".\"$$4\".dylib\"}'\n");
-  out->append("\tSHARED_LIB_ARGS_MA:=awk '{print \"-dynamiclib -o "
-              "\"$$1\"/lib\"$$2\".\"$$3\".dylib\"}'\n");
-  out->append("\tSHARED_LIB_ARGS:=awk '{print \"-dynamiclib -o "
-              "\"$$1\"/lib\"$$2\".dylib\"}'\n");
+              " \"$$3}'\n");
+  out->append("\tSHARED_LIB_ARGS_MA:=awk '{print \"-dynamiclib\"}'\n");
+  out->append("\tSHARED_LIB_ARGS:=awk '{print \"-dynamiclib\"}'\n");
 
   // SHARED_LIB_NAME
   out->append("\tSHARED_LIB_NAME_R:=awk '{print \"lib\"$$1\".\"$$2\".\"$$3\""
@@ -188,15 +232,14 @@ void CCSharedLibraryNode::WriteMakeHead(const Input& input, Makefile* out) {
 
   // GCC
   // SHARED_LIB_ARGS
-  out->append("\tSHARED_LIB_ARGS_R:=awk '{print \"-shared -Wl,-soname,lib\"$$2"
-              "\".so.\"$$3\" -o \"$$1\"/lib\"$$2\".so.\"$$3\".\"$$4\".\"$$5"
-              "}'\n");
-  out->append("\tSHARED_LIB_ARGS_MA:=awk '{print \"-shared -Wl,-soname,lib\"$$2"
-              "\".so.\"$$3\" -o \"$$1\"/lib\"$$2\".so.\"$$3\".\"$$4}'\n");
-  out->append("\tSHARED_LIB_ARGS_MI:=awk '{print \"-shared -Wl,-soname,lib\"$$2"
-              "\".so.\"$$3\" -o \"$$1\"/lib\"$$2\".so.\"$$3}'\n");
-  out->append("\tSHARED_LIB_ARGS:=awk '{print \"-shared -Wl,-soname,lib\"$$2"
-              "\".so -o \"$$1\"/lib\"$$2\".so\"}'\n");
+  out->append("\tSHARED_LIB_ARGS_R:=awk '{print \"-shared -Wl,-soname,lib\"$$1"
+              "\".so.\"$$2}'\n");
+  out->append("\tSHARED_LIB_ARGS_MI:=awk '{print \"-shared -Wl,-soname,lib\"$$1"
+              "\".so.\"$$2}'\n");
+  out->append("\tSHARED_LIB_ARGS_MA:=awk '{print \"-shared -Wl,-soname,lib\"$$1"
+              "\".so.\"$$2}'\n");
+  out->append("\tSHARED_LIB_ARGS:=awk '{print \"-shared -Wl,-soname,lib\"$$1"
+              "\".so\"}'\n");
 
   // SHARED_LIB_NAME
   out->append("\tSHARED_LIB_NAME_R:=awk '{print \"lib\"$$1\".so.\"$$2\".\"$$3"
@@ -207,11 +250,21 @@ void CCSharedLibraryNode::WriteMakeHead(const Input& input, Makefile* out) {
   out->append("\tSHARED_LIB_NAME:=awk '{print \"lib\"$$1\".so\"}'\n");
 
   out->append("endif\n");
+
+  // Install args.
+  out->append("prefix=/usr/local\n");
+  out->append("exec_prefix=$(prefix)\n");
+  out->append("bindir=$(exec_prefix)/bin\n");
+  out->append("includedir=$(prefix)/include\n");
+  out->append("libdir=$(exec_prefix)/lib\n");
+  out->append("INSTALL=install\n");
+  out->append("INSTALL_PROGRAM=$(INSTALL)\n");
+  out->append("INSTALL_DATA=$(INSTALL) -m 644\n");
 }
 
 void CCSharedLibraryNode::ObjectFiles(LanguageType lang,
                                       ResourceFileSet* files) const {
-  // Don't inherit anything.
+  // Don't inherit any objects.
   files->Add(OutLinkedObj());
 }
 

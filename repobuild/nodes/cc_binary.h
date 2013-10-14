@@ -23,6 +23,8 @@ class CCBinaryNode : public CCLibraryNode {
   virtual void LocalWriteMake(Makefile* out) const;
   virtual void LocalBinaries(LanguageType lang,
                              ResourceFileSet* outputs) const;
+  virtual void LocalWriteMakeInstall(Makefile* base,
+                                     Makefile::Rule* rule) const;
 
  protected:
   // Helper.

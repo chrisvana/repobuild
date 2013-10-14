@@ -76,6 +76,15 @@ void CCBinaryNode::WriteLink(const Resource& file, Makefile* out) const {
   out->FinishRule(rule);
 }
 
+void CCBinaryNode::LocalWriteMakeInstall(Makefile* base,
+                                         Makefile::Rule* rule) const {
+  rule->AddDependency(ObjBinary().basename());
+  rule->WriteCommand("mkdir -p $(DESTDIR)$(bindir)");
+  rule->WriteCommand("$(INSTALL_PROGRAM) " +
+                     ObjBinary().path() + " $(DESTDIR)$(bindir)/" +
+                     ObjBinary().basename());
+}
+
 void CCBinaryNode::LocalBinaries(LanguageType lang,
                                  ResourceFileSet* outputs) const {
   outputs->Add(ObjBinary());

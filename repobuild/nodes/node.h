@@ -48,6 +48,7 @@ class Node {
   // Makefile generation.
   void WriteMake(Makefile* out) const;
   void WriteMakeClean(Makefile::Rule* rule) const;
+  void WriteMakeInstall(Makefile* base, Makefile::Rule* rule) const;
 
   // Internal object/resource handling.
   void DependencyFiles(LanguageType lang, ResourceFileSet* files) const;
@@ -103,6 +104,9 @@ class Node {
   // The main thing to override.
   virtual void LocalWriteMake(Makefile* out) const = 0;
   virtual void LocalWriteMakeClean(Makefile::Rule* out) const {}
+  virtual void LocalWriteMakeInstall(Makefile* base,
+                                     Makefile::Rule* out) const {
+  }
   virtual void LocalDependencyFiles(
       LanguageType lang,
       ResourceFileSet* files) const {}

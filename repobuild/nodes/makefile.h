@@ -37,14 +37,18 @@ class Makefile {
                        const std::string& value);  // prints "name: value".
     void MaybeRemoveSymlink(const std::string& path);
 
+    void AddDependency(const std::string& dep);
+
     // Raw access.
     std::string* mutable_out() { return &out_; }
     const std::string& out() const { return out_; }
     const std::string& rule() const { return rule_; }
+    const std::string& dependencies() const { return dependencies_; }
 
    private:
     bool silent_;
     std::string rule_;
+    std::string dependencies_;
     std::string out_;
   };
 

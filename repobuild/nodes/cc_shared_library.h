@@ -24,14 +24,20 @@ class CCSharedLibraryNode : public CCLibraryNode {
   virtual void LocalWriteMake(Makefile* out) const;
   virtual void ObjectFiles(LanguageType lang,
                            ResourceFileSet* files) const;
+  virtual void LocalWriteMakeInstall(Makefile* base,
+                                     Makefile::Rule* install) const;
 
   static void WriteMakeHead(const Input& input, Makefile* out);
 
  protected:
   Resource OutLinkedObj() const;
   void WriteLink(Makefile* out) const;
+  void CreateBasename(const std::string& variable_name,
+                      const std::string& variable_suffix);
+  std::string DestInstallDir(const Resource& source) const;
 
   std::string major_version_, minor_version_, release_version_;
+  std::string install_strip_prefix_;
   Resource exported_symbols_;
 };
 

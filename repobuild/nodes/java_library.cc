@@ -152,6 +152,7 @@ void JavaLibraryNode::WriteCompile(const ResourceFileSet& input_files,
       strings::JoinAll(compile_args, " "),
       include_dirs,
       strings::JoinAll(sources_, " ")));
+  rule->WriteCommand("touch " + touchfile.path());
   out->FinishRule(rule);
 
   // Secondary rules depend on touchfile and make sure each classfile is in
@@ -170,7 +171,7 @@ void JavaLibraryNode::WriteCompile(const ResourceFileSet& input_files,
                        "package name for the object is: " +
                        strings::Replace(object_file.dirname(), "/", ".") +
                        "\"; exit 1; fi");
-    rule->WriteCommand("touch " + touchfile.path());
+    rule->WriteCommand("touch " + object_file.path());
     out->FinishRule(rule);
   }
 }

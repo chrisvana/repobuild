@@ -34,6 +34,7 @@ Makefile::Rule* Makefile::StartRule(const string& rule,
 
 void Makefile::FinishRule(Makefile::Rule* rule) {
   out_.append("\n");
+  out_.append(rule->rule() + ": " + rule->dependencies() + "\n");
   out_.append(rule->out());  
   out_.append("\n");
   for (const StringPiece& str : strings::Split(rule->rule(), " ")) {
@@ -46,11 +47,8 @@ Makefile::Rule::Rule(const string& rule,
                      const string& dependencies,
                      bool silent)
     : silent_(silent),
-      rule_(rule) {
-  out_.append(rule);
-  out_.append(": ");
-  out_.append(dependencies);
-  out_.append("\n");
+      rule_(rule),
+      dependencies_(dependencies) {
 }
 
 void Makefile::Rule::WriteCommand(const string& command) {
@@ -76,6 +74,13 @@ void Makefile::Rule::WriteUserEcho(const string& name,
   WriteCommand(strings::StringPrintf("echo \"%-11s %s\"",
                                      (name + ":").c_str(),
                                      value.c_str()));
+}
+
+void Makefile::Rule::AddDependency(const string& dep) {
+  if (!dependencies_.empty()) {
+    dependencies_ += " ";
+  }
+  dependencies_ += dep;
 }
 
 void Makefile::Rule::MaybeRemoveSymlink(const string& path) {
