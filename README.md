@@ -8,12 +8,16 @@ Repobuild is a declarative style build system.
 - Fetches missing files from git automatically
 
 ###### Status
-- Functional for Mac and Linux, but a work in progress.
+- Functional for Mac and Linux.
 - In beta, some rules may change.
 
 ###### Why?
 - [Motivation](https://github.com/chrisvana/repobuild/wiki/Motivation) behind Repobuild
 - [Similar build systems](https://github.com/chrisvana/repobuild/wiki/Similar-Build-Systems) to Repobuild
+- Neatest features?
+  - Sub-module dependencies
+  - Wraps existing common build tools (no project rewrites required)
+  - Generates a Makefile, clients of your code can just run "make" (they do not need repobuild).
 
 ###### Current Languages:
 - C++
