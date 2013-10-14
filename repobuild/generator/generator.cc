@@ -107,7 +107,7 @@ string Generator::GenerateMakefile(const Input& input) {
   // Write the install rules.
   const char kInstallBoilerplate[] =
       "# http://www.gnu.org/prep/standards/standards.html\n"
-      "prefix=\n"
+      "prefix=/usr/local\n"
       "exec_prefix=$(prefix)\n"
       "bindir=$(exec_prefix)/bin\n"
       "includedir=$(prefix)/include\n"

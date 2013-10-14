@@ -250,16 +250,6 @@ void CCSharedLibraryNode::WriteMakeHead(const Input& input, Makefile* out) {
   out->append("\tSHARED_LIB_NAME:=awk '{print \"lib\"$$1\".so\"}'\n");
 
   out->append("endif\n");
-
-  // Install args.
-  out->append("prefix=/usr/local\n");
-  out->append("exec_prefix=$(prefix)\n");
-  out->append("bindir=$(exec_prefix)/bin\n");
-  out->append("includedir=$(prefix)/include\n");
-  out->append("libdir=$(exec_prefix)/lib\n");
-  out->append("INSTALL=install\n");
-  out->append("INSTALL_PROGRAM=$(INSTALL)\n");
-  out->append("INSTALL_DATA=$(INSTALL) -m 644\n");
 }
 
 void CCSharedLibraryNode::ObjectFiles(LanguageType lang,
