@@ -26,6 +26,36 @@ else
 	BASIC_CXXFLAGS= -stdlib=libc++ -pthread -Qunused-arguments -std=c++11
 endif
 
+# Some platform specific flag settings.
+IS_DARWIN := $(shell echo $$(uname | grep 'Darwin' | wc -l))
+IS_DARWIN_AND_CLANG := $(shell echo $$((($(IS_DARWIN) == 1 && $(CXX_GCC) == 0))))
+ifeq ($(IS_DARWIN_AND_CLANG),1)
+	SHARED_LIB_ARGS_R:=awk '{print "-dynamiclib -current_version "$$3" -compatibility_version "$$4}'
+	SHARED_LIB_ARGS_MI:=awk '{print "-dynamiclib -current_version "$$3}'
+	SHARED_LIB_ARGS_MA:=awk '{print "-dynamiclib"}'
+	SHARED_LIB_ARGS:=awk '{print "-dynamiclib"}'
+	SHARED_LIB_NAME_R:=awk '{print "lib"$$1"."$$2"."$$3"."$$4".dylib"}'
+	SHARED_LIB_NAME_MI:=awk '{print "lib"$$1"."$$2"."$$3".dylib"}'
+	SHARED_LIB_NAME_MA:=awk '{print "lib"$$1"."$$2".dylib"}'
+	SHARED_LIB_NAME:=awk '{print "lib"$$1".dylib"}'
+else
+	SHARED_LIB_ARGS_R:=awk '{print "-shared -Wl,-soname,lib"$$1".so."$$2}'
+	SHARED_LIB_ARGS_MI:=awk '{print "-shared -Wl,-soname,lib"$$1".so."$$2}'
+	SHARED_LIB_ARGS_MA:=awk '{print "-shared -Wl,-soname,lib"$$1".so."$$2}'
+	SHARED_LIB_ARGS:=awk '{print "-shared -Wl,-soname,lib"$$1".so"}'
+	SHARED_LIB_NAME_R:=awk '{print "lib"$$1".so."$$2"."$$3"."$$4}'
+	SHARED_LIB_NAME_MI:=awk '{print "lib"$$1".so."$$2"."$$3}'
+	SHARED_LIB_NAME_MA:=awk '{print "lib"$$1".so."$$2}'
+	SHARED_LIB_NAME:=awk '{print "lib"$$1".so"}'
+endif
+prefix=/usr/local
+exec_prefix=$(prefix)
+bindir=$(exec_prefix)/bin
+includedir=$(prefix)/include
+libdir=$(exec_prefix)/lib
+INSTALL=install
+INSTALL_PROGRAM=$(INSTALL)
+INSTALL_DATA=$(INSTALL) -m 644
 define PythonSetup
 aW1wb3J0IG9zCmZyb20gc2V0dXB0b29scyBpbXBvcnQgc2V0dXAKCnNldHVwKAogICAgbmFtZSA9IG9zLmVudmlyb25bJ1BZX05BTUUnXSwKICAgIHZlcnNpb24gPSBvcy5lbnZpcm9uWydQWV9WRVJTSU9OJ10sCiAgICBweV9tb2R1bGVzID0gb3MuZW52aXJvblsnUFlfTU9EVUxFUyddLnNwbGl0KCksCiAgICBpbnN0YWxsX3JlcXVpcmVzID0gb3MuZW52aXJvblsnUFlfU1lTX0RFUFMnXS5zcGxpdCgpLAopCg==
 endef
@@ -690,7 +720,7 @@ headers.repobuild/nodes/cc_shared_library := repobuild/nodes/cc_shared_library.h
 	@echo "Compiling:  repobuild/nodes/cc_shared_library.cc (c++)"
 	@$(COMPILE.cc) -I. -I.gen-files -I.gen-src -I.gen-src/.gen-files -Icommon/third_party/google/glog/src -Irepobuild/third_party $(cxx_header_compile_args.common/third_party/google/gflags/gflags) repobuild/nodes/cc_shared_library.cc -o .gen-obj/repobuild/nodes/cc_shared_library.cc.o
 
-repobuild/nodes/cc_shared_library: .gen-obj/repobuild/nodes/cc_shared_library.cc.o common/log/log common/strings/strutil repobuild/nodes/node repobuild/nodes/top_symlink repobuild/auto_.0
+repobuild/nodes/cc_shared_library: .gen-obj/repobuild/nodes/cc_shared_library.cc.o common/log/log common/strings/strutil repobuild/nodes/node repobuild/nodes/top_symlink repobuild/nodes/util repobuild/auto_.0
 
 .PHONY: repobuild/nodes/cc_shared_library
 
@@ -1130,13 +1160,28 @@ clean: .gen-files/.dummy.prereqs
 	@rm -rf .gen-src
 	@rm -rf .gen-pkg
 
+# http://www.gnu.org/prep/standards/standards.html
+prefix=
+exec_prefix=$(prefix)
+bindir=$(exec_prefix)/bin
+includedir=$(prefix)/include
+libdir=$(exec_prefix)/lib
+INSTALL=install
+INSTALL_PROGRAM=$(INSTALL)
+INSTALL_DATA=$(INSTALL) -m 644
+
+
+install: .gen-files/.dummy.prereqs repobuild
+	@mkdir -p $(DESTDIR)$(bindir)
+	@$(INSTALL_PROGRAM) .gen-obj/repobuild/repobuild $(DESTDIR)$(bindir)/repobuild
+
 
 all: repobuild bin/repobuild repobuild/repobuild .gen-files/.dummy.prereqs
 
 
 tests: .gen-files/.dummy.prereqs
 
-.PHONY: clean all tests
+.PHONY: clean all tests install
 
 .DEFAULT_GOAL=all
 
