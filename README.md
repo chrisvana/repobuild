@@ -28,10 +28,9 @@ Repobuild is a declarative style build system.
 --
 ###### Dependencies
 - git
-- gcc or clang (requires c++11)
+- gcc or clang (recent version, requires c++11)
 - make
-- cmake
-- some rule types require python, go, java
+- some rule types require python, go, java, cmake, etc.
 
 ###### Building the tool
 ```
@@ -49,7 +48,9 @@ $ ...
 
 # Try it out on the testdata (builds in protocol buffers and other fun stuff):
 $ repobuild "testdata:java_main"
+...
 $ make -j8
+...
 $ ./java_main
 
 ```
@@ -59,7 +60,7 @@ $ ./java_main
 - Look at some [examples](https://github.com/chrisvana/repobuild/wiki/Examples)
 - Start playing with your own project.
 - Add submodules to ["third_party"](https://github.com/chrisvana/third_party).
-- Forum: https://groups.google.com/forum/#!forum/repobuild
+- Forum (questions, bugs, hate mail, etc): https://groups.google.com/forum/#!forum/repobuild
 
 ###### Why is this built using C++?<br/>
 Actually this started in Go, and there is no good reason for C++. The first open source code I needed to use it on was in C++, and being able to build the tool using the tool appealed to the geek in me.
