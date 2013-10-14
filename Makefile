@@ -48,14 +48,6 @@ else
 	SHARED_LIB_NAME_MA:=awk '{print "lib"$$1".so."$$2}'
 	SHARED_LIB_NAME:=awk '{print "lib"$$1".so"}'
 endif
-prefix=/usr/local
-exec_prefix=$(prefix)
-bindir=$(exec_prefix)/bin
-includedir=$(prefix)/include
-libdir=$(exec_prefix)/lib
-INSTALL=install
-INSTALL_PROGRAM=$(INSTALL)
-INSTALL_DATA=$(INSTALL) -m 644
 define PythonSetup
 aW1wb3J0IG9zCmZyb20gc2V0dXB0b29scyBpbXBvcnQgc2V0dXAKCnNldHVwKAogICAgbmFtZSA9IG9zLmVudmlyb25bJ1BZX05BTUUnXSwKICAgIHZlcnNpb24gPSBvcy5lbnZpcm9uWydQWV9WRVJTSU9OJ10sCiAgICBweV9tb2R1bGVzID0gb3MuZW52aXJvblsnUFlfTU9EVUxFUyddLnNwbGl0KCksCiAgICBpbnN0YWxsX3JlcXVpcmVzID0gb3MuZW52aXJvblsnUFlfU1lTX0RFUFMnXS5zcGxpdCgpLAopCg==
 endef
@@ -1161,7 +1153,7 @@ clean: .gen-files/.dummy.prereqs
 	@rm -rf .gen-pkg
 
 # http://www.gnu.org/prep/standards/standards.html
-prefix=
+prefix=/usr/local
 exec_prefix=$(prefix)
 bindir=$(exec_prefix)/bin
 includedir=$(prefix)/include
