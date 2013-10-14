@@ -40,9 +40,8 @@ $ git clone https://github.com/chrisvana/repobuild.git
 $ cd repobuild
 $ make -j8 repobuild
 
-# Install somewhere in your path
-$ # Example: sudo cp bin/repobuild  #/... somewhere in your path, like /usr/bin
-$ sudo cp bin/repobuild /usr/bin/repobuild
+# Install (default is /usr/local/bin)
+$ sudo make install
 
 # Usage:
 $ repobuild --helpshort
