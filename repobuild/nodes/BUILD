@@ -265,7 +265,10 @@
      "dependencies": [ "//common/log:log",
                        "//common/file:fileutil",
                        "//common/strings:strutil",
-                       ":gen_sh"
+                       "//repobuild/env:input",
+                       "//repobuild/env:resource",
+                       ":gen_sh",
+                       ":node"
       ]
  } },
 

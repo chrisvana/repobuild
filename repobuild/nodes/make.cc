@@ -7,7 +7,9 @@
 #include <iterator>
 #include <vector>
 #include "common/log/log.h"
+#include "common/strings/path.h"
 #include "repobuild/env/input.h"
+#include "repobuild/env/resource.h"
 #include "repobuild/nodes/make.h"
 #include "repobuild/nodes/gen_sh.h"
 #include "repobuild/reader/buildfile.h"
@@ -35,11 +37,26 @@ void MakeNode::ParseWithOptions(BuildFile* file,
     make_target = "install";
   }
 
+  // make_file
+  string make_file;
+  vector<Resource> files;
+  current_reader()->ParseSingleFile("make_file", &files);
+  if (files.size() == 0) {
+    make_file = "Makefile";
+  } else if (files.size() == 1) {
+    make_file = strings::GetRelativePath(target().dir(), files[0].path());
+  } else {
+    LOG(FATAL) << "make_file must be single file: "
+               << target().full_path();
+  }
+
   // Generate the output files.
   GenShNode* gen = NewSubNodeWithCurrentDeps<GenShNode>(file);
+  gen->SetCd(true);
   gen->SetMakeName("Make");
 
-  string make_cmd = "$MAKE " + make_target + " DESTDIR=" + dest_dir;
+  string make_cmd = ("$MAKE DESTDIR=" + dest_dir + " -f " + make_file + " "
+                     + make_target);
   if (!preinstall.empty()) {
     make_cmd = preinstall + " && " + make_cmd;
   }

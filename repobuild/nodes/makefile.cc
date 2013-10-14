@@ -93,9 +93,7 @@ void Makefile::WriteRootSymlinkWithDependency(const string& symlink_file,
   string out_dir = strings::PathDirname(symlink_file);
 
   // Output link target.
-  string link = strings::JoinPath(
-      strings::Repeat("../", strings::NumPathComponents(out_dir)),
-      source_file);
+  string link = strings::GetRelativePath(out_dir, source_file);
 
   // Write symlink.
   Rule* rule = StartRule(symlink_file, strings::JoinWith(" ",
