@@ -44,7 +44,7 @@ void ProtoLibraryNode::Parse(BuildFile* file, const BuildFileNode& input) {
   //        -I.gen-files -I.gen-src -I.gen-src/.gen-files testdata/a/a.proto
   gen_node_ = NewSubNodeWithCurrentDeps<GenShNode>(file);
   gen_node_->SetCd(false);
-  gen_node_->SetMakeName("Generating protobuf");
+  gen_node_->SetMakeName("Protobuf");
 
   // Figure out where protoc lives.
   string protoc_binary = "$" + string(kProtocVar);
