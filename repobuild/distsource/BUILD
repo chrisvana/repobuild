@@ -4,6 +4,7 @@
     "cc_headers": [ "git_tree.h" ],
     "cc_sources": [ "git_tree.cc" ],
     "dependencies":  [ "//common/base:base",
+                       "//common/util:shell",
                        "//common/util:stl",
                        "//common/strings:strutil",
                        "//repobuild/third_party/libgit2:libgit2",

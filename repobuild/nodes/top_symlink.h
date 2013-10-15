@@ -30,6 +30,6 @@ class TopSymlinkNode : public Node {
   ResourceFileSet input_binaries_;
 };
 
-#endif  // _REPOBUILD_NODES_TOP_SYMLINK_H__
-
 }  // namespace repobuild
+
+#endif  // _REPOBUILD_NODES_TOP_SYMLINK_H__

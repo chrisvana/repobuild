@@ -100,6 +100,10 @@ void Node::AddDependencyTarget(const TargetInfo& other) {
   dep_targets_.push_back(other);
 }
 
+void Node::AddPreParse(const TargetInfo& other) {
+  pre_parse_.push_back(other);
+}
+
 void Node::AddRequiredParent(const TargetInfo& parent) {
   required_parents_.push_back(parent);
 }

@@ -174,16 +174,43 @@ class Graph {
     string filestr = file::ReadFileToStringOrDie(file->filename());
     file->Parse(filestr);
 
-    // Parse all of the elements of the build file.
+    // Get the dependent files.
     vector<Node*> nodes;
     for (BuildFileNode* node : file->nodes()) {
       LOG_IF(FATAL, !node->object().isObject())
           << "Expected json object (file = " << file->filename() << "): "
           << node->object();
       for (const string& key : node->object().getMemberNames()) {
-        SaveNode(ParseNode(builder_set_, file, node,
-                           dist_source_, input_, key),
-                 &nodes);
+        if (key == "config" || key == "plugin") {
+          ParseSingleNode(file, node, key, &nodes);
+        }
+      }
+    }
+
+    // Parse any BUILD files that our "config" depends on.
+    for (const Node* n : nodes) {
+      for (const TargetInfo& target : n->pre_parse()) {
+        file->MergeDependency(AddFile(target.build_file()));
+      }
+    }
+
+    // Parse the rest of the elements of the build file.
+    for (BuildFileNode* node : file->nodes()) {
+      bool expand_plugin = true;
+      while (expand_plugin) {
+        expand_plugin = false;
+        for (const string& key : node->object().getMemberNames()) {
+          if (ExpandPlugin(file, node, key)) {
+            expand_plugin = true;
+            break;
+          }
+        }
+      }
+
+      for (const string& key : node->object().getMemberNames()) {
+        if (key != "config" && key != "plugin") {
+          ParseSingleNode(file, node,  key, &nodes);
+        }
       }
     }
 
@@ -245,7 +272,45 @@ class Graph {
     ExpandTarget(target);
   }
 
-  void SaveNode(Node* node, vector<Node*>* all) {
+  void ProcessParent(BuildFile* child) {
+    BuildFile* current = child;
+    while (true) {
+      string current_dir = strings::PathDirname(current->filename());
+      if (current_dir == "." || current_dir == input_.root_dir()) {
+        break;
+      }
+
+      string parent_file = strings::JoinPath(
+          strings::JoinPath(current_dir, ".."), "BUILD");
+      BuildFile* parent = AddFile(parent_file);
+      child->MergeParent(parent);
+      current = parent;
+    }
+  }
+
+  bool ExpandPlugin(BuildFile* file,
+                    BuildFileNode* file_node,
+                    const string& key) {
+    VLOG(2) << "Checking for plugin: " << key;
+
+    // TODO(cvanarsdale): string stuff here is hacky.
+    string plugin_target = file->GetKey("plugin:" + key);
+    if (plugin_target.empty()) {
+      VLOG(2) << "Could not find plugin: " << key;
+      return false;
+    }
+    Node* node = nodes_[plugin_target];
+    CHECK(node);
+    return node->ExpandBuildFileNode(file, file_node);
+  }
+  
+  void ParseSingleNode(BuildFile* file,
+                       BuildFileNode* file_node,
+                       const string& key,
+                       vector<Node*>* all) {
+    Node* node = ParseNode(builder_set_, file, file_node,
+                           dist_source_, input_, key);
+
     VLOG(1) << "Saving node: " << node->target().full_path();
     // Gather all subnodes + this parent node.
     vector<Node*> nodes;
@@ -261,22 +326,6 @@ class Graph {
       // Save the output
       all->push_back(out_node);
       nodes_[target] = out_node;
-    }
-  }
-
-  void ProcessParent(BuildFile* child) {
-    BuildFile* current = child;
-    while (true) {
-      string current_dir = strings::PathDirname(current->filename());
-      if (current_dir == "." || current_dir == input_.root_dir()) {
-        break;
-      }
-
-      string parent_file = strings::JoinPath(
-          strings::JoinPath(current_dir, ".."), "BUILD");
-      BuildFile* parent = AddFile(parent_file);
-      child->MergeParent(parent);
-      current = parent;
     }
   }
 

@@ -22,6 +22,7 @@
 #include "repobuild/nodes/java_jar.h"
 #include "repobuild/nodes/java_binary.h"
 #include "repobuild/nodes/make.h"
+#include "repobuild/nodes/plugin.h"
 #include "repobuild/nodes/proto_library.h"
 #include "repobuild/nodes/py_binary.h"
 #include "repobuild/nodes/py_egg.h"
@@ -93,6 +94,7 @@ void NodeBuilder::GetAll(std::vector<NodeBuilder*>* nodes) {
   nodes->push_back(new NodeBuilderImpl<JavaJarNode>("java_jar"));
   nodes->push_back(new NodeBuilderImpl<JavaBinaryNode>("java_binary"));
   nodes->push_back(new NodeBuilderImpl<MakeNode>("make"));
+  nodes->push_back(new NodeBuilderImpl<PluginNode>("plugin"));
   nodes->push_back(new NodeBuilderImpl<ProtoLibraryNode>("proto_library"));
   nodes->push_back(new NodeBuilderImpl<PyBinaryNode>("py_binary"));
 

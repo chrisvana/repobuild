@@ -49,6 +49,21 @@
  },
 
  { "cc_library": {
+     "name" : "plugin",
+     "cc_sources" : [ "plugin.cc" ],
+     "cc_headers" : [ "plugin.h" ],
+     "dependencies": [ "//common/log:log",
+                       "//common/util:shell",
+                       "//repobuild/env:resource",
+                       "//repobuild/env:input",
+                       "//repobuild/third_party/json:json",
+                       ":makefile",
+                       ":node"
+    ]
+   }
+ },
+
+ { "cc_library": {
      "name" : "execute_test",
      "cc_sources" : [ "execute_test.cc" ],
      "cc_headers" : [ "execute_test.h" ],
@@ -134,7 +149,8 @@
      "cc_headers" : [ "go_binary.h" ],
      "dependencies": [ "//common/log:log",
                        "//common/strings:strutil",
-                       ":node"
+                       ":node",
+                       ":top_symlink"
       ]
    }
  },
@@ -301,6 +317,7 @@
                        ":java_jar",
                        ":make",
                        ":node",
+                       ":plugin",
                        ":proto_library",
                        ":py_egg",
                        ":py_binary",

@@ -47,6 +47,13 @@ void ConfigNode::Parse(BuildFile* file, const BuildFileNode& input) {
   Node::Parse(file, input);
   file->AddBaseDependency(target().full_path());
 
+  // Figure out our plugins
+  vector<string> plugins;
+  current_reader()->ParseRepeatedString("plugins", &plugins);
+  for (const string& plugin : plugins) {
+    AddPreParse(TargetInfo(plugin));
+  }
+
   // Initialize ComponentHelper.
   string component_src;
   if (!current_reader()->ParseStringField("component", &component_src)) {

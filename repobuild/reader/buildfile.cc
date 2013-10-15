@@ -35,11 +35,15 @@ const Json::Value& GetValue(const BuildFileNode& input, const string& key) {
 }
 }  // anonymous namespace
 
-BuildFileNode::BuildFileNode(const Json::Value& object)
-    : object_(new Json::Value(object)) {
+BuildFileNode::BuildFileNode(const Json::Value& object) {
+  Reset(object);
 }
 
 BuildFileNode::~BuildFileNode() {
+}
+
+void BuildFileNode::Reset(const Json::Value& object) {
+  object_.reset(new Json::Value(object));
 }
 
 BuildFile::~BuildFile() {
@@ -89,6 +93,17 @@ void BuildFile::MergeParent(BuildFile* parent) {
   for (BuildDependencyRewriter* rewriter : parent->rewriters_) {
     rewriters_.push_back(rewriter);
   }
+}
+
+void BuildFile::MergeDependency(BuildFile* dependency) {
+  for (const auto& it : dependency->registered_keys_) {
+    registered_keys_.insert(it);  // doesn't insert if already in map.
+  }
+}
+
+const std::string BuildFile::GetKey(const std::string& key) const {
+  const string kEmpty;
+  return FindWithDefault(registered_keys_, key, kEmpty);
 }
 
 BuildFileNodeReader::BuildFileNodeReader(const BuildFileNode& node,

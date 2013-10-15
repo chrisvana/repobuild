@@ -9,6 +9,7 @@
 #include "common/strings/path.h"
 #include "repobuild/env/input.h"
 #include "repobuild/nodes/go_binary.h"
+#include "repobuild/nodes/top_symlink.h"
 #include "repobuild/reader/buildfile.h"
 
 using std::string;
@@ -24,6 +25,14 @@ void GoBinaryNode::Parse(BuildFile* file, const BuildFileNode& input) {
     LOG(FATAL) << "go_binary requires \"go_sources\" to be non-empty: "
                << target().full_path();
   }
+
+  ResourceFileSet binaries;
+  LocalBinaries(GO_LANG, &binaries);
+  AddSubNode(new TopSymlinkNode(
+      target().GetParallelTarget(file->NextName(target().local_path())),
+      Node::input(),
+      Node::dist_source(),
+      binaries));
 }
 
 void GoBinaryNode::LocalWriteMake(Makefile* out) const {

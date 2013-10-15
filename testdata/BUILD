@@ -1,7 +1,8 @@
 // Test objects
 [
  { "config": {
-     "component": "testdata"
+     "component": "testdata",
+     "plugins": [ "//testdata/plugin:simple_plugin" ]
  } },
 
  { "cc_library": {
@@ -76,5 +77,10 @@
     "name": "go_main_test",
     "go_sources": [ "main_test.go" ],
     "dependencies": [ "//testdata/a:bar_go" ]
+ } },
+
+ { "simple_plugin": {
+    "name": "my_name",
+    "sources": [ "main.go" ]
  } }
 ]

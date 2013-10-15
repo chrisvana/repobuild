@@ -1,13 +1,13 @@
 // Copyright 2013
 // Author: Christopher Van Arsdale
 
-#include <stdlib.h>
 #include <memory>
 #include <string>
 #include <map>
 #include "common/base/init.h"
 #include "common/base/flags.h"
 #include "common/log/log.h"
+#include "common/util/shell.h"
 #include "common/util/stl.h"
 #include "common/strings/path.h"
 #include "common/strings/strutil.h"
@@ -159,9 +159,9 @@ void GitTree::InitializeSubmodule(const string& submodule, GitTree* sub_tree) {
   LOG(INFO) << "Initializing submodule: " << submodule;
   // NB: Why use 'git' here instead of libgit2? This is to avoid requiring
   // a bunch of libraries (ssl, ssh, zlib) needed to make git work correctly.
-  int retval = system(strings::Join(
+  int retval = util::Execute(strings::Join(
       "(cd ", root_dir_, "; ",
-      "git submodule update --init ", submodule, ")").c_str());
+      "git submodule update --init ", submodule, ")"));
   if (retval != 0) {
     LOG(ERROR) << "Could not expand submodule: "
                << strings::JoinPath(root_dir_, submodule)

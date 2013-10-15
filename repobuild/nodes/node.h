@@ -81,6 +81,7 @@ class Node {
   const std::vector<TargetInfo> required_parents() const {
     return required_parents_;
   }
+  const std::vector<TargetInfo> pre_parse() const { return pre_parse_; }
   const std::vector<Node*> dependencies() const { return dependencies_; }
   DistSource* dist_source() const { return dist_source_; }
 
@@ -88,6 +89,7 @@ class Node {
   void AddDependencyNode(Node* dependency);
   void AddDependencyTarget(const TargetInfo& other);
   void AddRequiredParent(const TargetInfo& parent);
+  void AddPreParse(const TargetInfo& other);
   void CopyDepenencies(Node* other);
   void SetStrictFileMode(bool strict) { strict_file_mode_ = strict; }
 
@@ -97,6 +99,11 @@ class Node {
   void AddSubNode(Node* node);
   template <class T> T* NewSubNode(BuildFile* file);
   template <class T> T* NewSubNodeWithCurrentDeps(BuildFile* file);
+
+  // Plugin stuff
+  virtual bool ExpandBuildFileNode(BuildFile* file, BuildFileNode* node) {
+    return false;
+  }
 
  protected:
   class MakeVariable;
@@ -224,7 +231,7 @@ class Node {
   TargetInfo target_;
   const Input* input_;
   DistSource* dist_source_;
-  std::vector<TargetInfo> dep_targets_, required_parents_;
+  std::vector<TargetInfo> dep_targets_, required_parents_, pre_parse_;
   std::string src_dir_, obj_dir_, gen_dir_, package_dir_;
   std::string relative_root_dir_, relative_src_dir_;
   std::string relative_obj_dir_, relative_gen_dir_;

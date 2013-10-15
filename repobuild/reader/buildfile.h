@@ -31,6 +31,9 @@ class BuildFileNode {
   // Data source
   const Json::Value& object() const { return *object_; }
 
+  // Mutators
+  void Reset(const Json::Value& object);
+
  private:
   std::unique_ptr<Json::Value> object_;
 };
@@ -45,7 +48,11 @@ class BuildFile {
   // Mutators
   void Parse(const std::string& input);
   void MergeParent(BuildFile* parent);
+  void MergeDependency(BuildFile* dependency);
   void AddBaseDependency(const std::string& dep) { base_deps_.insert(dep); }
+  void RegisterKey(const std::string& key, const std::string& value) {
+    registered_keys_[key] = value;
+  }
 
   // Dependency rewriting.
   class BuildDependencyRewriter {
@@ -63,6 +70,7 @@ class BuildFile {
   const std::string& filename() const { return filename_; }
   const std::vector<BuildFileNode*>& nodes() const { return nodes_; }
   const std::set<std::string>& base_dependencies() const { return base_deps_; }
+  const std::string GetKey(const std::string& key) const;
 
   // Helpers.
   std::string NextName(const std::string& name_base);  // auto generated name.
@@ -74,6 +82,7 @@ class BuildFile {
   std::set<std::string> base_deps_;
   std::map<std::string, int> name_counter_;
   std::vector<BuildDependencyRewriter*> owned_rewriters_, rewriters_;
+  std::map<std::string, std::string> registered_keys_;
 };
 
 // BuildFileNodeReader
