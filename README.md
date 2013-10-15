@@ -14,7 +14,7 @@ Repobuild is a declarative style build system.
 ###### Why?
 - Initially a learning project
   - A lot of other bulid tools have better functionality (and years of development)
-  - This is not intended to replace them outright.
+  - This is not intended to replace other tools outright.
 - [Motivation](https://github.com/chrisvana/repobuild/wiki/Motivation) behind Repobuild
 - [Similar build systems](https://github.com/chrisvana/repobuild/wiki/Similar-Build-Systems) to Repobuild
 - Neat features:
