@@ -77,7 +77,6 @@
      "cc_sources" : [ "cc_library.cc" ],
      "cc_headers" : [ "cc_library.h" ],
      "dependencies": [ "//common/log:log",
-                       "//common/file:fileutil",
                        "//common/strings:strutil",
                        ":node"
       ]
@@ -156,7 +155,6 @@
      "cc_sources" : [ "py_library.cc" ],
      "cc_headers" : [ "py_library.h" ],
      "dependencies": [ "//common/log:log",
-                       "//common/file:fileutil",
                        "//common/strings:strutil",
                        ":node",
                        ":util"
@@ -240,7 +238,6 @@
      "cc_sources" : [ "proto_library.cc" ],
      "cc_headers" : [ "proto_library.h" ],
      "dependencies": [ "//common/log:log",
-                       "//common/file:fileutil",
                        "//common/strings:strutil",
                        ":gen_sh"
       ]
@@ -252,7 +249,6 @@
      "cc_sources" : [ "autoconf.cc" ],
      "cc_headers" : [ "autoconf.h" ],
      "dependencies": [ "//common/log:log",
-                       "//common/file:fileutil",
                        "//common/strings:strutil",
                        ":gen_sh"
       ]
@@ -263,7 +259,6 @@
      "cc_sources" : [ "make.cc" ],
      "cc_headers" : [ "make.h" ],
      "dependencies": [ "//common/log:log",
-                       "//common/file:fileutil",
                        "//common/strings:strutil",
                        "//repobuild/env:input",
                        "//repobuild/env:resource",
@@ -277,7 +272,6 @@
      "cc_sources" : [ "cmake.cc" ],
      "cc_headers" : [ "cmake.h" ],
      "dependencies": [ "//common/log:log",
-                       "//common/file:fileutil",
                        "//common/strings:strutil",
                        ":gen_sh"
       ]

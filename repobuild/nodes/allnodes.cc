@@ -45,6 +45,7 @@ class NodeBuilderImpl : public NodeBuilder {
   virtual void WriteMakeHead(const Input& input, Makefile* out) {}
   virtual void FinishMakeFile(const Input& input,
                               const vector<const Node*>& all_nodes,
+                              DistSource* source,
                               Makefile* out) {}
 
  private:
@@ -66,8 +67,9 @@ class NodeBuilderImplFinish : public NodeBuilderImpl<T> {
   NodeBuilderImplFinish(const std::string& name) : NodeBuilderImpl<T>(name) {}
   virtual void FinishMakeFile(const Input& input,
                               const vector<const Node*>& all_nodes,
+                              DistSource* source,
                               Makefile* out) {
-    T::FinishMakeFile(input, all_nodes, out);
+    T::FinishMakeFile(input, all_nodes, source, out);
   }
 };
 }
@@ -148,9 +150,10 @@ void NodeBuilderSet::WriteMakeHead(const Input& input, Makefile* makefile) {
 
 void NodeBuilderSet::FinishMakeFile(const Input& input,
                                     const vector<const Node*>& nodes,
+                                    DistSource* source,
                                     Makefile* makefile) {
   for (NodeBuilder* builder : all_nodes_) {
-    builder->FinishMakeFile(input, nodes, makefile);
+    builder->FinishMakeFile(input, nodes, source, makefile);
   }
 }
 

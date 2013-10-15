@@ -8,9 +8,9 @@
 #include <string>
 #include <vector>
 #include "common/log/log.h"
-#include "common/file/fileutil.h"
 #include "common/strings/path.h"
 #include "common/strings/strutil.h"
+#include "repobuild/distsource/dist_source.h"
 #include "repobuild/env/input.h"
 #include "repobuild/nodes/py_library.h"
 #include "repobuild/nodes/util.h"
@@ -159,10 +159,12 @@ void InitialInitPyMapping(const map<string, string>& deps,
   }
 }
 
-void FindExistingFiles(const set<string>& files, set<string>* actual) {
+void FindExistingFiles(const set<string>& files,
+                       DistSource* source,
+                       set<string>* actual) {
   for (const string& str : files) {
     vector<string> globbed;
-    file::Glob(str, &globbed);
+    source->InitializeForFile(str, &globbed);
     actual->insert(globbed.begin(), globbed.end());
   }
 }
@@ -172,6 +174,7 @@ void FindExistingFiles(const set<string>& files, set<string>* actual) {
 // static
 void PyLibraryNode::FinishMakeFile(const Input& input,
                                    const vector<const Node*>& all_nodes,
+                                   DistSource* source,
                                    Makefile* out) {
   // Find our python files.
   map<string, string> deps;
@@ -193,7 +196,7 @@ void PyLibraryNode::FinishMakeFile(const Input& input,
     want.insert(NodeUtil::StripSpecialDirs(input, it.second));
   }
   set<string> have;
-  FindExistingFiles(want, &have);
+  FindExistingFiles(want, source, &have);
 
   // Fix up rules based on which actually exist, prefering normal source files
   // if they exist.

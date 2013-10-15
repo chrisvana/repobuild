@@ -86,7 +86,7 @@ string Generator::GenerateMakefile(const Input& input) {
   }
 
   // Finish up node make files
-  builder_set.FinishMakeFile(input, process_order, &out);
+  builder_set.FinishMakeFile(input, process_order, source_, &out);
 
   // Write any source rules.
   source_->WriteMakeFile(&out);

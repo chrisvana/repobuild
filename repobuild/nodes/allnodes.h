@@ -27,6 +27,7 @@ class NodeBuilder {
   virtual void WriteMakeHead(const Input& input, Makefile* out) = 0;
   virtual void FinishMakeFile(const Input& input,
                               const std::vector<const Node*>& all_nodes,
+                              DistSource* source,
                               Makefile* out) = 0;
 
   static void GetAll(std::vector<NodeBuilder*>* nodes);
@@ -47,6 +48,7 @@ class NodeBuilderSet {
   void WriteMakeHead(const Input& input, Makefile* makefile);
   void FinishMakeFile(const Input& input,
                       const std::vector<const Node*>& nodes,
+                      DistSource* source,
                       Makefile* makefile);
 
  private:

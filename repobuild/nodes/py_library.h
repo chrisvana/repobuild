@@ -34,6 +34,7 @@ class PyLibraryNode : public Node {
 
   static void FinishMakeFile(const Input& input,
                              const std::vector<const Node*>& all_nodes,
+                             DistSource* source,
                              Makefile* out);
 
   // For manual construction.
