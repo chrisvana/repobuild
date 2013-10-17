@@ -68,7 +68,8 @@ string TopComponent(const string& dir) {
 }  // anonymous namespace
 
 TargetInfo::TargetInfo(const string& full_path)
-    : full_path_(full_path) {
+    : full_path_(full_path),
+      was_relative_(false) {
   CheckPath(full_path_);
   full_path_ = "/" + strings::CleanPath(full_path_.substr(1));
   CheckPath(full_path_);
@@ -82,8 +83,10 @@ TargetInfo::TargetInfo(const string& full_path)
 TargetInfo::TargetInfo(const string& relative_path,
                        const string& build_file) {
   if (strings::HasPrefix(relative_path, "//")) {
+    was_relative_ = false;
     full_path_ = CleanFullPath(relative_path);
   } else {
+    was_relative_ = true;
     CHECK(strings::HasSuffix(build_file, "/BUILD") || build_file == "BUILD")
         << build_file;
     full_path_ = CleanFullPath(

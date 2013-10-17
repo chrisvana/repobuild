@@ -22,6 +22,7 @@ class TargetInfo {
   const std::string& local_path() const { return local_path_; }
   const std::string& make_path() const { return make_path_; }
   const std::string& top_component() const { return top_component_; }
+  bool was_relative() const { return was_relative_; }
 
   bool operator==(const TargetInfo& other) const {
     return full_path_ == other.full_path_;
@@ -34,6 +35,7 @@ class TargetInfo {
  private:
   std::string full_path_, build_file_, dir_;
   std::string local_path_, make_path_, top_component_;
+  bool was_relative_;
 };
 
 }  // namespace repobuild

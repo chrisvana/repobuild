@@ -468,7 +468,8 @@ string Node::StripSpecialDirs(const string& path) const {
 void Node::InitComponentHelpers() {
   vector<Node*> deps;
   CollectAllDependencies(INCLUDE_DIRS, NO_LANG, &deps);
-  vector<ComponentHelper*> helpers(strings::NumPathComponents(target().dir()));
+  vector<ComponentHelper*> helpers(strings::NumPathComponents(target().dir()),
+                                   NULL);
   for (Node* n : deps) {
     string output_dir, base_dir;
     if (strings::HasPrefix(target().dir(), n->target().dir()) &&
@@ -479,8 +480,9 @@ void Node::InitComponentHelpers() {
       helpers[pos] = new ComponentHelper(output_dir, base_dir);
     }
   }
-  if (helpers.back() == NULL) {
-    helpers.back() = new ComponentHelper("", "");
+
+  if (helpers.empty() || helpers.back() == NULL) {
+    helpers.push_back(new ComponentHelper("", ""));
   }
 
   // component_helpers_ is ordered by most specific component first.

@@ -65,7 +65,8 @@ string ComponentHelper::RewriteFile(const Input& input,
 }
 
 bool ComponentHelper::RewriteDependency(TargetInfo* target) const {
-  if (target->top_component() == component_) {
+  if (!target->was_relative() &&
+      target->top_component() == component_) {
     string new_dir;
     if (target->dir().size() > component_.size()) {
       new_dir = strings::JoinPath(base_dir_,
