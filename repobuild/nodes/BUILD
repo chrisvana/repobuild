@@ -93,7 +93,8 @@
      "cc_headers" : [ "cc_library.h" ],
      "dependencies": [ "//common/log:log",
                        "//common/strings:strutil",
-                       ":node"
+                       ":node",
+                       ":util"
      ]
    }
  },

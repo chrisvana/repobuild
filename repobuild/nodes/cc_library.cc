@@ -10,6 +10,7 @@
 #include "common/strings/strutil.h"
 #include "repobuild/env/input.h"
 #include "repobuild/nodes/cc_library.h"
+#include "repobuild/nodes/util.h"
 #include "repobuild/reader/buildfile.h"
 
 using std::vector;
@@ -201,9 +202,18 @@ void CCLibraryNode::WriteCompile(const Resource& source,
   // Include directories.
   string include_dirs;
   {
-    set<string> include_dir_set;
+    set<string> include_dir_set, final_includes;
     IncludeDirs(cpp ? CPP : C_LANG, &include_dir_set);
     for (const string& str: include_dir_set) {
+      final_includes.insert(str);
+      string path = NodeUtil::StripSpecialDirs(input(), str);
+      final_includes.insert(path);
+      final_includes.insert(Resource::FromLocalPath(
+          input().genfile_dir(), path).path());
+      final_includes.insert(Resource::FromLocalPath(
+          input().source_dir(), path).path());
+    }
+    for (const string& str: final_includes) {
       include_dirs += (include_dirs.empty() ? "-I" : " -I") + str;
     }
   }
