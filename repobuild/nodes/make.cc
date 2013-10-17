@@ -37,6 +37,28 @@ void MakeNode::ParseWithOptions(BuildFile* file,
     make_target = "install";
   }
 
+  vector<string> make_args;
+
+  string pass_flags;
+  current_reader()->ParseStringField("pass_flags", &pass_flags);
+  if (pass_flags == "full") {
+    make_args.push_back("CXXFLAGS=\"$CXXFLAGS\"");
+    make_args.push_back("CFLAGS=\"$CFLAGS\"");
+    make_args.push_back("LDFLAGS=\"$LDFLAGS\"");
+  } else if (pass_flags == "basic") {
+    make_args.push_back("CXXFLAGS=\"$BASIC_CXXFLAGS\"");
+    make_args.push_back("CFLAGS=\"$BASIC_CFLAGS\"");
+    make_args.push_back("LDFLAGS=\"$LDFLAGS\"");
+  } else if (!pass_flags.empty()) {
+    LOG(FATAL) << "Unknown value for \"pass_flags\" in make rule: "
+               << pass_flags << " from target " << target().full_path();
+  }
+
+  // make_args
+  make_args.push_back("DESTDIR=" + dest_dir);
+  current_reader()->ParseRepeatedString("make_args", true, &make_args);
+  string make_args_str = strings::JoinAll(make_args, " ");
+
   // make_file
   string make_file;
   vector<Resource> files;
@@ -55,7 +77,7 @@ void MakeNode::ParseWithOptions(BuildFile* file,
   gen->SetCd(true);
   gen->SetMakeName("Make");
 
-  string make_cmd = ("$MAKE DESTDIR=" + dest_dir + " -f " + make_file + " "
+  string make_cmd = ("$MAKE " + make_args_str + " -f " + make_file + " "
                      + make_target);
   if (!preinstall.empty()) {
     make_cmd = preinstall + " && " + make_cmd;
@@ -66,7 +88,7 @@ void MakeNode::ParseWithOptions(BuildFile* file,
   if (!user_postinstall.empty()) {
     make_cmd += " && " + user_postinstall;
   }
-  string clean_cmd = ("$MAKE DESTDIR=" + dest_dir + " clean > /dev/null 2>&1 "
+  string clean_cmd = ("$MAKE " +  make_args_str + " clean > /dev/null 2>&1 "
                       "|| echo -n \"\"");  // always succeed.
 
   vector<Resource> input_files;

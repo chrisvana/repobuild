@@ -22,7 +22,7 @@ class ComponentHelper {
  public:
   ComponentHelper(const std::string& component,
                   const std::string& base_dir);
-  ~ComponentHelper() {}
+  ~ComponentHelper();
 
   const std::string& component() const { return component_; }
   const std::string& base_dir() const { return base_dir_; }

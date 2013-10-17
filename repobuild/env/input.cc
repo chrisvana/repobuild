@@ -54,6 +54,9 @@ DEFINE_string(binary_dir, "bin",
               "Location where we put final output binaries (in addition to "
               "root dir).");
 
+DEFINE_bool(debug, false,
+            "If true, we disable optimizations.");
+
 using std::string;
 
 namespace repobuild {
@@ -80,9 +83,11 @@ Input::Input() {
     AddFlag("-C", "-Wno-sign-compare");
     AddFlag("-C", "gcc=-Wno-unused-local-typedefs");
     AddFlag("-C", "gcc=-Wno-error=unused-local-typedefs");
-    AddFlag("-C", "-O3");
-    if (FLAGS_enable_flto_object_files) {
-      AddFlag("-C", "-flto");
+    if (!FLAGS_debug) {
+      AddFlag("-C", "-O3");
+      if (FLAGS_enable_flto_object_files) {
+        AddFlag("-C", "-flto");
+      }
     }
     AddFlag("-C", "clang=-Qunused-arguments");
     AddFlag("-C", "clang=-fcolor-diagnostics");
@@ -91,9 +96,11 @@ Input::Input() {
     AddFlag("-L", "clang=-stdlib=libc++");
     AddFlag("-L", "-lpthread");
     AddFlag("-L", "-g");
-    AddFlag("-L", "-O3");
-    if (FLAGS_enable_flto_object_files) {
-      AddFlag("-L", "-flto");
+    if (!FLAGS_debug) {
+      AddFlag("-L", "-O3");
+      if (FLAGS_enable_flto_object_files) {
+        AddFlag("-L", "-flto");
+      }
     }
     AddFlag("-L", "-L/usr/local/lib");
     AddFlag("-L", "-L/opt/local/lib");

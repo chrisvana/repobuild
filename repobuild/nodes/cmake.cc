@@ -37,7 +37,7 @@ void CmakeNode::Parse(BuildFile* file, const BuildFileNode& input) {
 
   // cmake_args
   vector<string> cmake_args;
-  current_reader()->ParseRepeatedString("cmake_args", &cmake_args);
+  current_reader()->ParseRepeatedString("cmake_args", true, &cmake_args);
 
   // Generate the output files.
   GenShNode* gen = NewSubNodeWithCurrentDeps<GenShNode>(file);

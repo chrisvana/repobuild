@@ -53,6 +53,7 @@ Node::Node(const TargetInfo& target,
 
 Node::~Node() {
   DeleteElements(&owned_subnodes_);
+  DeleteValues(&make_variables_);
   DeleteElements(&component_helpers_);
 }
 
@@ -468,29 +469,26 @@ string Node::StripSpecialDirs(const string& path) const {
 void Node::InitComponentHelpers() {
   vector<Node*> deps;
   CollectAllDependencies(INCLUDE_DIRS, NO_LANG, &deps);
-  vector<ComponentHelper*> helpers(strings::NumPathComponents(target().dir()),
-                                   NULL);
+  vector<ComponentHelper*> helpers;
   for (Node* n : deps) {
     string output_dir, base_dir;
     if (strings::HasPrefix(target().dir(), n->target().dir()) &&
         n->PathRewrite(&output_dir, &base_dir)) {
-      int pos = helpers.size() - strings::NumPathComponents(n->target().dir());
+      int pos = strings::NumPathComponents(n->target().dir());
       CHECK_GE(pos, 0);
-      CHECK_LE(pos, helpers.size());
+      helpers.resize(std::max<int>(pos + 1, helpers.size()), NULL);
+      delete helpers[pos];
       helpers[pos] = new ComponentHelper(output_dir, base_dir);
     }
   }
 
-  if (helpers.empty() || helpers.back() == NULL) {
-    helpers.push_back(new ComponentHelper("", ""));
-  }
-
-  // component_helpers_ is ordered by most specific component first.
-  for (ComponentHelper* it : helpers) {
-    if (it != NULL) {
-      component_helpers_.push_back(it);
+  DeleteElements(&component_helpers_);
+  for (int i = helpers.size() - 1; i >= 0; --i) {
+    if (helpers[i] != NULL) {
+      component_helpers_.push_back(helpers[i]);
     }
   }
+  component_helpers_.push_back(new ComponentHelper("", ""));
 }
 
 const ComponentHelper* Node::GetComponentHelper(

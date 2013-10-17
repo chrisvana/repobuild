@@ -69,12 +69,6 @@ void CCLibraryNode::Parse(BuildFile* file, const BuildFileNode& input) {
   current_reader()->ParseRepeatedString("cc_linker_args",
                                         &cc_linker_args_);
 
-  LG << "HERE: " << target().full_path();
-  LG << header_compile_args_.size();
-  for (const string& str: header_compile_args_) {
-    LG << str;
-  }
-
   // gcc
   current_reader()->ParseRepeatedString("gcc.cc_compile_args",
                                         &gcc_cc_compile_args_);

@@ -63,14 +63,18 @@ void ProtoLibraryNode::Parse(BuildFile* file, const BuildFileNode& input) {
   string build_cmd = protoc_binary;
   vector<Resource> outputs;
 
+  bool has_language = false;
+
   // c++
   if (generate_cc) {
+    has_language = true;
     build_cmd += " --cpp_out=" + Node::input().genfile_dir();
     GenerateCpp(input_prefixes, &outputs, file);
   }
 
   // java
   if (generate_java) {
+    has_language = true;
     build_cmd += " --java_out=" + Node::input().genfile_dir();
     vector<string> java_classnames;
     current_reader()->ParseRepeatedString("java_classnames", &java_classnames);
@@ -79,14 +83,21 @@ void ProtoLibraryNode::Parse(BuildFile* file, const BuildFileNode& input) {
 
   // python
   if (generate_python) {
+    has_language = true;
     build_cmd += " --python_out=" + Node::input().genfile_dir();
     GeneratePython(input_prefixes, &outputs, file);
   }
 
   // go
   if (generate_go) {
+    has_language = true;
     build_cmd += " --go_out=" + Node::input().genfile_dir();
     GenerateGo(input_prefixes, &outputs, file);
+  }
+
+  if (!has_language) {
+    LOG(FATAL) << "proto_library needs at least one \"generate_x\" language. "
+               << "Target is: " << target().full_path();
   }
 
   build_cmd += " " + strings::JoinWith(
@@ -144,15 +155,15 @@ void ProtoLibraryNode::AdditionalDependencies(
   // on proto_library to have to depend on every langauge (e.g. cc_library
   // should only depend on cc_node_, etc). That is all covered by
   // IncludeChildDependency below.
-  TargetInfo target(dep, file->filename());
+  TargetInfo target = file->ComputeTargetInfo(dep);
   node->AddDependencyTarget(gen_node_->target());
   gen_node_->AddDependencyTarget(target);
   node->AddDependencyTarget(target);
 }
 
 void ProtoLibraryNode::GenerateCpp(const vector<Resource>& input_prefixes,
-                                    vector<Resource>* outputs,
-                                    BuildFile* file) {
+                                   vector<Resource>* outputs,
+                                   BuildFile* file) {
   vector<Resource> cc_sources, cc_headers;
 
   for (const Resource& prefix : input_prefixes) {

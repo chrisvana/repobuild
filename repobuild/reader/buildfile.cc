@@ -77,7 +77,9 @@ string BuildFile::NextName(const string& name_base) {
 }
 
 TargetInfo BuildFile::ComputeTargetInfo(const std::string& dependency) const {
+  VLOG(1) << "ComputeTargetInfo: " << dependency;
   TargetInfo base(dependency, filename());
+  VLOG(1) << filename() << ": " << rewriters_.size();
   for (int i = rewriters_.size() - 1; i >= 0; --i) {
     if (rewriters_[i]->RewriteDependency(&base)) {
       break;

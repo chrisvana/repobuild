@@ -135,7 +135,9 @@ void GitTree::ExpandChild(const string& path) {
         InitializeSubmodule(submodule, tree);
       }
       used_submodules_.insert(submodule);
-      tree->ExpandChild(path.substr(submodule.size() + 1));
+      if (path.size() > submodule.size()) {
+        tree->ExpandChild(path.substr(submodule.size() + 1));
+      }
       break;
     }
   }
@@ -148,7 +150,9 @@ void GitTree::RecordFile(const string& path) {
     GitTree* tree = it.second;
     if (strings::HasPrefix(path, submodule)) {
       used_submodules_.insert(submodule);
-      tree->RecordFile(path.substr(submodule.size() + 1));
+      if (path.size() > submodule.size()) {
+        tree->RecordFile(path.substr(submodule.size() + 1));
+      }
       return;
     }
   }

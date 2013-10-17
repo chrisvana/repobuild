@@ -69,6 +69,7 @@ void CCBinaryNode::WriteLink(const Resource& file, Makefile* out) const {
       obj_list += " $(LD_FORCE_LINK_END)";
     }
   }
+  rule->WriteCommand("mkdir -p " + file.dirname());
   rule->WriteCommand(strings::JoinWith(
       " ",
       "$(LINK.cc)", obj_list, "-o", file,
