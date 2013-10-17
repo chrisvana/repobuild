@@ -140,6 +140,10 @@ void BuildFileNodeReader::ParseRepeatedString(const string& key,
                                << input_.object()
                                << ". Target: " << error_path_;
       output->push_back(RewriteSingleString(mode, single.asString()));
+      VLOG(1) << "Parsing string: "
+              << single.asString()
+              << " (" << key << ", " << mode << ") => "
+              << output->back();
     }
   }
 }
@@ -164,11 +168,17 @@ void BuildFileNodeReader::ParseKeyValueStrings(
 
 bool BuildFileNodeReader::ParseStringField(const string& key,
                                            string* field) const {
+  return ParseStringField(key, false, field);
+}
+
+bool BuildFileNodeReader::ParseStringField(const string& key,
+                                           bool mode,
+                                           string* field) const {
   const Json::Value& json_field = GetValue(input_, key);
   if (!json_field.isString()) {
     return false;
   }
-  *field = RewriteSingleString(true, json_field.asString());
+  *field = RewriteSingleString(mode, json_field.asString());
   return true;
 }
 

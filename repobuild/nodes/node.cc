@@ -143,7 +143,9 @@ BuildFileNodeReader* Node::NewBuildReader(const BuildFileNode& node) const {
   reader->SetReplaceVariable(false, "OBJ_DIR", ObjectDir());
   reader->SetReplaceVariable(true, "OBJ_DIR", RelativeObjectDir());
   reader->SetReplaceVariable(false, "SRC_DIR", target().dir());
-  reader->SetReplaceVariable(true, "SRC_DIR", target().dir());
+  reader->SetReplaceVariable(true, "SRC_DIR", ".");
+  reader->SetReplaceVariable(false, "GEN_SRC_DIR", SourceDir());
+  reader->SetReplaceVariable(true, "GEN_SRC_DIR", RelativeSourceDir());
   reader->AddFileAbsPrefix(input().genfile_dir());
   reader->AddFileAbsPrefix(input().source_dir());
   reader->AddFileAbsPrefix(input().object_dir());

@@ -14,6 +14,8 @@ class NodeUtil {
  public: 
   static std::string StripSpecialDirs(const Input& input,
                                       const std::string& path);
+  static bool StartsWithSpecialDirs(const Input& input,
+                                    const std::string& path);
 };
 
 class ComponentHelper {

@@ -48,7 +48,7 @@ void AutoconfNode::Parse(BuildFile* file, const BuildFileNode& input) {
 
   // configure
   string configure;
-  current_reader()->ParseStringField("configure_cmd", &configure);
+  current_reader()->ParseStringField("configure_cmd", true, &configure);
   if (configure.empty()) {
     configure = "./configure";
   }
@@ -96,8 +96,7 @@ void AutoconfNode::Parse(BuildFile* file, const BuildFileNode& input) {
       Makefile::Escape(configure +
                        " --prefix=/ --cache-file=$GEN_DIR/config.cache ") +
       GetVariable(kConfigureArgs).ref_name();
-  vector<Resource> input_files;
-  vector<string> output_files;
+  vector<Resource> input_files, output_files;
   gen->Set(build_setup + "; " + build_env + " " + configure_cmd,
            "",  // clean
            input_files,

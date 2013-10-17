@@ -38,7 +38,7 @@ void JavaLibraryNode::ParseInternal(BuildFile* file,
                                     const BuildFileNode& input) {
   // root dir for output class files, which is also a class path down below,
   // see Init().
-  current_reader()->ParseStringField("java_out_root", &java_out_root_);
+  current_reader()->ParseStringField("java_out_root", true, &java_out_root_);
 
   // classpath info.
   vector<Resource> java_classpath_dirs;

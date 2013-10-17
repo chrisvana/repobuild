@@ -38,6 +38,14 @@ string NodeUtil::StripSpecialDirs(const Input& input, const string& path) {
   return dir;
 }
 
+// static
+bool NodeUtil::StartsWithSpecialDirs(const Input& input, const string& path) {
+  return (strings::HasPrefix(path, input.genfile_dir()) ||
+          strings::HasPrefix(path, input.source_dir()) ||
+          strings::HasPrefix(path, input.object_dir()) ||
+          strings::HasPrefix(path, input.pkgfile_dir()));
+}
+
 ComponentHelper::ComponentHelper(const std::string& component,
                                  const std::string& base_dir)
     : component_(component),

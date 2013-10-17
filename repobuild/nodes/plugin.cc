@@ -18,7 +18,7 @@ void PluginNode::Parse(BuildFile* file, const BuildFileNode& input) {
   VLOG(1) << "Registering plugin: " << target().local_path();
   file->RegisterKey("plugin:" + target().local_path(),
                     target().full_path());
-  current_reader()->ParseStringField("command", &command_);
+  current_reader()->ParseStringField("command", false /* no cd */, &command_);
 }
 
 void PluginNode::LocalWriteMake(Makefile* out) const {

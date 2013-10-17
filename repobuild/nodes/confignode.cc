@@ -62,7 +62,7 @@ void ConfigNode::Parse(BuildFile* file, const BuildFileNode& input) {
   }
   if (!component_src.empty()) {
     string component_root;
-    current_reader()->ParseStringField("component_root", &component_root);
+    current_reader()->ParseStringField("component_root", true, &component_root);
     component_.reset(new ComponentHelper(
         component_src, strings::JoinPath(target().dir(), component_root)));
   }

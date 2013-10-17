@@ -114,6 +114,9 @@ class BuildFileNodeReader {
                             std::map<std::string, std::string>* output) const;
   bool ParseStringField(const std::string& key,
                         std::string* field) const;
+  bool ParseStringField(const std::string& key,
+                        bool mode,
+                        std::string* field) const;
 
   // Parse files.
   void ParseRepeatedFiles(const std::string& key,

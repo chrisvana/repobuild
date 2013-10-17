@@ -61,7 +61,7 @@ void ProtoLibraryNode::Parse(BuildFile* file, const BuildFileNode& input) {
 
   // Find all of the output files, and build up our protoc command line.
   string build_cmd = protoc_binary;
-  vector<string> outputs;
+  vector<Resource> outputs;
 
   // c++
   if (generate_cc) {
@@ -134,7 +134,7 @@ void ProtoLibraryNode::AdditionalDependencies(
     const string& default_dep_value,
     Node* node) {
   string dep;
-  if (!current_reader()->ParseStringField(dep_field, &dep)) {
+  if (!current_reader()->ParseStringField(dep_field, false, &dep)) {
     dep = default_dep_value;
   }
 
@@ -151,24 +151,21 @@ void ProtoLibraryNode::AdditionalDependencies(
 }
 
 void ProtoLibraryNode::GenerateCpp(const vector<Resource>& input_prefixes,
-                                    vector<string>* outputs,
+                                    vector<Resource>* outputs,
                                     BuildFile* file) {
   vector<Resource> cc_sources, cc_headers;
 
   for (const Resource& prefix : input_prefixes) {
     string cpp_file = prefix.path() + ".pb.cc";
     string hpp_file = prefix.path() + ".pb.h";
-
-    // Relative to BUILD file:
-    outputs->push_back(cpp_file.substr(target().dir().size() + 1));
-    outputs->push_back(hpp_file.substr(target().dir().size() + 1));
-
-    // Relative to root:
-    cc_sources.push_back(Resource::FromLocalPath(Node::input().genfile_dir(),
+    cc_sources.push_back(Resource::FromLocalPath(input().genfile_dir(),
                                                  cpp_file));
-    cc_headers.push_back(Resource::FromLocalPath(Node::input().genfile_dir(),
+    cc_headers.push_back(Resource::FromLocalPath(input().genfile_dir(),
                                                  hpp_file));
   }
+
+  outputs->insert(outputs->end(), cc_sources.begin(), cc_sources.end());
+  outputs->insert(outputs->end(), cc_headers.begin(), cc_headers.end());
 
   cc_node_ = NewSubNode<CCLibraryNode>(file);
 
@@ -189,7 +186,7 @@ void ProtoLibraryNode::GenerateJava(BuildFile* file,
                                      const BuildFileNode& input,
                                      const vector<Resource>& input_prefixes,
                                      const vector<string>& java_classnames,
-                                     vector<string>* outputs) {
+                                     vector<Resource>* outputs) {
   vector<Resource> java_sources;
   if (java_classnames.size() > 0 &&
       java_classnames.size() != input_prefixes.size()) {
@@ -203,22 +200,11 @@ void ProtoLibraryNode::GenerateJava(BuildFile* file,
                              strings::Capitalize(prefix.basename()) :
                              java_classnames[i]);
     string java_basename = java_classname + ".java";
-
-    // Relative to BUILD file:
-    if (target().dir().size() < prefix.dirname().size()) {
-      outputs->push_back(strings::JoinPath(
-          prefix.dirname().substr(target().dir().size() + 1),
-          java_basename));
-    } else {
-      outputs->push_back(java_basename);
-    }
-
-    // Relative to root:
-    java_sources.push_back(
-        Resource::FromLocalPath(
-            Node::input().genfile_dir(),
-            strings::JoinPath(prefix.dirname(), java_basename)));
+    java_sources.push_back(Resource::FromLocalPath(
+        Node::input().genfile_dir(),
+        strings::JoinPath(prefix.dirname(), java_basename)));
   }
+  outputs->insert(outputs->end(), java_sources.begin(), java_sources.end());
 
   java_node_ = NewSubNode<JavaLibraryNode>(file);
   java_node_->Set(file, input, java_sources);
@@ -231,22 +217,17 @@ void ProtoLibraryNode::GenerateJava(BuildFile* file,
 }
 
 void ProtoLibraryNode::GeneratePython(const vector<Resource>& input_prefixes,
-                                      vector<string>* outputs,
+                                      vector<Resource>* outputs,
                                       BuildFile* file) {
   vector<Resource> python_sources;
 
   for (const Resource& prefix : input_prefixes) {
     // TODO(cvanarsdale): This will sadly break some day.
     string python_file = prefix.path() + "_pb2.py";
-
-    // Relative to BUILD file:
-    outputs->push_back(python_file.substr(target().dir().size() + 1));
-
-    // Relative to root:
     python_sources.push_back(Resource::FromLocalPath(
-        Node::input().genfile_dir(),
-        python_file));
+        input().genfile_dir(), python_file));
   }
+  outputs->insert(outputs->end(), python_sources.begin(), python_sources.end());
 
   py_node_ = NewSubNode<PyLibraryNode>(file);
   py_node_->Set(python_sources);
@@ -259,21 +240,16 @@ void ProtoLibraryNode::GeneratePython(const vector<Resource>& input_prefixes,
 }
 
 void ProtoLibraryNode::GenerateGo(const vector<Resource>& input_prefixes,
-                                   vector<string>* outputs,
+                                   vector<Resource>* outputs,
                                    BuildFile* file) {
   vector<Resource> go_sources;
 
   for (const Resource& prefix : input_prefixes) {
     string go_file = prefix.path() + ".pb.go";
-
-    // Relative to BUILD file:
-    outputs->push_back(go_file.substr(target().dir().size() + 1));
-
-    // Relative to root:
     go_sources.push_back(Resource::FromLocalPath(
-        Node::input().genfile_dir(),
-        go_file));
+        input().genfile_dir(), go_file));
   }
+  outputs->insert(outputs->end(), go_sources.begin(), go_sources.end());
 
   go_node_ = NewSubNode<GoLibraryNode>(file);
   go_node_->Set(go_sources);

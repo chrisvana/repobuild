@@ -45,8 +45,7 @@ void ExecuteTestNode::AddShNodes(BuildFile* file, Node* binary_node) {
     node->SetMakeName("Testing");
     node->SetMakeTarget(r.path());
 
-    vector<Resource> inputs(1, r);
-    vector<string> outputs;
+    vector<Resource> inputs(1, r), outputs;
     node->Set("$ROOT_DIR/" + r.path(),  // binary target.
               "",  // clean command
               inputs,

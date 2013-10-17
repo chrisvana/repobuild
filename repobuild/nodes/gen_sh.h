@@ -31,7 +31,7 @@ class GenShNode : public Node {
   void Set(const std::string& build_cmd,
            const std::string& clean_cmd,
            const std::vector<Resource>& input_files,
-           const std::vector<std::string>& outputs);
+           const std::vector<Resource>& outputs);
   void SetCd(bool cd) { cd_ = cd; }
   void SetMakeName(const std::string& name) { make_name_ = name; }
   void SetMakeTarget(const std::string& name) { make_target_ = name; }
@@ -67,8 +67,7 @@ class GenShNode : public Node {
 
   std::string build_cmd_;
   std::string clean_cmd_;
-  std::vector<Resource> input_files_;
-  std::vector<std::string> outputs_;
+  std::vector<Resource> input_files_, outputs_;
   std::map<std::string, std::string> local_env_vars_;
   bool cd_;
   std::string make_name_, make_target_;

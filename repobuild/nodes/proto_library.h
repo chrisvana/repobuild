@@ -40,19 +40,19 @@ class ProtoLibraryNode : public Node {
                               const std::string& default_dep_value,
                               Node* node);
   void GenerateGo(const std::vector<Resource>& input_prefixes,
-                  std::vector<std::string>* outputs,
+                  std::vector<Resource>* outputs,
                   BuildFile* file);
   void GenerateCpp(const std::vector<Resource>& input_prefixes,
-                   std::vector<std::string>* outputs,
+                   std::vector<Resource>* outputs,
                    BuildFile* file);
   void GeneratePython(const std::vector<Resource>& input_prefixes,
-                      std::vector<std::string>* outputs,
+                      std::vector<Resource>* outputs,
                       BuildFile* file);
   void GenerateJava(BuildFile* file,
                     const BuildFileNode& input,
                     const std::vector<Resource>& input_prefixes,
                     const std::vector<std::string>& java_classnames,
-                    std::vector<std::string>* outputs);
+                    std::vector<Resource>* outputs);
   virtual bool IncludeChildDependency(DependencyCollectionType type,
                                       LanguageType lang,
                                       Node* node) const;

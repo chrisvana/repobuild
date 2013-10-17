@@ -24,7 +24,7 @@ void CmakeNode::Parse(BuildFile* file, const BuildFileNode& input) {
 
   // CMakeLists.txt file directory
   string cmake_dir;
-  current_reader()->ParseStringField("cmake_dir", &cmake_dir);
+  current_reader()->ParseStringField("cmake_dir", true, &cmake_dir);
   if (cmake_dir.empty()) {
     cmake_dir = "$(pwd)";
   } else {
@@ -67,8 +67,7 @@ void CmakeNode::Parse(BuildFile* file, const BuildFileNode& input) {
   for (const string& it : cmake_args) {
     cmake_cmd.append(" " + it);
   }
-  vector<Resource> input_files;
-  vector<string> output_files;
+  vector<Resource> input_files, output_files;
   gen->Set(build_setup + "; " + build_env + " " + cmake_cmd,
            "",  // clean
            input_files,

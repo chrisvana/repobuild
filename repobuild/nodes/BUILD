@@ -59,7 +59,7 @@
                        "//repobuild/third_party/json:json",
                        ":makefile",
                        ":node"
-    ]
+     ]
    }
  },
 
@@ -71,7 +71,7 @@
                        "//repobuild/env:input",
                        ":gen_sh",
                        ":node"
-    ]
+     ]
    }
  },
 
@@ -83,7 +83,7 @@
                        "//common/strings:strutil",
                        ":node",
                        ":util"
-      ]
+     ]
    }
  },
 
@@ -94,7 +94,7 @@
      "dependencies": [ "//common/log:log",
                        "//common/strings:strutil",
                        ":node"
-      ]
+     ]
    }
  },
 
@@ -104,7 +104,7 @@
      "cc_headers" : [ "cc_embed_data.h" ],
      "dependencies": [ "//common/strings:strutil",
                        ":node"
-      ]
+     ]
    }
  },
 
@@ -116,7 +116,7 @@
                        "//common/strings:strutil",
                        ":node",
                        ":top_symlink"
-      ]
+     ]
    }
  },
 
@@ -129,7 +129,7 @@
                        ":node",
                        ":top_symlink",
                        ":util"
-      ]
+     ]
    }
  },
  { "cc_library": {
@@ -151,7 +151,7 @@
                        "//common/strings:strutil",
                        ":node",
                        ":top_symlink"
-      ]
+     ]
    }
  },
 
@@ -162,7 +162,7 @@
      "dependencies": [ "//common/log:log",
                        "//common/strings:strutil",
                        ":node"
-      ]
+     ]
    }
  },
 
@@ -186,7 +186,7 @@
                        "//common/strings:strutil",
                        ":py_library",
                        ":top_symlink"
-      ]
+     ]
    }
  },
 
@@ -198,7 +198,7 @@
                        "//common/strings:strutil",
                        ":py_egg",
                        ":top_symlink"
-      ]
+     ]
    }
  },
 
@@ -208,7 +208,8 @@
      "cc_headers" : [ "java_library.h" ],
      "dependencies": [ "//common/log:log",
                        "//common/strings:strutil",
-                       ":node" ]
+                       ":node"
+     ]
    }
  },
 
@@ -221,7 +222,7 @@
                        ":java_library",
                        ":node",
                        ":top_symlink"
-      ]
+     ]
    }
  },
 
@@ -233,7 +234,7 @@
                        "//common/strings:strutil",
                        ":java_jar",
                        ":top_symlink"
-      ]
+     ]
    }
  },
 
@@ -244,8 +245,9 @@
      "dependencies": [ "//common/base:flags",
                        "//common/log:log",
                        "//common/strings:strutil",
-                       ":node"
-      ]
+                       ":node",
+                       ":util"
+     ]
    }
  },
 
@@ -267,7 +269,7 @@
      "dependencies": [ "//common/log:log",
                        "//common/strings:strutil",
                        ":gen_sh"
-      ]
+     ]
  } },
 
  { "cc_library": {
@@ -280,7 +282,7 @@
                        "//repobuild/env:resource",
                        ":gen_sh",
                        ":node"
-      ]
+     ]
  } },
 
  { "cc_library": {
@@ -290,7 +292,7 @@
      "dependencies": [ "//common/log:log",
                        "//common/strings:strutil",
                        ":gen_sh"
-      ]
+     ]
  } },
 
  { "cc_library": {

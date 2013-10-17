@@ -12,6 +12,7 @@
 #include "repobuild/env/input.h"
 #include "repobuild/nodes/gen_sh.h"
 #include "repobuild/nodes/makefile.h"
+#include "repobuild/nodes/util.h"
 #include "repobuild/reader/buildfile.h"
 
 DEFINE_bool(silent_gensh, true,
@@ -30,19 +31,19 @@ const char kRootDir[] = "ROOT_DIR";
 
 void GenShNode::Parse(BuildFile* file, const BuildFileNode& input) {
   Node::Parse(file, input);
-  if (!current_reader()->ParseStringField("build_cmd", &build_cmd_) &&
-      !current_reader()->ParseStringField("cmd", &build_cmd_)) {
+  if (!current_reader()->ParseStringField("build_cmd", cd_, &build_cmd_) &&
+      !current_reader()->ParseStringField("cmd", cd_, &build_cmd_)) {
     LOG(FATAL) << "Could not parse build_cmd/cmd.";
   }
-  current_reader()->ParseStringField("clean", &clean_cmd_);
+  current_reader()->ParseStringField("clean", false, &clean_cmd_);
   current_reader()->ParseRepeatedFiles("input_files", &input_files_);
-  current_reader()->ParseRepeatedString("outs", &outputs_);
+  current_reader()->ParseRepeatedFiles("outs", false, &outputs_);
 }
 
 void GenShNode::Set(const string& build_cmd,
                     const string& clean_cmd,
                     const vector<Resource>& input_files,
-                    const vector<string>& outputs) {
+                    const vector<Resource>& outputs) {
   build_cmd_ = build_cmd;
   clean_cmd_ = clean_cmd;
   input_files_ = input_files;
@@ -110,9 +111,8 @@ void GenShNode::LocalWriteMake(Makefile* out) const {
     WriteBaseUserTarget(output_targets, out);
   }
 
-  for (const string& output : outputs_) {
-    out->WriteRule(Resource::FromLocalPath(GenDir(), output).path(),
-                   touchfile.path());
+  for (const Resource& resource : outputs_) {
+    out->WriteRule(resource.path(), touchfile.path());
   }
 }
 
