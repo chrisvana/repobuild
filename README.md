@@ -10,6 +10,7 @@ Repobuild is a declarative style build system.
 ###### Status
 - Functional for Mac and Linux.
 - In beta, some rules may change.
+- A small side project, so turnaround might be slow.
 
 ###### Why?
 - Initially a learning project
