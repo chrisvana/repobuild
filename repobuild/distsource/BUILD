@@ -1,4 +1,10 @@
 [
+{ "cc_embed_data": {
+    "name": "flock_pl",
+    "files": [ "flock.pl" ],
+    "namespace": [ "repobuild" ]
+} },
+
 { "cc_library": {
     "name": "git_tree",
     "cc_headers": [ "git_tree.h" ],
@@ -7,8 +13,10 @@
                        "//common/util:shell",
                        "//common/util:stl",
                        "//common/strings:strutil",
+                       "//repobuild/env:input",
+                       "//repobuild/nodes:makefile",
                        "//repobuild/third_party/libgit2:libgit2",
-                       "//repobuild/nodes:makefile"
+                       ":flock_pl"
     ]
 } },
 

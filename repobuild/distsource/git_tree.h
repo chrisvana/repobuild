@@ -12,6 +12,7 @@
 #include "repobuild/nodes/makefile.h"
 
 namespace repobuild {
+class Input;
 
 class GitTree {
  public:
@@ -23,6 +24,7 @@ class GitTree {
   void RecordFile(const std::string& path);
   void WriteMakeFile(Makefile* out) const;
   void WriteMakeClean(Makefile::Rule* out) const;
+  void WriteMakeHead(const Input& input, Makefile* out) const;
 
  private:
   void InitializeSubmodule(const std::string& submodule, GitTree* sub_tree);

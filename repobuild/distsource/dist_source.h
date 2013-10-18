@@ -6,9 +6,10 @@
 
 #include <string>
 #include <vector>
-#include "repobuild/nodes/makefile.h"
+#include "repobuild/nodes/makefile.h"  // for Makefile::Rule
 
 namespace repobuild {
+class Input;
 
 class DistSource {
  public:
@@ -18,6 +19,7 @@ class DistSource {
                                  std::vector<std::string>* files) = 0;
   virtual void WriteMakeFile(Makefile* out) = 0;
   virtual void WriteMakeClean(Makefile::Rule* out) = 0;
+  virtual void WriteMakeHead(const Input& input, Makefile* out) = 0;
 };
 
 }  //  namespace repobuild

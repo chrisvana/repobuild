@@ -12,6 +12,7 @@
 
 namespace repobuild {
 class GitTree;
+class Input;
 
 class DistSourceImpl : public DistSource {
  public:
@@ -22,6 +23,7 @@ class DistSourceImpl : public DistSource {
                                  std::vector<std::string>* files);
   virtual void WriteMakeFile(Makefile* out);
   virtual void WriteMakeClean(Makefile::Rule* out);
+  virtual void WriteMakeHead(const Input& input, Makefile* out);
 
  private:
   DISALLOW_COPY_AND_ASSIGN(DistSourceImpl);

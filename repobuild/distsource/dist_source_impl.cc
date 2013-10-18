@@ -57,4 +57,10 @@ void DistSourceImpl::WriteMakeClean(Makefile::Rule* out) {
   }
 }
 
+void DistSourceImpl::WriteMakeHead(const Input& input, Makefile* out) {
+  if (git_tree_.get() != NULL) {
+    git_tree_->WriteMakeHead(input, out);
+  }
+}
+
 }  //  namespace repobuild

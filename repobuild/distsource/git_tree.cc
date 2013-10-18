@@ -13,6 +13,8 @@
 #include "common/strings/strutil.h"
 #include "common/util/stl.h"
 #include "repobuild/distsource/git_tree.h"
+#include "repobuild/distsource/flock_pl.h"
+#include "repobuild/env/input.h"
 #include "repobuild/nodes/makefile.h"
 extern "C" {
 #include "repobuild/third_party/libgit2/include/git2.h"
@@ -76,6 +78,11 @@ git_index* OpenIndex(git_repository* repo) {
   }
   git_index_read(index.get());
   return index.release();
+}
+
+string FlockScript(const string& scratch_dir) {
+  const char kFlockScript[] = "flock_script.pl";
+  return strings::JoinPath(scratch_dir, kFlockScript);
 }
 
 }  // anonymous namespace
@@ -204,6 +211,9 @@ void GitTree::WriteMakeFile(Makefile* out,
   string current_scratch_dir = strings::JoinPath(out->scratch_dir(),
                                                  full_dir);
   string current_git_file = strings::JoinPath(current_dir, ".git");
+  string lockfile = strings::JoinPath(out->scratch_dir(), ".gitlock");
+  string flock_script = FlockScript(out->scratch_dir());
+  string prereqs = strings::JoinWith(" ", parent, flock_script);
 
   for (const string& submodule : used_submodules_) {
     GitTree* tree = FindPtrOrNull(children_, submodule);
@@ -218,7 +228,7 @@ void GitTree::WriteMakeFile(Makefile* out,
 
     string touchfile = strings::JoinPath(dest_scratch_dir, ".git_tree.dummy");
 
-    Makefile::Rule* rule = out->StartPrereqRule(touchfile, parent);
+    Makefile::Rule* rule = out->StartPrereqRule(touchfile, prereqs);
 
     // Target dir exists, target .git doesn't, and current .git does.
     rule->WriteUserEcho("Sourcing",
@@ -227,9 +237,12 @@ void GitTree::WriteMakeFile(Makefile* out,
     rule->WriteCommand("[ -d " + dest_dir + " -a " +
                        "! -f " + dest_git_file + " -a " +
                        " -e " + current_git_file + " ] && "
-                       "(cd " + current_dir + "; "
+                       "(touch " + lockfile + "; " +
+                       flock_script + " " + lockfile + " '"
+                       "cd " + current_dir + "; "
                        "git submodule update --init " + submodule +
-                       " || exit 1); true");
+                       " || exit 1'"
+                       "); true");
     rule->WriteCommand("mkdir -p " + dest_scratch_dir);
     rule->WriteCommand("[ -f " + touchfile + " ] || "
                        "touch -t 197101010000 " + touchfile);
@@ -251,6 +264,13 @@ void GitTree::WriteMakeFile(Makefile* out,
 
 void GitTree::WriteMakeClean(Makefile::Rule* out) const {
   // Placeholder.
+}
+
+void GitTree::WriteMakeHead(const Input& input, Makefile* out) const {
+  out->GenerateExecFile("FlockScript",
+                        FlockScript(out->scratch_dir()),
+                        string(embed_flock_pl_data(),
+                               embed_flock_pl_size()));
 }
 
 }  // namespace repobuild
