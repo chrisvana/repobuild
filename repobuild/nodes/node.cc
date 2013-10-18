@@ -214,6 +214,14 @@ void Node::InputObjectFiles(LanguageType lang, ResourceFileSet* files) const {
   }
 }
 
+void Node::InputObjectRoots(LanguageType lang, ResourceFileSet* dirs) const {
+  vector<Node*> all_deps;
+  CollectAllDependencies(OBJECT_FILES, lang, &all_deps);
+  for (Node* node : all_deps) {
+    node->LocalObjectRoots(lang, dirs);
+  }
+}
+
 void Node::InputSystemDependencies(LanguageType lang,
                                    set<string>* deps) const {
   vector<Node*> all_deps;
@@ -288,6 +296,11 @@ void Node::DependencyFiles(LanguageType lang, ResourceFileSet* files) const {
 void Node::ObjectFiles(LanguageType lang, ResourceFileSet* files) const {
   InputObjectFiles(lang, files);
   LocalObjectFiles(lang, files);
+}
+
+void Node::ObjectRoots(LanguageType lang, ResourceFileSet* dirs) const {
+  InputObjectRoots(lang, dirs);
+  LocalObjectRoots(lang, dirs);
 }
 
 void Node::SystemDependencies(LanguageType lang, set<string>* deps) const {

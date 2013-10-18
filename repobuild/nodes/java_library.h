@@ -4,6 +4,7 @@
 #ifndef _REPOBUILD_NODES_JAVA_LIBRARY_H__
 #define _REPOBUILD_NODES_JAVA_LIBRARY_H__
 
+#include <memory>
 #include <set>
 #include <string>
 #include <vector>
@@ -11,21 +12,22 @@
 #include "repobuild/nodes/node.h"
 
 namespace repobuild {
+class ComponentHelper;
 
 class JavaLibraryNode : public Node {
  public:
   JavaLibraryNode(const TargetInfo& t,
                   const Input& i,
-                  DistSource* s)
-      : Node(t, i, s) {
-  }
-  virtual ~JavaLibraryNode() {}
+                  DistSource* s);
+  virtual ~JavaLibraryNode();
   virtual void Parse(BuildFile* file, const BuildFileNode& input);
   virtual void LocalWriteMake(Makefile* out) const {
     LocalWriteMakeInternal(true, out);
   }
   virtual void LocalObjectFiles(LanguageType lang,
                                 ResourceFileSet* files) const;
+  virtual void LocalObjectRoots(LanguageType lang,
+                                ResourceFileSet* dirs) const;
   virtual void LocalLinkFlags(LanguageType lang,
                               std::set<std::string>* flags) const;
   virtual void LocalCompileFlags(LanguageType lang,
@@ -46,6 +48,7 @@ class JavaLibraryNode : public Node {
   void WriteCompile(const ResourceFileSet& input_files,
                     Makefile* out) const;
   Resource ClassFile(const Resource& source) const;
+  Resource ObjectRoot() const;
 
   std::vector<Resource> sources_;
   std::vector<std::string> java_local_compile_args_;
@@ -53,6 +56,8 @@ class JavaLibraryNode : public Node {
   std::vector<std::string> java_jar_args_;
   std::vector<std::string> java_classpath_;
   std::string java_out_root_;
+
+  std::unique_ptr<ComponentHelper> component_;
 };
 
 }  // namespace repobuild

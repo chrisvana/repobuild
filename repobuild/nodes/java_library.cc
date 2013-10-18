@@ -9,6 +9,7 @@
 #include "common/strings/strutil.h"
 #include "repobuild/env/input.h"
 #include "repobuild/nodes/java_library.h"
+#include "repobuild/nodes/util.h"
 #include "repobuild/reader/buildfile.h"
 
 using std::vector;
@@ -16,6 +17,14 @@ using std::string;
 using std::set;
 
 namespace repobuild {
+
+JavaLibraryNode::JavaLibraryNode(const TargetInfo& t,
+                                 const Input& i,
+                                 DistSource* s)
+    : Node(t, i, s) {
+}
+
+JavaLibraryNode::~JavaLibraryNode() {}
 
 void JavaLibraryNode::Parse(BuildFile* file, const BuildFileNode& input) {
   Node::Parse(file, input);
@@ -38,7 +47,8 @@ void JavaLibraryNode::ParseInternal(BuildFile* file,
                                     const BuildFileNode& input) {
   // root dir for output class files, which is also a class path down below,
   // see Init().
-  current_reader()->ParseStringField("java_out_root", true, &java_out_root_);
+  string java_root = current_reader()->ParseSingleDirectory("java_root");
+  component_.reset(new ComponentHelper("", java_root));
 
   // classpath info.
   vector<Resource> java_classpath_dirs;
@@ -48,6 +58,11 @@ void JavaLibraryNode::ParseInternal(BuildFile* file,
   for (const Resource& r : java_classpath_dirs) {
     java_classpath_.push_back(r.path());
   }
+  java_classpath_.push_back(java_root);
+  sort(java_classpath_.begin(), java_classpath_.end(),
+       [](const string& a, const string& b) -> bool {
+         return a.size() > b.size();
+       });
 
   // javac args
   current_reader()->ParseRepeatedString("java_local_compile_args",
@@ -65,12 +80,6 @@ void JavaLibraryNode::ParseInternal(BuildFile* file,
         << "Invalid java source "
         << source << " in target " << target().full_path();
   }
-  if (java_out_root_.empty()) {
-    java_out_root_ = Node::input().object_dir();
-  } else {
-    java_out_root_ = strings::JoinPath(ObjectDir(), java_out_root_);
-  }
-  java_classpath_.push_back(java_out_root_); 
 }
 
 void JavaLibraryNode::LocalWriteMakeInternal(bool write_user_target,
@@ -144,10 +153,11 @@ void JavaLibraryNode::WriteCompile(const ResourceFileSet& input_files,
   }
 
   rule->WriteUserEcho("Compiling", target().make_path() + " (java)");
+  rule->WriteCommand("mkdir -p " + ObjectRoot().path());
   rule->WriteCommand(strings::JoinWith(
       " ",
       compile,
-      "-d " + java_out_root_,
+      "-d " + ObjectRoot().path(),
       "-s " + input().genfile_dir(),
       strings::JoinAll(compile_args, " "),
       include_dirs,
@@ -159,21 +169,25 @@ void JavaLibraryNode::WriteCompile(const ResourceFileSet& input_files,
   // place.
   for (int i = 0; i < obj_files.size(); ++i) {
     const Resource& object_file = obj_files[i];
-    Makefile::Rule* rule = out->StartRule(object_file.path(),
-                                          touchfile.path());
+    CHECK(strings::HasPrefix(object_file.path(), ObjectRoot().path() + "/"));
+    string suffix = object_file.path().substr(ObjectRoot().path().size() + 1);
+    Makefile::Rule* rule = out->StartRule(object_file.path(), touchfile.path());
     // Make sure we actually generated all of the object files, otherwise the
     // user may have specified the wrong java_out_root.
     rule->WriteCommand("if [ ! -f " + object_file.path() + " ]; then " +
                        "echo \"Class file not generated: "
                        + object_file.path() +
                        ", or it was generated in an unexpected location. Make "
-                       "sure java_out_root is specified correctly or the "
+                       "sure java_root is specified correctly or the "
                        "package name for the object is: " +
-                       strings::Replace(object_file.dirname(), "/", ".") +
+                       strings::ReplaceAll(suffix, "/", ".") +
                        "\"; exit 1; fi");
     rule->WriteCommand("touch " + object_file.path());
     out->FinishRule(rule);
   }
+
+  // ObjectRoot directory rule
+  out->WriteRule(ObjectRoot().path(), strings::JoinAll(obj_files, " "));
 }
 
 void JavaLibraryNode::LocalLinkFlags(LanguageType lang,
@@ -193,6 +207,7 @@ void JavaLibraryNode::LocalCompileFlags(LanguageType lang,
 void JavaLibraryNode::LocalIncludeDirs(LanguageType lang,
                                        std::set<std::string>* dirs) const {
   dirs->insert(java_classpath_.begin(), java_classpath_.end());
+  dirs->insert(ObjectRoot().path());
 }
 
 void JavaLibraryNode::LocalObjectFiles(LanguageType lang,
@@ -201,6 +216,12 @@ void JavaLibraryNode::LocalObjectFiles(LanguageType lang,
   for (const Resource& r : sources_) {
     files->Add(ClassFile(r));
   }
+}
+
+void JavaLibraryNode::LocalObjectRoots(LanguageType lang,
+                                       ResourceFileSet* dirs) const {
+  Node::LocalObjectRoots(lang, dirs);
+  dirs->Add(ObjectRoot());
 }
 
 void JavaLibraryNode::LocalDependencyFiles(LanguageType lang,
@@ -215,11 +236,25 @@ void JavaLibraryNode::LocalDependencyFiles(LanguageType lang,
 
 Resource JavaLibraryNode::ClassFile(const Resource& source) const {
   CHECK(strings::HasSuffix(source.path(), ".java"));
-  return Resource::FromRootPath(
-      strings::JoinPath(
-          input().object_dir(),
-          StripSpecialDirs(source.path().substr(0, source.path().size() - 4)) +
-          "class"));
+
+  // Strip our leading directories.
+  string path = StripSpecialDirs(
+      source.path().substr(0, source.path().size() - 4)) + "class";
+  for (const string& classpath : java_classpath_) {
+    if (strings::HasPrefix(path, classpath + "/")) {
+      path = path.substr(classpath.size() + 1);
+      break;
+    }
+  }
+  path = GetComponentHelper(path)->RewriteFile(input(), path);
+
+  // This file is going under ObjectRoot();
+  return Resource::FromLocalPath(ObjectRoot().path(), path);
+}
+
+Resource JavaLibraryNode::ObjectRoot() const {
+  return Resource::FromLocalPath(input().object_dir(),
+                                 "lib_" + target().make_path());
 }
 
 }  // namespace repobuild

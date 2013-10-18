@@ -25,8 +25,17 @@ class JavaJarNode : public JavaLibraryNode {
  protected:
   // Helper.
   Resource JarName() const;
+  Resource JarRoot() const;
   void LocalWriteMakeInternal(bool write_base, Makefile* out) const;
-  void WriteJar(const Resource& file, Makefile* out) const;
+  void WriteRules(Makefile* out) const;
+  void WriteJar(const Resource& jar_file,
+                const Resource& root,
+                const ResourceFileSet& dependencies,
+                Makefile* out) const;
+  Resource MoveFiles(const Resource& root,
+                     const Resource& dir,
+                     Makefile* out) const;
+  Resource WriteManifest(Makefile* out) const;
 
   std::vector<std::string> java_manifest_;
 };

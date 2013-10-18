@@ -824,7 +824,7 @@ headers.repobuild/nodes/java_library := repobuild/nodes/java_library.h
 	@echo "Compiling:  repobuild/nodes/java_library.cc (c++)"
 	@$(COMPILE.cc) -I -I. -I.gen-files -I.gen-files/common/third_party/google/glog/src -I.gen-files/repobuild/third_party -I.gen-src -I.gen-src/.gen-files -I.gen-src/common/third_party/google/glog/src -I.gen-src/repobuild/third_party -Icommon/third_party/google/glog/src -Irepobuild/third_party $(cxx_header_compile_args.common/third_party/google/gflags/gflags) repobuild/nodes/java_library.cc -o .gen-obj/repobuild/nodes/java_library.cc.o
 
-repobuild/nodes/java_library: .gen-obj/repobuild/nodes/java_library.cc.o common/log/log common/strings/strutil repobuild/nodes/node repobuild/auto_.0
+repobuild/nodes/java_library: .gen-obj/repobuild/nodes/java_library.cc.o common/log/log common/strings/strutil repobuild/nodes/node repobuild/nodes/util repobuild/auto_.0
 
 .PHONY: repobuild/nodes/java_library
 

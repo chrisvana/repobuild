@@ -53,6 +53,7 @@ class Node {
   // Internal object/resource handling.
   void DependencyFiles(LanguageType lang, ResourceFileSet* files) const;
   void ObjectFiles(LanguageType lang, ResourceFileSet* files) const;
+  void ObjectRoots(LanguageType lang, ResourceFileSet* dirs) const;
   void FinalOutputs(LanguageType lang, ResourceFileSet* outputs) const;
   void FinalTests(LanguageType lang, std::set<std::string>* targets) const;
   void Binaries(LanguageType lang, ResourceFileSet* outputs) const;
@@ -120,6 +121,9 @@ class Node {
   virtual void LocalObjectFiles(
       LanguageType lang,
       ResourceFileSet* files) const {}
+  virtual void LocalObjectRoots(
+      LanguageType lang,
+      ResourceFileSet* dirs) const {}
   virtual void LocalSystemDependencies(
       LanguageType lang,
       std::set<std::string>* deps) const {}
@@ -181,6 +185,7 @@ class Node {
   // Dependency helpers
   void InputDependencyFiles(LanguageType lang, ResourceFileSet* files) const;
   void InputObjectFiles(LanguageType lang, ResourceFileSet* files) const;
+  void InputObjectRoots(LanguageType lang, ResourceFileSet* dirs) const;
   void InputSystemDependencies(LanguageType lang,
                                std::set<std::string>* deps) const;
   void InputFinalOutputs(LanguageType lang, ResourceFileSet* outputs) const;
