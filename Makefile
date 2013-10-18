@@ -991,7 +991,7 @@ repobuild/repobuild: common/base/base_tcmalloc common/log/log common/file/fileut
 
 
 .gen-files/common/.git_tree.dummy: .gen-files/flock_script.pl
-	@echo "Sourcing:   //common (git submodule)"
+	@[ -f common/.git ] || echo "Sourcing:   //common (git submodule)"
 	@[ -d common -a ! -f common/.git -a  -e .git ] && (touch .gen-files/.gitlock; .gen-files/flock_script.pl .gen-files/.gitlock 'cd .; git submodule update --init common || exit 1'); true
 	@mkdir -p .gen-files/common
 	@[ -f .gen-files/common/.git_tree.dummy ] || touch -t 197101010000 .gen-files/common/.git_tree.dummy

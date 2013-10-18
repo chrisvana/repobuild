@@ -76,6 +76,15 @@ void Makefile::Rule::WriteUserEcho(const string& name,
                                      value.c_str()));
 }
 
+void Makefile::Rule::WriteUserEchoFileCheck(const string& name,
+                                            const string& value,
+                                            const string& file) {
+  WriteCommand(strings::StringPrintf("[ -f %s ] || echo \"%-11s %s\"",
+                                     file.c_str(),
+                                     (name + ":").c_str(),
+                                     value.c_str()));
+}
+
 void Makefile::Rule::AddDependency(const string& dep) {
   if (!dependencies_.empty()) {
     dependencies_ += " ";

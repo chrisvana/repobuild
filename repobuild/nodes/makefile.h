@@ -35,6 +35,9 @@ class Makefile {
     void WriteCommandBestEffort(const std::string& command);
     void WriteUserEcho(const std::string& name,
                        const std::string& value);  // prints "name: value".
+    void WriteUserEchoFileCheck(const std::string& name,
+                                const std::string& value,
+                                const std::string& file);  // iff file missing.
     void MaybeRemoveSymlink(const std::string& path);
 
     void AddDependency(const std::string& dep);

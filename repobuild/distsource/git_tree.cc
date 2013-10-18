@@ -231,9 +231,10 @@ void GitTree::WriteMakeFile(Makefile* out,
     Makefile::Rule* rule = out->StartPrereqRule(touchfile, prereqs);
 
     // Target dir exists, target .git doesn't, and current .git does.
-    rule->WriteUserEcho("Sourcing",
-                        "//" + strings::JoinPath(full_dir, submodule) +
-                        " (git submodule)");
+    rule->WriteUserEchoFileCheck("Sourcing",
+                                 "//" + strings::JoinPath(full_dir, submodule) +
+                                 " (git submodule)",
+                                 dest_git_file);
     rule->WriteCommand("[ -d " + dest_dir + " -a " +
                        "! -f " + dest_git_file + " -a " +
                        " -e " + current_git_file + " ] && "
