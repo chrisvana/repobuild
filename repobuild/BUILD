@@ -7,7 +7,7 @@
  { "cc_binary": {
    "name": "repobuild",
    "cc_sources": [ "repobuild.cc" ],
-   "dependencies": [ "//common/base:base",  // TMP TMP TMP _tcmalloc",
+   "dependencies": [ "//common/base:base_tcmalloc",
                      "//common/log:log",
                      "//common/file:fileutil",
                      "//common/strings:stringpiece",

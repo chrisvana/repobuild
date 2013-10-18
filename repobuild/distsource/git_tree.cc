@@ -119,7 +119,23 @@ bool GitTree::Initialized() const {
   return data_->index.get() != NULL;
 }
 
+namespace {
+bool IsSubmodule(const string& path,
+                 const string& submodule,
+                 string* remainder) {
+  if (path == submodule) {
+    return true;
+  }
+  if (strings::HasPrefix(path, submodule + "/")) {
+    *remainder = path.substr(submodule.size() + 1);
+    return true;
+  }
+  return false;
+}
+}  // anonymous namespace
+
 void GitTree::ExpandChild(const string& path) {
+  VLOG(2) << "GitTree::ExpandChild: " << path;
   bool found_anything = false;
   for (auto it : children_) {
     const string& submodule = it.first;
@@ -128,16 +144,14 @@ void GitTree::ExpandChild(const string& path) {
     // trivial to glob against a prefix. You could probably pop path components
     // off of 'path' and use a glob library to match the substring against
     // "submodule".
-    if (strings::HasPrefix(path, submodule)) {
+    string remainder;
+    if (IsSubmodule(path, submodule, &remainder)) {
       found_anything = true;
-      if (!tree->Initialized() &&
-          FLAGS_enable_repobuild_git) {
+      if (!tree->Initialized() && FLAGS_enable_repobuild_git) {
         InitializeSubmodule(submodule, tree);
       }
       used_submodules_.insert(submodule);
-      if (path.size() > submodule.size()) {
-        tree->ExpandChild(path.substr(submodule.size() + 1));
-      }
+      tree->ExpandChild(remainder);
       break;
     }
   }
@@ -148,15 +162,16 @@ void GitTree::RecordFile(const string& path) {
   for (auto it : children_) {
     const string& submodule = it.first;
     GitTree* tree = it.second;
-    if (strings::HasPrefix(path, submodule)) {
+    string remainder;
+    if (IsSubmodule(path, submodule, &remainder)) {
       used_submodules_.insert(submodule);
-      if (path.size() > submodule.size()) {
-        tree->RecordFile(path.substr(submodule.size() + 1));
-      }
+      tree->RecordFile(remainder);
       return;
     }
   }
-  seen_files_.insert(path);
+  if (!path.empty()) {
+    seen_files_.insert(path);
+  }
 }
 
 void GitTree::InitializeSubmodule(const string& submodule, GitTree* sub_tree) {
