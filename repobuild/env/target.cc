@@ -32,7 +32,8 @@ string BuildDir(const string& target) {
   // already validated.
   vector<StringPiece> pieces =
       strings::SplitAllowEmpty(StringPiece(target).substr(2), ":");
-  CHECK_EQ(2, pieces.size());
+  CHECK_EQ(2, pieces.size())
+      << "Could not parse target: " << target;
   return pieces[0].as_string();
 }
 
@@ -53,7 +54,7 @@ string LocalPath(const string& path) {
   // already validated.
   vector<StringPiece> pieces =
       strings::SplitAllowEmpty(StringPiece(path).substr(2), ":");
-  CHECK_EQ(2, pieces.size());
+  CHECK_EQ(2, pieces.size()) << "Could not parse path: " << path;
   return pieces[1].as_string();
 }
 
