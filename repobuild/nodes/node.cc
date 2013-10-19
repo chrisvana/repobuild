@@ -74,6 +74,9 @@ void Node::Parse(BuildFile* file, const BuildFileNode& input) {
 
   // Parse environment variables.
   current_reader()->ParseKeyValueStrings("env", &env_variables_);
+
+  // Parse licence info.
+  current_reader()->ParseRepeatedString("licenses", &licenses_);
 }
 
 void Node::PostParse() {
@@ -282,6 +285,15 @@ void Node::InputIncludeDirs(LanguageType lang, set<string>* dirs) const {
   dirs->insert(input().root_dir());
   dirs->insert(input().source_dir());
   dirs->insert(input().genfile_dir());
+}
+
+void Node::Licenses(std::set<std::string>* licenses) const {
+  // TODO(cvanarsdale): This is going to be tricky. For now, we just include
+  // everything.
+  licenses->insert(licenses_.begin(), licenses_.end());
+  for (const Node* child : dependencies_) {
+    child->Licenses(licenses);
+  }
 }
 
 void Node::EnvVariables(LanguageType lang, map<string, string>* env) const {

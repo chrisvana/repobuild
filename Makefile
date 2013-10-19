@@ -6,23 +6,23 @@ ROOT_DIR := $(shell pwd)
 CXX_GCC := $(shell echo $$($(CXX) --version | egrep '(gcc|g\+\+)' | head -n 1 | wc -l))
 CC_GCC := $(shell echo $$($(CC) --version | egrep '(gcc|g\+\+|^cc)' | head -n 1 | wc -l))
 ifeq ($(CC_GCC),1)
-	CFLAGS= -pthread -g -Wall -Werror -Wno-sign-compare -Wno-unused-local-typedefs -Wno-error=unused-local-typedefs -O3 -flto
+	CFLAGS= -pthread -g -Wall -Werror -Wno-sign-compare -Wno-unused-local-typedefs -Wno-error=unused-local-typedefs -O3
 	BASIC_CFLAGS= -pthread
 else
-	CFLAGS= -stdlib=libc++ -pthread -g -Wall -Werror -Wno-sign-compare -O3 -flto -Qunused-arguments -fcolor-diagnostics
+	CFLAGS= -stdlib=libc++ -pthread -g -Wall -Werror -Wno-sign-compare -O3 -Qunused-arguments -fcolor-diagnostics
 	BASIC_CFLAGS= -stdlib=libc++ -pthread -Qunused-arguments
 endif
 ifeq ($(CXX_GCC),1)
 	LD_FORCE_LINK_START := -Wl,--whole-archive
 	LD_FORCE_LINK_END := -Wl,--no-whole-archive
-	LDFLAGS= -lpthread -g -O3 -flto -L/usr/local/lib -L/opt/local/lib
-	CXXFLAGS= -pthread -g -Wall -Werror -Wno-sign-compare -Wno-unused-local-typedefs -Wno-error=unused-local-typedefs -O3 -flto -std=c++11 -DUSE_CXX0X
+	LDFLAGS= -lpthread -g -O3 -L/usr/local/lib -L/opt/local/lib
+	CXXFLAGS= -pthread -g -Wall -Werror -Wno-sign-compare -Wno-unused-local-typedefs -Wno-error=unused-local-typedefs -O3 -std=c++11 -DUSE_CXX0X
 	BASIC_CXXFLAGS= -pthread -std=c++11
 else
 	LD_FORCE_LINK_START := -Wl,-force_load
 	LD_FORCE_LINK_END := 
-	LDFLAGS= -stdlib=libc++ -lpthread -g -O3 -flto -L/usr/local/lib -L/opt/local/lib
-	CXXFLAGS= -stdlib=libc++ -pthread -g -Wall -Werror -Wno-sign-compare -O3 -flto -Qunused-arguments -fcolor-diagnostics -std=c++11 -DUSE_CXX0X
+	LDFLAGS= -stdlib=libc++ -lpthread -g -O3 -L/usr/local/lib -L/opt/local/lib
+	CXXFLAGS= -stdlib=libc++ -pthread -g -Wall -Werror -Wno-sign-compare -O3 -Qunused-arguments -fcolor-diagnostics -std=c++11 -DUSE_CXX0X
 	BASIC_CXXFLAGS= -stdlib=libc++ -pthread -Qunused-arguments -std=c++11
 endif
 
@@ -951,12 +951,12 @@ repobuild/reader/parser: .gen-obj/repobuild/reader/parser.cc.o common/log/log co
 headers.repobuild/generator/generator := repobuild/generator/generator.h
 
 
-.gen-obj/repobuild/generator/generator.cc.o: .gen-src/common/.dummy .gen-src/.gen-files/common/.dummy .gen-src/.gen-pkg/common/.dummy $(headers.common/third_party/google/gflags/gflags) .gen-obj/common/third_party/google/glog/.glog_gen.0.dummy .gen-obj/common/third_party/google/glog/.glog_gen.1.0.dummy $(headers.common/log/log) .gen-obj/common/third_party/stringencoders/.stringencoders_conf.0.dummy .gen-obj/common/third_party/stringencoders/.stringencoders_conf.1.0.dummy $(headers.common/third_party/stringencoders/stringencoders) $(headers.common/third_party/google/re2/re2) $(headers.common/strings/strutil) .gen-src/repobuild/.dummy .gen-src/.gen-files/repobuild/.dummy .gen-src/.gen-pkg/repobuild/.dummy $(headers.repobuild/nodes/makefile) $(headers.repobuild/distsource/dist_source) $(headers.common/base/flags) $(headers.repobuild/env/input) $(headers.repobuild/env/resource) $(headers.common/base/macros) $(headers.common/util/stl) $(headers.common/file/fileutil) $(headers.repobuild/env/target) $(headers.repobuild/third_party/json/json) $(headers.repobuild/reader/buildfile) $(headers.repobuild/nodes/util) $(headers.repobuild/nodes/node) $(headers.repobuild/nodes/gen_sh) $(headers.repobuild/nodes/autoconf) $(headers.repobuild/nodes/cmake) $(headers.repobuild/nodes/top_symlink) $(headers.repobuild/nodes/cc_binary) $(headers.repobuild/nodes/cc_embed_data) $(headers.repobuild/nodes/cc_library) $(headers.repobuild/nodes/cc_shared_library) $(headers.repobuild/nodes/confignode) $(headers.repobuild/nodes/execute_test) $(headers.repobuild/nodes/go_library) $(headers.repobuild/nodes/go_binary) $(headers.repobuild/nodes/go_test) $(headers.repobuild/nodes/java_library) $(headers.repobuild/nodes/java_jar) $(headers.repobuild/nodes/java_binary) $(headers.repobuild/nodes/make) $(headers.common/util/shell) $(headers.repobuild/nodes/plugin) $(headers.repobuild/nodes/proto_library) $(headers.repobuild/nodes/py_library) $(headers.repobuild/nodes/py_egg) $(headers.repobuild/nodes/py_binary) $(headers.repobuild/nodes/allnodes) $(headers.repobuild/reader/parser) $(headers.repobuild/generator/generator) repobuild/generator/generator.cc .gen-files/.dummy.prereqs
+.gen-obj/repobuild/generator/generator.cc.o: .gen-src/common/.dummy .gen-src/.gen-files/common/.dummy .gen-src/.gen-pkg/common/.dummy $(headers.common/third_party/google/gflags/gflags) .gen-obj/common/third_party/google/glog/.glog_gen.0.dummy .gen-obj/common/third_party/google/glog/.glog_gen.1.0.dummy $(headers.common/log/log) .gen-obj/common/third_party/stringencoders/.stringencoders_conf.0.dummy .gen-obj/common/third_party/stringencoders/.stringencoders_conf.1.0.dummy $(headers.common/third_party/stringencoders/stringencoders) $(headers.common/third_party/google/re2/re2) $(headers.common/strings/strutil) $(headers.common/util/stl) .gen-src/repobuild/.dummy .gen-src/.gen-files/repobuild/.dummy .gen-src/.gen-pkg/repobuild/.dummy $(headers.repobuild/nodes/makefile) $(headers.repobuild/distsource/dist_source) $(headers.common/base/flags) $(headers.repobuild/env/input) $(headers.repobuild/env/resource) $(headers.common/base/macros) $(headers.common/file/fileutil) $(headers.repobuild/env/target) $(headers.repobuild/third_party/json/json) $(headers.repobuild/reader/buildfile) $(headers.repobuild/nodes/util) $(headers.repobuild/nodes/node) $(headers.repobuild/nodes/gen_sh) $(headers.repobuild/nodes/autoconf) $(headers.repobuild/nodes/cmake) $(headers.repobuild/nodes/top_symlink) $(headers.repobuild/nodes/cc_binary) $(headers.repobuild/nodes/cc_embed_data) $(headers.repobuild/nodes/cc_library) $(headers.repobuild/nodes/cc_shared_library) $(headers.repobuild/nodes/confignode) $(headers.repobuild/nodes/execute_test) $(headers.repobuild/nodes/go_library) $(headers.repobuild/nodes/go_binary) $(headers.repobuild/nodes/go_test) $(headers.repobuild/nodes/java_library) $(headers.repobuild/nodes/java_jar) $(headers.repobuild/nodes/java_binary) $(headers.repobuild/nodes/make) $(headers.common/util/shell) $(headers.repobuild/nodes/plugin) $(headers.repobuild/nodes/proto_library) $(headers.repobuild/nodes/py_library) $(headers.repobuild/nodes/py_egg) $(headers.repobuild/nodes/py_binary) $(headers.repobuild/nodes/allnodes) $(headers.repobuild/reader/parser) $(headers.repobuild/generator/generator) repobuild/generator/generator.cc .gen-files/.dummy.prereqs
 	@mkdir -p .gen-obj/repobuild/generator
 	@echo "Compiling:  repobuild/generator/generator.cc (c++)"
 	@$(COMPILE.cc) -I -I. -I.gen-files -I.gen-files/common/third_party/google/glog/src -I.gen-files/repobuild/third_party -I.gen-src -I.gen-src/.gen-files -I.gen-src/common/third_party/google/glog/src -I.gen-src/repobuild/third_party -Icommon/third_party/google/glog/src -Irepobuild/third_party $(cxx_header_compile_args.common/third_party/google/gflags/gflags) repobuild/generator/generator.cc -o .gen-obj/repobuild/generator/generator.cc.o
 
-repobuild/generator/generator: .gen-obj/repobuild/generator/generator.cc.o common/log/log repobuild/distsource/dist_source repobuild/env/input repobuild/env/resource repobuild/nodes/allnodes repobuild/reader/parser repobuild/auto_.0
+repobuild/generator/generator: .gen-obj/repobuild/generator/generator.cc.o common/log/log common/strings/strutil common/util/stl repobuild/distsource/dist_source repobuild/env/input repobuild/env/resource repobuild/nodes/allnodes repobuild/reader/parser repobuild/auto_.0
 
 .PHONY: repobuild/generator/generator
 
@@ -1232,7 +1232,12 @@ all: repobuild bin/repobuild repobuild/repobuild .gen-files/.dummy.prereqs
 
 tests: .gen-files/.dummy.prereqs
 
-.PHONY: clean all tests install
+
+licenses: .gen-files/.dummy.prereqs
+	@echo "License information."
+	@printf "//repobuild:repobuild =>\n    http://opensource.org/licenses/BSD-3-Clause\n\n"
+
+.PHONY: clean all tests install licenses
 
 .DEFAULT_GOAL=all
 

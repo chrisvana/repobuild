@@ -6,6 +6,7 @@
 #include <vector>
 #include <string>
 #include "common/log/log.h"
+#include "common/strings/strutil.h"
 #include "common/util/stl.h"
 #include "repobuild/distsource/dist_source.h"
 #include "repobuild/env/input.h"
@@ -142,8 +143,23 @@ string Generator::GenerateMakefile(const Input& input) {
   }
   out.WriteRule("tests", strings::JoinAll(tests, " "));
 
+  // Write the licences rule.
+  Makefile::Rule* license_rule = out.StartRule("licenses");
+  license_rule->WriteCommand("echo \"License information.\"");
+  for (const Node* node : parser.input_nodes()) {
+    set<string> licenses;
+    node->Licenses(&licenses);
+    string output = "printf \"" + node->target().full_path() + " =>\\n";
+    for (const string& license : licenses) {
+      output += "    " + license + "\\n";
+    }
+    output += "\\n\"";
+    license_rule->WriteCommand(output);
+  }
+  out.FinishRule(license_rule);
+
   // Not real files:
-  out.append(".PHONY: clean all tests install\n\n");
+  out.append(".PHONY: clean all tests install licenses\n\n");
 
   // Default build everything.
   out.append(".DEFAULT_GOAL=all\n\n");

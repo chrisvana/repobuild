@@ -59,6 +59,7 @@ class Node {
   void Binaries(LanguageType lang, ResourceFileSet* outputs) const;
   void TopTestBinaries(LanguageType lang, ResourceFileSet* outputs) const;
   void SystemDependencies(LanguageType lang, std::set<std::string>* deps) const;
+  void Licenses(std::set<std::string>* licenses) const;
   virtual void ExternalDependencyFiles(
       LanguageType lang,
       std::map<std::string, std::string>* files) const {}
@@ -249,6 +250,7 @@ class Node {
   bool strict_file_mode_;
   std::unique_ptr<BuildFileNodeReader> build_reader_;
   std::map<std::string, std::string> env_variables_;
+  std::vector<std::string> licenses_;
 
   // Subnode/variables/etc handling.
   std::vector<Node*> subnodes_, owned_subnodes_;

@@ -1,6 +1,7 @@
 [
  { "config": {
-     "component": "repobuild"
+     "component": "repobuild",
+     "licenses": [ "http://opensource.org/licenses/BSD-3-Clause" ]
    }
  },
 
