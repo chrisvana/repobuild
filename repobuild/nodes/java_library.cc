@@ -1,6 +1,7 @@
 // Copyright 2013
 // Author: Christopher Van Arsdale
 
+#include <algorithm>
 #include <set>
 #include <string>
 #include <vector>
@@ -59,10 +60,10 @@ void JavaLibraryNode::ParseInternal(BuildFile* file,
     java_classpath_.push_back(r.path());
   }
   java_classpath_.push_back(java_root);
-  sort(java_classpath_.begin(), java_classpath_.end(),
-       [](const string& a, const string& b) -> bool {
-         return a.size() > b.size();
-       });
+  std::sort(java_classpath_.begin(), java_classpath_.end(),
+            [](const string& a, const string& b) -> bool {
+              return a.size() > b.size();
+            });
 
   // javac args
   current_reader()->ParseRepeatedString("java_local_compile_args",
