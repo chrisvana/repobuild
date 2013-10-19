@@ -1233,7 +1233,7 @@ all: repobuild bin/repobuild repobuild/repobuild .gen-files/.dummy.prereqs
 tests: .gen-files/.dummy.prereqs
 
 
-licenses: .gen-files/.dummy.prereqs
+licenses: 
 	@echo "License information."
 	@printf "//repobuild:repobuild =>\n    http://opensource.org/licenses/BSD-3-Clause\n\n"
 

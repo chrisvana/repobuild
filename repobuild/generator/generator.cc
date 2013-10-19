@@ -144,7 +144,7 @@ string Generator::GenerateMakefile(const Input& input) {
   out.WriteRule("tests", strings::JoinAll(tests, " "));
 
   // Write the licences rule.
-  Makefile::Rule* license_rule = out.StartRule("licenses");
+  Makefile::Rule* license_rule = out.StartRawRule("licenses", "");
   license_rule->WriteCommand("echo \"License information.\"");
   for (const Node* node : parser.input_nodes()) {
     set<string> licenses;
