@@ -50,18 +50,56 @@ $ make -j8 repobuild
 
 # Install (default is /usr/local/bin)
 $ sudo make install
+```
 
-# Usage:
+--
+###### Usage
+```
+# Basic help:
 $ repobuild --helpshort
-$ ...
+repobuild: 
 
+  To generate makefile:
+     repobuild "path/to/dir:target" [--makefile=Makefile]
+
+  To build:
+     make [-j8] [target]
+
+  To run:
+     ./.gen-obj/path/to/target
+         or
+     ./target
+
+  Flags from repobuild/repobuild.cc:
+    -makefile (Name of makefile output.) type: string default: "Makefile"
+
+# To set up makefile:
+$ repobuild "//path/to/my/dir:target_name" "//path/to/other/dir:target_2"
+....
+Generating Makefile
+
+# Make options:
+# 1) Builds all binaries, libraries, etc:
+$ make
+
+# 2) Build specific library
+$ make path/to/my/dir/target_name
+
+# 3) Builds/runs tests:
+$ make tests
+
+# 4) Installs binaries and shared libraries
+$ make install
+```
+
+*Concrete example*
+```
 # Try it out on the testdata (builds in protocol buffers and other fun stuff):
 $ repobuild "testdata:java_main"
 ...
 $ make -j8
 ...
 $ ./java_main
-
 ```
 
 ###### What should you do now?
