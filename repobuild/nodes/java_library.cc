@@ -60,6 +60,10 @@ void JavaLibraryNode::ParseInternal(BuildFile* file,
     java_classpath_.push_back(r.path());
   }
   java_classpath_.push_back(java_root);
+  java_classpath_.push_back(strings::JoinPath(Node::input().genfile_dir(),
+                                              StripSpecialDirs(java_root)));
+  java_classpath_.push_back(strings::JoinPath(Node::input().object_dir(),
+                                              StripSpecialDirs(java_root)));
   std::sort(java_classpath_.begin(), java_classpath_.end(),
             [](const string& a, const string& b) -> bool {
               return a.size() > b.size();
