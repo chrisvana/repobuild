@@ -55,5 +55,12 @@ Resource PyBinaryNode::BinScript() const {
   return Resource::FromLocalPath(input().object_dir(), target().make_path());
 }
 
+bool PyBinaryNode::ShouldInclude(DependencyCollectionType type,
+                                 LanguageType lang) const {
+  return (type != OBJECT_FILES &&
+          type != LINK_FLAGS &&
+          type != COMPILE_FLAGS &&
+          type != INCLUDE_DIRS);
+}
 
 }  // namespace repobuild

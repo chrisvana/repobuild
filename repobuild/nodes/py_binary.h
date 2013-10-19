@@ -23,6 +23,8 @@ class PyBinaryNode : public PyEggNode {
   virtual void LocalWriteMake(Makefile* out) const;
   virtual void LocalBinaries(LanguageType lang,
                              ResourceFileSet* outputs) const;
+  virtual bool ShouldInclude(DependencyCollectionType type,
+                             LanguageType lang) const;
 
  protected:
   Resource BinScript() const;

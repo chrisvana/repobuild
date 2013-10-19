@@ -220,6 +220,10 @@ class Node {
                                    LanguageType lang) const {
     return true;
   }
+  virtual bool ShouldInclude(DependencyCollectionType type,
+                             LanguageType lang) const {
+    return true;
+  }
   virtual bool IncludeChildDependency(DependencyCollectionType type,
                                       LanguageType lang,
                                       Node* node) const {

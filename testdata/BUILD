@@ -81,6 +81,6 @@
 
  { "simple_plugin": {
     "name": "my_name",
-    "sources": [ "main.go" ]
+    "sources": [ "main2.go" ]
  } }
 ]

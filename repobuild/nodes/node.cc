@@ -171,6 +171,7 @@ void Node::CollectAllDependencies(DependencyCollectionType type,
   // dependencies listed ahead of it.
   for (Node* node : dependencies_) {
     if (IncludeChildDependency(type, lang, node) &&
+        node->ShouldInclude(type, lang) &&
         all_deps_set->insert(node).second) {
       if (node->IncludeDependencies(type, lang)) {
         node->CollectAllDependencies(type, lang, all_deps_set, all_deps);

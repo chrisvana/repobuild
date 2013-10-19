@@ -73,6 +73,8 @@ Resource JavaJarNode::MoveFiles(const Resource& root,
           "  do printf '../'; FILE=$(dirname $FILE); done); "
           " ln -s -f $RELATIVE" + file + " $file; "
           "done"));
+  rule->WriteCommand("mkdir -p " + touchfile.dirname());
+  rule->WriteCommand("touch " + touchfile.path());
   out->FinishRule(rule);
   return touchfile;
 }
@@ -121,6 +123,7 @@ Resource JavaJarNode::WriteManifest(Makefile* out) const {
   man_cmd += "; do echo \"$$line\" >> " + manifest.path() + "; done; ";
   man_cmd += "touch " + manifest.path() + "'";
   Makefile::Rule* rule = out->StartRule(manifest.path());
+  rule->WriteCommand("mkdir -p " + manifest.dirname());
   rule->WriteCommand(man_cmd);
   out->FinishRule(rule);
   return manifest;

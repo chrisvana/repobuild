@@ -25,6 +25,8 @@ class CCBinaryNode : public CCLibraryNode {
                              ResourceFileSet* outputs) const;
   virtual void LocalWriteMakeInstall(Makefile* base,
                                      Makefile::Rule* rule) const;
+  virtual bool ShouldInclude(DependencyCollectionType type,
+                             LanguageType lang) const;
 
  protected:
   // Helper.
