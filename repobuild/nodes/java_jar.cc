@@ -69,7 +69,7 @@ Resource JavaJarNode::MoveFiles(const Resource& root,
           "cd " + root.path() + "; "
           "for file in $FILES; do"
           " mkdir -p $(dirname $file);"
-          " RELATIVE=$(FILE=$(dirname $file); while [[ \"$FILE\" != \".\" ]]; "
+          " RELATIVE=$(FILE=$(dirname $file); while [ \"$FILE\" != \".\" ]; "
           "  do printf '../'; FILE=$(dirname $FILE); done); "
           " ln -s -f $RELATIVE" + file + " $file; "
           "done"));
