@@ -49,6 +49,7 @@ class JavaLibraryNode : public Node {
                     Makefile* out) const;
   Resource ClassFile(const Resource& source) const;
   Resource ObjectRoot() const;
+  Resource RootTouchfile() const;
 
   std::vector<Resource> sources_;
   std::vector<std::string> java_local_compile_args_;

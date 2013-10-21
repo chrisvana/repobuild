@@ -167,6 +167,7 @@ void JavaLibraryNode::WriteCompile(const ResourceFileSet& input_files,
       strings::JoinAll(compile_args, " "),
       include_dirs,
       strings::JoinAll(sources_, " ")));
+  rule->WriteCommand("mkdir -p " + touchfile.dirname());
   rule->WriteCommand("touch " + touchfile.path());
   out->FinishRule(rule);
 
@@ -192,7 +193,10 @@ void JavaLibraryNode::WriteCompile(const ResourceFileSet& input_files,
   }
 
   // ObjectRoot directory rule
-  out->WriteRule(ObjectRoot().path(), strings::JoinAll(obj_files, " "));
+  rule = out->StartRule(RootTouchfile().path(), strings::JoinAll(obj_files, " "));
+  rule->WriteCommand("mkdir -p " + RootTouchfile().dirname());
+  rule->WriteCommand("touch " + RootTouchfile().path());
+  out->FinishRule(rule);
 }
 
 void JavaLibraryNode::LocalLinkFlags(LanguageType lang,
@@ -226,7 +230,7 @@ void JavaLibraryNode::LocalObjectFiles(LanguageType lang,
 void JavaLibraryNode::LocalObjectRoots(LanguageType lang,
                                        ResourceFileSet* dirs) const {
   Node::LocalObjectRoots(lang, dirs);
-  dirs->Add(ObjectRoot());
+  dirs->Add(RootTouchfile());
 }
 
 void JavaLibraryNode::LocalDependencyFiles(LanguageType lang,
@@ -260,6 +264,10 @@ Resource JavaLibraryNode::ClassFile(const Resource& source) const {
 Resource JavaLibraryNode::ObjectRoot() const {
   return Resource::FromLocalPath(input().object_dir(),
                                  "lib_" + target().make_path());
+}
+
+Resource JavaLibraryNode::RootTouchfile() const {
+  return Resource::FromLocalPath(ObjectRoot().path(), ".dummy.touch");
 }
 
 }  // namespace repobuild

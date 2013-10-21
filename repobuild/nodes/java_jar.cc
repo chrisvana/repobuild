@@ -42,13 +42,13 @@ void JavaJarNode::LocalWriteMakeInternal(bool write_base, Makefile* out) const {
 
 void JavaJarNode::WriteRules(Makefile* out) const {
   // Collect object directores.
-  ResourceFileSet dirs;
-  ObjectRoots(JAVA, &dirs);
+  ResourceFileSet roots;
+  ObjectRoots(JAVA, &roots);
 
   // Move all objects in those directories to our JarRoot.
   ResourceFileSet temp_files;
-  for (const Resource& dir : dirs.files()) {
-    temp_files.Add(MoveFiles(JarRoot(), dir, out));
+  for (const Resource& input : roots.files()) {
+    temp_files.Add(MoveFiles(JarRoot(), input, out));
   }
 
   // Now run jar on the root.
@@ -56,16 +56,16 @@ void JavaJarNode::WriteRules(Makefile* out) const {
 }
 
 Resource JavaJarNode::MoveFiles(const Resource& root,
-                                const Resource& dir,
+                                const Resource& input,
                                 Makefile* out) const {
-  Resource touchfile = Touchfile(strings::Base16Encode(dir.path()));
-  Makefile::Rule* rule = out->StartRule(touchfile.path(), dir.path());
-  string relative_path = strings::GetRelativePath(root.path(), dir.path());
+  Resource touchfile = Touchfile(strings::Base16Encode(input.path()));
+  Makefile::Rule* rule = out->StartRule(touchfile.path(), input.path());
+  string relative_path = strings::GetRelativePath(root.path(), input.dirname());
   rule->WriteCommand("mkdir -p " + root.path());
   string file = strings::JoinPath(relative_path, "$file");
   rule->WriteCommand(
       Makefile::Escape(
-          "FILES=$(cd " + dir.path() + "; find . -type f -o -type l); "
+          "FILES=$(cd " + input.dirname() + "; find . -type f -o -type l); "
           "cd " + root.path() + "; "
           "for file in $FILES; do"
           " mkdir -p $(dirname $file);"
