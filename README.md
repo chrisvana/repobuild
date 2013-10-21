@@ -103,8 +103,8 @@ $ ./java_main
 ```
 
 ###### What should you do now?
-- Try a [tutorial](https://github.com/chrisvana/repobuild/wiki/Repobuild-Cpp-Tutorial)
-- Look at some [examples](https://github.com/chrisvana/repobuild/wiki/Examples)
+- Try a [tutorial](https://github.com/chrisvana/repobuild/wiki/Examples#tutorials)
+- Look at some other [examples](https://github.com/chrisvana/repobuild/wiki/Examples)
 - Start playing with your own project.
 - Add submodules to ["third_party"](https://github.com/chrisvana/third_party).
 - Forum (questions, bugs, hate mail, etc): https://groups.google.com/forum/#!forum/repobuild
