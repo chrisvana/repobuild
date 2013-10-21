@@ -106,7 +106,8 @@ $ ./java_main
 - Try a [tutorial](https://github.com/chrisvana/repobuild/wiki/Examples#tutorials)
 - Look at some other [examples](https://github.com/chrisvana/repobuild/wiki/Examples)
 - Start playing with your own project.
-- Add submodules to ["third_party"](https://github.com/chrisvana/third_party).
+- Add open source projects to ["third_party"](https://github.com/chrisvana/third_party).
+- Write a [plugin](https://github.com/chrisvana/repobuild/wiki/Plugins), and optionally add to [//third_party/plugins](https://github.com/chrisvana/repo_plugins)
 - Forum (questions, bugs, hate mail, etc): https://groups.google.com/forum/#!forum/repobuild
 
 ###### Why is this built using C++?<br/>
