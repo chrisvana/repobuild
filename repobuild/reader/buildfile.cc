@@ -214,7 +214,10 @@ void BuildFileNodeReader::ParseFilesFromString(const vector<string>& input,
     if (tmp.empty()) {
       if (strict_file_mode) {
         LOG(FATAL) << "No matched files: " << file
-                   << " for target " << error_path_;
+                   << " for target " << error_path_
+                   << "\n\nIf this file is generated during compilation, "
+                   << "add to your BUILD rule:\n\"strict_file_mode\": false\n\n"
+                   << "(there is a TODO to handle this more gracefully)";
       } else {
         output->push_back(Resource::FromRootPath(glob));
       }
