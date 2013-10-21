@@ -13,8 +13,8 @@ Repobuild is a declarative style build system.
 - A small side project, so turnaround might be slow.
 
 ###### Why?
-- Initially a learning project to make open source easier to integrate.
 - [Motivation](https://github.com/chrisvana/repobuild/wiki/Motivation) behind Repobuild
+- Initially a learning project to make open source easier to integrate.
 - Neat features:
   - Sub-module dependency initialization: see [here](https://github.com/chrisvana/repobuild/wiki/Sub-Module-Handling).
   - Inteded to wrap existing build tools: No project rewrites required.
