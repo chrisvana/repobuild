@@ -18,7 +18,7 @@ class MakeNode : public Node {
   }
   virtual ~MakeNode() {}
   virtual void Parse(BuildFile* file, const BuildFileNode& input) {
-    ParseWithOptions(file, input, "", "$(pwd)/$GEN_DIR", "");
+    ParseWithOptions(file, input, "", "$GEN_DIR", "");
   }
   void ParseWithOptions(BuildFile* file,
                         const BuildFileNode& input,

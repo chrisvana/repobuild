@@ -61,10 +61,12 @@ void ConfigNode::Parse(BuildFile* file, const BuildFileNode& input) {
                << target().dir() << " config node.";
   }
   if (!component_src.empty()) {
-    string component_root;
-    current_reader()->ParseStringField("component_root", true, &component_root);
-    component_.reset(new ComponentHelper(
-        component_src, strings::JoinPath(target().dir(), component_root)));
+    string component_root =
+        current_reader()->ParseSingleDirectory(false, "component_root");
+    if (component_root.empty()) {
+      component_root = target().dir();
+    }
+    component_.reset(new ComponentHelper(component_src, component_root));
   }
 
   source_dummy_file_ =

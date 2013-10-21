@@ -238,8 +238,13 @@ void BuildFileNodeReader::ParseSingleFile(const string& key,
 }
 
 string BuildFileNodeReader::ParseSingleDirectory(const string& key) const {
+  return ParseSingleDirectory(strict_file_mode_, key);
+}
+
+string BuildFileNodeReader::ParseSingleDirectory(bool strict_file_mode,
+                                                 const string& key) const {
   vector<Resource> dirs;
-  ParseSingleFile(key, true, &dirs);
+  ParseSingleFile(key, strict_file_mode, &dirs);
   if (!dirs.empty()) {
     if (dirs.size() > 1) {
       LOG(FATAL) << "Too many results for " << key << ", need 1: "

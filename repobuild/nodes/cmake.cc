@@ -7,6 +7,7 @@
 #include <iterator>
 #include <vector>
 #include "common/log/log.h"
+#include "common/strings/path.h"
 #include "repobuild/env/input.h"
 #include "repobuild/nodes/cmake.h"
 #include "repobuild/nodes/gen_sh.h"
@@ -23,13 +24,12 @@ void CmakeNode::Parse(BuildFile* file, const BuildFileNode& input) {
   Node::Parse(file, input);
 
   // CMakeLists.txt file directory
-  string cmake_dir;
-  current_reader()->ParseStringField("cmake_dir", true, &cmake_dir);
+  string cmake_dir =
+      current_reader()->ParseSingleDirectory("cmake_dir");
   if (cmake_dir.empty()) {
-    cmake_dir = "$(pwd)";
-  } else {
-    cmake_dir = "$(pwd)/" + cmake_dir;
+    cmake_dir = target().dir();
   }
+  cmake_dir = strings::JoinPath("$ROOT_DIR", cmake_dir);
 
   // configure_env
   vector<string> cmake_envs;
@@ -55,7 +55,7 @@ void CmakeNode::Parse(BuildFile* file, const BuildFileNode& input) {
   // Actual cmake command  ------
   string build_setup =
       "BASE=" + cmake_dir + "; "
-      "DEST_DIR=$(pwd)/$GEN_DIR; "
+      "DEST_DIR=$GEN_DIR; "
       "mkdir -p $DEST_DIR/build; "
       "STAGING=$DEST_DIR/.staging; "
       "cd $GEN_DIR/build";

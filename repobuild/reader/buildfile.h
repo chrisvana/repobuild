@@ -136,6 +136,8 @@ class BuildFileNodeReader {
 
   // Parsing a single directory
   std::string ParseSingleDirectory(const std::string& key) const;
+  std::string ParseSingleDirectory(bool strict_file_mode,
+                                   const std::string& key) const;
 
   // Parse bool.
   bool ParseBoolField(const std::string& key,

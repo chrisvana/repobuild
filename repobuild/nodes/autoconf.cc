@@ -84,7 +84,7 @@ void AutoconfNode::Parse(BuildFile* file, const BuildFileNode& input) {
   // Actual configure command output ------
   string build_setup = Makefile::Escape(
       "mkdir -p $OBJ_DIR; "
-      "DEST_DIR=$(pwd)/$GEN_DIR");
+      "DEST_DIR=$GEN_DIR");
   string build_env = GetVariable(kConfigureEnv).ref_name() +
       Makefile::Escape(
           " CXXFLAGS=\"$BASIC_CXXFLAGS $DEP_FLAGS $USER_CXXFLAGS\" "

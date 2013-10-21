@@ -101,7 +101,10 @@ void GenShNode::LocalWriteMake(Makefile* out) const {
     }
 
     // Now write the actual comment.
-    rule->WriteCommand(WriteCommand(env_vars, prefix, build_cmd_, touch_cmd));
+    // This is a hack for now.
+    string command = strings::ReplaceAll(
+        build_cmd_, "$(ROOT_DIR)", "$ROOT_DIR");
+    rule->WriteCommand(WriteCommand(env_vars, prefix, command, touch_cmd));
   }
   out->FinishRule(rule);
 
@@ -134,6 +137,9 @@ void AddEnvVar(const string& var, string* out) {
   out->append(var);
   out->append(")\"");
 }
+string JoinRoot(const string& path) {
+  return strings::JoinPath("$(" + string(kRootDir) + ")/", path);
+}
 }
 
 string GenShNode::WriteCommand(const map<string, string>& env_vars,
@@ -149,16 +155,10 @@ string GenShNode::WriteCommand(const map<string, string>& env_vars,
   }
 
   // Environment.
-  // TODO(cvanarsdale): Get rid of cd_ stuff and replace with $ROOT_DIR.
-  out.append("; GEN_DIR=\"");
-  out.append(cd_ ? RelativeGenDir() : GenDir());
-  out.append("\"");
-  out.append(" OBJ_DIR=\"");
-  out.append(cd_ ? RelativeObjectDir() : ObjectDir());
-  out.append(" SRC_DIR=\"");
-  out.append(cd_ ? RelativeSourceDir() : SourceDir());
+  out.append("; GEN_DIR=\"" + JoinRoot(GenDir()) + "\"");
+  out.append("; OBJ_DIR=\"" + JoinRoot(ObjectDir()) + "\"");
+  out.append("; SRC_DIR=\"" + JoinRoot(SourceDir()) + "\"");
   out.append(" " + string(kRootDir) + "=\"$(" + string(kRootDir) + ")\" ");
-
   AddEnvVar("CXX_GCC", &out);
   AddEnvVar("CC_GCC", &out);
   AddEnvVar("CC", &out);
@@ -192,9 +192,8 @@ string GenShNode::WriteCommand(const map<string, string>& env_vars,
 
   // Logfile, if any
   if (FLAGS_silent_gensh) {
-    string logfile = strings::JoinPath(cd_ ? RelativeGenDir() : GenDir(),
-                                       "." + target().local_path() +
-                                       ".logfile");
+    string logfile = JoinRoot(GenDir() + "." + target().local_path() +
+                              ".logfile");
     out.append(" > " + logfile + " 2>&1 || (cat " + logfile + "; exit 1)");
   }
 

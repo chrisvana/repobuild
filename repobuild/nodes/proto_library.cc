@@ -207,9 +207,18 @@ void ProtoLibraryNode::GenerateJava(BuildFile* file,
 
   for (int i = 0; i < input_prefixes.size(); ++i) {
     const Resource& prefix = input_prefixes[i];
-    string java_classname = (java_classnames.empty() ?
-                             strings::Capitalize(prefix.basename()) :
-                             java_classnames[i]);
+
+    // Java classnames are trickier.
+    string java_classname;
+    if (!java_classnames.empty()) {
+      java_classname = java_classnames[i];
+    } else {
+      vector<string> splits = strings::SplitString(prefix.basename(), "_");
+      for (const string& split : splits) {
+        java_classname += strings::Capitalize(split);
+      }
+    }
+
     string java_basename = java_classname + ".java";
     java_sources.push_back(Resource::FromLocalPath(
         Node::input().genfile_dir(),

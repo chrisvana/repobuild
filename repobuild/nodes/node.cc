@@ -140,16 +140,22 @@ void Node::AddSubNode(Node* node) {
   node->AddRequiredParent(target());
 }
 
+namespace {
+string JoinRoot(const string& path) {
+  return strings::JoinPath("$(ROOT_DIR)", path);
+}
+}
+
 BuildFileNodeReader* Node::NewBuildReader(const BuildFileNode& node) const {
   BuildFileNodeReader* reader = new BuildFileNodeReader(node, dist_source_);
   reader->SetReplaceVariable(false, "GEN_DIR", GenDir());
-  reader->SetReplaceVariable(true, "GEN_DIR", RelativeGenDir());
+  reader->SetReplaceVariable(true, "GEN_DIR", JoinRoot(GenDir()));
   reader->SetReplaceVariable(false, "OBJ_DIR", ObjectDir());
-  reader->SetReplaceVariable(true, "OBJ_DIR", RelativeObjectDir());
+  reader->SetReplaceVariable(true, "OBJ_DIR", JoinRoot(ObjectDir()));
   reader->SetReplaceVariable(false, "SRC_DIR", target().dir());
   reader->SetReplaceVariable(true, "SRC_DIR", ".");
   reader->SetReplaceVariable(false, "GEN_SRC_DIR", SourceDir());
-  reader->SetReplaceVariable(true, "GEN_SRC_DIR", RelativeSourceDir());
+  reader->SetReplaceVariable(true, "GEN_SRC_DIR", JoinRoot(SourceDir()));
   reader->AddFileAbsPrefix(input().genfile_dir());
   reader->AddFileAbsPrefix(input().source_dir());
   reader->AddFileAbsPrefix(input().object_dir());
