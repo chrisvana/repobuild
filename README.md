@@ -13,16 +13,15 @@ Repobuild is a declarative style build system.
 - A small side project, so turnaround might be slow.
 
 ###### Why?
-- Initially a learning project
-  - A lot of other bulid tools have better functionality (and years of development)
-  - This is not intended to replace other tools outright.
+- Initially a learning project to make open source easier to integrate.
 - [Motivation](https://github.com/chrisvana/repobuild/wiki/Motivation) behind Repobuild
-- [Similar build systems](https://github.com/chrisvana/repobuild/wiki/Similar-Build-Systems) to Repobuild
 - Neat features:
   - Sub-module dependency initialization: see [here](https://github.com/chrisvana/repobuild/wiki/Sub-Module-Handling).
   - Inteded to wrap existing build tools: No project rewrites required.
   - Generates a Makefile: Clients of your code can just run "make" without repobuild installed.
   - Plugins: Allows custom scripts to rewrite BUILD files during execution ([simple example](https://github.com/chrisvana/repobuild/wiki/Plugins))
+- A lot of other bulid tools have better functionality (and years of development). This is not intended to replace them outright.
+- [Similar build systems](https://github.com/chrisvana/repobuild/wiki/Similar-Build-Systems) to Repobuild
 
 ###### Current Languages:
 - C++
