@@ -20,7 +20,7 @@ Repobuild is a declarative style build system.
   - Inteded to wrap existing build tools: No project rewrites required.
   - Generates a Makefile: Clients of your code can just run "make" without repobuild installed.
   - Plugins: Allows custom scripts to rewrite BUILD files during execution ([simple example](https://github.com/chrisvana/repobuild/wiki/Plugins))
-- A lot of other bulid tools have better functionality (and years of development). This is not intended to replace them outright.
+- A lot of other build tools have better functionality (and years of development). This is not intended to replace them outright.
 - [Similar build systems](https://github.com/chrisvana/repobuild/wiki/Similar-Build-Systems) to Repobuild
 
 ###### Current Languages:
