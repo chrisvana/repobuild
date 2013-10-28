@@ -89,6 +89,9 @@ $ make tests
 
 # 4) Installs binaries and shared libraries
 $ make install
+
+# 5) Figure out which licenses you depend on
+$ make licenses
 ```
 
 *Concrete example*
