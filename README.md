@@ -110,7 +110,7 @@ $ ./java_main
 - Forum (questions, bugs, hate mail, etc): https://groups.google.com/forum/#!forum/repobuild
 
 ###### Why is this built using C++?<br/>
-Actually this started in Go, and there is no good reason for C++. The first open source code I needed to use it on was in C++, and being able to build the tool using the tool appealed to the geek in me.
+Actually this started in Go, and there is no good reason for C++. The first open source code I needed to use it on was in C++, and being able to build the tool using the language appealed to the geek in me.
 
 ###### TODOs
 https://github.com/chrisvana/repobuild/wiki/TODOs
