@@ -235,15 +235,14 @@ void GitTree::WriteMakeFile(Makefile* out,
                                  "//" + strings::JoinPath(full_dir, submodule) +
                                  " (git submodule)",
                                  dest_git_file);
-    rule->WriteCommand("[ -d " + dest_dir + " -a " +
+    rule->WriteCommand("if [ -d " + dest_dir + " -a " +
                        "! -f " + dest_git_file + " -a " +
-                       " -e " + current_git_file + " ] && "
-                       "(touch " + lockfile + "; " +
+                       " -e " + current_git_file + " ]; then "
+                       "touch " + lockfile + "; " +
                        flock_script + " " + lockfile + " '"
                        "cd " + current_dir + "; "
                        "git submodule update --init " + submodule +
-                       " || exit 1'"
-                       "); true");
+                       "'; fi");
     rule->WriteCommand("mkdir -p " + dest_scratch_dir);
     rule->WriteCommand("[ -f " + touchfile + " ] || "
                        "touch -t 197101010000 " + touchfile);
