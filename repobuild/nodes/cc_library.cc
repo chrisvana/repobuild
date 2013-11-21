@@ -98,7 +98,7 @@ void CCLibraryNode::Set(const vector<Resource>& sources,
   headers_ = headers;
   objects_ = objects;
   cc_compile_args_ = cc_compile_args;
-  header_compile_args_ = cc_compile_args;
+  header_compile_args_ = header_compile_args;
   Init();
 }
 
