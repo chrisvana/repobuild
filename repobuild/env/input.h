@@ -40,12 +40,6 @@ class Input {
   }
   bool silent_make() const { return silent_make_; }
 
-  // proto_library stuff.
-  const std::string& default_cc_proto() const { return default_cc_proto_; }
-  const std::string& default_java_proto() const { return default_java_proto_; }
-  const std::string& default_go_proto() const { return default_go_proto_; }
-  const std::string& default_py_proto() const { return default_py_proto_; }
-
  private:
   std::string root_dir_;
   std::string full_root_dir_;
@@ -60,11 +54,6 @@ class Input {
   std::map<std::string, std::vector<std::string> > flags_;
 
   bool silent_make_;
-
-  std::string default_cc_proto_;
-  std::string default_java_proto_;
-  std::string default_go_proto_;
-  std::string default_py_proto_;
 };
 
 }  // namespace repobuild

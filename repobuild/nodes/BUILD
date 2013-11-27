@@ -254,9 +254,9 @@
  },
 
  { "cc_library": {
-     "name" : "proto_library",
-     "cc_sources" : [ "proto_library.cc" ],
-     "cc_headers" : [ "proto_library.h" ],
+     "name" : "translate_and_compile",
+     "cc_sources" : [ "translate_and_compile.cc" ],
+     "cc_headers" : [ "translate_and_compile.h" ],
      "dependencies": [ "//common/log:log",
                        "//common/strings:strutil",
                        ":gen_sh"
@@ -322,10 +322,10 @@
                        ":make",
                        ":node",
                        ":plugin",
-                       ":proto_library",
                        ":py_egg",
                        ":py_binary",
-                       ":py_library"
+                       ":py_library",
+                       ":translate_and_compile"
      ]
    }
  }
