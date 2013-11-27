@@ -23,7 +23,6 @@
 #include "repobuild/nodes/java_binary.h"
 #include "repobuild/nodes/make.h"
 #include "repobuild/nodes/plugin.h"
-#include "repobuild/nodes/proto_library.h"
 #include "repobuild/nodes/py_binary.h"
 #include "repobuild/nodes/py_egg.h"
 #include "repobuild/nodes/py_library.h"
