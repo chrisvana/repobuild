@@ -207,13 +207,16 @@ void CCLibraryNode::WriteCompile(const Resource& source,
     for (const string& str: include_dir_set) {
       final_includes.insert(str);
       string path = NodeUtil::StripSpecialDirs(input(), str);
-      final_includes.insert(path);
+      if (!path.empty()){
+	final_includes.insert(path);
+      }
       final_includes.insert(Resource::FromLocalPath(
           input().genfile_dir(), path).path());
       final_includes.insert(Resource::FromLocalPath(
           input().source_dir(), path).path());
     }
     for (const string& str: final_includes) {
+      if (str.empty()) LOG(FATAL) << "empty include dir";
       include_dirs += (include_dirs.empty() ? "-I" : " -I") + str;
     }
   }
