@@ -38,16 +38,43 @@ void CCBinaryNode::LocalWriteMake(Makefile* out) const {
   WriteBaseUserTarget(out);
 }
 
+/**
+ * Adds to "has_tag" each Resource in "fileset" that has "tag".
+ * Adds to "no_tag" each Resource in "fileset" that does not have "tag".
+ */
+static void Partition(const ResourceFileSet& fileset,
+		      const string& tag,
+		      ResourceFileSet* has_tag,
+		      ResourceFileSet* no_tag) {
+  for (auto it : fileset) {
+    if (it.has_tag(tag)) {
+      has_tag->Add(it);
+    } else {
+      no_tag->Add(it);
+    }
+  }
+}
+
 void CCBinaryNode::WriteLink(const Resource& file, Makefile* out) const {
   ResourceFileSet objects;
   ObjectFiles(CPP, &objects);
+
+  ResourceFileSet ephemeral_objects, normal_objects;
+  Partition(objects, "ephemeral", &ephemeral_objects, &normal_objects);
 
   set<string> flags;
   LinkFlags(CPP, &flags);
 
   // Link rule
-  Makefile::Rule* rule = out->StartRule(file.path(),
-                                        strings::JoinAll(objects.files(), " "));
+  Makefile::Rule* rule =
+    out->StartRule(file.path(), strings::JoinAll(normal_objects.files(), " "));
+
+  string ephemeral_targets = strings::JoinAll(ephemeral_objects.files(), " ");
+  if (!ephemeral_targets.empty()) {
+    rule->WriteUserEcho("Making ephemeral inputs", ephemeral_targets);
+    rule->WriteCommand("make " + ephemeral_targets);
+  }
+
   rule->WriteUserEcho("Linking", file.path());
 
   // HACK(cvanarsdale):

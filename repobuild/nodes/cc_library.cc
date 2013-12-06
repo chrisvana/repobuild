@@ -41,6 +41,15 @@ void CCLibraryNode::Parse(BuildFile* file, const BuildFileNode& input) {
   // cc_objs
   current_reader()->ParseRepeatedFiles("cc_objects", &objects_);
 
+  // emphemeral cc sources
+  std::vector<Resource> ephemeral_cc_sources;
+  current_reader()->ParseRepeatedFiles("ephemeral_cc_sources",
+				       &ephemeral_cc_sources);
+  for (auto it : ephemeral_cc_sources) {
+    it.add_tag("ephemeral");
+    sources_.push_back(it);
+  }
+
   // alwayslink
   bool alwayslink = false;
   if (current_reader()->ParseBoolField("alwayslink", &alwayslink) &&
@@ -182,6 +191,22 @@ void CCLibraryNode::WriteCompile(const Resource& source,
                                  const ResourceFileSet& input_files,
                                  Makefile* out) const {
   Resource obj = ObjForSource(source);
+  bool ephemeral_output = source.has_tag("ephemeral");
+  string ephemeral_dot_o;
+
+  if (ephemeral_output) {
+    // When a user runs a parallel make ("make -j8"), two cc_binaries
+    // that depend on the same cc_library containing ephemeral sources
+    // may each call make recursively to compile the same source file.
+    // To avoid corruption by simultaneous compilation to the same .o
+    // file, we use distinct temporary file names, then "mv" the .o
+    // file to the correct place atomically.  It remains a race as to
+    // which instance of the .o gets used: it could be either or both.
+    ephemeral_dot_o = "ephemeral" + obj.path();
+    out->append("\n" + ephemeral_dot_o + " := $(shell mktemp --tmpdir=" +
+		obj.dirname() + ")\n");
+    ephemeral_dot_o = "$(" + ephemeral_dot_o + ")";
+  }
 
   // Rule=> obj: <input header files> source.cc
   Makefile::Rule* rule =
@@ -241,9 +266,20 @@ void CCLibraryNode::WriteCompile(const Resource& source,
       include_dirs,
       output_compile_args,
       source.path(),
-      "-o " + obj.path()));
+      "-o " + (ephemeral_output ? ephemeral_dot_o : obj.path())));
+
+  if (ephemeral_output) {
+    rule->WriteCommand("mv " + ephemeral_dot_o + " " + obj.path());
+  }
 
   out->FinishRule(rule);
+
+  if (ephemeral_output) {
+    // Tell make to ignore any existing object file; i.e., force recompile.
+    out->append("\n.PHONY: ");
+    out->append(obj.path());
+    out->append("\n\n");
+  }
 }
 
 void CCLibraryNode::LocalDependencyFiles(LanguageType lang,
