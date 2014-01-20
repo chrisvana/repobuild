@@ -203,8 +203,9 @@ void CCLibraryNode::WriteCompile(const Resource& source,
     // file to the correct place atomically.  It remains a race as to
     // which instance of the .o gets used: it could be either or both.
     ephemeral_dot_o = "ephemeral" + obj.path();
-    out->append("\n" + ephemeral_dot_o + " := $(shell mktemp --tmpdir=" +
-		obj.dirname() + ")\n");
+    out->append("\n" + ephemeral_dot_o +
+		" := $(shell mkdir -p " + obj.dirname() + "; "
+		"mktemp --tmpdir=" + obj.dirname() + ")\n");
     ephemeral_dot_o = "$(" + ephemeral_dot_o + ")";
   }
 
