@@ -6,23 +6,23 @@ ROOT_DIR := $(shell pwd)
 CXX_GCC := $(shell echo $$($(CXX) --version | egrep '(gcc|g\+\+)' | head -n 1 | wc -l))
 CC_GCC := $(shell echo $$($(CC) --version | egrep '(gcc|g\+\+|^cc)' | head -n 1 | wc -l))
 ifeq ($(CC_GCC),1)
-	CFLAGS= -pthread -g -Wall -Werror -Wno-sign-compare -Wno-unused-local-typedefs -Wno-error=unused-local-typedefs -O3 -flto
+	CFLAGS= -pthread -g -Wall -Werror -Wno-sign-compare -Wno-unused-local-typedefs -Wno-error=unused-local-typedefs -O3
 	BASIC_CFLAGS= -pthread
 else
-	CFLAGS= -stdlib=libc++ -pthread -g -Wall -Werror -Wno-sign-compare -O3 -flto -Qunused-arguments -fcolor-diagnostics
+	CFLAGS= -stdlib=libc++ -pthread -g -Wall -Werror -Wno-sign-compare -O3 -Qunused-arguments -fcolor-diagnostics
 	BASIC_CFLAGS= -stdlib=libc++ -pthread -Qunused-arguments
 endif
 ifeq ($(CXX_GCC),1)
 	LD_FORCE_LINK_START := -Wl,--whole-archive
 	LD_FORCE_LINK_END := -Wl,--no-whole-archive
-	LDFLAGS= -lpthread -g -O3 -flto -L/usr/local/lib -L/opt/local/lib
-	CXXFLAGS= -pthread -g -Wall -Werror -Wno-sign-compare -Wno-unused-local-typedefs -Wno-error=unused-local-typedefs -O3 -flto -std=c++11 -DUSE_CXX0X
+	LDFLAGS= -lpthread -g -O3 -L/usr/local/lib -L/opt/local/lib
+	CXXFLAGS= -pthread -g -Wall -Werror -Wno-sign-compare -Wno-unused-local-typedefs -Wno-error=unused-local-typedefs -O3 -std=c++11 -DUSE_CXX0X
 	BASIC_CXXFLAGS= -pthread -std=c++11
 else
 	LD_FORCE_LINK_START := -Wl,-force_load
 	LD_FORCE_LINK_END := 
-	LDFLAGS= -stdlib=libc++ -lpthread -g -O3 -flto -L/usr/local/lib -L/opt/local/lib
-	CXXFLAGS= -stdlib=libc++ -pthread -g -Wall -Werror -Wno-sign-compare -O3 -flto -Qunused-arguments -fcolor-diagnostics -std=c++11 -DUSE_CXX0X
+	LDFLAGS= -stdlib=libc++ -lpthread -g -O3 -L/usr/local/lib -L/opt/local/lib
+	CXXFLAGS= -stdlib=libc++ -pthread -g -Wall -Werror -Wno-sign-compare -O3 -Qunused-arguments -fcolor-diagnostics -std=c++11 -DUSE_CXX0X
 	BASIC_CXXFLAGS= -stdlib=libc++ -pthread -Qunused-arguments -std=c++11
 endif
 
@@ -178,14 +178,14 @@ common/base/callback: common/base/macros common/auto_.0
 
 c_compile_args.common/third_party/google/gflags/gflags := 
 ifeq ($(CC_GCC),1)
-	c_compile_args.common/third_party/google/gflags/gflags := -Wno-error=unused-local-typedefs -fPIC
+	c_compile_args.common/third_party/google/gflags/gflags := -Wno-error=unused-local-typedefs
 endif
 
 c_header_compile_args.common/third_party/google/gflags/gflags := -Icommon/third_party/google/gflags/src
 
 cxx_compile_args.common/third_party/google/gflags/gflags := 
 ifeq ($(CXX_GCC),1)
-	cxx_compile_args.common/third_party/google/gflags/gflags := -Wno-error=unused-local-typedefs -fPIC
+	cxx_compile_args.common/third_party/google/gflags/gflags := -Wno-error=unused-local-typedefs
 endif
 
 cxx_header_compile_args.common/third_party/google/gflags/gflags := -Icommon/third_party/google/gflags/src
