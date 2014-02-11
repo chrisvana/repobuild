@@ -23,10 +23,10 @@
 #include "repobuild/nodes/java_binary.h"
 #include "repobuild/nodes/make.h"
 #include "repobuild/nodes/plugin.h"
-#include "repobuild/nodes/proto_library.h"
 #include "repobuild/nodes/py_binary.h"
 #include "repobuild/nodes/py_egg.h"
 #include "repobuild/nodes/py_library.h"
+#include "repobuild/nodes/translate_and_compile.h"
 
 using std::string;
 using std::vector;
@@ -95,8 +95,9 @@ void NodeBuilder::GetAll(std::vector<NodeBuilder*>* nodes) {
   nodes->push_back(new NodeBuilderImpl<JavaBinaryNode>("java_binary"));
   nodes->push_back(new NodeBuilderImpl<MakeNode>("make"));
   nodes->push_back(new NodeBuilderImpl<PluginNode>("plugin"));
-  nodes->push_back(new NodeBuilderImpl<ProtoLibraryNode>("proto_library"));
   nodes->push_back(new NodeBuilderImpl<PyBinaryNode>("py_binary"));
+  nodes->push_back(new NodeBuilderImpl<TranslateAndCompileNode>(
+      "translate_and_compile"));
 
   nodes->push_back(new NodeBuilderImplFinish<PyLibraryNode>("py_library"));
 

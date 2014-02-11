@@ -1,5 +1,9 @@
 // Test objects
 [
+ { "config": {
+     "component": "testdata/a",
+     "plugins": [ "//third_party/protobuf:proto_library" ]
+ } },
 
  { "proto_library": {
      "name" : "a_proto",
@@ -40,7 +44,7 @@
 
 {  "java_library": {
      "name": "test_java",
-     "java_sources": [ "ATest.java" ],
+     "java_classnames": [ "ATest.java" ],
      "dependencies": [ ":a_proto" ]
 } }
 ]
