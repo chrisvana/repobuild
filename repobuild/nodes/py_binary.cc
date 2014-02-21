@@ -37,16 +37,10 @@ void PyBinaryNode::LocalWriteMake(Makefile* out) const {
   Makefile::Rule* rule = out->StartRule(bin.path(), egg.path());
   string module = (py_default_module_.empty() ? egg.basename()
                    : "-m " + py_default_module_);
-  // Example bin file:
-  //  cd $(dirname $0)
-  //  cd $(dirname $(find py_main.egg -printf "%l %p" | cut -d ' ' -f 1))
-  //  PYTHONPATH=py_main.egg:$PYTHONPATH python -m testdata.test
-  rule->WriteCommand("echo 'cd $$(dirname $$0); "
-                     "cd $$(dirname $$(find " + egg.basename() +
-                     " -printf \"%l %p\" | cut -d \" \" -f 1)); "
-                     "PYTHONPATH=" + egg.basename() + ":$$PYTHONPATH "
-                     "python " + module +
-                     "' > " + bin.path() + "; chmod 755 " + bin.path());
+  rule->WriteCommand("echo 'PYTHONPATH=$$(cd $$(dirname $$0); pwd)/" +
+                     egg.basename() +":$$PYTHONPATH python " + module + " $$@" +
+                     "' > " + bin.path() +
+                     "; chmod 755 " + bin.path());
   out->FinishRule(rule);
 
   WriteBaseUserTarget(out);
