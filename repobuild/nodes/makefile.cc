@@ -111,7 +111,7 @@ void Makefile::WriteRootSymlinkWithDependency(const string& symlink_file,
   if (out_dir != ".") {
     rule->WriteCommand("mkdir -p " + out_dir);
   }
-  rule->WriteCommand("ln -f -s " + link + " " + symlink_file);
+  rule->WriteCommand("ln -f -s -n " + link + " " + symlink_file);
   FinishRule(rule);
 }
 

@@ -144,7 +144,7 @@ void CCSharedLibraryNode::WriteLink(Makefile* out) const {
       strings::JoinAll(flags, " ")));
   rule->WriteCommand("[ \"" + GetVariable("path").ref_name() + "\" = "
                      "\"" + file.path() + "\" ] || "
-                     "ln -f -s " + GetVariable("basename").ref_name() + " " +
+                     "ln -n -f -s " + GetVariable("basename").ref_name() + " " +
                      file.path());
   out->FinishRule(rule);
 }
@@ -167,12 +167,12 @@ void CCSharedLibraryNode::LocalWriteMakeInstall(Makefile* base,
                      "$(DESTDIR)$(libdir)/" +
                      GetVariable("basename").ref_name());
   if (HasVariable("basename_mi")) {
-    rule->WriteCommand("ln -s -f " + GetVariable("basename").ref_name() + " "
+    rule->WriteCommand("ln -n -s -f " + GetVariable("basename").ref_name() + " "
                        "$(DESTDIR)$(libdir)/" +
                        GetVariable("basename_ma").ref_name());
   }
   if (HasVariable("basename_ma")) {
-    rule->WriteCommand("ln -s -f " + GetVariable("basename").ref_name() + " "
+    rule->WriteCommand("ln -n -s -f " + GetVariable("basename").ref_name() + " "
                        "$(DESTDIR)$(libdir)/" +
                        GetVariable("basename_bare").ref_name());
   }
