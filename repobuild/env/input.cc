@@ -7,6 +7,8 @@
 #include "common/file/fileutil.h"
 #include "common/log/log.h"
 #include "common/strings/path.h"
+#include "common/strings/strutil.h"
+#include "common/util/shell.h"
 #include "repobuild/env/input.h"
 #include "repobuild/env/target.h"
 #include "repobuild/reader/buildfile.h"
@@ -113,10 +115,23 @@ const std::vector<std::string>& Input::flags(const std::string& key) const {
   return it->second;
 }
 
+static void GetAllBuildSubdirs(const std::string& dir,
+			       std::vector<std::string>* out) {
+  std::string output;
+  util::Execute("/usr/bin/find " + dir + " -maxdepth 2 -name BUILD", &output);
+  std::vector<std::string> subdirs = strings::SplitString(output, "\n");
+  for (std::string subdir : subdirs) {
+    CHECK(strings::HasSuffix(subdir, "/BUILD")) << subdir;
+    std::string no_build = subdir.substr(0, subdir.length() - 6);
+    if (no_build != ".") {
+      out->push_back(no_build);
+    }
+  }
+}
+
 void Input::AddBuildTarget(const TargetInfo& target) {
   if (build_target_set_.insert(target.full_path()).second) {
     if (target.IsAll()) {
-      LG << "processing :all";
       BuildFile* file = new BuildFile(target.build_file());
       // Parse the BUILD into a structured format.
       string filestr = file::ReadFileToStringOrDie(file->filename());
@@ -126,7 +141,6 @@ void Input::AddBuildTarget(const TargetInfo& target) {
           << "Expected json object (file = " << file->filename() << "): "
           << node->object();
 	for (const string& key : node->object().getMemberNames()) {
-	  LG << "key is " << key;
 	  if (key == "config" || key == "plugin") {
 	    continue;
 	  }
@@ -136,9 +150,15 @@ void Input::AddBuildTarget(const TargetInfo& target) {
 	    "Invalid node named \"all\" in " << target.build_file();
 	  if (name.isString()) {
 	    string path = target.dir() + ":" + name.asString();
-	    LG << ":all is adding " << path;
 	    AddBuildTarget(TargetInfo::FromUserPath(path));
 	  }
+	}
+      }
+      if (target.IsRec()) {
+	std::vector<std::string> subdirs;
+	GetAllBuildSubdirs(target.dir(), &subdirs);
+	for (std::string subdir : subdirs) {
+          AddBuildTarget(TargetInfo::FromUserPath(subdir + ":allrec"));
 	}
       }
     } else {

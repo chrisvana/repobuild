@@ -26,9 +26,14 @@ void TopSymlinkNode::LocalWriteMakeClean(Makefile::Rule* out) const {
 
 void TopSymlinkNode::LocalWriteMake(Makefile* out) const {
   for (const Resource& r : InputBinaries()) {
-    Resource local = Resource::FromLocalPath(input().root_dir(), r.basename());
+    // NOTE(mike) This extra local symlink causes collisions with
+    // whatever happens to be in the directory when repobuild is
+    // called. I also don't understand the need to have two output
+    // symlinks, so I'm removing this and relying on a single output
+    // in the bin directory.
+    //Resource local = Resource::FromLocalPath(input().root_dir(), r.basename());
+    //out->WriteRootSymlink(local.path(), r.path());
     Resource bin = Resource::FromLocalPath(input().binary_dir(), r.basename());
-    out->WriteRootSymlink(local.path(), r.path());
     out->WriteRootSymlink(bin.path(), r.path());
   }
   WriteBaseUserTarget(out);
@@ -45,7 +50,8 @@ ResourceFileSet TopSymlinkNode::OutBinaries() const {
   ResourceFileSet inputs = InputBinaries();
   ResourceFileSet output;
   for (const Resource& r : inputs) {
-    output.Add(Resource::FromLocalPath(input().root_dir(), r.basename()));
+    // NOTE(mike) Neuter extra symlink.
+    // output.Add(Resource::FromLocalPath(input().root_dir(), r.basename()));
     output.Add(Resource::FromLocalPath(input().binary_dir(), r.basename()));
   }
   return output;

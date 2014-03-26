@@ -428,8 +428,9 @@ void CCLibraryNode::WriteMakeHead(const Input& input, Makefile* out) {
   out->append("\t" + WriteCxxflag(input, true, false));
   out->append("\t" + WriteCxxflag(input, true, true));
   out->append("else\n");
-  out->append("\tLD_FORCE_LINK_START := -Wl,-force_load\n");
-  out->append("\tLD_FORCE_LINK_END := \n");
+  // The gold linker used by clang also supports whole-archive
+  out->append("\tLD_FORCE_LINK_START := -Wl,--whole-archive\n");
+  out->append("\tLD_FORCE_LINK_END := -Wl,--no-whole-archive\n");
   out->append("\t" + WriteLdflag(input, false));
   out->append("\t" + WriteCxxflag(input, false, false));
   out->append("\t" + WriteCxxflag(input, false, true));

@@ -16,7 +16,8 @@ class TargetInfo {
 
   ~TargetInfo() {}
 
-  bool IsAll() const { return local_path_ == "all"; }
+  bool IsAll() const { return local_path_ == "all" || local_path_ == "allrec"; }
+  bool IsRec() const { return local_path_ == "allrec"; }
 
   const std::string& full_path() const { return full_path_; }
   const std::string& build_file() const { return build_file_; }

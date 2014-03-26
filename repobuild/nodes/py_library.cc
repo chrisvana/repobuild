@@ -126,19 +126,21 @@ bool IsBetterInitPy(const string& original, const string& replacement) {
   return replacement.size() < original.size();
 }
 
-void FillParentInitPy(map<string, string>* dir_to_init) {
+// Link all "missing" __init__.py files to the top-most __init__.py that 
+// actually exists on disk.
+void FillParentInitPy(map<string, string>* dir_to_init, const string& pkg_dir) {
   map<string, string> dir_copy = *dir_to_init;
   for (auto it : dir_copy) {
     string parent = strings::JoinPath(it.first, "../");
     string parent_init_py = strings::JoinPath(strings::PathDirname(it.second),
                                               "../__init__.py");
-    while (parent != "." && !parent.empty() &&
+    while (parent != "." && !parent.empty() && parent != pkg_dir &&
            dir_copy.find(parent) == dir_copy.end() &&
            (dir_to_init->find(parent) == dir_to_init->end() ||
             IsBetterInitPy((*dir_to_init)[parent], parent_init_py))) {
       (*dir_to_init)[parent] = parent_init_py;
       parent = strings::JoinPath(parent, "../");
-      parent_init_py = strings::JoinPath(parent, "__init__.py");
+      parent_init_py = strings::JoinPath(strings::PathDirname(parent_init_py), "__init__.py");
     }
   }
 }
@@ -187,7 +189,7 @@ void PyLibraryNode::FinishMakeFile(const Input& input,
   InitialInitPyMapping(deps, &dir_to_init);
 
   // Fill in unseen parent directories.
-  FillParentInitPy(&dir_to_init);
+  FillParentInitPy(&dir_to_init, input.pkgfile_dir());
 
   // Figure out which ones really exist.
   set<string> want;

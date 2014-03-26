@@ -111,6 +111,11 @@ Resource GoLibraryNode::GoFileFor(const Resource& r) const {
 }
 
 string GoLibraryNode::GoBuildPrefix() const {
+  if (strings::HasPrefix(input().pkgfile_dir(), "/")) {
+    // If the path is absolute, don't add $PWD.
+    return Makefile::Escape(
+      "GOPATH=" + input().pkgfile_dir() + ":$GOPATH");
+  }
   return Makefile::Escape(
       "GOPATH=$(pwd)/" + input().pkgfile_dir() + ":$GOPATH");
 }

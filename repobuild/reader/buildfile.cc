@@ -95,6 +95,8 @@ void BuildFile::MergeParent(BuildFile* parent) {
   for (BuildDependencyRewriter* rewriter : parent->rewriters_) {
     rewriters_.push_back(rewriter);
   }
+  registered_keys_.insert(parent->registered_keys_.begin(),
+			  parent->registered_keys_.end());
 }
 
 void BuildFile::MergeDependency(BuildFile* dependency) {

@@ -26,6 +26,7 @@ namespace repobuild {
 namespace {
 const char kTranslatorVar[] = "TRANSLATOR";
 const char kTranslatorOutputVar[] = "TRANSLATOR_OUTPUT";
+const char kTranslatorGensrcVar[] = "TRANSLATOR_GENSRC";
 }
 
 void TranslateAndCompileNode::Parse(BuildFile* file,
@@ -122,13 +123,11 @@ void TranslateAndCompileNode::Parse(BuildFile* file,
 	       << " language. Target is: " << target().full_path();
   }
 
-  build_cmd += " " + strings::JoinWith(
-      " ",
-      "-I" + Node::input().root_dir(),
-      "-I" + Node::input().genfile_dir(),
-      "-I" + Node::input().source_dir(),
-      "-I" + strings::JoinPath(Node::input().source_dir(),
-                               Node::input().genfile_dir()));  
+  // Common translator args
+  vector<string> translator_args;
+  current_reader()->ParseRepeatedString("translator_args", &translator_args);
+  build_cmd += " " + strings::JoinAll(translator_args, " ");
+
   build_cmd += " " + strings::JoinAll(input_files, " ");
 
   gen_node_->Set(build_cmd, "", input_files, outputs);
@@ -202,11 +201,14 @@ void TranslateAndCompileNode::GenerateCpp(
   outputs->insert(outputs->end(), cc_sources.begin(), cc_sources.end());
   outputs->insert(outputs->end(), cc_headers.begin(), cc_headers.end());
 
-  cc_node_ = NewSubNode<CCLibraryNode>(file);
+  cc_node_ = NewSubNodeWithCurrentDeps<CCLibraryNode>(file);
 
   // dummies:
   vector<Resource> objects;
   vector<string> cc_compile_args, header_compile_args;
+  current_reader()->ParseRepeatedString("cc.cc_compile_args", &cc_compile_args);
+  current_reader()->ParseRepeatedString("cc.header_compile_args",
+					&header_compile_args);
   cc_node_->Set(cc_sources, cc_headers, objects,
                 cc_compile_args, header_compile_args);
 
@@ -249,7 +251,7 @@ void TranslateAndCompileNode::GenerateJava(BuildFile* file,
   }
   outputs->insert(outputs->end(), java_sources.begin(), java_sources.end());
 
-  java_node_ = NewSubNode<JavaLibraryNode>(file);
+  java_node_ = NewSubNodeWithCurrentDeps<JavaLibraryNode>(file);
   java_node_->Set(file, input, java_sources);
 
   // Dependency fixing
@@ -272,7 +274,7 @@ void TranslateAndCompileNode::GeneratePython(
   }
   outputs->insert(outputs->end(), python_sources.begin(), python_sources.end());
 
-  py_node_ = NewSubNode<PyLibraryNode>(file);
+  py_node_ = NewSubNodeWithCurrentDeps<PyLibraryNode>(file);
   py_node_->Set(python_sources);
 
   // Dependency fixing
@@ -293,7 +295,7 @@ void TranslateAndCompileNode::GenerateGo(const vector<Resource>& input_prefixes,
   }
   outputs->insert(outputs->end(), go_sources.begin(), go_sources.end());
 
-  go_node_ = NewSubNode<GoLibraryNode>(file);
+  go_node_ = NewSubNodeWithCurrentDeps<GoLibraryNode>(file);
   go_node_->Set(go_sources);
 
   // Dependency fixing
@@ -330,12 +332,16 @@ void TranslateAndCompileNode::PostParse() {
   Node::PostParse();
 
   // Figure out where translator lives.
-  string translator = "translator";  // use system binary by default.
+  string translator = translator_;  // use system binary by default.
   ResourceFileSet dep_binaries;
   Binaries(NO_LANG, &dep_binaries);
   for (const Resource& r : dep_binaries.files()) {
     if (r.basename() == translator_) {
-      translator = "$(ROOT_DIR)/" + r.path();
+      if (r.path()[0] == '/') {
+	translator = r.path();
+      } else {
+	translator = "$(ROOT_DIR)/" + r.path();
+      }
       break;
     }
   }
@@ -344,6 +350,9 @@ void TranslateAndCompileNode::PostParse() {
   // Tell translator where to put generated source
   gen_node_->AddLocalEnvVariable(kTranslatorOutputVar,
 				 Node::input().genfile_dir());
+  // Tell translator where to find gen-src dir
+  gen_node_->AddLocalEnvVariable(kTranslatorGensrcVar,
+				 Node::input().source_dir());
 }
 
 void TranslateAndCompileNode::LocalWriteMake(Makefile* out) const {

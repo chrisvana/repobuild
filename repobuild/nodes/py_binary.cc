@@ -36,10 +36,19 @@ void PyBinaryNode::LocalWriteMake(Makefile* out) const {
   Resource egg = OutEgg();
   Makefile::Rule* rule = out->StartRule(bin.path(), egg.path());
   string module = py_default_module_.empty() ? "" : "-m " + py_default_module_;
-  rule->WriteCommand("echo 'PYTHONPATH=$$(pwd)/$$(dirname $$0)/" +
-                     egg.basename() +":$$PYTHONPATH python " + module +
-                     "' > " + bin.path() +
-                     "; chmod 755 " + bin.path());
+
+  // Create an actual binary rather than a wrapper script around an
+  // egg.
+  // FIXME(msolo) This is doing some amount of wasted work. There
+  // really isn't much reason to inherit from egg, but for now this is
+  // working.
+  string deps = sys_deps_.empty() ? "" : "-L " + strings::JoinAll(sys_deps_, " -L ");
+  rule->WriteCommand("plink --output " + bin.path() + " --main-file " + input().pkgfile_dir() + "/" + py_default_module_ + " " + deps + " --pkg-dir " + input().pkgfile_dir());
+
+  // rule->WriteCommand("echo 'PYTHONPATH=$$(pwd)/$$(dirname $$0)/" +
+  //                    egg.basename() +":$$PYTHONPATH python " + module +
+  //                    "' > " + bin.path() +
+  //                    "; chmod 755 " + bin.path());
   out->FinishRule(rule);
 
   WriteBaseUserTarget(out);

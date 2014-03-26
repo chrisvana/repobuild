@@ -67,22 +67,21 @@ void ConfigNode::Parse(BuildFile* file, const BuildFileNode& input) {
       component_root = target().dir();
     }
     component_.reset(new ComponentHelper(component_src, component_root));
-  }
-
-  source_dummy_file_ =
+ 
+    source_dummy_file_ =
       Resource::FromRootPath(DummyFile(SourceDir("")));
-  gendir_dummy_file_ =
+    gendir_dummy_file_ =
       Resource::FromRootPath(DummyFile(SourceDir(Node::input().genfile_dir())));
-  pkgfile_dummy_file_ =
+    pkgfile_dummy_file_ =
       Resource::FromRootPath(DummyFile(SourceDir(Node::input().pkgfile_dir())));
 
-  if (component_.get() != NULL) {
     file->AddDependencyRewriter(new ConfigRewriter(component_->Clone()));
   }
 }
 
 void ConfigNode::LocalWriteMake(Makefile* out) const {
   if (component_.get() == NULL) {
+    WriteBaseUserTarget(out);
     return;
   }
 
@@ -96,9 +95,13 @@ void ConfigNode::LocalWriteMake(Makefile* out) const {
   ResourceFileSet dirs;
 
   {  // (1) .gen-src symlink
+    // Linking from .gen* dirs into source code; use absolute path for
+    // link target because .gen* dirs may be in an arbitrary place.
     Resource dir = Resource::FromRootPath(source_dummy_file_.dirname());
     dirs.Add(dir);
-    AddSymlink(dir.path(), actual_dir, out);
+    AddSymlink(dir.path(), strings::JoinPath(input().full_root_dir(),
+					     actual_dir),
+	       out);
   }
 
   {  // (2) .gen-src/.gen-pkg symlink
@@ -125,10 +128,16 @@ void ConfigNode::AddSymlink(const string& dir,
                             const string& source,
                             Makefile* out) const {
   // Output link target.
-  string link = strings::JoinPath(
+  string link;
+  if (source[0] == '/') {
+    // Use absolute path
+    link = source;
+  } else {
+    link = strings::JoinPath(
       strings::Repeat("../",
                       strings::NumPathComponents(strings::PathDirname(dir))),
       source);
+  }
 
   // Write symlink.
   Makefile::Rule* rule = out->StartRule(dir);
