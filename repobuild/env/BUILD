@@ -5,7 +5,10 @@
      "cc_headers" : [ "input.h" ],
      "dependencies" : [
        "//common/base:flags",
-       "//common/strings:strutil"
+       "//common/file:fileutil",
+       "//common/log:log",
+       "//common/strings:strutil",
+       "//repobuild/third_party/json:json"
      ]
    }
  },

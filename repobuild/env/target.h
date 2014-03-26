@@ -16,6 +16,8 @@ class TargetInfo {
 
   ~TargetInfo() {}
 
+  bool IsAll() const { return local_path_ == "all"; }
+
   const std::string& full_path() const { return full_path_; }
   const std::string& build_file() const { return build_file_; }
   const std::string& dir() const { return dir_; }

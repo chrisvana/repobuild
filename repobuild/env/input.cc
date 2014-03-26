@@ -4,9 +4,13 @@
 #include <string>
 #include <vector>
 #include "common/base/flags.h"
+#include "common/file/fileutil.h"
+#include "common/log/log.h"
 #include "common/strings/path.h"
 #include "repobuild/env/input.h"
 #include "repobuild/env/target.h"
+#include "repobuild/reader/buildfile.h"
+#include "repobuild/third_party/json/json.h"
 
 DEFINE_bool(add_default_flags, true,
             "If false, we disable the default flags.");
@@ -111,7 +115,36 @@ const std::vector<std::string>& Input::flags(const std::string& key) const {
 
 void Input::AddBuildTarget(const TargetInfo& target) {
   if (build_target_set_.insert(target.full_path()).second) {
-    build_targets_.push_back(target);
+    if (target.IsAll()) {
+      LG << "processing :all";
+      BuildFile* file = new BuildFile(target.build_file());
+      // Parse the BUILD into a structured format.
+      string filestr = file::ReadFileToStringOrDie(file->filename());
+      file->Parse(filestr);
+      for (BuildFileNode* node : file->nodes()) {
+	LOG_IF(FATAL, !node->object().isObject())
+          << "Expected json object (file = " << file->filename() << "): "
+          << node->object();
+	for (const string& key : node->object().getMemberNames()) {
+	  LG << "key is " << key;
+	  if (key == "config" || key == "plugin") {
+	    continue;
+	  }
+	  const Json::Value& value = node->object()[key];
+	  const Json::Value& name = value["name"];
+	  LOG_IF(FATAL, name.asString() == "all") <<
+	    "Invalid node named \"all\" in " << target.build_file();
+	  if (name.isString()) {
+	    string path = target.dir() + ":" + name.asString();
+	    LG << ":all is adding " << path;
+	    AddBuildTarget(TargetInfo::FromUserPath(path));
+	  }
+	}
+      }
+    } else {
+      LG << "processing " << target.full_path();
+      build_targets_.push_back(target);
+    }
   }
 }
 
