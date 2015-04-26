@@ -23,7 +23,6 @@ namespace repobuild {
 namespace {  // TODO(cvanarsdale): Shared location with cc_library.cc.
 const char kConfigureArgs[] = "CONFIGURE_ARGS";
 const char kConfigureEnv[] = "CONFIGURE_ENV";
-const char kCGcc[] = "CC_GCC";
 const char kCxxGcc[] = "CXX_GCC";
 }
 

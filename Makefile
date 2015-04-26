@@ -80,7 +80,7 @@ export FlockScript
 
 
 .gen-src/common: .gen-files/.dummy.prereqs
-	@mkdir -p .gen-src; [ -d common ] || mkdir -p common; ln -f -s ../common .gen-src/common
+	@mkdir -p .gen-src; [ -d common ] || mkdir -p common; ln -n -f -s ../common .gen-src/common
 
 
 .gen-src/common/.dummy: .gen-src/common .gen-files/.dummy.prereqs
@@ -88,7 +88,7 @@ export FlockScript
 
 
 .gen-src/.gen-pkg/common: .gen-files/.dummy.prereqs
-	@mkdir -p .gen-src/.gen-pkg; [ -d .gen-pkg/common ] || mkdir -p .gen-pkg/common; ln -f -s ../../.gen-pkg/common .gen-src/.gen-pkg/common
+	@mkdir -p .gen-src/.gen-pkg; [ -d .gen-pkg/common ] || mkdir -p .gen-pkg/common; ln -n -f -s ../../.gen-pkg/common .gen-src/.gen-pkg/common
 
 
 .gen-src/.gen-pkg/common/.dummy: .gen-src/.gen-pkg/common .gen-files/.dummy.prereqs
@@ -96,7 +96,7 @@ export FlockScript
 
 
 .gen-src/.gen-files/common: .gen-files/.dummy.prereqs
-	@mkdir -p .gen-src/.gen-files; [ -d .gen-files/common ] || mkdir -p .gen-files/common; ln -f -s ../../.gen-files/common .gen-src/.gen-files/common
+	@mkdir -p .gen-src/.gen-files; [ -d .gen-files/common ] || mkdir -p .gen-files/common; ln -n -f -s ../../.gen-files/common .gen-src/.gen-files/common
 
 
 .gen-src/.gen-files/common/.dummy: .gen-src/.gen-files/common .gen-files/.dummy.prereqs
@@ -105,6 +105,76 @@ export FlockScript
 common/auto_.0: .gen-src/common .gen-src/.gen-pkg/common .gen-src/.gen-files/common
 
 .PHONY: common/auto_.0
+
+
+.gen-obj/common/third_party/google/gperftools/.perf_gen.0.dummy: .gen-src/common/.dummy .gen-src/.gen-files/common/.dummy .gen-src/.gen-pkg/common/.dummy .gen-files/.dummy.prereqs
+	@echo "Autoconf:   //common/third_party/google/gperftools:perf_gen.0"
+	@(mkdir -p .gen-files/common/third_party/google/gperftools; cd common/third_party/google/gperftools; GEN_DIR="$(ROOT_DIR)/.gen-files/common/third_party/google/gperftools"; OBJ_DIR="$(ROOT_DIR)/.gen-obj/common/third_party/google/gperftools"; SRC_DIR="$(ROOT_DIR)/.gen-src/common/third_party/google/gperftools" ROOT_DIR="$(ROOT_DIR)"  CXX_GCC="$(CXX_GCC)" CC_GCC="$(CC_GCC)" CC="$(CC)" CXX="$(CXX)" CXXFLAGS="$(CXXFLAGS)" BASIC_CXXFLAGS="$(BASIC_CXXFLAGS)" CFLAGS="$(CFLAGS)" BASIC_CFLAGS="$(BASIC_CFLAGS)" LDFLAGS="$(LDFLAGS)" MAKE="$(MAKE)" DEP_CXXFLAGS="" DEP_CFLAGS="" eval '(mkdir -p $$OBJ_DIR; DEST_DIR=$$GEN_DIR; $(CONFIGURE_ENV.common/third_party/google/gperftools/perf_gen) CXXFLAGS="$$BASIC_CXXFLAGS $$DEP_FLAGS $$USER_CXXFLAGS" CFLAGS="$$BASIC_CFLAGS $$DEP_FLAGS $$USER_CFLAGS" LDFLAGS="$$LDFLAGS $$USER_LDFLAGS" CC="$$CC" CXX="$$CXX" ./configure --prefix=/ --cache-file=$$GEN_DIR/config.cache )' > $(ROOT_DIR)/.gen-files/common/third_party/google/gperftools.perf_gen.0.logfile 2>&1 || (cat $(ROOT_DIR)/.gen-files/common/third_party/google/gperftools.perf_gen.0.logfile; exit 1) ) && (mkdir -p .gen-obj/common/third_party/google/gperftools; touch .gen-obj/common/third_party/google/gperftools/.perf_gen.0.dummy)
+
+common/third_party/google/gperftools/perf_gen.0: .gen-obj/common/third_party/google/gperftools/.perf_gen.0.dummy common/auto_.0
+
+.PHONY: common/third_party/google/gperftools/perf_gen.0
+
+
+.gen-obj/common/third_party/google/gperftools/.perf_gen.1.0.dummy: .gen-obj/common/third_party/google/gperftools/.perf_gen.0.dummy .gen-src/common/.dummy .gen-src/.gen-files/common/.dummy .gen-src/.gen-pkg/common/.dummy .gen-files/.dummy.prereqs
+	@echo "Make:       //common/third_party/google/gperftools:perf_gen.1.0"
+	@(mkdir -p .gen-files/common/third_party/google/gperftools; cd common/third_party/google/gperftools; GEN_DIR="$(ROOT_DIR)/.gen-files/common/third_party/google/gperftools"; OBJ_DIR="$(ROOT_DIR)/.gen-obj/common/third_party/google/gperftools"; SRC_DIR="$(ROOT_DIR)/.gen-src/common/third_party/google/gperftools" ROOT_DIR="$(ROOT_DIR)"  CXX_GCC="$(CXX_GCC)" CC_GCC="$(CC_GCC)" CC="$(CC)" CXX="$(CXX)" CXXFLAGS="$(CXXFLAGS)" BASIC_CXXFLAGS="$(BASIC_CXXFLAGS)" CFLAGS="$(CFLAGS)" BASIC_CFLAGS="$(BASIC_CFLAGS)" LDFLAGS="$(LDFLAGS)" MAKE="$(MAKE)" DEP_CXXFLAGS="" DEP_CFLAGS="" eval '($$MAKE DESTDIR=$$GEN_DIR -f Makefile install)' > $(ROOT_DIR)/.gen-files/common/third_party/google/gperftools.perf_gen.1.0.logfile 2>&1 || (cat $(ROOT_DIR)/.gen-files/common/third_party/google/gperftools.perf_gen.1.0.logfile; exit 1) ) && (mkdir -p .gen-obj/common/third_party/google/gperftools; touch .gen-obj/common/third_party/google/gperftools/.perf_gen.1.0.dummy)
+
+common/third_party/google/gperftools/perf_gen.1.0: .gen-obj/common/third_party/google/gperftools/.perf_gen.1.0.dummy common/third_party/google/gperftools/perf_gen.0 common/auto_.0
+
+.PHONY: common/third_party/google/gperftools/perf_gen.1.0
+
+
+.gen-files/common/third_party/google/gperftools/lib/libprofiler.a: .gen-obj/common/third_party/google/gperftools/.perf_gen.1.0.dummy .gen-files/.dummy.prereqs
+
+
+.gen-files/common/third_party/google/gperftools/lib/libtcmalloc_and_profiler.a: .gen-obj/common/third_party/google/gperftools/.perf_gen.1.0.dummy .gen-files/.dummy.prereqs
+
+
+.gen-files/common/third_party/google/gperftools/lib/libtcmalloc_minimal.a: .gen-obj/common/third_party/google/gperftools/.perf_gen.1.0.dummy .gen-files/.dummy.prereqs
+
+
+.gen-files/common/third_party/google/gperftools/lib/libtcmalloc.a: .gen-obj/common/third_party/google/gperftools/.perf_gen.1.0.dummy .gen-files/.dummy.prereqs
+
+
+.gen-files/common/third_party/google/gperftools/lib/libtcmalloc_debug.a: .gen-obj/common/third_party/google/gperftools/.perf_gen.1.0.dummy .gen-files/.dummy.prereqs
+
+
+.gen-files/common/third_party/google/gperftools/lib/libtcmalloc_minimal_debug.a: .gen-obj/common/third_party/google/gperftools/.perf_gen.1.0.dummy .gen-files/.dummy.prereqs
+
+common/third_party/google/gperftools/perf_gen.1: common/third_party/google/gperftools/perf_gen.0 common/third_party/google/gperftools/perf_gen.1.0 common/auto_.0
+
+.PHONY: common/third_party/google/gperftools/perf_gen.1
+
+CONFIGURE_ENV.common/third_party/google/gperftools/perf_gen := USER_CXXFLAGS=-msse4
+
+common/third_party/google/gperftools/perf_gen: common/third_party/google/gperftools/perf_gen.0 common/third_party/google/gperftools/perf_gen.1 common/auto_.0
+
+.PHONY: common/third_party/google/gperftools/perf_gen
+
+headers.common/third_party/google/gperftools/atomicops := common/third_party/google/gperftools/src/base/atomicops.h
+
+common/third_party/google/gperftools/atomicops: common/third_party/google/gperftools/perf_gen common/auto_.0
+
+.PHONY: common/third_party/google/gperftools/atomicops
+
+headers.common/base/atomicops := common/base/atomicops.h
+
+common/base/atomicops: common/third_party/google/gperftools/atomicops common/auto_.0
+
+.PHONY: common/base/atomicops
+
+headers.common/base/macros := common/base/macros.h
+
+common/base/macros: common/auto_.0
+
+.PHONY: common/base/macros
+
+headers.common/base/callback := common/base/callback.h
+
+common/base/callback: common/base/macros common/auto_.0
+
+.PHONY: common/base/callback
 
 c_compile_args.common/third_party/google/gflags/gflags := 
 ifeq ($(CC_GCC),1)
@@ -149,78 +219,6 @@ headers.common/third_party/google/gflags/gflags := common/third_party/google/gfl
 common/third_party/google/gflags/gflags: .gen-obj/common/third_party/google/gflags/src/gflags.cc.o .gen-obj/common/third_party/google/gflags/src/gflags_completions.cc.o .gen-obj/common/third_party/google/gflags/src/gflags_nc.cc.o .gen-obj/common/third_party/google/gflags/src/gflags_reporting.cc.o common/auto_.0
 
 .PHONY: common/third_party/google/gflags/gflags
-
-
-.gen-obj/common/third_party/google/gperftools/.perf_gen.0.dummy: .gen-src/common/.dummy .gen-src/.gen-files/common/.dummy .gen-src/.gen-pkg/common/.dummy $(headers.common/third_party/google/gflags/gflags) .gen-obj/common/third_party/google/gflags/src/gflags.cc.o .gen-obj/common/third_party/google/gflags/src/gflags_completions.cc.o .gen-obj/common/third_party/google/gflags/src/gflags_nc.cc.o .gen-obj/common/third_party/google/gflags/src/gflags_reporting.cc.o .gen-files/.dummy.prereqs
-	@echo "Autoconf:   //common/third_party/google/gperftools:perf_gen.0"
-	@(mkdir -p .gen-files/common/third_party/google/gperftools; cd common/third_party/google/gperftools; GEN_DIR="$(ROOT_DIR)/.gen-files/common/third_party/google/gperftools"; OBJ_DIR="$(ROOT_DIR)/.gen-obj/common/third_party/google/gperftools"; SRC_DIR="$(ROOT_DIR)/.gen-src/common/third_party/google/gperftools" ROOT_DIR="$(ROOT_DIR)"  CXX_GCC="$(CXX_GCC)" CC_GCC="$(CC_GCC)" CC="$(CC)" CXX="$(CXX)" CXXFLAGS="$(CXXFLAGS)" BASIC_CXXFLAGS="$(BASIC_CXXFLAGS)" CFLAGS="$(CFLAGS)" BASIC_CFLAGS="$(BASIC_CFLAGS)" LDFLAGS="$(LDFLAGS)" MAKE="$(MAKE)" GFLAGS_OBJS=".gen-obj/common/third_party/google/gflags/src/*.o" GFLAGS_SRC_ROOT="common/third_party/google/gflags/src" DEP_CXXFLAGS="$(cxx_header_compile_args.common/third_party/google/gflags/gflags)" DEP_CFLAGS="$(c_header_compile_args.common/third_party/google/gflags/gflags)" eval '(mkdir -p $$OBJ_DIR; DEST_DIR=$$GEN_DIR; $(CONFIGURE_ENV.common/third_party/google/gperftools/perf_gen) CXXFLAGS="$$BASIC_CXXFLAGS $$DEP_FLAGS $$USER_CXXFLAGS" CFLAGS="$$BASIC_CFLAGS $$DEP_FLAGS $$USER_CFLAGS" LDFLAGS="$$LDFLAGS $$USER_LDFLAGS" CC="$$CC" CXX="$$CXX" ./configure --prefix=/ --cache-file=$$GEN_DIR/config.cache $(CONFIGURE_ARGS.common/third_party/google/gperftools/perf_gen))' > $(ROOT_DIR)/.gen-files/common/third_party/google/gperftools.perf_gen.0.logfile 2>&1 || (cat $(ROOT_DIR)/.gen-files/common/third_party/google/gperftools.perf_gen.0.logfile; exit 1) ) && (mkdir -p .gen-obj/common/third_party/google/gperftools; touch .gen-obj/common/third_party/google/gperftools/.perf_gen.0.dummy)
-
-common/third_party/google/gperftools/perf_gen.0: .gen-obj/common/third_party/google/gperftools/.perf_gen.0.dummy common/third_party/google/gflags/gflags common/auto_.0
-
-.PHONY: common/third_party/google/gperftools/perf_gen.0
-
-
-.gen-obj/common/third_party/google/gperftools/.perf_gen.1.0.dummy: .gen-obj/common/third_party/google/gperftools/.perf_gen.0.dummy .gen-src/common/.dummy .gen-src/.gen-files/common/.dummy .gen-src/.gen-pkg/common/.dummy $(headers.common/third_party/google/gflags/gflags) .gen-obj/common/third_party/google/gflags/src/gflags.cc.o .gen-obj/common/third_party/google/gflags/src/gflags_completions.cc.o .gen-obj/common/third_party/google/gflags/src/gflags_nc.cc.o .gen-obj/common/third_party/google/gflags/src/gflags_reporting.cc.o .gen-files/.dummy.prereqs
-	@echo "Make:       //common/third_party/google/gperftools:perf_gen.1.0"
-	@(mkdir -p .gen-files/common/third_party/google/gperftools; cd common/third_party/google/gperftools; GEN_DIR="$(ROOT_DIR)/.gen-files/common/third_party/google/gperftools"; OBJ_DIR="$(ROOT_DIR)/.gen-obj/common/third_party/google/gperftools"; SRC_DIR="$(ROOT_DIR)/.gen-src/common/third_party/google/gperftools" ROOT_DIR="$(ROOT_DIR)"  CXX_GCC="$(CXX_GCC)" CC_GCC="$(CC_GCC)" CC="$(CC)" CXX="$(CXX)" CXXFLAGS="$(CXXFLAGS)" BASIC_CXXFLAGS="$(BASIC_CXXFLAGS)" CFLAGS="$(CFLAGS)" BASIC_CFLAGS="$(BASIC_CFLAGS)" LDFLAGS="$(LDFLAGS)" MAKE="$(MAKE)" GFLAGS_OBJS=".gen-obj/common/third_party/google/gflags/src/*.o" GFLAGS_SRC_ROOT="common/third_party/google/gflags/src" DEP_CXXFLAGS="$(cxx_header_compile_args.common/third_party/google/gflags/gflags)" DEP_CFLAGS="$(c_header_compile_args.common/third_party/google/gflags/gflags)" eval '($$MAKE DESTDIR=$$GEN_DIR -f Makefile install)' > $(ROOT_DIR)/.gen-files/common/third_party/google/gperftools.perf_gen.1.0.logfile 2>&1 || (cat $(ROOT_DIR)/.gen-files/common/third_party/google/gperftools.perf_gen.1.0.logfile; exit 1) ) && (mkdir -p .gen-obj/common/third_party/google/gperftools; touch .gen-obj/common/third_party/google/gperftools/.perf_gen.1.0.dummy)
-
-common/third_party/google/gperftools/perf_gen.1.0: .gen-obj/common/third_party/google/gperftools/.perf_gen.1.0.dummy common/third_party/google/gperftools/perf_gen.0 common/third_party/google/gflags/gflags common/auto_.0
-
-.PHONY: common/third_party/google/gperftools/perf_gen.1.0
-
-
-.gen-files/common/third_party/google/gperftools/lib/libprofiler.a: .gen-obj/common/third_party/google/gperftools/.perf_gen.1.0.dummy .gen-files/.dummy.prereqs
-
-
-.gen-files/common/third_party/google/gperftools/lib/libtcmalloc_and_profiler.a: .gen-obj/common/third_party/google/gperftools/.perf_gen.1.0.dummy .gen-files/.dummy.prereqs
-
-
-.gen-files/common/third_party/google/gperftools/lib/libtcmalloc_minimal.a: .gen-obj/common/third_party/google/gperftools/.perf_gen.1.0.dummy .gen-files/.dummy.prereqs
-
-
-.gen-files/common/third_party/google/gperftools/lib/libtcmalloc.a: .gen-obj/common/third_party/google/gperftools/.perf_gen.1.0.dummy .gen-files/.dummy.prereqs
-
-
-.gen-files/common/third_party/google/gperftools/lib/libtcmalloc_debug.a: .gen-obj/common/third_party/google/gperftools/.perf_gen.1.0.dummy .gen-files/.dummy.prereqs
-
-
-.gen-files/common/third_party/google/gperftools/lib/libtcmalloc_minimal_debug.a: .gen-obj/common/third_party/google/gperftools/.perf_gen.1.0.dummy .gen-files/.dummy.prereqs
-
-common/third_party/google/gperftools/perf_gen.1: common/third_party/google/gperftools/perf_gen.0 common/third_party/google/gflags/gflags common/third_party/google/gperftools/perf_gen.1.0 common/auto_.0
-
-.PHONY: common/third_party/google/gperftools/perf_gen.1
-
-CONFIGURE_ARGS.common/third_party/google/gperftools/perf_gen := --with-gflagssrc="$$ROOT_DIR/$$GFLAGS_SRC_ROOT" --with-gflagslib="$$ROOT_DIR/$$GFLAGS_OBJS"
-
-CONFIGURE_ENV.common/third_party/google/gperftools/perf_gen := USER_CXXFLAGS=-msse4
-
-common/third_party/google/gperftools/perf_gen: common/third_party/google/gflags/gflags common/third_party/google/gperftools/perf_gen.0 common/third_party/google/gperftools/perf_gen.1 common/auto_.0
-
-.PHONY: common/third_party/google/gperftools/perf_gen
-
-headers.common/third_party/google/gperftools/atomicops := common/third_party/google/gperftools/src/base/atomicops.h
-
-common/third_party/google/gperftools/atomicops: common/third_party/google/gperftools/perf_gen common/auto_.0
-
-.PHONY: common/third_party/google/gperftools/atomicops
-
-headers.common/base/atomicops := common/base/atomicops.h
-
-common/base/atomicops: common/third_party/google/gperftools/atomicops common/auto_.0
-
-.PHONY: common/base/atomicops
-
-headers.common/base/macros := common/base/macros.h
-
-common/base/macros: common/auto_.0
-
-.PHONY: common/base/macros
-
-headers.common/base/callback := common/base/callback.h
-
-common/base/callback: common/base/macros common/auto_.0
-
-.PHONY: common/base/callback
 
 headers.common/base/flags := common/base/flags.h
 
@@ -427,7 +425,7 @@ common/strings/strutil: .gen-obj/common/strings/strutil.cc.o .gen-obj/common/str
 
 
 .gen-src/repobuild: .gen-files/.dummy.prereqs
-	@mkdir -p .gen-src; [ -d repobuild ] || mkdir -p repobuild; ln -f -s ../repobuild .gen-src/repobuild
+	@mkdir -p .gen-src; [ -d repobuild ] || mkdir -p repobuild; ln -n -f -s ../repobuild .gen-src/repobuild
 
 
 .gen-src/repobuild/.dummy: .gen-src/repobuild .gen-files/.dummy.prereqs
@@ -435,7 +433,7 @@ common/strings/strutil: .gen-obj/common/strings/strutil.cc.o .gen-obj/common/str
 
 
 .gen-src/.gen-pkg/repobuild: .gen-files/.dummy.prereqs
-	@mkdir -p .gen-src/.gen-pkg; [ -d .gen-pkg/repobuild ] || mkdir -p .gen-pkg/repobuild; ln -f -s ../../.gen-pkg/repobuild .gen-src/.gen-pkg/repobuild
+	@mkdir -p .gen-src/.gen-pkg; [ -d .gen-pkg/repobuild ] || mkdir -p .gen-pkg/repobuild; ln -n -f -s ../../.gen-pkg/repobuild .gen-src/.gen-pkg/repobuild
 
 
 .gen-src/.gen-pkg/repobuild/.dummy: .gen-src/.gen-pkg/repobuild .gen-files/.dummy.prereqs
@@ -443,7 +441,7 @@ common/strings/strutil: .gen-obj/common/strings/strutil.cc.o .gen-obj/common/str
 
 
 .gen-src/.gen-files/repobuild: .gen-files/.dummy.prereqs
-	@mkdir -p .gen-src/.gen-files; [ -d .gen-files/repobuild ] || mkdir -p .gen-files/repobuild; ln -f -s ../../.gen-files/repobuild .gen-src/.gen-files/repobuild
+	@mkdir -p .gen-src/.gen-files; [ -d .gen-files/repobuild ] || mkdir -p .gen-files/repobuild; ln -n -f -s ../../.gen-files/repobuild .gen-src/.gen-files/repobuild
 
 
 .gen-src/.gen-files/repobuild/.dummy: .gen-src/.gen-files/repobuild .gen-files/.dummy.prereqs
@@ -555,7 +553,7 @@ repobuild/distsource/flock_pl: repobuild/distsource/flock_pl.0 repobuild/distsou
 headers.repobuild/distsource/git_tree := repobuild/distsource/git_tree.h
 
 
-.gen-obj/repobuild/distsource/git_tree.cc.o: .gen-src/common/.dummy .gen-src/.gen-files/common/.dummy .gen-src/.gen-pkg/common/.dummy $(headers.common/third_party/google/gflags/gflags) .gen-obj/common/third_party/google/gperftools/.perf_gen.0.dummy .gen-obj/common/third_party/google/gperftools/.perf_gen.1.0.dummy $(headers.common/third_party/google/gperftools/atomicops) $(headers.common/base/atomicops) $(headers.common/base/macros) $(headers.common/base/callback) $(headers.common/base/flags) .gen-obj/common/third_party/google/glog/.glog_gen.0.dummy .gen-obj/common/third_party/google/glog/.glog_gen.1.0.dummy $(headers.common/log/log) $(headers.common/third_party/google/init/init) $(headers.common/base/init) $(headers.common/base/mutex) $(headers.common/base/time) $(headers.common/base/types) $(headers.common/util/shell) $(headers.common/util/stl) .gen-obj/common/third_party/stringencoders/.stringencoders_conf.0.dummy .gen-obj/common/third_party/stringencoders/.stringencoders_conf.1.0.dummy $(headers.common/third_party/stringencoders/stringencoders) $(headers.common/third_party/google/re2/re2) $(headers.common/strings/strutil) .gen-src/repobuild/.dummy .gen-src/.gen-files/repobuild/.dummy .gen-src/.gen-pkg/repobuild/.dummy $(headers.repobuild/env/input) $(headers.repobuild/nodes/makefile) .gen-obj/repobuild/third_party/libgit2/.libgit2_make.0.dummy $(headers.repobuild/third_party/libgit2/libgit2) .gen-files/repobuild/distsource/flock_pl.h .gen-files/repobuild/distsource/flock_pl.cc $(headers.repobuild/distsource/flock_pl.0) $(headers.repobuild/distsource/git_tree) repobuild/distsource/git_tree.cc .gen-files/.dummy.prereqs
+.gen-obj/repobuild/distsource/git_tree.cc.o: .gen-obj/common/third_party/google/gperftools/.perf_gen.0.dummy .gen-obj/common/third_party/google/gperftools/.perf_gen.1.0.dummy .gen-src/common/.dummy .gen-src/.gen-files/common/.dummy .gen-src/.gen-pkg/common/.dummy $(headers.common/third_party/google/gperftools/atomicops) $(headers.common/base/atomicops) $(headers.common/base/macros) $(headers.common/base/callback) $(headers.common/third_party/google/gflags/gflags) $(headers.common/base/flags) .gen-obj/common/third_party/google/glog/.glog_gen.0.dummy .gen-obj/common/third_party/google/glog/.glog_gen.1.0.dummy $(headers.common/log/log) $(headers.common/third_party/google/init/init) $(headers.common/base/init) $(headers.common/base/mutex) $(headers.common/base/time) $(headers.common/base/types) $(headers.common/util/shell) $(headers.common/util/stl) .gen-obj/common/third_party/stringencoders/.stringencoders_conf.0.dummy .gen-obj/common/third_party/stringencoders/.stringencoders_conf.1.0.dummy $(headers.common/third_party/stringencoders/stringencoders) $(headers.common/third_party/google/re2/re2) $(headers.common/strings/strutil) .gen-src/repobuild/.dummy .gen-src/.gen-files/repobuild/.dummy .gen-src/.gen-pkg/repobuild/.dummy $(headers.repobuild/env/input) $(headers.repobuild/nodes/makefile) .gen-obj/repobuild/third_party/libgit2/.libgit2_make.0.dummy $(headers.repobuild/third_party/libgit2/libgit2) .gen-files/repobuild/distsource/flock_pl.h .gen-files/repobuild/distsource/flock_pl.cc $(headers.repobuild/distsource/flock_pl.0) $(headers.repobuild/distsource/git_tree) repobuild/distsource/git_tree.cc .gen-files/.dummy.prereqs
 	@mkdir -p .gen-obj/repobuild/distsource
 	@echo "Compiling:  repobuild/distsource/git_tree.cc (c++)"
 	@$(COMPILE.cc) -I. -I.gen-files -I.gen-files/common/third_party/google/glog/src -I.gen-files/common/third_party/google/gperftools/src -I.gen-src -I.gen-src/.gen-files -I.gen-src/common/third_party/google/glog/src -I.gen-src/common/third_party/google/gperftools/src -Icommon/third_party/google/glog/src -Icommon/third_party/google/gperftools/src $(cxx_header_compile_args.common/third_party/google/gflags/gflags) repobuild/distsource/git_tree.cc -o .gen-obj/repobuild/distsource/git_tree.cc.o
@@ -567,7 +565,7 @@ repobuild/distsource/git_tree: .gen-obj/repobuild/distsource/git_tree.cc.o commo
 headers.repobuild/distsource/dist_source_impl := repobuild/distsource/dist_source_impl.h
 
 
-.gen-obj/repobuild/distsource/dist_source_impl.cc.o: .gen-src/common/.dummy .gen-src/.gen-files/common/.dummy .gen-src/.gen-pkg/common/.dummy $(headers.common/third_party/google/gflags/gflags) .gen-obj/common/third_party/google/gperftools/.perf_gen.0.dummy .gen-obj/common/third_party/google/gperftools/.perf_gen.1.0.dummy $(headers.common/third_party/google/gperftools/atomicops) $(headers.common/base/atomicops) $(headers.common/base/macros) $(headers.common/base/callback) $(headers.common/base/flags) .gen-obj/common/third_party/google/glog/.glog_gen.0.dummy .gen-obj/common/third_party/google/glog/.glog_gen.1.0.dummy $(headers.common/log/log) $(headers.common/third_party/google/init/init) $(headers.common/base/init) $(headers.common/base/mutex) $(headers.common/base/time) $(headers.common/base/types) $(headers.common/file/fileutil) .gen-obj/common/third_party/stringencoders/.stringencoders_conf.0.dummy .gen-obj/common/third_party/stringencoders/.stringencoders_conf.1.0.dummy $(headers.common/third_party/stringencoders/stringencoders) $(headers.common/third_party/google/re2/re2) $(headers.common/strings/strutil) .gen-src/repobuild/.dummy .gen-src/.gen-files/repobuild/.dummy .gen-src/.gen-pkg/repobuild/.dummy $(headers.repobuild/nodes/makefile) $(headers.repobuild/distsource/dist_source) $(headers.common/util/shell) $(headers.common/util/stl) $(headers.repobuild/env/input) .gen-obj/repobuild/third_party/libgit2/.libgit2_make.0.dummy $(headers.repobuild/third_party/libgit2/libgit2) .gen-files/repobuild/distsource/flock_pl.h .gen-files/repobuild/distsource/flock_pl.cc $(headers.repobuild/distsource/flock_pl.0) $(headers.repobuild/distsource/git_tree) $(headers.repobuild/distsource/dist_source_impl) repobuild/distsource/dist_source_impl.cc .gen-files/.dummy.prereqs
+.gen-obj/repobuild/distsource/dist_source_impl.cc.o: .gen-obj/common/third_party/google/gperftools/.perf_gen.0.dummy .gen-obj/common/third_party/google/gperftools/.perf_gen.1.0.dummy .gen-src/common/.dummy .gen-src/.gen-files/common/.dummy .gen-src/.gen-pkg/common/.dummy $(headers.common/third_party/google/gperftools/atomicops) $(headers.common/base/atomicops) $(headers.common/base/macros) $(headers.common/base/callback) $(headers.common/third_party/google/gflags/gflags) $(headers.common/base/flags) .gen-obj/common/third_party/google/glog/.glog_gen.0.dummy .gen-obj/common/third_party/google/glog/.glog_gen.1.0.dummy $(headers.common/log/log) $(headers.common/third_party/google/init/init) $(headers.common/base/init) $(headers.common/base/mutex) $(headers.common/base/time) $(headers.common/base/types) $(headers.common/file/fileutil) .gen-obj/common/third_party/stringencoders/.stringencoders_conf.0.dummy .gen-obj/common/third_party/stringencoders/.stringencoders_conf.1.0.dummy $(headers.common/third_party/stringencoders/stringencoders) $(headers.common/third_party/google/re2/re2) $(headers.common/strings/strutil) .gen-src/repobuild/.dummy .gen-src/.gen-files/repobuild/.dummy .gen-src/.gen-pkg/repobuild/.dummy $(headers.repobuild/nodes/makefile) $(headers.repobuild/distsource/dist_source) $(headers.common/util/shell) $(headers.common/util/stl) $(headers.repobuild/env/input) .gen-obj/repobuild/third_party/libgit2/.libgit2_make.0.dummy $(headers.repobuild/third_party/libgit2/libgit2) .gen-files/repobuild/distsource/flock_pl.h .gen-files/repobuild/distsource/flock_pl.cc $(headers.repobuild/distsource/flock_pl.0) $(headers.repobuild/distsource/git_tree) $(headers.repobuild/distsource/dist_source_impl) repobuild/distsource/dist_source_impl.cc .gen-files/.dummy.prereqs
 	@mkdir -p .gen-obj/repobuild/distsource
 	@echo "Compiling:  repobuild/distsource/dist_source_impl.cc (c++)"
 	@$(COMPILE.cc) -I. -I.gen-files -I.gen-files/common/third_party/google/glog/src -I.gen-files/common/third_party/google/gperftools/src -I.gen-src -I.gen-src/.gen-files -I.gen-src/common/third_party/google/glog/src -I.gen-src/common/third_party/google/gperftools/src -Icommon/third_party/google/glog/src -Icommon/third_party/google/gperftools/src $(cxx_header_compile_args.common/third_party/google/gflags/gflags) repobuild/distsource/dist_source_impl.cc -o .gen-obj/repobuild/distsource/dist_source_impl.cc.o
@@ -962,19 +960,19 @@ repobuild/generator/generator: .gen-obj/repobuild/generator/generator.cc.o commo
 
 
 repobuild: .gen-obj/repobuild/repobuild .gen-files/.dummy.prereqs
-	@ln -f -s .gen-obj/repobuild/repobuild repobuild
+	@ln -f -s -n .gen-obj/repobuild/repobuild repobuild
 
 
 bin/repobuild: .gen-obj/repobuild/repobuild .gen-files/.dummy.prereqs
 	@mkdir -p bin
-	@ln -f -s ../.gen-obj/repobuild/repobuild bin/repobuild
+	@ln -f -s -n ../.gen-obj/repobuild/repobuild bin/repobuild
 
 repobuild/repobuild.0: repobuild/auto_.0
 
 .PHONY: repobuild/repobuild.0
 
 
-.gen-obj/repobuild/repobuild.cc.o: .gen-src/common/.dummy .gen-src/.gen-files/common/.dummy .gen-src/.gen-pkg/common/.dummy $(headers.common/third_party/google/gflags/gflags) .gen-obj/common/third_party/google/gperftools/.perf_gen.0.dummy .gen-obj/common/third_party/google/gperftools/.perf_gen.1.0.dummy $(headers.common/third_party/google/gperftools/atomicops) $(headers.common/base/atomicops) $(headers.common/base/macros) $(headers.common/base/callback) $(headers.common/base/flags) .gen-obj/common/third_party/google/glog/.glog_gen.0.dummy .gen-obj/common/third_party/google/glog/.glog_gen.1.0.dummy $(headers.common/log/log) $(headers.common/third_party/google/init/init) $(headers.common/base/init) $(headers.common/base/mutex) $(headers.common/base/time) $(headers.common/base/types) $(headers.common/file/fileutil) $(headers.common/third_party/google/re2/re2) .gen-obj/common/third_party/stringencoders/.stringencoders_conf.0.dummy .gen-obj/common/third_party/stringencoders/.stringencoders_conf.1.0.dummy $(headers.common/third_party/stringencoders/stringencoders) $(headers.common/strings/strutil) .gen-src/repobuild/.dummy .gen-src/.gen-files/repobuild/.dummy .gen-src/.gen-pkg/repobuild/.dummy $(headers.repobuild/nodes/makefile) $(headers.repobuild/distsource/dist_source) $(headers.common/util/shell) $(headers.common/util/stl) $(headers.repobuild/env/input) .gen-obj/repobuild/third_party/libgit2/.libgit2_make.0.dummy $(headers.repobuild/third_party/libgit2/libgit2) .gen-files/repobuild/distsource/flock_pl.h .gen-files/repobuild/distsource/flock_pl.cc $(headers.repobuild/distsource/flock_pl.0) $(headers.repobuild/distsource/git_tree) $(headers.repobuild/distsource/dist_source_impl) $(headers.repobuild/env/target) $(headers.repobuild/env/resource) $(headers.repobuild/third_party/json/json) $(headers.repobuild/reader/buildfile) $(headers.repobuild/nodes/util) $(headers.repobuild/nodes/node) $(headers.repobuild/nodes/gen_sh) $(headers.repobuild/nodes/autoconf) $(headers.repobuild/nodes/cmake) $(headers.repobuild/nodes/top_symlink) $(headers.repobuild/nodes/cc_binary) $(headers.repobuild/nodes/cc_embed_data) $(headers.repobuild/nodes/cc_library) $(headers.repobuild/nodes/cc_shared_library) $(headers.repobuild/nodes/confignode) $(headers.repobuild/nodes/execute_test) $(headers.repobuild/nodes/go_library) $(headers.repobuild/nodes/go_binary) $(headers.repobuild/nodes/go_test) $(headers.repobuild/nodes/java_library) $(headers.repobuild/nodes/java_jar) $(headers.repobuild/nodes/java_binary) $(headers.repobuild/nodes/make) $(headers.repobuild/nodes/plugin) $(headers.repobuild/nodes/py_library) $(headers.repobuild/nodes/py_egg) $(headers.repobuild/nodes/py_binary) $(headers.repobuild/nodes/translate_and_compile) $(headers.repobuild/nodes/allnodes) $(headers.repobuild/reader/parser) $(headers.repobuild/generator/generator) repobuild/repobuild.cc .gen-files/.dummy.prereqs
+.gen-obj/repobuild/repobuild.cc.o: .gen-obj/common/third_party/google/gperftools/.perf_gen.0.dummy .gen-obj/common/third_party/google/gperftools/.perf_gen.1.0.dummy .gen-src/common/.dummy .gen-src/.gen-files/common/.dummy .gen-src/.gen-pkg/common/.dummy $(headers.common/third_party/google/gperftools/atomicops) $(headers.common/base/atomicops) $(headers.common/base/macros) $(headers.common/base/callback) $(headers.common/third_party/google/gflags/gflags) $(headers.common/base/flags) .gen-obj/common/third_party/google/glog/.glog_gen.0.dummy .gen-obj/common/third_party/google/glog/.glog_gen.1.0.dummy $(headers.common/log/log) $(headers.common/third_party/google/init/init) $(headers.common/base/init) $(headers.common/base/mutex) $(headers.common/base/time) $(headers.common/base/types) $(headers.common/file/fileutil) $(headers.common/third_party/google/re2/re2) .gen-obj/common/third_party/stringencoders/.stringencoders_conf.0.dummy .gen-obj/common/third_party/stringencoders/.stringencoders_conf.1.0.dummy $(headers.common/third_party/stringencoders/stringencoders) $(headers.common/strings/strutil) .gen-src/repobuild/.dummy .gen-src/.gen-files/repobuild/.dummy .gen-src/.gen-pkg/repobuild/.dummy $(headers.repobuild/nodes/makefile) $(headers.repobuild/distsource/dist_source) $(headers.common/util/shell) $(headers.common/util/stl) $(headers.repobuild/env/input) .gen-obj/repobuild/third_party/libgit2/.libgit2_make.0.dummy $(headers.repobuild/third_party/libgit2/libgit2) .gen-files/repobuild/distsource/flock_pl.h .gen-files/repobuild/distsource/flock_pl.cc $(headers.repobuild/distsource/flock_pl.0) $(headers.repobuild/distsource/git_tree) $(headers.repobuild/distsource/dist_source_impl) $(headers.repobuild/env/target) $(headers.repobuild/env/resource) $(headers.repobuild/third_party/json/json) $(headers.repobuild/reader/buildfile) $(headers.repobuild/nodes/util) $(headers.repobuild/nodes/node) $(headers.repobuild/nodes/gen_sh) $(headers.repobuild/nodes/autoconf) $(headers.repobuild/nodes/cmake) $(headers.repobuild/nodes/top_symlink) $(headers.repobuild/nodes/cc_binary) $(headers.repobuild/nodes/cc_embed_data) $(headers.repobuild/nodes/cc_library) $(headers.repobuild/nodes/cc_shared_library) $(headers.repobuild/nodes/confignode) $(headers.repobuild/nodes/execute_test) $(headers.repobuild/nodes/go_library) $(headers.repobuild/nodes/go_binary) $(headers.repobuild/nodes/go_test) $(headers.repobuild/nodes/java_library) $(headers.repobuild/nodes/java_jar) $(headers.repobuild/nodes/java_binary) $(headers.repobuild/nodes/make) $(headers.repobuild/nodes/plugin) $(headers.repobuild/nodes/py_library) $(headers.repobuild/nodes/py_egg) $(headers.repobuild/nodes/py_binary) $(headers.repobuild/nodes/translate_and_compile) $(headers.repobuild/nodes/allnodes) $(headers.repobuild/reader/parser) $(headers.repobuild/generator/generator) repobuild/repobuild.cc .gen-files/.dummy.prereqs
 	@mkdir -p .gen-obj/repobuild
 	@echo "Compiling:  repobuild/repobuild.cc (c++)"
 	@$(COMPILE.cc) -I. -I.gen-files -I.gen-files/common/third_party/google/glog/src -I.gen-files/common/third_party/google/gperftools/src -I.gen-files/repobuild/third_party -I.gen-src -I.gen-src/.gen-files -I.gen-src/common/third_party/google/glog/src -I.gen-src/common/third_party/google/gperftools/src -I.gen-src/repobuild/third_party -Icommon/third_party/google/glog/src -Icommon/third_party/google/gperftools/src -Irepobuild/third_party $(cxx_header_compile_args.common/third_party/google/gflags/gflags) repobuild/repobuild.cc -o .gen-obj/repobuild/repobuild.cc.o
@@ -1196,7 +1194,7 @@ clean: .gen-files/.dummy.prereqs
 	@rm -rf .gen-src/common/.dummy
 	@rm -rf .gen-src/.gen-files/common/.dummy
 	@rm -rf .gen-src/.gen-pkg/common/.dummy
-	-@(mkdir -p .gen-files/common/third_party/google/gperftools; cd common/third_party/google/gperftools; GEN_DIR="$(ROOT_DIR)/.gen-files/common/third_party/google/gperftools"; OBJ_DIR="$(ROOT_DIR)/.gen-obj/common/third_party/google/gperftools"; SRC_DIR="$(ROOT_DIR)/.gen-src/common/third_party/google/gperftools" ROOT_DIR="$(ROOT_DIR)"  CXX_GCC="$(CXX_GCC)" CC_GCC="$(CC_GCC)" CC="$(CC)" CXX="$(CXX)" CXXFLAGS="$(CXXFLAGS)" BASIC_CXXFLAGS="$(BASIC_CXXFLAGS)" CFLAGS="$(CFLAGS)" BASIC_CFLAGS="$(BASIC_CFLAGS)" LDFLAGS="$(LDFLAGS)" MAKE="$(MAKE)" GFLAGS_OBJS=".gen-obj/common/third_party/google/gflags/src/*.o" GFLAGS_SRC_ROOT="common/third_party/google/gflags/src"  eval '($$MAKE DESTDIR=$$GEN_DIR clean > /dev/null 2>&1 || echo -n "")' > $(ROOT_DIR)/.gen-files/common/third_party/google/gperftools.perf_gen.1.0.logfile 2>&1 || (cat $(ROOT_DIR)/.gen-files/common/third_party/google/gperftools.perf_gen.1.0.logfile; exit 1) )
+	-@(mkdir -p .gen-files/common/third_party/google/gperftools; cd common/third_party/google/gperftools; GEN_DIR="$(ROOT_DIR)/.gen-files/common/third_party/google/gperftools"; OBJ_DIR="$(ROOT_DIR)/.gen-obj/common/third_party/google/gperftools"; SRC_DIR="$(ROOT_DIR)/.gen-src/common/third_party/google/gperftools" ROOT_DIR="$(ROOT_DIR)"  CXX_GCC="$(CXX_GCC)" CC_GCC="$(CC_GCC)" CC="$(CC)" CXX="$(CXX)" CXXFLAGS="$(CXXFLAGS)" BASIC_CXXFLAGS="$(BASIC_CXXFLAGS)" CFLAGS="$(CFLAGS)" BASIC_CFLAGS="$(BASIC_CFLAGS)" LDFLAGS="$(LDFLAGS)" MAKE="$(MAKE)"  eval '($$MAKE DESTDIR=$$GEN_DIR clean > /dev/null 2>&1 || echo -n "")' > $(ROOT_DIR)/.gen-files/common/third_party/google/gperftools.perf_gen.1.0.logfile 2>&1 || (cat $(ROOT_DIR)/.gen-files/common/third_party/google/gperftools.perf_gen.1.0.logfile; exit 1) )
 	-@(mkdir -p .gen-files/common/third_party/google/glog; cd common/third_party/google/glog; GEN_DIR="$(ROOT_DIR)/.gen-files/common/third_party/google/glog"; OBJ_DIR="$(ROOT_DIR)/.gen-obj/common/third_party/google/glog"; SRC_DIR="$(ROOT_DIR)/.gen-src/common/third_party/google/glog" ROOT_DIR="$(ROOT_DIR)"  CXX_GCC="$(CXX_GCC)" CC_GCC="$(CC_GCC)" CC="$(CC)" CXX="$(CXX)" CXXFLAGS="$(CXXFLAGS)" BASIC_CXXFLAGS="$(BASIC_CXXFLAGS)" CFLAGS="$(CFLAGS)" BASIC_CFLAGS="$(BASIC_CFLAGS)" LDFLAGS="$(LDFLAGS)" MAKE="$(MAKE)" GFLAGS_OBJS=".gen-obj/common/third_party/google/gflags/src/*.o" GFLAGS_SRC_ROOT="common/third_party/google/gflags/src"  eval '($$MAKE DESTDIR=$$GEN_DIR clean > /dev/null 2>&1 || echo -n "")' > $(ROOT_DIR)/.gen-files/common/third_party/google/glog.glog_gen.1.0.logfile 2>&1 || (cat $(ROOT_DIR)/.gen-files/common/third_party/google/glog.glog_gen.1.0.logfile; exit 1) )
 	-@(mkdir -p .gen-files/common/third_party/stringencoders; cd common/third_party/stringencoders; GEN_DIR="$(ROOT_DIR)/.gen-files/common/third_party/stringencoders"; OBJ_DIR="$(ROOT_DIR)/.gen-obj/common/third_party/stringencoders"; SRC_DIR="$(ROOT_DIR)/.gen-src/common/third_party/stringencoders" ROOT_DIR="$(ROOT_DIR)"  CXX_GCC="$(CXX_GCC)" CC_GCC="$(CC_GCC)" CC="$(CC)" CXX="$(CXX)" CXXFLAGS="$(CXXFLAGS)" BASIC_CXXFLAGS="$(BASIC_CXXFLAGS)" CFLAGS="$(CFLAGS)" BASIC_CFLAGS="$(BASIC_CFLAGS)" LDFLAGS="$(LDFLAGS)" MAKE="$(MAKE)"  eval '($$MAKE DESTDIR=$$GEN_DIR clean > /dev/null 2>&1 || echo -n "")' > $(ROOT_DIR)/.gen-files/common/third_party/stringencoders.stringencoders_conf.1.0.logfile 2>&1 || (cat $(ROOT_DIR)/.gen-files/common/third_party/stringencoders.stringencoders_conf.1.0.logfile; exit 1) )
 	@rm -rf .gen-src/repobuild/.dummy

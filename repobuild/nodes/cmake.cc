@@ -80,7 +80,13 @@ void CmakeNode::Parse(BuildFile* file, const BuildFileNode& input) {
       " (for f in $(ls -d $STAGING/$BASE/*); do"
       "  rm -rf $DEST_DIR/$(basename \"$f\"); mv $f $DEST_DIR || exit 1;"
       " done) &&"
-      " rm -rf $STAGING; else echo -n ''; "
+      " rm -rf $STAGING; "
+      "elif [ -d \"$STAGING/$GEN_DIR\" ]; then"
+      " (for f in $(ls -d $STAGING/$GEN_DIR/*); do"
+      "  rm -rf $DEST_DIR/$(basename \"$f\"); mv $f $DEST_DIR || exit 1;"
+      " done) &&"
+      " rm -rf $STAGING; "
+      " else echo -n ''; "
       "fi)";
   MakeNode* make = NewSubNode<MakeNode>(file);
   make->AddDependencyTarget(gen->target());
