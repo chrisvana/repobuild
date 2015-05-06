@@ -339,7 +339,8 @@ bool IsBasicFlag(const string& flag) {
   return (strings::HasPrefix(flag, "-stdlib") ||
           strings::HasPrefix(flag, "-std") ||  // redundant, but for clarity.
           strings::HasPrefix(flag, "-pthread") ||
-          strings::HasPrefix(flag, "-Qunused-arguments"));
+          strings::HasPrefix(flag, "-Qunused-arguments") ||
+          strings::HasPrefix(flag, "-m"));
 }
 
 string JoinFlags(const vector<string>& flags,
