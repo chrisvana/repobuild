@@ -38,8 +38,8 @@ void PyBinaryNode::LocalWriteMake(Makefile* out) const {
   string module = (py_default_module_.empty() ? egg.basename()
                    : "-m " + py_default_module_);
   rule->WriteCommand("echo 'PYTHONPATH=$$(cd $$(dirname $$0); pwd)/" +
-                     egg.basename() +":$$PYTHONPATH python " + module + " $$@" +
-                     "' > " + bin.path() +
+                     egg.basename() +":$$PYTHONPATH python " + module +
+                     " \"$$@\"' > " + bin.path() +
                      "; chmod 755 " + bin.path());
   out->FinishRule(rule);
 
